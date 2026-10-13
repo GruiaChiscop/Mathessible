@@ -31,6 +31,16 @@ class SpaceConversionTests(unittest.TestCase):
         self.assertEqual(edit.source, "\\cir ")
         self.assertFalse(edit.converted)
 
+    def test_naryand_marker_drops_the_spaces_before_it(self) -> None:
+        # The converter rejects "∫_-1^1 ▒x"; "∫_-1^1▒x" is the integral.
+        edit = convert_on_space("∫_-1^1 \\of", 10, control_words={"of": "▒"})
+        self.assertEqual(edit.source, "∫_-1^1▒")
+        self.assertEqual(edit.caret, 7)
+
+    def test_other_control_words_keep_the_spaces_before_them(self) -> None:
+        edit = convert_on_space("a \\circ", 7, control_words={"circ": "∘"})
+        self.assertEqual(edit.source, "a ∘")
+
     def test_inserts_space_when_no_conversion_matches(self) -> None:
         edit = convert_on_space("x+1", 3)
         self.assertEqual(edit.source, "x+1 ")

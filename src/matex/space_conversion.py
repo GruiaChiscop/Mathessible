@@ -87,7 +87,13 @@ def _control_word_match(
     symbol = table.get(source[start:caret])
     if symbol is None:
         return None
-    return start - 1, symbol
+    token_start = start - 1
+    if symbol == "▒":
+        # "∫_-1^1 \of": that space only ended the upper limit, but the
+        # converter rejects any space before ▒, so it goes with the word.
+        while token_start > 0 and source[token_start - 1] == " ":
+            token_start -= 1
+    return token_start, symbol
 
 
 def _shortcut_match(source: str, caret: int) -> tuple[int, str] | None:
