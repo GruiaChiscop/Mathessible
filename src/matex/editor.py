@@ -18,6 +18,7 @@ from .math_templates import (
     insert_integral_template,
     insert_matrix_template,
     insert_product_template,
+    insert_root_template,
     insert_square_root_template,
     insert_subscript_template,
     insert_sum_template,
@@ -88,8 +89,8 @@ if wx is not None:
         """The word-navigation modifier: Option on macOS, Ctrl elsewhere."""
         return event.AltDown() if wx.Platform == "__WXMAC__" else event.ControlDown()
 
-    def _nary_limits_down(event: wx.KeyEvent) -> bool:
-        """The with-limits n-ary modifier: the physical Control key on macOS, Alt elsewhere.
+    def _template_variant_down(event: wx.KeyEvent) -> bool:
+        """The template-variant modifier (limits, n-th root): physical Control on macOS, Alt elsewhere.
 
         Not Option on macOS: Option+S/P/I type ß, π and a dead key there
         (the same reason the equation shortcut is Control+=).
@@ -782,17 +783,19 @@ if wx is not None:
             if self.mode == "linear" and key in (wx.WXK_LEFT, wx.WXK_RIGHT) and _word_navigation_down(event):
                 self._word_step(-1 if key == wx.WXK_LEFT else 1, extend=event.ShiftDown())
                 return
-            if self.mode == "linear" and _nary_limits_down(event):
-                # Control+I/S/P (Alt elsewhere): integral/sum/product with limits.
+            if self.mode == "linear" and _template_variant_down(event):
+                # Control+I/S/P/R (Alt elsewhere): integral/sum/product with
+                # limits, n-th root -- variants of Cmd+I/S/P/R.
                 inserters = {
-                    ord("I"): insert_integral_template,
-                    ord("S"): insert_sum_template,
-                    ord("P"): insert_product_template,
+                    ord("I"): lambda source, caret: insert_integral_template(source, caret, limits=True),
+                    ord("S"): lambda source, caret: insert_sum_template(source, caret, limits=True),
+                    ord("P"): lambda source, caret: insert_product_template(source, caret, limits=True),
+                    ord("R"): insert_root_template,
                 }
                 letters = {event.GetKeyCode(), event.GetUnicodeKey()}
                 inserter = next((inserters[code] for code in inserters if letters & {code, code + 32}), None)
                 if inserter is not None:
-                    edit = inserter(self.document.source, self.caret, limits=True)
+                    edit = inserter(self.document.source, self.caret)
                     self._replace_linear(edit.source, edit.caret)
                     self._announce(edit.announcement)
                     return

@@ -69,7 +69,7 @@ equation language; the gap is entirely in the editing UX layered on top.
    mirroring Word's own character-formatting shortcuts), absolute value
    (Ctrl+\\), integral/sum/product (Ctrl+I/Ctrl+S/Ctrl+P bare `∫▒`, caret
    after `▒`; with limits `∫_()^()▒` on Control+I/S/P on macOS — the
-   physical Control key, `_nary_limits_down`, since Option+S/P/I type
+   physical Control key, `_template_variant_down`, since Option+S/P/I type
    ß/π/a dead key — and Alt+I/S/P elsewhere). The naryand after `▒` is
    never a slot (`▒`'s argument is not paren-transparent); empty limits
    are clean zero-width `mspace`s. `_nary_limit` makes `_(...)`/`^(...)`
@@ -87,8 +87,11 @@ equation language; the gap is entirely in the editing UX layered on top.
    not offered as a fence — the converter returns it as two loose `<mo>`s,
    not a grouped mrow. Plain Cmd+M is avoided because macOS's Window menu
    claims it for Minimize.
-   Still missing: general n-th-root (only plain `√()` exists, not
-   `√(n&x)`), Function, Limit/Log, Operator. **Accent mostly doesn't
+   N-th root: `√(&)` on Control+R (Alt+R elsewhere; Cmd+R stays `√()`),
+   caret in the index; a top-level `&` inside `√(...)` splits it into
+   "index" and "radicand" slots (`_root_index_separator`). Unlike empty
+   n-ary limits, an empty index is a parse error until filled in.
+   Still missing: Function, Limit/Log, Operator. **Accent mostly doesn't
    work**: only `\overline(...)` converts
    cleanly through the vendored `UnicodeMathML` engine — `\hat`, `\vec`,
    `\bar`, `\dot`, `\tilde` all fail as control words (confirmed by direct

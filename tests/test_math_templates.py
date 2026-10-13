@@ -14,6 +14,7 @@ from matex.math_templates import (
     insert_integral_template,
     insert_matrix_template,
     insert_product_template,
+    insert_root_template,
     insert_square_root_template,
     insert_subscript_template,
     insert_sum_template,
@@ -264,6 +265,30 @@ class MathTemplateTests(unittest.TestCase):
 
     def test_ordinary_scripts_are_not_limits(self) -> None:
         self.assertEqual(move_to_slot("x_(i)^(2)", 3).announcement, "superscript, 2")
+
+    def test_root_template_starts_in_the_index(self) -> None:
+        edit = insert_root_template("x=", 2)
+        self.assertEqual((edit.source, edit.caret, edit.announcement), ("x=√(&)", 4, "root template, empty index"))
+
+    def test_tab_goes_from_the_index_to_the_radicand_and_out(self) -> None:
+        radicand = move_to_slot("√(&)", 2)
+        self.assertEqual((radicand.caret, radicand.announcement), (3, "empty radicand"))
+        out = move_to_slot("√(&)", radicand.caret)
+        self.assertEqual((out.caret, out.announcement), (4, "end root"))
+
+    def test_filled_root_slots_are_announced_with_their_content(self) -> None:
+        self.assertEqual(move_to_slot("√(3&x+1)", 0).announcement, "index, 3")
+        self.assertEqual(move_to_slot("√(3&x+1)", 3).announcement, "radicand, x+1")
+
+    def test_a_square_root_is_still_a_single_radicand(self) -> None:
+        self.assertEqual(move_to_slot("√(x)", 0).announcement, "radicand, x")
+
+    def test_a_root_inside_a_matrix_cell_keeps_both_apart(self) -> None:
+        source = "(■(√(3&x)&2))"
+        # The root's "&" does not split the cell; its slots sit inside cell 1.
+        self.assertEqual(move_to_slot(source, 4).announcement, "index, 3")
+        self.assertEqual(move_to_slot(source, 6).announcement, "radicand, x")
+        self.assertEqual(move_to_slot(source, 8).announcement, "cell, row 1, column 2, 2")
 
     def test_matrix_template_has_empty_cells_and_caret_in_the_first(self) -> None:
         edit = insert_matrix_template("A=", 2, rows=2, columns=3)

@@ -46,6 +46,16 @@ def insert_square_root_template(source: str, caret: int) -> TemplateEdit:
     return _insert_template(source, caret, "√()", first_slot_offset=2, announcement="square root template, empty radicand")
 
 
+def insert_root_template(source: str, caret: int) -> TemplateEdit:
+    """`√(&)`: an n-th root, caret in the index; Tab goes on to the radicand.
+
+    Unlike empty n-ary limits, an empty index is a parse error for the
+    converter (`√(&x)` fails, `√(3&x)` is an mroot), the usual transient
+    state of a template that has not been filled in yet.
+    """
+    return _insert_template(source, caret, "√(&)", first_slot_offset=2, announcement="root template, empty index")
+
+
 def insert_absolute_value_template(source: str, caret: int) -> TemplateEdit:
     return _insert_template(source, caret, "|()|", first_slot_offset=2, announcement="absolute value template, empty value")
 
@@ -370,10 +380,30 @@ def _slots(source: str) -> list[_Slot]:
             )
         )
     for opening, closing in pairs.items():
+        separator = _root_index_separator(source, opening, closing, pairs)
+        if separator is not None:
+            slots.append(_Slot(opening + 1, separator, "root", "index", closing + 1))
+            slots.append(_Slot(separator + 1, closing, "root", "radicand", closing + 1))
+            continue
         detected = _detect_group(source, opening, closing)
         if detected is not None:
             slots.append(_Slot(opening + 1, closing, *detected))
     return sorted(slots, key=lambda slot: (slot.start, -slot.end))
+
+
+def _root_index_separator(source: str, opening: int, closing: int, pairs: dict[int, int]) -> int | None:
+    """The `&` splitting `√(index&radicand)` at the root's own depth, if any."""
+    if opening == 0 or source[opening - 1] != "√":
+        return None
+    index = opening + 1
+    while index < closing:
+        if source[index] == "(" and index in pairs:
+            index = pairs[index] + 1
+            continue
+        if source[index] == "&":
+            return index
+        index += 1
+    return None
 
 
 def _past_fence(source: str, start: int, end: int) -> int:
