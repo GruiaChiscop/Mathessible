@@ -1,0 +1,102 @@
+import unittest
+
+from matex.mathcat import MathCatNavigator
+from matex.model import EquationDocument
+
+
+class MathCatTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.navigator = MathCatNavigator(language="en")
+        self.document = EquationDocument("a/(b+c)")
+
+    def test_expression_speech_comes_from_mathcat(self) -> None:
+        speech = self.navigator.load(self.document.mathml)
+        self.assertIn("fraction", speech)
+        self.assertIn("plus", speech)
+
+    def test_operator_is_reached_by_mathcat_navigation(self) -> None:
+        self.navigator.load(self.document.mathml)
+        commands = [
+            "ZoomIn",     # numerator
+            "MoveNext",   # denominator
+            "ZoomIn",     # opening parenthesis
+            "MoveNext",   # b + c
+            "ZoomIn",     # b
+            "MoveNext",   # plus
+        ]
+        speech = ""
+        for command in commands:
+            speech = self.navigator.command(command)
+        self.assertEqual(speech, "plus")
+        self.assertEqual(self.navigator.current_path, (1, 0, 1))
+
+    def test_math_edges_are_stops_of_their_own(self) -> None:
+        # Left at the start used to leave the cursor on the first item, so
+        # Right after "start of math" skipped straight to the second one.
+        mathml = "<math><mi>a</mi><mo>+</mo><mi>b</mi></math>"
+        for linear in (True, False):
+            with self.subTest(linear=linear):
+                navigator = MathCatNavigator(language="en", auto_zoom_out=linear)
+                navigator.load(mathml)
+                step = navigator.linear_command if linear else navigator.command_with_boundaries
+                first = navigator.command("ZoomIn")
+                self.assertEqual(step("MovePrevious"), "start of math")
+                self.assertEqual(step("MovePrevious"), "start of math")
+                self.assertEqual(step("MoveNext"), first)
+                self.assertEqual(step("MoveNext"), "plus")
+                last = step("MoveNext")
+                self.assertEqual(step("MoveNext"), "end of math")
+                self.assertEqual(step("MovePrevious"), last)
+                self.assertEqual(step("MovePrevious"), "plus")
+
+    def test_structure_stops_give_every_structure_a_start_and_an_end(self) -> None:
+        mathml = (
+            "<math><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><mi>c</mi></mfrac>"
+            "<mo>=</mo><mn>1</mn></math>"
+        )
+        navigator = MathCatNavigator(language="en", auto_zoom_out=True, boundary_stops=True)
+        navigator.load(mathml)
+        navigator.command("ZoomIn")  # Enters on "start of math".
+        forward = [navigator.linear_command("MoveNext") for _ in range(14)]
+        self.assertEqual(
+            forward,
+            [
+                "start fraction", "start numerator", "eigh", "plus", "b", "end numerator",
+                "start denominator", "c", "end denominator", "end fraction",
+                "is equal to", "1", "end of math", "end of math",
+            ],
+        )
+        backward = [navigator.linear_command("MovePrevious") for _ in range(14)]
+        self.assertEqual(backward, list(reversed(forward[:-2])) + ["start of math", "start of math"])
+
+
+    def test_structural_stops_frame_each_level(self) -> None:
+        mathml = (
+            "<math><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><mi>c</mi></mfrac>"
+            "<mo>=</mo><mn>1</mn></math>"
+        )
+        navigator = MathCatNavigator(language="en", auto_zoom_out=False, structural_stops=True)
+        navigator.load(mathml)
+        navigator.command("ZoomIn")  # Enters on "start of math".
+        step = navigator.structural_command
+        fraction = step("MoveNext")
+        self.assertIn("fraction", fraction)
+        self.assertEqual(step("MoveNext"), "is equal to")
+        self.assertEqual(step("MoveNext"), "1")
+        self.assertEqual(step("MoveNext"), "end of math")
+        self.assertEqual(step("MovePrevious"), "1")
+        for _ in range(2):
+            step("MovePrevious")
+        self.assertEqual(step("MovePrevious"), "start of math")
+        self.assertEqual(step("MoveNext"), fraction)
+        self.assertEqual(step("ZoomIn"), "start fraction")
+        self.assertEqual(step("MoveNext"), "numerator, eigh plus b")
+        self.assertEqual(step("MoveNext"), "denominator, c")
+        self.assertEqual(step("MoveNext"), "end fraction")
+        self.assertEqual(step("MovePrevious"), "denominator, c")
+        self.assertEqual(step("ZoomOut"), fraction)
+
+
+if __name__ == "__main__":
+    unittest.main()
+

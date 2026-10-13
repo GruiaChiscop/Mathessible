@@ -1,0 +1,15 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/.venv": true,
+      "**/.tools": true,
+      "**/.uv-cache": true,
+      "**/native/mathcat_py/target": true
+    }
+  }
+}

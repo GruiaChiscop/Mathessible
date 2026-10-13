@@ -1,0 +1,12 @@
+.venv/
+.tools/
+.uv-cache/
+.DS_Store
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+target/
+native/mathcat_py/target/

@@ -1,0 +1,17 @@
+[package]
+name = "matex-mathcat"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "matex_mathcat"
+crate-type = ["cdylib"]
+
+[dependencies]
+mathcat = { path = "../../MathCAT", features = ["include-zip"] }
+pyo3 = { version = "0.27", features = ["extension-module", "abi3-py312"] }
+
+[profile.release]
+lto = true
+strip = true
+
