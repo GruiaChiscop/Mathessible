@@ -37,6 +37,12 @@ if wx is not None:
             )
             self.structure_stops.SetName("Stop at structure start and end")
             self.structure_stops.SetValue(settings.structure_stops)
+            self.invisible_operator_stops = wx.CheckBox(
+                self,
+                label="Stop at invisible operators (for example the invisible times in 3x)",
+            )
+            self.invisible_operator_stops.SetName("Stop at invisible operators")
+            self.invisible_operator_stops.SetValue(settings.invisible_operator_stops)
             self.convert_on_space = wx.CheckBox(
                 self,
                 label="Convert shortcuts when Space is pressed",
@@ -82,6 +88,7 @@ if wx is not None:
             sizer.Add(heading, 0, wx.ALL, 12)
             sizer.Add(self.linear_navigation, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.structure_stops, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
+            sizer.Add(self.invisible_operator_stops, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.convert_on_space, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.build_on_space, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.auto_zoom_out, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
@@ -96,6 +103,7 @@ if wx is not None:
         def apply(self) -> None:
             self._settings.linear_navigation = self.linear_navigation.GetValue()
             self._settings.structure_stops = self.structure_stops.GetValue()
+            self._settings.invisible_operator_stops = self.invisible_operator_stops.GetValue()
             self._settings.convert_on_space = self.convert_on_space.GetValue()
             self._settings.build_on_space = self.build_on_space.GetValue()
             self._settings.auto_zoom_out = self.auto_zoom_out.GetValue()

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass
 
 from .editor import EquationEditor
@@ -98,6 +99,9 @@ if wx is not None:
             self.settings = settings or AppSettings()
             self.output = output or create_output()
             self._session: EquationEditSession | None = None
+            # Called with True before the equation dialog opens and False once
+            # it has closed (the main frame swaps its Edit menu items).
+            self.on_equation_editing: Callable[[bool], None] | None = None
 
             self.markdown = wx.TextCtrl(
                 self,
@@ -186,7 +190,13 @@ if wx is not None:
             if content:
                 wx.CallAfter(self.equation_dialog.equation.read_expression)
             self.equation_dialog.CentreOnParent()
-            result = self.equation_dialog.ShowModal()
+            if self.on_equation_editing is not None:
+                self.on_equation_editing(True)
+            try:
+                result = self.equation_dialog.ShowModal()
+            finally:
+                if self.on_equation_editing is not None:
+                    self.on_equation_editing(False)
             session = self._session
             self._session = None
             if session is None:

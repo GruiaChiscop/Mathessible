@@ -5,6 +5,7 @@ import threading
 from .build_triggers import build_source_for_trigger, build_trigger_for
 from .character_speech import character_name, deleted_character, inserted_character
 from .layout import Line, Text, professional_layout
+from .macos_webview import guard_webview_key_equivalents
 from .edit_history import EditHistory, EditState
 from .mathcat import MathCatNavigator, create_mathcat_navigator
 from .math_templates import (
@@ -124,6 +125,7 @@ if wx is not None:
                 auto_zoom_out=self._auto_zoom_out,
                 boundary_stops=self._boundary_stops,
                 structural_stops=self._structural_stops,
+                invisible_operator_stops=self.settings.invisible_operator_stops,
             )
             self.mode = "linear"
             self.caret = len(source)
@@ -173,6 +175,8 @@ if wx is not None:
             try:
                 page, base_url = renderer_page()
                 self._webview = wx.html2.WebView.New(self)
+                # Never focused, so it must not take Cmd+A/C/V/X either.
+                guard_webview_key_equivalents()
                 self._webview.SetName("")
                 self._webview.Hide()
                 # Purely visual: keyboard focus and speech stay with the editor.
@@ -419,6 +423,7 @@ if wx is not None:
                 self.mathcat.auto_zoom_out = self._auto_zoom_out
                 self.mathcat.boundary_stops = self._boundary_stops
                 self.mathcat.structural_stops = self._structural_stops
+                self.mathcat.invisible_operator_stops = self.settings.invisible_operator_stops
                 if self.mathcat.mathml:
                     try:
                         self.mathcat.load(self.mathcat.mathml, keep_position=True)
@@ -428,6 +433,7 @@ if wx is not None:
                             auto_zoom_out=self._auto_zoom_out,
                             boundary_stops=self._boundary_stops,
                             structural_stops=self._structural_stops,
+                            invisible_operator_stops=self.settings.invisible_operator_stops,
                         )
             if self.mode == "professional":
                 self._sync_mathcat_cursor()

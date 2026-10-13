@@ -57,6 +57,8 @@ ALLOWED_MATHML_TAGS = frozenset(
     }
 )
 
+SCRIPT_TAGS = frozenset({"msub", "msup", "msubsup", "munder", "mover", "munderover", "mmultiscripts"})
+
 # Presentation attributes plus the accessibility-only "intent"/"arg" pair
 # MathCAT relies on. Deliberately excludes anything a browser treats as a
 # behavior or resource hook (href, src, style, on*, xlink:*).
@@ -487,10 +489,17 @@ class MathMLDocument:
         return self._function_name_index(node) is not None
 
     def _function_name_index(self, node: MathMLNode) -> int | None:
+        # A script's base is not applied to its scripts: in ln² the 2 is a
+        # superscript, and the whole msup is the function name of its row.
+        if node.tag in SCRIPT_TAGS:
+            return None
         for index, child in enumerate(node.children):
-            if self._is_function_name(child):
+            if self._is_function_name(child) or self._is_scripted_function_name(child):
                 return index
         return None
+
+    def _is_scripted_function_name(self, node: MathMLNode) -> bool:
+        return node.tag in SCRIPT_TAGS and bool(node.children) and self._is_function_name(node.children[0])
 
     def _function_argument_index(self, node: MathMLNode) -> int | None:
         name_index = self._function_name_index(node)

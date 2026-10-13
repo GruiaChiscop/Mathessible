@@ -70,6 +70,35 @@ class MathCatTests(unittest.TestCase):
         self.assertEqual(backward, list(reversed(forward[:-2])) + ["start of math", "start of math"])
 
 
+    def test_invisible_times_is_not_a_linear_stop(self) -> None:
+        # Converter output for "3x+1"; MathCAT reads its own invisible times
+        # back as the bare U+2062 character, a stop VoiceOver says nothing on.
+        navigator = MathCatNavigator(language="en", auto_zoom_out=True, boundary_stops=True)
+        navigator.load("<math><mn>3</mn><mi>𝑥</mi><mo>+</mo><mn>1</mn></math>")
+        navigator.command("ZoomIn")
+        forward = [navigator.linear_command("MoveNext") for _ in range(5)]
+        self.assertEqual(forward, ["3", "x", "plus", "1", "end of math"])
+
+    def test_invisible_operator_stops_read_invisible_times_by_name(self) -> None:
+        mathml = "<math><mn>3</mn><mi>𝑥</mi><mo>+</mo><mn>1</mn></math>"
+        linear = MathCatNavigator(
+            language="en", auto_zoom_out=True, boundary_stops=True, invisible_operator_stops=True
+        )
+        linear.load(mathml)
+        linear.command("ZoomIn")
+        forward = [linear.linear_command("MoveNext") for _ in range(6)]
+        self.assertEqual(forward, ["3", "invisible times", "x", "plus", "1", "end of math"])
+        structural = MathCatNavigator(
+            language="en", auto_zoom_out=False, structural_stops=True, invisible_operator_stops=True
+        )
+        structural.load(mathml)
+        structural.command("ZoomIn")
+        step = structural.structural_command
+        self.assertEqual(step("MoveNext"), "3 x")
+        self.assertEqual(step("ZoomIn"), "start group")
+        forward = [step("MoveNext") for _ in range(4)]
+        self.assertEqual(forward, ["3", "invisible times", "x", "end group"])
+
     def test_structural_stops_frame_each_level(self) -> None:
         mathml = (
             "<math><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><mi>c</mi></mfrac>"

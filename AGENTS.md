@@ -231,6 +231,19 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   handlers can run inside that nested loop too: F2 (`_toggle_mode`) and
   `read_expression` retry for ~1 s instead of reporting "busy"; build-on-Space
   (`_try_build_on_trigger`) still just skips the build then.
+- **Trap — Cmd+A/C/V/X on macOS:** wx 3.2's `WXWKWebView`
+  (webview_webkit.mm) handles those in `performKeyEquivalent:` without
+  checking focus, and AppKit offers key equivalents to every view in the key
+  window — so the document preview stole Cmd+A from the Markdown editor and
+  the equation renderer stole it from the equation editor.
+  [macos_webview.py](src/matex/macos_webview.py) replaces that one method
+  (ctypes, Objective-C runtime) to act only when the web view has the focus.
+  Separately, the stock Edit ids `wxID_CUT/COPY/PASTE/SELECTALL` are native
+  actions only a native text view can perform; while the custom-drawn
+  equation dialog is open, `MainFrame._use_equation_edit_items` swaps them for
+  plain-id items so the key reaches `EquationEditor._on_key_down`. The
+  Markdown editor keeps the stock ids. Verified by the user with a key log,
+  not by synthetic events (CGEventPostToPid results were inconsistent here).
 - **Document preview** (View → Document Preview, `show_preview` setting,
   off by default): a second WebView in a splitter beside the Markdown
   editor, filled via `html_export.preview_update_script` (same sanitized

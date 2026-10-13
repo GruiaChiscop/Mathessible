@@ -76,6 +76,15 @@ class MathMLModelTests(unittest.TestCase):
         self.assertEqual(document.exited_regions("tg", "x"), ("function name",))
         self.assertEqual(document.entered_regions("tg", "x"), ("argument",))
 
+    def test_a_function_power_is_a_superscript_not_the_argument(self) -> None:
+        # Converter output for "sin^2 x"; the 2 used to be read as the argument.
+        document = MathMLDocument.parse(
+            """<math><mrow intent=":function"><msup id="power"><mi id="sin">sin</mi>
+            <mn id="two">2</mn></msup><mo id="apply">⁡</mo><mi id="x">𝑥</mi></mrow></math>"""
+        )
+        self.assertEqual(document.regions("two"), ("superscript",))
+        self.assertEqual(document.regions("x"), ("argument",))
+
     def test_mathcat_speech_is_augmented_when_leaving_integrand(self) -> None:
         navigator = MathCatNavigator(language="en")
         navigator.load(INTEGRAL)

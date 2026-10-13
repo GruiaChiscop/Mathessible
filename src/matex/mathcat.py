@@ -40,6 +40,14 @@ class _LinearStop:
 
 
 _MAX_LINEAR_STOPS = 2000
+_INVISIBLE_OPERATORS = "\u2061\u2062\u2063\u2064"
+# MathCAT reads these back as the bare character, which not every screen
+# reader names (function application is spoken as "of", so is not here).
+_INVISIBLE_OPERATOR_NAMES = {
+    "\u2062": "invisible times",
+    "\u2063": "invisible separator",
+    "\u2064": "invisible plus",
+}
 _LINEAR_SEARCH_BUDGET = 0.25  # seconds
 
 
@@ -64,6 +72,9 @@ class MathCatNavigator:
     # standalone "start X"/"end X" stops around them, Down/Up change level
     # (see `structural_command`).
     structural_stops: bool = False
+    # Invisible times/separator/plus get a stop of their own in both
+    # navigation modes, read by name ("invisible times").
+    invisible_operator_stops: bool = False
     _native: object = field(init=False, repr=False)
     mathml: str = field(default="", init=False)
     structure: MathMLDocument | None = field(default=None, init=False)
@@ -377,10 +388,19 @@ class MathCatNavigator:
             self.recognized_functions,
             self.auto_zoom_out,
             self.boundary_stops,
+            self.invisible_operator_stops,
         )
 
         def job() -> tuple[_LinearStop, ...]:
-            language, speech_style, verbosity, recognized_functions, auto_zoom_out, boundary_stops = settings
+            (
+                language,
+                speech_style,
+                verbosity,
+                recognized_functions,
+                auto_zoom_out,
+                boundary_stops,
+                invisible_operator_stops,
+            ) = settings
             worker = MathCatNavigator(
                 language=language,
                 speech_style=speech_style,
@@ -388,6 +408,7 @@ class MathCatNavigator:
                 recognized_functions=recognized_functions,
                 auto_zoom_out=auto_zoom_out,
                 boundary_stops=boundary_stops,
+                invisible_operator_stops=invisible_operator_stops,
             )
             worker.load(mathml)
             while worker.extend_linear_stops(64):
@@ -556,6 +577,7 @@ class MathCatNavigator:
             speech = self._navigate("ReadCurrent")
         except RuntimeError:
             speech = " ".join(node.content.split())
+        speech = _INVISIBLE_OPERATOR_NAMES.get(speech.strip(), speech)
         role = self.structure.semantic_role(node.identifier)
         return f"{role}, {speech}" if role else speech
 
@@ -598,11 +620,16 @@ class MathCatNavigator:
             return "parentheses"
         return "group"
 
+    def _skips_invisible_operator(self, text: str) -> bool:
+        if text.strip(_INVISIBLE_OPERATORS + " \t\n"):
+            return False
+        return not (self.invisible_operator_stops and text.strip() in _INVISIBLE_OPERATOR_NAMES)
+
     def _level_items(self, node: MathMLNode) -> list[MathMLNode]:
         """The items one level inside `node`, skipping what is never a stop.
 
-        Invisible operators (function application, invisible times) and a
-        matrix's own fences (MathCAT reads those as the whole matrix) are
+        Invisible operators (function application, and invisible times unless
+        `invisible_operator_stops`) and a matrix's own fences (MathCAT reads those as the whole matrix) are
         left out, and a lone unlabeled wrapper row is looked through.
         """
         structure = self.structure
@@ -612,7 +639,7 @@ class MathCatNavigator:
             child
             for child in node.children
             if child.identifier
-            and not (child.tag == "mo" and (fenced_table or not child.content.strip("\u2061\u2062\u2063\u2064 ")))
+            and not (child.tag == "mo" and (fenced_table or self._skips_invisible_operator(child.content)))
         ]
         if (
             len(items) == 1
@@ -682,8 +709,9 @@ class MathCatNavigator:
                     speech = self._navigate("ReadCurrent")
                 except RuntimeError:
                     speech = " ".join(leaf.content.split())
-                if not speech.strip():
-                    continue  # Invisible times, function application, ...
+                if self._skips_invisible_operator(speech):
+                    continue
+                speech = _INVISIBLE_OPERATOR_NAMES.get(speech.strip(), speech)
                 # A function name is a single word: "start function name,
                 # sine, end function name" would only be noise.
                 entries = tuple(
@@ -895,6 +923,7 @@ def create_mathcat_navigator(
     auto_zoom_out: bool = True,
     boundary_stops: bool = False,
     structural_stops: bool = False,
+    invisible_operator_stops: bool = False,
 ) -> MathCatNavigator | None:
     try:
         return MathCatNavigator(
@@ -902,6 +931,7 @@ def create_mathcat_navigator(
             auto_zoom_out=auto_zoom_out,
             boundary_stops=boundary_stops,
             structural_stops=structural_stops,
+            invisible_operator_stops=invisible_operator_stops,
         )
     except (ImportError, OSError, RuntimeError, ValueError):
         return None

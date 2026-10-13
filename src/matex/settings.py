@@ -26,6 +26,8 @@ class AppSettings:
     # Every structure gets standalone "start X"/"end X" stops, and the math
     # "start of math"/"end of math" -- in linear and structural navigation.
     structure_stops: bool = True
+    # Invisible times (the "3x" in 3x) and friends get a stop of their own.
+    invisible_operator_stops: bool = False
     convert_on_space: bool = True
     build_on_space: bool = True
     auto_zoom_out: bool = False
@@ -46,6 +48,7 @@ def load_settings(path: Path | None = None) -> AppSettings:
     return AppSettings(
         linear_navigation=bool(data.get("linear_navigation", False)),
         structure_stops=bool(data.get("structure_stops", True)),
+        invisible_operator_stops=bool(data.get("invisible_operator_stops", False)),
         convert_on_space=bool(data.get("convert_on_space", True)),
         build_on_space=bool(data.get("build_on_space", True)),
         auto_zoom_out=bool(data.get("auto_zoom_out", False)),
