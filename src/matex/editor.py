@@ -33,7 +33,7 @@ from .mathml_model import MathMLDocument, MathMLModelError, sanitize_mathml
 from .model import EquationDocument
 from .settings import AppSettings
 from .speech import AssistiveOutput, create_output
-from .space_conversion import convert_on_space
+from .space_conversion import convert_before_character, convert_on_space, convert_shortcut_on_character
 from .theme import Palette, palette
 from .unicodemath import (
     ConversionResult,
@@ -1111,6 +1111,24 @@ if wx is not None:
                 codepoint = event.GetUnicodeKey()
                 if codepoint not in (wx.WXK_NONE, 0) and codepoint >= 32:
                     value = chr(codepoint)
+                    if self._selection_range() is None:
+                        edit = convert_before_character(
+                            self.document.source,
+                            self.caret,
+                            value,
+                            enabled=self.settings.convert_on_space,
+                            control_words=_converter_control_words(),
+                        )
+                        if edit is not None:
+                            self._replace_linear(edit.source, edit.caret)
+                            self._announce(f"{edit.announcement}, {inserted_character(value)}")
+                            return
+                        if self.settings.convert_shortcuts_immediately:
+                            edit = convert_shortcut_on_character(self.document.source, self.caret, value)
+                            if edit is not None:
+                                self._replace_linear(edit.source, edit.caret)
+                                self._announce(edit.announcement)
+                                return
                     if not self._replace_selection(value):
                         self._replace_linear(
                             self.document.source[: self.caret] + value + self.document.source[self.caret :],

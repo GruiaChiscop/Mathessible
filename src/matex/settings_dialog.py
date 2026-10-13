@@ -45,10 +45,16 @@ if wx is not None:
             self.invisible_operator_stops.SetValue(settings.invisible_operator_stops)
             self.convert_on_space = wx.CheckBox(
                 self,
-                label="Convert shortcuts when Space is pressed",
+                label="Convert control words (for example \\alpha) when Space or punctuation is typed",
             )
-            self.convert_on_space.SetName("Convert on Space")
+            self.convert_on_space.SetName("Convert control words while typing")
             self.convert_on_space.SetValue(settings.convert_on_space)
+            self.convert_shortcuts_immediately = wx.CheckBox(
+                self,
+                label="Convert symbol shortcuts (for example << or ->) as soon as they are typed",
+            )
+            self.convert_shortcuts_immediately.SetName("Convert symbol shortcuts immediately")
+            self.convert_shortcuts_immediately.SetValue(settings.convert_shortcuts_immediately)
             self.auto_zoom_out = wx.CheckBox(
                 self,
                 label="Leave a structure automatically at its end (for example, from the numerator to the denominator)",
@@ -84,6 +90,7 @@ if wx is not None:
             sizer.Add(self.structure_stops, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.invisible_operator_stops, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.convert_on_space, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
+            sizer.Add(self.convert_shortcuts_immediately, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.auto_zoom_out, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(explanation, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
             sizer.Add(functions_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
@@ -98,6 +105,7 @@ if wx is not None:
             self._settings.structure_stops = self.structure_stops.GetValue()
             self._settings.invisible_operator_stops = self.invisible_operator_stops.GetValue()
             self._settings.convert_on_space = self.convert_on_space.GetValue()
+            self._settings.convert_shortcuts_immediately = self.convert_shortcuts_immediately.GetValue()
             self._settings.auto_zoom_out = self.auto_zoom_out.GetValue()
             self._settings.recognized_functions = parse_recognized_functions(
                 self.recognized_functions.GetValue()

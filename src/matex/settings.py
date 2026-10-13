@@ -28,7 +28,10 @@ class AppSettings:
     structure_stops: bool = True
     # Invisible times (the "3x" in 3x) and friends get a stop of their own.
     invisible_operator_stops: bool = False
+    # Control words (\alpha) on Space or punctuation, and shortcuts (->) on Space.
     convert_on_space: bool = True
+    # Symbol shortcuts (<<, ->, <=) as soon as their last character is typed.
+    convert_shortcuts_immediately: bool = True
     auto_zoom_out: bool = False
     show_preview: bool = False
     recognized_functions: tuple[str, ...] = DEFAULT_RECOGNIZED_FUNCTIONS
@@ -49,6 +52,7 @@ def load_settings(path: Path | None = None) -> AppSettings:
         structure_stops=bool(data.get("structure_stops", True)),
         invisible_operator_stops=bool(data.get("invisible_operator_stops", False)),
         convert_on_space=bool(data.get("convert_on_space", True)),
+        convert_shortcuts_immediately=bool(data.get("convert_shortcuts_immediately", True)),
         auto_zoom_out=bool(data.get("auto_zoom_out", False)),
         show_preview=bool(data.get("show_preview", False)),
         recognized_functions=_normalize_functions(data.get("recognized_functions")),

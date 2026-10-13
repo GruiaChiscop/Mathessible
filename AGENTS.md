@@ -36,12 +36,17 @@ equation language; the gap is entirely in the editing UX layered on top.
   "Linear"/"Professional" in its own equation right-click menu).
 - Tab-to-empty-slot template navigation
   ([math_templates.py](src/matex/math_templates.py)).
-- Convert-on-space autocorrect
-  ([space_conversion.py](src/matex/space_conversion.py)): Space after a
-  control word replaces it using the converter's own table
-  (`unicodemath.control_words()`, ~680 words read from UnicodeMathML's
-  `controlWords` JS, so it follows the submodule), anywhere it is typed
-  (`2\pi` → `2π`), plus a few typed shortcuts (`->`, `<=`, ...).
+- Math AutoCorrect while typing
+  ([space_conversion.py](src/matex/space_conversion.py)): a control word
+  converts on Space (the space is consumed — it can change the grouping,
+  `1/\pi x` vs `1/π x`) or on punctuation/operators (kept: `\int_` →
+  `∫_`), using the converter's own table (`unicodemath.control_words()`,
+  ~680 words read from UnicodeMathML's `controlWords` JS, so it follows the
+  submodule), anywhere it is typed (`2\pi` → `2π`); `\of` → `▒` also drops
+  the spaces before it (the converter rejects ` ▒`). Symbol shortcuts
+  (`<<`, `->`, `...`; `SHORTCUTS`) convert as soon as their last character
+  is typed (`convert_shortcuts_immediately` setting), a longer one
+  replacing an already converted prefix (`←` + `>` → `↔`).
 - Selection, clipboard (Cmd/Ctrl+C/X/V), word navigation, and a right-click
   context menu in linear mode, all platform-correct (`CmdDown()` for the
   primary modifier, Option-not-Command for word movement on macOS — see

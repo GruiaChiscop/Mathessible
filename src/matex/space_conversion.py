@@ -4,14 +4,24 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 
 
-# Typed shortcuts that are not control words.
+# Typed shortcuts that are not control words (a subset of Word's math
+# AutoCorrect list). Some extend others: "<-" then ">" is "<->".
 SHORTCUTS = {
     "=>": "⇒",
     "->": "→",
     "<-": "←",
+    "<->": "↔",
+    "<=>": "⇔",
     ">=": "≥",
     "<=": "≤",
     "!=": "≠",
+    "<<": "≪",
+    ">>": "≫",
+    "+-": "±",
+    "-+": "∓",
+    "~=": "≅",
+    ":=": "≔",
+    "...": "…",
 }
 
 # Used only when the converter's own table (unicodemath.control_words) cannot
@@ -68,6 +78,54 @@ def convert_on_space(
     updated = source[:token_start] + replacement + source[caret:]
     new_caret = token_start + len(replacement)
     return SpaceConversion(updated, new_caret, replacement, True)
+
+
+def convert_before_character(
+    source: str,
+    caret: int,
+    character: str,
+    enabled: bool = True,
+    control_words: Mapping[str, str] | None = None,
+) -> SpaceConversion | None:
+    """Typing punctuation or an operator right after a control word converts it, as in Word.
+
+    `\\int_` becomes `∫_`: unlike Space, the typed character is kept. Letters
+    and digits never trigger (they continue the word, as in `\\2root`), nor do
+    typed shortcuts (`->` is only converted by Space). None when nothing
+    converts and the character should be inserted as usual.
+    """
+    caret = max(0, min(caret, len(source)))
+    if not enabled or character.isspace() or (character.isascii() and character.isalnum()):
+        return None
+    match = _control_word_match(source, caret, control_words)
+    if match is None:
+        return None
+    token_start, replacement = match
+    updated = source[:token_start] + replacement + character + source[caret:]
+    return SpaceConversion(updated, token_start + len(replacement) + len(character), replacement, True)
+
+
+def convert_shortcut_on_character(source: str, caret: int, character: str) -> SpaceConversion | None:
+    """The typed character completes a shortcut: convert it at once (`<` + `<` is `≪`).
+
+    A shortcut that extends an already converted one replaces its symbol:
+    `←` (from "<-") followed by ">" becomes `↔`. None when nothing completes.
+    """
+    caret = max(0, min(caret, len(source)))
+    for token in sorted(SHORTCUTS, key=len, reverse=True):
+        if token[-1] != character:
+            continue
+        prefix = token[:-1]
+        candidates = [prefix]
+        if prefix in SHORTCUTS:
+            candidates.append(SHORTCUTS[prefix])  # Already converted on the way.
+        for typed in candidates:
+            start = caret - len(typed)
+            if start >= 0 and source[start:caret] == typed:
+                replacement = SHORTCUTS[token]
+                updated = source[:start] + replacement + source[caret:]
+                return SpaceConversion(updated, start + len(replacement), replacement, True)
+    return None
 
 
 def _insert_space(source: str, caret: int) -> SpaceConversion:

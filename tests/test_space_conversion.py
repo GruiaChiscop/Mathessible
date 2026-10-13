@@ -1,6 +1,6 @@
 import unittest
 
-from matex.space_conversion import convert_on_space
+from matex.space_conversion import convert_before_character, convert_on_space, convert_shortcut_on_character
 
 
 class SpaceConversionTests(unittest.TestCase):
@@ -40,6 +40,41 @@ class SpaceConversionTests(unittest.TestCase):
     def test_other_control_words_keep_the_spaces_before_them(self) -> None:
         edit = convert_on_space("a \\circ", 7, control_words={"circ": "∘"})
         self.assertEqual(edit.source, "a ∘")
+
+    def test_punctuation_after_a_control_word_converts_and_is_kept(self) -> None:
+        edit = convert_before_character("\\int", 4, "_", control_words={"int": "∫"})
+        self.assertEqual(edit.source, "∫_")
+        self.assertEqual(edit.caret, 2)
+        self.assertEqual(edit.announcement, "∫")
+
+    def test_letters_digits_and_spaces_do_not_trigger_on_typing(self) -> None:
+        for character in ("a", "2", " "):
+            with self.subTest(character=character):
+                self.assertIsNone(convert_before_character("\\int", 4, character, control_words={"int": "∫"}))
+
+    def test_typing_after_a_shortcut_or_unknown_word_does_not_convert(self) -> None:
+        self.assertIsNone(convert_before_character("a->", 3, "(", control_words={}))
+        self.assertIsNone(convert_before_character("\\cir", 4, "+", control_words={"circ": "∘"}))
+
+    def test_typing_converts_in_the_middle_of_the_source(self) -> None:
+        edit = convert_before_character("\\alpha=1", 6, "+", control_words={"alpha": "α"})
+        self.assertEqual((edit.source, edit.caret), ("α+=1", 2))
+
+    def test_shortcut_converts_when_its_last_character_is_typed(self) -> None:
+        edit = convert_shortcut_on_character("a<", 2, "<")
+        self.assertEqual((edit.source, edit.caret, edit.announcement), ("a≪", 2, "≪"))
+
+    def test_a_longer_shortcut_extends_an_already_converted_one(self) -> None:
+        self.assertEqual(convert_shortcut_on_character("x←", 2, ">").source, "x↔")
+        self.assertEqual(convert_shortcut_on_character("≤", 1, ">").source, "⇔")
+
+    def test_three_dots_become_an_ellipsis(self) -> None:
+        self.assertIsNone(convert_shortcut_on_character("x.", 2, "."))
+        self.assertEqual(convert_shortcut_on_character("x..", 3, ".").source, "x…")
+
+    def test_a_character_that_completes_no_shortcut_is_left_alone(self) -> None:
+        self.assertIsNone(convert_shortcut_on_character("a", 1, "<"))
+        self.assertIsNone(convert_shortcut_on_character("x", 1, "-"))
 
     def test_inserts_space_when_no_conversion_matches(self) -> None:
         edit = convert_on_space("x+1", 3)
