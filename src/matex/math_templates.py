@@ -17,8 +17,19 @@ MATRIX_FENCES = {
 _CLOSING_FENCES = {"(": ")", "[": "]", "|": "|"}
 # N-ary operators whose `_(...)`/`^(...)` groups are limits, not scripts.
 NARY_LABELS = {"∫": "integral", "∬": "integral", "∭": "integral", "∮": "integral", "∑": "sum", "∏": "product"}
-# What Tab past the last limit lands in (the names MathMLDocument uses too).
-NARYAND_ROLES = {"integral": "integrand", "sum": "summand", "product": "factor"}
+# Functions whose `_(...)` is part of the function: (template, slot role).
+# The argument follows a space ("lim_(n→∞) a_n"): with no separator the
+# converter folds it into the subscript, and "▒" is a parse error there.
+FUNCTION_SCRIPTS = {"lim": ("limit", "limit condition"), "log": ("logarithm", "base")}
+# What Tab past a template's last slot lands in, after its "▒" or space
+# (the n-ary names are the ones MathMLDocument uses too).
+NARYAND_ROLES = {
+    "integral": "integrand",
+    "sum": "summand",
+    "product": "factor",
+    "limit": "argument",
+    "logarithm": "argument",
+}
 
 
 @dataclass(frozen=True, slots=True)
@@ -44,6 +55,16 @@ def insert_fraction_template(source: str, caret: int) -> TemplateEdit:
 
 def insert_square_root_template(source: str, caret: int) -> TemplateEdit:
     return _insert_template(source, caret, "√()", first_slot_offset=2, announcement="square root template, empty radicand")
+
+
+def insert_limit_template(source: str, caret: int) -> TemplateEdit:
+    """`lim_() `: caret in the limit condition; Tab goes on to the argument."""
+    return _insert_template(source, caret, "lim_() ", first_slot_offset=5, announcement="limit template, empty limit condition")
+
+
+def insert_logarithm_template(source: str, caret: int) -> TemplateEdit:
+    """`log_() `: caret in the base; Tab goes on to the argument. An empty base is fine."""
+    return _insert_template(source, caret, "log_() ", first_slot_offset=5, announcement="logarithm template, empty base")
 
 
 def insert_root_template(source: str, caret: int) -> TemplateEdit:
@@ -349,7 +370,7 @@ def move_to_slot(source: str, caret: int, reverse: bool = False) -> TemplateEdit
     if not around:
         return None
     current = around[-1]
-    if current.template in NARYAND_ROLES and source[current.exit - 1 : current.exit] == "▒":
+    if current.template in NARYAND_ROLES and source[current.exit - 1 : current.exit] in ("▒", " "):
         naryand = NARYAND_ROLES[current.template]
         return TemplateEdit(source, current.exit, naryand if current.exit < len(source) else f"empty {naryand}")
     return TemplateEdit(source, current.exit, f"end {current.template}")
@@ -481,6 +502,23 @@ def _nary_limit(source: str, opening: int, closing: int) -> tuple[str, str, int]
     return label, role, exit
 
 
+def _function_script(source: str, opening: int, closing: int) -> tuple[str, str, int] | None:
+    """The `_(...)` of `lim_(...)`/`log_(...)`; Tab past it lands after the space before the argument."""
+    if opening < 1 or source[opening - 1] != "_":
+        return None
+    for name, (template, role) in FUNCTION_SCRIPTS.items():
+        start = opening - 1 - len(name)
+        if start < 0 or source[start : opening - 1] != name:
+            continue
+        if start > 0 and source[start - 1].isalpha():
+            continue  # Part of a longer word.
+        exit = closing + 1
+        if source[exit : exit + 1] == " ":
+            exit += 1
+        return template, role, exit
+    return None
+
+
 def _detect_group(source: str, opening: int, closing: int) -> tuple[str, str, int] | None:
     """Classify a "(...)" group as a template argument: (template, role, exit).
 
@@ -496,7 +534,7 @@ def _detect_group(source: str, opening: int, closing: int) -> tuple[str, str, in
     """
     before = source[opening - 1] if opening > 0 else ""
     after = source[closing + 1] if closing + 1 < len(source) else ""
-    nary = _nary_limit(source, opening, closing)
+    nary = _nary_limit(source, opening, closing) or _function_script(source, opening, closing)
     if nary is not None:
         return nary
     if before == "/":

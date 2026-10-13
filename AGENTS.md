@@ -91,7 +91,14 @@ equation language; the gap is entirely in the editing UX layered on top.
    caret in the index; a top-level `&` inside `√(...)` splits it into
    "index" and "radicand" slots (`_root_index_separator`). Unlike empty
    n-ary limits, an empty index is a parse error until filled in.
-   Still missing: Function, Limit/Log, Operator. **Accent mostly doesn't
+   Limit/Log: `lim_() ` (Cmd+L) and `log_() ` (Control+L on macOS, Alt+L
+   elsewhere), caret in the condition/base, Tab to the argument after the
+   space. The space is required: `lim_(n→∞)a_n` folds the argument into the
+   subscript and `lim_(...)▒` is a parse error, while `lim_(n→∞) a_n` is a
+   function application; empty conditions/bases convert cleanly
+   (`FUNCTION_SCRIPTS`, `_function_script`). Plain functions need no
+   template: `sin x`, `ln x`, `sin(x)` already convert as functions.
+   Still missing: Operator. **Accent mostly doesn't
    work**: only `\overline(...)` converts
    cleanly through the vendored `UnicodeMathML` engine — `\hat`, `\vec`,
    `\bar`, `\dot`, `\tilde` all fail as control words (confirmed by direct

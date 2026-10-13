@@ -16,6 +16,8 @@ from .math_templates import (
     insert_matrix_row,
     insert_fraction_template,
     insert_integral_template,
+    insert_limit_template,
+    insert_logarithm_template,
     insert_matrix_template,
     insert_product_template,
     insert_root_template,
@@ -784,13 +786,14 @@ if wx is not None:
                 self._word_step(-1 if key == wx.WXK_LEFT else 1, extend=event.ShiftDown())
                 return
             if self.mode == "linear" and _template_variant_down(event):
-                # Control+I/S/P/R (Alt elsewhere): integral/sum/product with
-                # limits, n-th root -- variants of Cmd+I/S/P/R.
+                # Control+I/S/P/R/L (Alt elsewhere): integral/sum/product with
+                # limits, n-th root, logarithm -- variants of Cmd+I/S/P/R/L.
                 inserters = {
                     ord("I"): lambda source, caret: insert_integral_template(source, caret, limits=True),
                     ord("S"): lambda source, caret: insert_sum_template(source, caret, limits=True),
                     ord("P"): lambda source, caret: insert_product_template(source, caret, limits=True),
                     ord("R"): insert_root_template,
+                    ord("L"): insert_logarithm_template,
                 }
                 letters = {event.GetKeyCode(), event.GetUnicodeKey()}
                 inserter = next((inserters[code] for code in inserters if letters & {code, code + 32}), None)
@@ -853,6 +856,11 @@ if wx is not None:
                     return
                 if key in (ord("P"), ord("p")):
                     edit = insert_product_template(self.document.source, self.caret)
+                    self._replace_linear(edit.source, edit.caret)
+                    self._announce(edit.announcement)
+                    return
+                if key in (ord("L"), ord("l")):
+                    edit = insert_limit_template(self.document.source, self.caret)
                     self._replace_linear(edit.source, edit.caret)
                     self._announce(edit.announcement)
                     return

@@ -157,6 +157,8 @@ process.stdout.write(JSON.stringify(results));
         self.assertEqual(words["circ"], "∘")
         self.assertEqual(words["alpha"], "α")
         self.assertEqual(words["matrix"], "■")
+        # Word's root shortcuts, which start with a digit.
+        self.assertEqual((words["2root"], words["3root"], words["4root"]), ("√", "∛", "∜"))
         self.assertEqual(words["nbsp"], "\u00a0")  # A \\u escape in the JS.
         self.assertNotIn("Bigl", words)  # Empty in the table.
         self.assertNotIn("Faraday", words)  # A playground example, not a symbol.

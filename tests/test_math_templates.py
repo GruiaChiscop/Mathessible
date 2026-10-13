@@ -12,6 +12,8 @@ from matex.math_templates import (
     matrix_position_at,
     insert_fraction_template,
     insert_integral_template,
+    insert_limit_template,
+    insert_logarithm_template,
     insert_matrix_template,
     insert_product_template,
     insert_root_template,
@@ -289,6 +291,25 @@ class MathTemplateTests(unittest.TestCase):
         self.assertEqual(move_to_slot(source, 4).announcement, "index, 3")
         self.assertEqual(move_to_slot(source, 6).announcement, "radicand, x")
         self.assertEqual(move_to_slot(source, 8).announcement, "cell, row 1, column 2, 2")
+
+    def test_limit_template_starts_in_the_condition_and_tabs_to_the_argument(self) -> None:
+        edit = insert_limit_template("x=", 2)
+        self.assertEqual((edit.source, edit.caret), ("x=lim_() ", 7))
+        self.assertEqual(edit.announcement, "limit template, empty limit condition")
+        argument = move_to_slot(edit.source, edit.caret)
+        self.assertEqual((argument.caret, argument.announcement), (9, "empty argument"))
+
+    def test_logarithm_template_starts_in_the_base(self) -> None:
+        edit = insert_logarithm_template("", 0)
+        self.assertEqual((edit.source, edit.caret, edit.announcement), ("log_() ", 5, "logarithm template, empty base"))
+
+    def test_typed_limit_and_logarithm_subscripts_are_slots(self) -> None:
+        self.assertEqual(move_to_slot("lim_(n→∞) a_n", 0).announcement, "limit condition, n→∞")
+        self.assertEqual(move_to_slot("lim_(n→∞) a_n", 8).announcement, "argument")
+        self.assertEqual(move_to_slot("log_(2) x", 0).announcement, "base, 2")
+
+    def test_a_word_ending_in_lim_is_not_a_limit(self) -> None:
+        self.assertEqual(move_to_slot("clim_(1)", 6).announcement, "end scripts")
 
     def test_matrix_template_has_empty_cells_and_caret_in_the_first(self) -> None:
         edit = insert_matrix_template("A=", 2, rows=2, columns=3)
