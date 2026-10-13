@@ -49,12 +49,6 @@ if wx is not None:
             )
             self.convert_on_space.SetName("Convert on Space")
             self.convert_on_space.SetValue(settings.convert_on_space)
-            self.build_on_space = wx.CheckBox(
-                self,
-                label="Build complete equations when Space is pressed",
-            )
-            self.build_on_space.SetName("Build on Space")
-            self.build_on_space.SetValue(settings.build_on_space)
             self.auto_zoom_out = wx.CheckBox(
                 self,
                 label="Leave a structure automatically at its end (for example, from the numerator to the denominator)",
@@ -90,7 +84,6 @@ if wx is not None:
             sizer.Add(self.structure_stops, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.invisible_operator_stops, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.convert_on_space, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
-            sizer.Add(self.build_on_space, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.auto_zoom_out, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(explanation, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
             sizer.Add(functions_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
@@ -105,7 +98,6 @@ if wx is not None:
             self._settings.structure_stops = self.structure_stops.GetValue()
             self._settings.invisible_operator_stops = self.invisible_operator_stops.GetValue()
             self._settings.convert_on_space = self.convert_on_space.GetValue()
-            self._settings.build_on_space = self.build_on_space.GetValue()
             self._settings.auto_zoom_out = self.auto_zoom_out.GetValue()
             self._settings.recognized_functions = parse_recognized_functions(
                 self.recognized_functions.GetValue()

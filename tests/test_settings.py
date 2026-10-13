@@ -11,7 +11,6 @@ class SettingsTests(unittest.TestCase):
             settings = load_settings(Path(directory) / "missing.json")
         self.assertFalse(settings.linear_navigation)
         self.assertTrue(settings.convert_on_space)
-        self.assertTrue(settings.build_on_space)
         self.assertFalse(settings.auto_zoom_out)
         self.assertTrue(settings.structure_stops)
 
@@ -23,7 +22,6 @@ class SettingsTests(unittest.TestCase):
                     linear_navigation=True,
                     structure_stops=False,
                     convert_on_space=False,
-                    build_on_space=False,
                     auto_zoom_out=True,
                     recognized_functions=("sin", "tg"),
                 ),
@@ -33,7 +31,6 @@ class SettingsTests(unittest.TestCase):
         self.assertTrue(settings.linear_navigation)
         self.assertFalse(settings.structure_stops)
         self.assertFalse(settings.convert_on_space)
-        self.assertFalse(settings.build_on_space)
         self.assertTrue(settings.auto_zoom_out)
         self.assertEqual(settings.recognized_functions, ("sin", "tg"))
 

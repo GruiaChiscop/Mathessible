@@ -36,9 +36,12 @@ equation language; the gap is entirely in the editing UX layered on top.
   "Linear"/"Professional" in its own equation right-click menu).
 - Tab-to-empty-slot template navigation
   ([math_templates.py](src/matex/math_templates.py)).
-- Convert-on-space autocorrect for a handful of symbols/arrows
-  ([space_conversion.py](src/matex/space_conversion.py)) — a thin slice of
-  Word's much larger autocorrect table.
+- Convert-on-space autocorrect
+  ([space_conversion.py](src/matex/space_conversion.py)): Space after a
+  control word replaces it using the converter's own table
+  (`unicodemath.control_words()`, ~680 words read from UnicodeMathML's
+  `controlWords` JS, so it follows the submodule), anywhere it is typed
+  (`2\pi` → `2π`), plus a few typed shortcuts (`->`, `<=`, ...).
 - Selection, clipboard (Cmd/Ctrl+C/X/V), word navigation, and a right-click
   context menu in linear mode, all platform-correct (`CmdDown()` for the
   primary modifier, Option-not-Command for word movement on macOS — see
@@ -138,12 +141,9 @@ equation language; the gap is entirely in the editing UX layered on top.
    empty one; check the real MathML output (`EquationEditor.convert_unicode_math`)
    for stray `intent=":fenced"` wrappers whenever a new template is added,
    don't assume paren-wrapping a slot is always cosmetically free.
-4. Broader autocorrect coverage in `space_conversion.py`/`parser.py`'s
-   fallback dicts is *not* the priority here — the official UnicodeMathML
-   engine already handles the full control-word syntax; the small local
-   dicts only matter for the toy fallback parser and the convert-on-space
-   convenience layer, not for what equations the app can actually
-   represent.
+4. Do not grow local autocorrect dicts: `space_conversion.py` uses the
+   converter's table, and its `FALLBACK_CONTROL_WORDS` (like `parser.py`'s)
+   only matters without the submodule.
 
 **Where MateX should stay ahead of Word, not just catch up:** MathCAT
 structural navigation/speech, the braille strip
@@ -156,10 +156,13 @@ not just mouse-driven like Word's ribbon.
 
 ## Math AutoCorrect (Word's Autobuild-on-Space)
 
-Stage 1 below is built: [build_triggers.py](src/matex/build_triggers.py)
-classifies Space/`,`/`;` (pure, tested), `EquationEditor._try_build_on_trigger`
-runs the converter check and switches to professional mode, gated by the
-`build_on_space` setting. Stage 2 is not started. In Word, typing a syntactically complete equation (e.g. a
+**Space must never switch modes.** Stage 1 below (Space auto-switches to
+professional mode when the source converts cleanly) was built and then
+removed at the user's request (2026-10-13): professional mode is read-only
+navigation here, so switching on Space stopped the user from typing, which
+Word never does. Space now only converts control words in the linear source
+(see `space_conversion.py`); professional mode opens only with F2. Real
+autobuild needs Stage 2 (editing inside the built equation). In Word, typing a syntactically complete equation (e.g. a
 fraction, radical, or matrix) and then pressing Space or a punctuation
 character that isn't part of the equation auto-builds it from linear text
 into 2D display. Design notes so this doesn't get re-derived from scratch:
@@ -183,11 +186,9 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   separate, larger project (the equation becomes a sequence of linear/built
   runs — touches `editor.py`, layout, and cursor tracking).
 - **Proposed staged approach**:
-  1. On a trigger character, if the whole source-so-far converts cleanly
-     (no `#F0` marker), auto-invoke what `F2` already does (switch to
-     professional mode) instead of requiring the user to press it. Small,
-     fits the current binary linear/professional split, delivers the core
-     "type a complete equation, hit space, it builds" behavior.
+  1. ~~On a trigger character, if the whole source converts cleanly, switch
+     to professional mode.~~ Tried and removed (see above): it takes the
+     user out of editing.
   2. Real incremental mixed-run building, matching Word exactly — do this
      later, as its own effort.
 - **Where it plugs in**: the completeness check must run from `editor.py`

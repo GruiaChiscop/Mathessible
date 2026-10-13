@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
+from functools import cache
 from pathlib import Path
 
 
@@ -40,6 +42,33 @@ def distribution_directory() -> Path:
             "Run: git submodule update --init --recursive"
         )
     return directory
+
+
+# One `'word': 'symbol',` entry per line of UnicodeMathML's controlWords table.
+_CONTROL_WORD_ENTRY = re.compile(r"^\s*'([A-Za-z0-9]+)':\s*'((?:[^'\\]|\\u[0-9A-Fa-f]{4})*)'")
+
+
+@cache
+def control_words() -> dict[str, str]:
+    """The converter's own control-word table (`\\circ` -> "∘", ...), read from its JS.
+
+    Read rather than copied, so it follows the UnicodeMathML submodule. Left
+    out: empty entries (\\Bigl, ...) and the circled numbers ①-⒇, which in
+    UnicodeMathML index the examples of its playground page, not symbols.
+    """
+    script = (distribution_directory() / "unicodemathml.js").read_text(encoding="utf-8")
+    start = script.index("const controlWords = {")
+    end = script.index("\n}", start)
+    words: dict[str, str] = {}
+    for line in script[start:end].splitlines()[1:]:
+        match = _CONTROL_WORD_ENTRY.match(line)
+        if match is None:
+            continue
+        word, symbol = match.groups()
+        symbol = re.sub(r"\\u([0-9A-Fa-f]{4})", lambda escape: chr(int(escape.group(1), 16)), symbol)
+        if symbol and not "①" <= symbol <= "⒇":
+            words[word] = symbol
+    return words
 
 
 def renderer_page() -> tuple[str, str]:

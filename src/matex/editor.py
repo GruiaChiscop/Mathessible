@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import threading
 
-from .build_triggers import build_source_for_trigger, build_trigger_for
 from .character_speech import character_name, deleted_character, inserted_character
 from .layout import Line, Text, professional_layout
 from .macos_webview import guard_webview_key_equivalents
@@ -40,10 +39,10 @@ from .unicodemath import (
     ConversionResult,
     StrayScriptResult,
     UnicodeMathError,
+    control_words,
     conversion_script,
     decode_conversion,
     highlight_script,
-    mathml_has_parse_error,
     render_script,
     renderer_page,
 )
@@ -77,6 +76,13 @@ if wx is not None:
         finally:
             wx.TheClipboard.Close()
         return data.GetText()
+
+    def _converter_control_words() -> dict[str, str] | None:
+        """The converter's control-word table, or None (fallback list) without the submodule."""
+        try:
+            return control_words()
+        except (OSError, ValueError):
+            return None
 
     def _word_navigation_down(event: wx.KeyEvent) -> bool:
         """The word-navigation modifier: Option on macOS, Ctrl elsewhere."""
@@ -750,26 +756,6 @@ if wx is not None:
                 self._announce(f"{error_prefix}. {error}")
                 return False
 
-        def _try_build_on_trigger(self, source: str, caret: int, character: str) -> bool:
-            trigger = build_trigger_for(source, caret, character)
-            if not self.settings.build_on_space or not trigger.should_attempt:
-                return False
-            if not self.converter_ready:
-                return False
-            build_source, build_caret = build_source_for_trigger(source, caret, trigger)
-            try:
-                conversion = ConversionResult(mathml=self.convert_unicode_math(build_source))
-            except (UnicodeMathError, RuntimeError, ValueError):
-                return False
-            if mathml_has_parse_error(conversion.mathml):
-                return False
-            self.document.replace_source(build_source, build_caret)
-            self.caret = build_caret
-            self._clear_selection()
-            built = self._enter_professional_mode(conversion, error_prefix="Professional mode could not be built")
-            self.Refresh()
-            return built
-
         def _on_key_down(self, event: wx.KeyEvent) -> None:
             key = event.GetKeyCode()
             command_modifier = event.CmdDown()
@@ -1061,9 +1047,9 @@ if wx is not None:
                     self._clear_selection()
                 else:
                     source, caret = self.document.source, self.caret
-                edit = convert_on_space(source, caret, enabled=self.settings.convert_on_space)
-                if not edit.converted and self._try_build_on_trigger(source, caret, " "):
-                    return
+                edit = convert_on_space(
+                    source, caret, enabled=self.settings.convert_on_space, control_words=_converter_control_words()
+                )
                 self._replace_linear(edit.source, edit.caret)
                 self._announce(edit.announcement)
                 return
@@ -1101,14 +1087,6 @@ if wx is not None:
                 codepoint = event.GetUnicodeKey()
                 if codepoint not in (wx.WXK_NONE, 0) and codepoint >= 32:
                     value = chr(codepoint)
-                    selection = self._selection_range()
-                    if selection is not None:
-                        source = self.document.source[: selection[0]] + self.document.source[selection[1] :]
-                        caret = selection[0]
-                    else:
-                        source, caret = self.document.source, self.caret
-                    if self._try_build_on_trigger(source, caret, value):
-                        return
                     if not self._replace_selection(value):
                         self._replace_linear(
                             self.document.source[: self.caret] + value + self.document.source[self.caret :],

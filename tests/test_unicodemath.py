@@ -8,6 +8,7 @@ from matex.unicodemath import (
     conversion_script,
     decode_conversion,
     distribution_directory,
+    control_words,
     mathml_has_parse_error,
     renderer_page,
 )
@@ -149,6 +150,16 @@ process.stdout.write(JSON.stringify(results));
         results = json.loads(completed.stdout)
         self.assertEqual([source for source, passed in results.items() if not passed], [])
 
+
+    def test_control_words_come_from_the_converter_table(self) -> None:
+        words = control_words()
+        self.assertGreater(len(words), 500)
+        self.assertEqual(words["circ"], "∘")
+        self.assertEqual(words["alpha"], "α")
+        self.assertEqual(words["matrix"], "■")
+        self.assertEqual(words["nbsp"], "\u00a0")  # A \\u escape in the JS.
+        self.assertNotIn("Bigl", words)  # Empty in the table.
+        self.assertNotIn("Faraday", words)  # A playground example, not a symbol.
 
 if __name__ == "__main__":
     unittest.main()

@@ -16,6 +16,21 @@ class SpaceConversionTests(unittest.TestCase):
         self.assertEqual(edit.source, "α+1")
         self.assertEqual(edit.caret, 1)
 
+    def test_converts_control_word_typed_after_other_text(self) -> None:
+        edit = convert_on_space(r"2\pi", 4)
+        self.assertEqual(edit.source, "2π")
+        self.assertEqual(edit.caret, 2)
+
+    def test_uses_the_converter_table_when_given(self) -> None:
+        edit = convert_on_space(r"f\circ", 6, control_words={"circ": "∘"})
+        self.assertEqual(edit.source, "f∘")
+        self.assertTrue(edit.converted)
+
+    def test_unknown_or_unfinished_control_word_inserts_space(self) -> None:
+        edit = convert_on_space(r"\cir", 4, control_words={"circ": "∘"})
+        self.assertEqual(edit.source, "\\cir ")
+        self.assertFalse(edit.converted)
+
     def test_inserts_space_when_no_conversion_matches(self) -> None:
         edit = convert_on_space("x+1", 3)
         self.assertEqual(edit.source, "x+1 ")

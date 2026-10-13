@@ -1,33 +1,40 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 
 
-CONVERSIONS = {
+# Typed shortcuts that are not control words.
+SHORTCUTS = {
     "=>": "⇒",
     "->": "→",
     "<-": "←",
     ">=": "≥",
     "<=": "≤",
     "!=": "≠",
-    "\\alpha": "α",
-    "\\beta": "β",
-    "\\gamma": "γ",
-    "\\delta": "δ",
-    "\\pi": "π",
-    "\\theta": "θ",
-    "\\lambda": "λ",
-    "\\mu": "μ",
-    "\\sigma": "σ",
-    "\\phi": "φ",
-    "\\omega": "ω",
-    "\\infty": "∞",
-    "\\inf": "∞",
-    "\\times": "×",
-    "\\cdot": "·",
-    "\\neq": "≠",
-    "\\le": "≤",
-    "\\ge": "≥",
+}
+
+# Used only when the converter's own table (unicodemath.control_words) cannot
+# be read, e.g. without the UnicodeMathML submodule.
+FALLBACK_CONTROL_WORDS = {
+    "alpha": "α",
+    "beta": "β",
+    "gamma": "γ",
+    "delta": "δ",
+    "pi": "π",
+    "theta": "θ",
+    "lambda": "λ",
+    "mu": "μ",
+    "sigma": "σ",
+    "phi": "φ",
+    "omega": "ω",
+    "infty": "∞",
+    "inf": "∞",
+    "times": "×",
+    "cdot": "·",
+    "neq": "≠",
+    "le": "≤",
+    "ge": "≥",
 }
 
 
@@ -39,14 +46,25 @@ class SpaceConversion:
     converted: bool
 
 
-def convert_on_space(source: str, caret: int, enabled: bool = True) -> SpaceConversion:
+def convert_on_space(
+    source: str,
+    caret: int,
+    enabled: bool = True,
+    control_words: Mapping[str, str] | None = None,
+) -> SpaceConversion:
+    """Space after a control word (`\\circ`) or shortcut (`->`) replaces it, as in Word.
+
+    The space itself is consumed by a conversion. `control_words` is the
+    converter's table, without the backslash; the small fallback is used when
+    it is not available.
+    """
     caret = max(0, min(caret, len(source)))
     if not enabled:
         return _insert_space(source, caret)
-    match = _conversion_match(source, caret)
+    match = _control_word_match(source, caret, control_words) or _shortcut_match(source, caret)
     if match is None:
         return _insert_space(source, caret)
-    token_start, token, replacement = match
+    token_start, replacement = match
     updated = source[:token_start] + replacement + source[caret:]
     new_caret = token_start + len(replacement)
     return SpaceConversion(updated, new_caret, replacement, True)
@@ -56,27 +74,25 @@ def _insert_space(source: str, caret: int) -> SpaceConversion:
     return SpaceConversion(source[:caret] + " " + source[caret:], caret + 1, "space", False)
 
 
-def _token_start(source: str, caret: int) -> int:
-    index = caret
-    while index > 0 and not source[index - 1].isspace():
-        index -= 1
-    return index
+def _control_word_match(
+    source: str, caret: int, control_words: Mapping[str, str] | None
+) -> tuple[int, str] | None:
+    # Converted wherever it is typed, like Word: "2\pi" becomes "2π".
+    start = caret
+    while start > 0 and source[start - 1].isascii() and source[start - 1].isalnum():
+        start -= 1
+    if start == caret or start == 0 or source[start - 1] != "\\":
+        return None
+    table = control_words if control_words is not None else FALLBACK_CONTROL_WORDS
+    symbol = table.get(source[start:caret])
+    if symbol is None:
+        return None
+    return start - 1, symbol
 
 
-def _conversion_match(source: str, caret: int) -> tuple[int, str, str] | None:
-    for token in sorted(CONVERSIONS, key=len, reverse=True):
+def _shortcut_match(source: str, caret: int) -> tuple[int, str] | None:
+    for token in sorted(SHORTCUTS, key=len, reverse=True):
         token_start = caret - len(token)
-        if token_start < 0:
-            continue
-        if source[token_start:caret] != token:
-            continue
-        if token_start > 0 and not _can_start_conversion_after(source[token_start - 1], token):
-            continue
-        return token_start, token, CONVERSIONS[token]
+        if token_start >= 0 and source[token_start:caret] == token:
+            return token_start, SHORTCUTS[token]
     return None
-
-
-def _can_start_conversion_after(previous: str, token: str) -> bool:
-    if token.startswith("\\"):
-        return previous.isspace()
-    return True
