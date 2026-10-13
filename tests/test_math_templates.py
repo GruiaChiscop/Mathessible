@@ -235,6 +235,36 @@ class MathTemplateTests(unittest.TestCase):
         self.assertEqual(edit.announcement, "product template")
 
 
+    def test_integral_with_limits_starts_in_the_lower_limit(self) -> None:
+        edit = insert_integral_template("x=", 2, limits=True)
+        self.assertEqual(edit.source, "x=∫_()^()▒")
+        self.assertEqual(edit.caret, 5)
+        self.assertEqual(edit.announcement, "integral template, empty lower limit")
+
+    def test_tab_walks_the_limits_then_lands_on_the_naryand(self) -> None:
+        source = "∫_()^()▒"
+        upper = move_to_slot(source, 3)
+        self.assertEqual((upper.caret, upper.announcement), (6, "empty upper limit"))
+        naryand = move_to_slot(source, upper.caret)
+        self.assertEqual((naryand.caret, naryand.announcement), (8, "empty integrand"))
+
+    def test_limits_of_a_typed_sum_are_slots_and_not_scripts(self) -> None:
+        source = "∑_(i=1)^(n)▒i"
+        lower = move_to_slot(source, 0)
+        self.assertEqual((lower.caret, lower.announcement), (6, "lower limit, i=1"))
+        self.assertEqual(move_to_slot(source, 13, reverse=True).announcement, "upper limit, n")
+        self.assertEqual(move_to_slot(source, 10).announcement, "summand")
+
+    def test_sum_and_product_with_limits(self) -> None:
+        self.assertEqual(insert_sum_template("", 0, limits=True).source, "∑_()^()▒")
+        self.assertEqual(insert_product_template("", 0, limits=True).announcement, "product template, empty lower limit")
+
+    def test_a_lower_limit_alone_exits_past_the_naryand_marker(self) -> None:
+        self.assertEqual(move_to_slot("∑_(k)▒", 4).caret, 6)
+
+    def test_ordinary_scripts_are_not_limits(self) -> None:
+        self.assertEqual(move_to_slot("x_(i)^(2)", 3).announcement, "superscript, 2")
+
     def test_matrix_template_has_empty_cells_and_caret_in_the_first(self) -> None:
         edit = insert_matrix_template("A=", 2, rows=2, columns=3)
         self.assertEqual(edit.source, "A=(■(&&@&&))")

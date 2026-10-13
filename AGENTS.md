@@ -62,25 +62,27 @@ equation language; the gap is entirely in the editing UX layered on top.
    [math_templates.py](src/matex/math_templates.py): fraction (Ctrl+/),
    square root (Ctrl+R), subscript/superscript (Ctrl+=/Ctrl+Shift+=,
    mirroring Word's own character-formatting shortcuts), absolute value
-   (Ctrl+\\), indefinite integral/sum/product (Ctrl+I/Ctrl+S/Ctrl+P — all
-   share `_insert_nary_template`: bare `∫▒`/`∑▒`/`∏▒`, caret placed right
-   after `▒` with no Tab-able slot, since `▒`'s argument is never
-   paren-transparent; see the docstring for why limits aren't included
-   yet — a bare `"∫▒"` with nothing typed after it is itself a total parse
-   failure until filled in, same as any other empty template, not a bug).
+   (Ctrl+\\), integral/sum/product (Ctrl+I/Ctrl+S/Ctrl+P bare `∫▒`, caret
+   after `▒`; with limits `∫_()^()▒` on Control+I/S/P on macOS — the
+   physical Control key, `_nary_limits_down`, since Option+S/P/I type
+   ß/π/a dead key — and Alt+I/S/P elsewhere). The naryand after `▒` is
+   never a slot (`▒`'s argument is not paren-transparent); empty limits
+   are clean zero-width `mspace`s. `_nary_limit` makes `_(...)`/`^(...)`
+   after an n-ary sign "lower/upper limit" slots, and Tab past the last
+   one lands after `▒`, announced as integrand/summand/factor. A bare
+   `"∫▒"` with nothing typed after it is a total parse failure until
+   filled in, same as any other empty template, not a bug.
    Matrix (Ctrl+Shift+M, or "Insert Matrix…" in the right-click menu)
    opens `MatrixDialog` ([matrix_dialog.py](src/matex/matrix_dialog.py):
    rows, columns, fence) and inserts `insert_matrix_template`'s output,
    e.g. `(■(&@&))`. Cells are left genuinely empty, not filled with "()":
    the real converter keeps "()" inside an `mtd` as visible parens, while
    an empty cell is a clean zero-width `mspace` with no parse-error marker
-   (so a freshly inserted empty matrix *does* autobuild on Space). `‖` is
+   (so a freshly inserted empty matrix converts cleanly). `‖` is
    not offered as a fence — the converter returns it as two loose `<mo>`s,
    not a grouped mrow. Plain Cmd+M is avoided because macOS's Window menu
    claims it for Minimize.
-   Still missing: limits on integral/sum/product as Tab-able slots (the
-   n-ary template is `∫▒`, and `_slot_exit_position` would need to skip
-   the trailing `▒`), general n-th-root (only plain `√()` exists, not
+   Still missing: general n-th-root (only plain `√()` exists, not
    `√(n&x)`), Function, Limit/Log, Operator. **Accent mostly doesn't
    work**: only `\overline(...)` converts
    cleanly through the vendored `UnicodeMathML` engine — `\hat`, `\vec`,
@@ -104,8 +106,6 @@ equation language; the gap is entirely in the editing UX layered on top.
    and only counts numerator/base groups that start an operand (so the
    `(x)` of `f(x)/2` is not a slot). Tab past the last slot lands after
    the *whole* template, including a closing `|` or matrix fence.
-   Hand-typed `∫_(a)^(b)▒` limits are now slots too, but Tab out of the
-   upper limit lands before `▒`, not after it.
    **Probing the converter without the GUI:** the dist JS runs fine under
    plain `node` with `vm.createContext({console, performance})`, loading
    `unicodemathml-parser.js` then `unicodemathml.js` and calling

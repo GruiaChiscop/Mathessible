@@ -88,6 +88,16 @@ if wx is not None:
         """The word-navigation modifier: Option on macOS, Ctrl elsewhere."""
         return event.AltDown() if wx.Platform == "__WXMAC__" else event.ControlDown()
 
+    def _nary_limits_down(event: wx.KeyEvent) -> bool:
+        """The with-limits n-ary modifier: the physical Control key on macOS, Alt elsewhere.
+
+        Not Option on macOS: Option+S/P/I type ß, π and a dead key there
+        (the same reason the equation shortcut is Control+=).
+        """
+        if wx.Platform == "__WXMAC__":
+            return event.RawControlDown() and not event.CmdDown() and not event.AltDown()
+        return event.AltDown() and not event.ControlDown()
+
     def _cell_navigation_down(event: wx.KeyEvent) -> bool:
         """The matrix-cell modifier: Command+Option on macOS, Ctrl+Alt elsewhere."""
         # CmdDown() is Command on macOS and Ctrl elsewhere.
@@ -772,6 +782,20 @@ if wx is not None:
             if self.mode == "linear" and key in (wx.WXK_LEFT, wx.WXK_RIGHT) and _word_navigation_down(event):
                 self._word_step(-1 if key == wx.WXK_LEFT else 1, extend=event.ShiftDown())
                 return
+            if self.mode == "linear" and _nary_limits_down(event):
+                # Control+I/S/P (Alt elsewhere): integral/sum/product with limits.
+                inserters = {
+                    ord("I"): insert_integral_template,
+                    ord("S"): insert_sum_template,
+                    ord("P"): insert_product_template,
+                }
+                letters = {event.GetKeyCode(), event.GetUnicodeKey()}
+                inserter = next((inserters[code] for code in inserters if letters & {code, code + 32}), None)
+                if inserter is not None:
+                    edit = inserter(self.document.source, self.caret, limits=True)
+                    self._replace_linear(edit.source, edit.caret)
+                    self._announce(edit.announcement)
+                    return
             if self.mode == "linear" and command_modifier:
                 if key in (ord("X"), ord("x")):
                     self._cut_equation()

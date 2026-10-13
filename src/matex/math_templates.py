@@ -15,6 +15,10 @@ MATRIX_FENCES = {
     "bars": ("|", "|"),
 }
 _CLOSING_FENCES = {"(": ")", "[": "]", "|": "|"}
+# N-ary operators whose `_(...)`/`^(...)` groups are limits, not scripts.
+NARY_LABELS = {"∫": "integral", "∬": "integral", "∭": "integral", "∮": "integral", "∑": "sum", "∏": "product"}
+# What Tab past the last limit lands in (the names MathMLDocument uses too).
+NARYAND_ROLES = {"integral": "integrand", "sum": "summand", "product": "factor"}
 
 
 @dataclass(frozen=True, slots=True)
@@ -46,20 +50,25 @@ def insert_absolute_value_template(source: str, caret: int) -> TemplateEdit:
     return _insert_template(source, caret, "|()|", first_slot_offset=2, announcement="absolute value template, empty value")
 
 
-def insert_integral_template(source: str, caret: int) -> TemplateEdit:
-    return _insert_nary_template(source, caret, symbol="∫", label="integral")
+def insert_integral_template(source: str, caret: int, limits: bool = False) -> TemplateEdit:
+    return _insert_nary_template(source, caret, symbol="∫", limits=limits)
 
 
-def insert_sum_template(source: str, caret: int) -> TemplateEdit:
-    return _insert_nary_template(source, caret, symbol="∑", label="sum")
+def insert_sum_template(source: str, caret: int, limits: bool = False) -> TemplateEdit:
+    return _insert_nary_template(source, caret, symbol="∑", limits=limits)
 
 
-def insert_product_template(source: str, caret: int) -> TemplateEdit:
-    return _insert_nary_template(source, caret, symbol="∏", label="product")
+def insert_product_template(source: str, caret: int, limits: bool = False) -> TemplateEdit:
+    return _insert_nary_template(source, caret, symbol="∏", limits=limits)
 
 
-def _insert_nary_template(source: str, caret: int, symbol: str, label: str) -> TemplateEdit:
-    """Insert a bare n-ary operator sign, caret ready to type the naryand.
+def _insert_nary_template(source: str, caret: int, symbol: str, limits: bool) -> TemplateEdit:
+    """Insert an n-ary operator sign, caret ready to type the naryand or its limits.
+
+    With `limits`, `∫_()^()▒`: the caret starts in the lower limit, Tab goes
+    to the upper one and then past `▒` to the naryand. Empty limits are fine
+    for the converter (zero-width `mspace`s, like empty matrix cells, and
+    "()" around a limit is transparent), so they can simply be left empty.
 
     Unlike `/`, `√`, `_`, `^` and `|`, UnicodeMath's n-ary delimiter `▒`
     never makes a following "()" transparent (confirmed against the real
@@ -72,11 +81,13 @@ def _insert_nary_template(source: str, caret: int, symbol: str, label: str) -> T
     freshly-inserted, not-yet-filled template — not a bug, just the
     expected transient state before typing.
 
-    Limits (`∫_(a)^(b)▒...`) can already be typed by hand; adding them as
-    Tab-able slots is a follow-up, not done here because the exit position
-    after the last slot would need to skip over the trailing `▒` rather
-    than landing right before it, which `_detect_group` does not do.
+    Without limits, the caret is placed right after `▒`.
     """
+    label = NARY_LABELS[symbol]
+    if limits:
+        return _insert_template(
+            source, caret, f"{symbol}_()^()▒", first_slot_offset=3, announcement=f"{label} template, empty lower limit"
+        )
     return _insert_template(source, caret, f"{symbol}▒", first_slot_offset=2, announcement=f"{label} template")
 
 
@@ -328,6 +339,9 @@ def move_to_slot(source: str, caret: int, reverse: bool = False) -> TemplateEdit
     if not around:
         return None
     current = around[-1]
+    if current.template in NARYAND_ROLES and source[current.exit - 1 : current.exit] == "▒":
+        naryand = NARYAND_ROLES[current.template]
+        return TemplateEdit(source, current.exit, naryand if current.exit < len(source) else f"empty {naryand}")
     return TemplateEdit(source, current.exit, f"end {current.template}")
 
 
@@ -411,6 +425,32 @@ def _matrix_cells(source: str) -> list[_MatrixCell]:
     return cells
 
 
+def _nary_limit(source: str, opening: int, closing: int) -> tuple[str, str, int] | None:
+    """A "(...)" that is the lower (`∑_(...)`) or upper (`∑_(...)^(...)`, `∑^(...)`) limit.
+
+    Tab past the last limit lands after the `▒`, where the naryand goes.
+    """
+    if opening < 2 or source[opening - 1] not in "_^":
+        return None
+    base = opening - 2
+    if source[opening - 1] == "^" and source[base] == ")":
+        # Step back over the lower limit "_(...)" to the operator.
+        lower_open = next((start for start, end in _matching_parens(source).items() if end == base), None)
+        if lower_open is None or lower_open < 2 or source[lower_open - 1] != "_":
+            return None
+        base = lower_open - 2
+    label = NARY_LABELS.get(source[base])
+    if label is None:
+        return None
+    role = "lower limit" if source[opening - 1] == "_" else "upper limit"
+    exit = closing + 1
+    if source[exit : exit + 2].startswith("^("):
+        return label, role, exit  # An upper limit follows; it is the next slot.
+    if source[exit : exit + 1] == "▒":
+        exit += 1
+    return label, role, exit
+
+
 def _detect_group(source: str, opening: int, closing: int) -> tuple[str, str, int] | None:
     """Classify a "(...)" group as a template argument: (template, role, exit).
 
@@ -426,6 +466,9 @@ def _detect_group(source: str, opening: int, closing: int) -> tuple[str, str, in
     """
     before = source[opening - 1] if opening > 0 else ""
     after = source[closing + 1] if closing + 1 < len(source) else ""
+    nary = _nary_limit(source, opening, closing)
+    if nary is not None:
+        return nary
     if before == "/":
         return "fraction", "denominator", closing + 1
     if before == "_":
