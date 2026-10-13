@@ -433,7 +433,12 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   and note them (they diverge from upstream); rebuild with
   `uv sync --reinstall-package matex-mathcat`.
 - **Local MathCAT patches** (diverge from upstream `85c89a37`; worth
-  proposing upstream to daisy/MathCAT):
+  proposing upstream to daisy/MathCAT). Kept as files in `patches/mathcat/`,
+  applied by `scripts/bootstrap.sh` (skipped when already applied); a change
+  made inside `MathCAT/` is lost on a fresh clone until it is saved there.
+  `tests/test_mathcat.py` checks the speech.rs one is in place. MathCAT's
+  `.rs` files are CRLF (`eol=crlf`): run `git -C MathCAT apply`, not plain
+  `patch`:
   - `src/speech.rs` `replace_single_char`: `should_ignore_file_time` uses
     `!= "All"`, matching `read_files` (upstream has `== "All"`, which
     reloads the full Unicode table on each lookup in include-zip builds).

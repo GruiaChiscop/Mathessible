@@ -1,0 +1,25 @@
+MathCAT: don't reload the full Unicode table on every lookup (include-zip builds)
+
+`replace_single_char` decides whether to re-check the full Unicode rule
+file's timestamp with `CheckRuleFiles == "All"`; `read_files` uses
+`!= "All"`. With the rules bundled through `include-zip` there is no file on
+disk, so the timestamp always reads as stale and every character missing
+from the short table (every math-italic 𝑎, 𝑥 the converter emits) reloaded
+the whole table: ~90 ms per navigation command, ~0.5 ms with this fix.
+
+Applied by scripts/bootstrap.sh on top of upstream 85c89a37. Worth
+proposing upstream to daisy/MathCAT.
+
+diff --git a/src/speech.rs b/src/speech.rs
+index b667cb61..fde95d5f 100644
+--- a/src/speech.rs
++++ b/src/speech.rs
+@@ -2804,7 +2804,7 @@ impl<'c, 's:'c, 'r, 'm:'c> SpeechRulesWithContext<'c, 's,'m> {
+             // see if it in the full unicode table (if it isn't loaded already)
+             let pref_manager = rules.pref_manager.borrow();
+             let unicode_pref_files = if rules.name == RulesFor::Braille {pref_manager.get_braille_unicode_file()} else {pref_manager.get_speech_unicode_file()};
+-            let should_ignore_file_time = pref_manager.pref_to_string("CheckRuleFiles") == "All";
++            let should_ignore_file_time = pref_manager.pref_to_string("CheckRuleFiles") != "All";     // ignore for "None", "Prefs" (same as read_files)
+             if rules.unicode_full.borrow().is_empty() || !rules.unicode_full_files.borrow().is_file_up_to_date(unicode_pref_files.1, should_ignore_file_time) {
+                 info!("*** Loading full unicode {} for char '{}'/{:#06x}", rules.name, ch, ch_as_u32);
+                 rules.unicode_full.borrow_mut().clear();

@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 
 from matex.mathcat import MathCatNavigator
 from matex.model import EquationDocument
@@ -125,6 +126,15 @@ class MathCatTests(unittest.TestCase):
         self.assertEqual(step("MovePrevious"), "denominator, c")
         self.assertEqual(step("ZoomOut"), fraction)
 
+
+    def test_local_mathcat_patches_are_applied(self) -> None:
+        # scripts/bootstrap.sh applies patches/mathcat/*.patch; without
+        # 0001, every navigation command reloads MathCAT's Unicode table.
+        speech = Path(__file__).resolve().parents[1] / "MathCAT" / "src" / "speech.rs"
+        self.assertIn(
+            'pref_to_string("CheckRuleFiles") != "All";',
+            speech.read_text(encoding="utf-8"),
+        )
 
 if __name__ == "__main__":
     unittest.main()
