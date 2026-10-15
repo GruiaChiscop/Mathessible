@@ -339,7 +339,8 @@ class StructureActionsMixin:
             self._announce(f"{announcement}. Professional mode could not be rebuilt, linear mode. {error}")
             self.Refresh()
             return
-        self._announce(announcement)
+        if announcement:
+            self._announce(announcement)
         self.Refresh()
 
     def _insert_matrix(self) -> None:

@@ -878,6 +878,24 @@ class MathCatNavigator:
         index = self.structure.table_index(position.table_id)
         return None if index is None else (index, position.row, position.column)
 
+    def edit_anchor(self) -> tuple[str, str]:
+        """Where typing would go: (node id, "before" or "after").
+
+        On a plain item, after it. On a "start X" stop (linear or
+        structural, "start of math" too), before the item it leads into; on
+        an "end X" stop, after the item just left.
+        """
+        stop = self._boundary_stop
+        if self._structural_edge == "start":
+            return self.current_id, "before"
+        if self._structural_edge == "end":
+            return self.current_id, "after"
+        if stop is not None and stop.speech.startswith("start"):
+            return stop.current_id or self.current_id, "before"
+        if stop is not None and stop.speech.startswith("end"):
+            return self.display_id, "after"
+        return self.current_id, "after"
+
     def move_to(self, identifier: str) -> None:
         """Put MathCAT's cursor on a node, e.g. one clicked in the rendering."""
         self._boundary_stop = None

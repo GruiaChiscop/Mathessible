@@ -239,8 +239,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   2. Real incremental building — in progress (2026-10-15). For a screen
      reader user "built" means: the equation stays built and MathCAT-
      navigable while you type into it. Steps: (1) source↔node map, done;
-     (2) typing/Backspace/Delete in professional mode at the source offset
-     of MathCAT's current node, rebuild, put MathCAT back on the new node;
+     (2) typing/Backspace/Delete in professional mode, done (below);
      (3) a caret between nodes; (4) incomplete source while typing;
      (5) open equations built by default (setting).
      **Step 1, [source_map.py](src/matex/source_map.py):** the converter
@@ -257,6 +256,19 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      symbols, and NFKC (used for 𝑥 → x) must only touch letters/digits or
      `∬` becomes `∫∫`. A stress run over ~50 forms leaves no visible leaf
      unmatched.
+     **Step 2, `_edit_built_equation` in editor.py:** in professional mode a
+     printable key (no Cmd/Ctrl, not Space, which reads) or Backspace/Delete
+     edits the source at `anchor_offset` of `MathCatNavigator.edit_anchor()`
+     (after the current item; before it on a "start X"/"start of math"
+     stop; after the item left on an "end X" stop), by switching to linear
+     for that one key and running the ordinary `_on_char` (so autocorrect,
+     history and speech are the linear ones), then rebuilds with MathCAT
+     on `leaf_before` the caret. Printable keys must be let through
+     `_on_key_down` (`event.Skip()`) and handled on EVT_CHAR: key-down
+     reports letters upper-case. A source that converts only to a total
+     failure (`mathcolor="#F00"`, e.g. a bare `∫▒`) stays in linear view;
+     partial errors (`a/`) stay built. Not yet: undo, Insert templates and
+     Tab slots in professional mode.
 - **Where it plugs in**: the completeness check must run from `editor.py`
   (only place with WebView access); trigger-character detection (which
   keystrokes/positions qualify — mind that `.`/`,` are also decimal points

@@ -4,6 +4,7 @@ import threading
 
 from .clipboard import get_clipboard_text, set_clipboard_text
 from .character_speech import character_name, deleted_character, inserted_character
+from .source_map import anchor_offset, leaf_before, map_leaves
 from .symbol_dictionary import load_dictionary
 from .editor_drawing import EditorDrawingMixin
 from .editor_renderer import EquationRendererMixin
@@ -486,6 +487,10 @@ if wx is not None:
                 wx.WXK_DELETE,
                 wx.WXK_SPACE,
             }
+            if self.mode == "professional" and self._types_into_built_equation(event, key):
+                # The character arrives as EVT_CHAR, with its real case.
+                event.Skip()
+                return
             if self.mode == "professional" or key in handled_keys:
                 self._on_char(event)
                 return
@@ -699,6 +704,9 @@ if wx is not None:
                             self.mathcat = None
                             self._announce("MathCAT is no longer available; fallback navigation is active")
                         return
+                    if key in (wx.WXK_BACK, wx.WXK_DELETE) or self._is_typed_character(event):
+                        self._edit_built_equation(event)
+                        return
                 moved = False
                 if key == wx.WXK_LEFT:
                     moved = self.document.cursor.move_previous(self.document.root)
@@ -804,6 +812,63 @@ if wx is not None:
                 event.Skip()
                 return
             self.Refresh()
+
+        def _types_into_built_equation(self, event: wx.KeyEvent, key: int) -> bool:
+            """A key that types a character into the built equation (not a shortcut or navigation)."""
+            if self.mathcat is None or event.CmdDown() or event.RawControlDown() or key == wx.WXK_SPACE:
+                return False
+            return 32 < key < 127 or event.GetUnicodeKey() > 127
+
+        @staticmethod
+        def _is_typed_character(event: wx.KeyEvent) -> bool:
+            return event.GetEventType() == wx.wxEVT_CHAR and event.GetUnicodeKey() not in (wx.WXK_NONE, 0) and (
+                event.GetUnicodeKey() > 32
+            )
+
+        def _edit_built_equation(self, event: wx.KeyEvent) -> None:
+            """Type, Backspace or Delete in professional mode, as if in the source.
+
+            The source offset comes from MathCAT's position (`edit_anchor`,
+            `source_map`); the key is then handled exactly as in linear mode
+            (autocorrect, history, speech), and the equation is rebuilt with
+            MathCAT on the node holding the character before the caret.
+            """
+            assert self.mathcat is not None and self.mathcat.structure is not None
+            source = self.document.source
+            node_id, side = self.mathcat.edit_anchor()
+            offset = anchor_offset(source, self.mathcat.structure, node_id, side)
+            self._clear_selection()
+            self.mode = "linear"
+            self.caret = offset
+            self._on_char(event)
+            if self.document.source == source:
+                self.mode = "professional"
+                self.Refresh()
+                return
+            try:
+                mathml = self.convert_unicode_math(self.document.source)
+            except (UnicodeMathError, RuntimeError):
+                mathml = 'mathcolor="#F00"'
+            if 'mathcolor="#F00"' in mathml:
+                # Nothing can be built yet (e.g. a bare "∫▒"): keep typing in linear view.
+                self._update_braille_display()
+                self._announce("linear mode")
+                self.Refresh()
+                return
+            self.mode = "professional"
+            self._update_braille_display()
+            self._rebuild_professional_at_caret("", place=self._place_after_caret)
+
+        def _place_after_caret(self) -> None:
+            """Put MathCAT on the leaf holding the character before the caret (the start of the math at 0)."""
+            assert self.mathcat is not None and self.mathcat.structure is not None
+            self._highlight_matrix_cell = False
+            spans = map_leaves(self.document.source, self.mathcat.structure)
+            leaf = leaf_before(spans, self.caret, self.mathcat.structure)
+            if leaf is None:
+                self.mathcat.command("ZoomIn")
+            else:
+                self.mathcat.move_to(leaf)
 
         def _step_caret(self, delta: int, extend: bool) -> None:
             if not extend:

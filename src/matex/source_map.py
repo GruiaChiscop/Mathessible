@@ -158,3 +158,37 @@ def leaf_at(spans: dict[str, SourceSpan], offset: int) -> str | None:
         if span.end <= offset and span.end > span.start and (best is None or span.end >= best[0]):
             best = (span.end, identifier)
     return None if best is None else best[1]
+
+
+def anchor_offset(source: str, document: MathMLDocument, node_id: str, side: str) -> int:
+    """The source offset just before or after a node (any node: its leaves' spans are joined)."""
+    spans = map_leaves(source, document)
+    node = document.node(node_id)
+    if node is None or node is document.root:
+        return 0 if side == "before" else len(source)
+    leaves = [leaf for leaf in leaf_nodes(document) if leaf is node or _inside(document, leaf, node)]
+    found = [spans[leaf.identifier] for leaf in leaves if leaf.identifier in spans]
+    if not found:
+        return 0 if side == "before" else len(source)
+    return min(span.start for span in found) if side == "before" else max(span.end for span in found)
+
+
+def _inside(document: MathMLDocument, leaf: MathMLNode, node: MathMLNode) -> bool:
+    return leaf.identifier is not None and any(ancestor is node for ancestor in document.ancestors(leaf.identifier))
+
+
+def leaf_before(spans: dict[str, SourceSpan], caret: int, document: MathMLDocument) -> str | None:
+    """The leaf to stand on with the caret at `caret`: the one holding the character before it.
+
+    Else an empty slot right at the caret (a "()" just emptied), else the
+    last leaf ending before it; None at the very start.
+    """
+    if caret > 0:
+        for identifier, span in spans.items():
+            if span.start <= caret - 1 < span.end:
+                return identifier
+    for identifier, span in spans.items():
+        node = document.node(identifier)
+        if span.start == span.end == caret and node is not None and node.text not in _INVISIBLE:
+            return identifier
+    return leaf_at(spans, caret) if caret > 0 else None
