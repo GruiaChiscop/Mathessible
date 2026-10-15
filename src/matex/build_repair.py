@@ -72,6 +72,12 @@ def _missing_arguments(source: str) -> list[tuple[int, str]]:
             insertions.append((view.to_source(index + 1), PLACEHOLDER))
         if character == "&" and following in ("", ")") and _in_root(text, index):
             insertions.append((view.to_source(index + 1), PLACEHOLDER))
+        if character == "¦":
+            # A binomial with an empty top or bottom: `(¦k)`, `(n¦)`.
+            if index == 0 or text[index - 1] in "(&@":
+                insertions.append((view.to_source(index), PLACEHOLDER))
+            if following in ("", ")", "&", "@"):
+                insertions.append((view.to_source(index + 1), PLACEHOLDER))
     return insertions
 
 

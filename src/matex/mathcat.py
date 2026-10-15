@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import time
+from xml.etree import ElementTree
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
@@ -45,7 +46,9 @@ class _LinearStop:
 
 # Regions that are whole structures: typing at their "start"/"end" stop goes
 # before/after the structure; at a role's ("end numerator") it stays inside.
-_CONTAINER_REGIONS = frozenset({"fraction", "square root", "root", "matrix"})
+_CONTAINER_REGIONS = frozenset(
+    {"fraction", "square root", "root", "matrix", "determinant", "cases", "equations", "absolute value", "norm", "overbrace", "underbrace"}
+)
 
 
 _MAX_LINEAR_STOPS = 2000
@@ -702,9 +705,15 @@ class MathCatNavigator:
                 # A matrix's own fences read as the whole matrix in MathCAT;
                 # "start matrix"/"end matrix" stand for them instead.
                 fenced_table = any(child.tag == "mtable" for child in node.children)
+                bars = structure.bar_pair_name(node) is not None
                 for child in node.children:
-                    if not (fenced_table and child.tag == "mo"):
-                        walk(child)
+                    # A brace, `|x|`'s or `‖x‖`'s bars read as their whole structure;
+                    # "start overbrace", "start absolute value" stand for them.
+                    if fenced_table and child.tag == "mo" or child.text in ("⏞", "⏟"):
+                        continue
+                    if bars and child.tag == "mo" and child in (node.children[0], node.children[-1]):
+                        continue
+                    walk(child)
             elif node.identifier:
                 leaves.append(node)
 
@@ -734,11 +743,16 @@ class MathCatNavigator:
                 except RuntimeError:
                     speech = " ".join(leaf.content.split())
                 if not speech.strip() and leaf.text == "\u00a0":
+                    position = structure.table_position(leaf_id)
+                    table = structure.node(position.table_id) if position is not None and position.table_id else None
+                    if table is not None and structure.table_kind(table) == "equations":
+                        continue  # The empty left side of an aligned line ("&=d").
                     # An empty argument (a half-typed integrand) is a place to type, not spacing.
                     speech = "empty"
                 if self._skips_invisible_operator(speech):
                     continue
                 speech = _INVISIBLE_OPERATOR_NAMES.get(speech.strip(), speech)
+                speech = self._leaf_only(leaf, speech)
                 # A function name is a single word: "start function name,
                 # sine, end function name" would only be noise.
                 entries = tuple(
@@ -786,9 +800,38 @@ class MathCatNavigator:
                 parent = structure.parent_by_id.get(candidate.identifier)
                 siblings = [child for child in parent.children if child.tag == candidate.tag] if parent else []
                 index = next((i for i, child in enumerate(siblings, start=1) if child is candidate), None)
-                if index is not None:
-                    entries.append((id(candidate), f"{'row' if candidate.tag == 'mtr' else 'column'} {index}"))
+                label = self._table_part_label(candidate, index)
+                if label is not None:
+                    entries.append((id(candidate), label))
         return entries
+
+    @staticmethod
+    def _leaf_only(leaf: MathMLNode, speech: str) -> str:
+        """A leaf's own words where MathCAT reads more: "−" of "−x" says "negative x", `ⅆ` its whole term."""
+        intent = leaf.attributes.get("intent", "")
+        if re.fullmatch(r"[A-Za-z][A-Za-z-]*", intent):
+            return intent.replace("-", " ")  # `ⅆ` given intent="d" (prepare_for_mathcat).
+        if leaf.text.strip() in ("−", "-") and speech.startswith("negative "):
+            return "negative"
+        return speech
+
+    def _table_part_label(self, part: MathMLNode, index: int | None) -> str | None:
+        """A row/cell region's name: "equation 2" and no columns in an equation array,
+        "case 2" with "value"/"condition" in cases, "row 2"/"column 1" in a matrix."""
+        structure = self.structure
+        if index is None or structure is None:
+            return None
+        table = part
+        while table is not None and table.tag != "mtable":
+            table = structure.parent_by_id.get(table.identifier or "")
+        kind = structure.table_kind(table) if table is not None else "matrix"
+        if part.tag == "mtr":
+            return {"equations": f"equation {index}", "cases": f"case {index}"}.get(kind, f"row {index}")
+        if kind == "equations":
+            return None  # "&" only aligns the lines: its columns mean nothing to a listener.
+        if kind == "cases":
+            return "value" if index == 1 else "condition"
+        return f"column {index}"
 
     def _linear_step(self, command: str) -> str:
         if command != "MoveNext":
@@ -997,7 +1040,53 @@ def prepare_for_mathcat(mathml: str) -> str:
     for match in list(_DETERMINANT_INTENT.finditer(mathml)):
         argument = re.escape(match.group(1))
         mathml = re.sub(rf'(<mtable\b[^>]*?)\s+arg="{argument}"', r"\1", mathml, count=1)
-    return _DETERMINANT_INTENT.sub('intent=":fenced"', mathml)
+    mathml = _DETERMINANT_INTENT.sub('intent=":fenced"', mathml)
+    # `{■(...)┤` (cases): the converter's ":fenced"/":array" intents hide the
+    # piecewise layout; without them MathCAT says "2 cases; case 1; ...".
+    mathml = _CASES_INTENTS.sub(r"<mrow><mo>{</mo><mtable", mathml)
+    # ...and so does the invisible closing fence `┤` leaves (an `<mo>` holding U+200B).
+    mathml = mathml.replace("</mtable><mo>\u200b</mo></mrow>", "</mtable></mrow>")
+    # `|x|` carries intent="absolute-value(𝑥)" with the content written into it, so
+    # navigating onto x reads the whole thing; MathCAT infers the absolute value itself.
+    mathml = _ABSOLUTE_VALUE_INTENT.sub("", mathml)
+    # `ⅆ` (\dd) carries intent="ⅆ", read "double-struck italic d"; "d" is what is meant.
+    mathml = mathml.replace('intent="ⅆ"', 'intent="d"')
+    if any(name in mathml for name in _LARGE_FUNCTIONS) or "⏞" in mathml or "⏟" in mathml:
+        mathml = _intent_fixups(mathml)
+    return mathml
+
+
+# max/min/sup/inf with a condition under them read like ∑ ("the max over x of f").
+_LARGE_FUNCTIONS = ("max", "min", "sup", "inf", "argmax", "argmin")
+_ABSOLUTE_VALUE_INTENT = re.compile(r'\s+intent="absolute-value\([^"$]*\)"')
+_CASES_INTENTS = re.compile(r'<mrow intent=":fenced">\s*<mo>\{</mo>\s*<mtable intent=":array\([^)]*\)"')
+
+
+def _intent_fixups(mathml: str) -> str:
+    """Intents the converter does not give (see prepare_for_mathcat); leaves the MathML as is if it does not parse."""
+    try:
+        root = ElementTree.fromstring(mathml)
+    except ElementTree.ParseError:
+        return mathml
+    changed = False
+    for element in root.iter():
+        tag = element.tag.rsplit("}", 1)[-1]
+        children = list(element)
+        if tag in ("msub", "munder") and children and children[0].text in _LARGE_FUNCTIONS and "intent" not in element.attrib:
+            element.set("intent", ":largeop")
+            changed = True
+        if tag in ("mover", "munder") and len(children) == 2 and "intent" not in element.attrib:
+            inner = children[0]
+            inner_children = list(inner)
+            brace = "⏞" if tag == "mover" else "⏟"
+            if inner.tag.rsplit("}", 1)[-1] == tag and len(inner_children) == 2 and inner_children[1].text == brace:
+                # `⏞(a+b)┴n`: "a plus b, with brace above, labeled n" (MathCAT patch 0003).
+                name = "overbrace" if brace == "⏞" else "underbrace"
+                element.set("intent", f"{name}($content,$label)")
+                inner_children[0].set("arg", "content")
+                children[1].set("arg", "label")
+                changed = True
+    return ElementTree.tostring(root, encoding="unicode") if changed else mathml
 
 
 def _clean_speech(speech: str) -> str:

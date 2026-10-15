@@ -164,12 +164,15 @@ class MathMLDocument:
                 "lower limit",
                 "upper limit",
                 "limit condition",
+                "condition",
                 "text above",
                 "text below",
             }:
                 entries.append((key, role))
             if self._is_function_argument(candidate):
                 entries.append((key, "argument"))
+            if candidate.attributes.get("arg") == "label":
+                entries.append((key, "label"))
         return tuple(dict.fromkeys(entries))
 
     def exited_regions(self, previous_id: str, current_id: str, ignore_id: str | None = None) -> tuple[str, ...]:
@@ -247,18 +250,54 @@ class MathMLDocument:
         return None
 
     def _structural_region_name(self, node: MathMLNode) -> str | None:
+        if node.tag == "mtable":
+            return self.table_kind(node)
+        bars = self.bar_pair_name(node)
+        if bars is not None:
+            return bars
+        intent = node.attributes.get("intent", "")
+        if intent.startswith(("overbrace(", "underbrace(")):
+            return intent.split("(", 1)[0]  # `⏞(a+b)┴n` (prepare_for_mathcat gives the intent).
         return {
             "mfrac": "fraction",
             "msqrt": "square root",
             "mroot": "root",
-            "mtable": "matrix",
         }.get(node.tag)
+
+    def bar_pair_name(self, node: MathMLNode) -> str | None:
+        """ "absolute value" for an mrow `|x|`, "norm" for `‖x‖`: bars MathCAT reads as the whole."""
+        children = node.children
+        if node.tag != "mrow" or len(children) < 3 or children[0].tag != "mo" or children[-1].tag != "mo":
+            return None
+        if any(child.tag == "mtable" for child in children):
+            return None  # A determinant: its table is the region.
+        first, last = children[0].text.strip(), children[-1].text.strip()
+        if first == last == "|":
+            return "absolute value"
+        if first == last == "‖":
+            return "norm"
+        return None
+
+    def table_kind(self, table: MathMLNode) -> str:
+        """"equations" (an equation array `█(...)`), "cases" (`{■(...)┤`) or "matrix"."""
+        if ":equations" in table.attributes.get("intent", ""):
+            return "equations"
+        parent = self.parent_by_id.get(table.identifier or "")
+        siblings = parent.children if parent is not None else ()
+        index = next((i for i, child in enumerate(siblings) if child is table), 0)
+        if index > 0 and siblings[index - 1].tag == "mo" and siblings[index - 1].text.strip() == "{":
+            return "cases"
+        if index > 0 and siblings[index - 1].tag == "mo" and siblings[index - 1].text.strip() == "|":
+            return "determinant"
+        return "matrix"
 
     def _special_script_role(self, parent: MathMLNode, index: int) -> str | None:
         if parent.tag in {"msub", "munder"} and index == 1:
             base = parent.children[0] if parent.children else None
             if base is not None and self._is_limit_operator(base):
                 return "limit condition"
+            if base is not None and self._normalized_text(base) in {"max", "min", "sup", "inf", "argmax", "argmin"}:
+                return "condition"  # "the max over x in A of ...": not a subscript.
             if base is not None and self._is_large_operator(base):
                 return "lower limit"
         if parent.tag == "msup" and index == 1:

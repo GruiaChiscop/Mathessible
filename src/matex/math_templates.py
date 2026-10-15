@@ -8,7 +8,20 @@ from .template_source import TemplateEdit, insert_template, matching_parens, ope
 
 
 # N-ary operators whose `_(...)`/`^(...)` groups are limits, not scripts.
-NARY_LABELS = {"∫": "integral", "∬": "integral", "∭": "integral", "∮": "integral", "∑": "sum", "∏": "product"}
+NARY_LABELS = {
+    "∫": "integral",
+    "∬": "double integral",
+    "∭": "triple integral",
+    "∮": "contour integral",
+    "∑": "sum",
+    "∏": "product",
+    "⋃": "union",
+    "⋂": "intersection",
+}
+# Paired brackets with a value between (no parens): opening -> (closing, name).
+BRACKET_PAIRS = {"‖": ("‖", "norm"), "⌊": ("⌋", "floor"), "⌈": ("⌉", "ceiling"), "⟨": ("⟩", "angle brackets")}
+# Signs whose "(...)" right after them is a structure's content: sign -> (structure, role).
+CONTENT_SIGNS = {"▭": ("box", "content"), "#": ("equation number", "number"), "⏞": ("overbrace", "content"), "⏟": ("underbrace", "content")}
 # Functions whose `_(...)` is part of the function: (template, slot role).
 # The argument follows a space ("lim_(n→∞) a_n"): with no separator the
 # converter folds it into the subscript, and "▒" is a parse error there.
@@ -25,6 +38,11 @@ ARROWS = frozenset("→←↔⇒⇐⇔⟶⟵⟷⟹⟸⟺↦⇌")
 # (the n-ary names are the ones MathMLDocument uses too).
 NARYAND_ROLES = {
     "integral": "integrand",
+    "double integral": "integrand",
+    "triple integral": "integrand",
+    "contour integral": "integrand",
+    "union": "term",
+    "intersection": "term",
     "sum": "summand",
     "product": "factor",
     "limit": "argument",
@@ -110,6 +128,50 @@ def insert_root_template(source: str, caret: int) -> TemplateEdit:
     state of a template that has not been filled in yet.
     """
     return insert_template(source, caret, "√(&)", first_slot_offset=2, announcement="root template, empty index")
+
+
+def insert_nary_operator_template(source: str, caret: int, symbol: str, limits: bool = False) -> TemplateEdit:
+    """Any n-ary operator of NARY_LABELS (∬, ∮, ⋃, ...), like the integral/sum/product templates."""
+    return _insert_nary_template(source, caret, symbol, limits)
+
+
+def insert_cases_template(source: str, caret: int) -> TemplateEdit:
+    """`{■(&@&)┤`: a piecewise definition, two cases of value & condition, caret in the first value."""
+    return insert_template(source, caret, "{■(&@&)┤", first_slot_offset=3, announcement="cases template, empty value, case 1")
+
+
+def insert_equation_array_template(source: str, caret: int) -> TemplateEdit:
+    """`█(@)`: lines of an equation array (a derivation step by step); `&` aligns them where typed."""
+    return insert_template(source, caret, "█(@)", first_slot_offset=2, announcement="equation array template, empty line 1")
+
+
+def insert_binomial_template(source: str, caret: int) -> TemplateEdit:
+    """`(¦)`: n choose k, caret on top. An empty side is filled in for building (build_repair)."""
+    return insert_template(source, caret, "(¦)", first_slot_offset=1, announcement="binomial template, empty top")
+
+
+def insert_bracket_template(source: str, caret: int, opening: str) -> TemplateEdit:
+    """A pair of BRACKET_PAIRS (`‖‖`, `⌊⌋`, `⌈⌉`, `⟨⟩`), caret between."""
+    closing, name = BRACKET_PAIRS[opening]
+    return insert_template(source, caret, opening + closing, first_slot_offset=1, announcement=f"{name} template, empty value")
+
+
+def insert_box_template(source: str, caret: int) -> TemplateEdit:
+    """`▭()`: a boxed formula (a final answer)."""
+    return insert_template(source, caret, "▭()", first_slot_offset=2, announcement="box template, empty content")
+
+
+def insert_equation_number_template(source: str, caret: int) -> TemplateEdit:
+    """`#()` at the end of the equation, wherever the caret is: its number ("1 equation, with label 1")."""
+    end = len(source)
+    return insert_template(source, end, "#()", first_slot_offset=2, announcement="equation number, empty number")
+
+
+def insert_brace_template(source: str, caret: int, above: bool = True) -> TemplateEdit:
+    """`⏞()┴()` / `⏟()┬()`: a brace over/under an expression with a label, caret in the expression."""
+    template = "⏞()┴()" if above else "⏟()┬()"
+    name = "overbrace" if above else "underbrace"
+    return insert_template(source, caret, template, first_slot_offset=2, announcement=f"{name} template, empty content")
 
 
 def insert_absolute_value_template(source: str, caret: int) -> TemplateEdit:
@@ -243,14 +305,13 @@ def _slots(source: str, functions: tuple[str, ...] = DEFAULT_RECOGNIZED_FUNCTION
     pairs = matching_parens(source)
     slots: list[_Slot] = []
     for cell in matrix_cells(source):
+        label = matrix_label(source, cell)
+        if label == "cases":
+            role = f"{'value' if cell.column == 1 else 'condition'}, case {cell.row}"
+        else:
+            role = f"cell, row {cell.row}, column {cell.column}"
         slots.append(
-            _Slot(
-                cell.start,
-                cell.end,
-                matrix_label(source, cell),
-                f"cell, row {cell.row}, column {cell.column}",
-                past_fence(source, cell.matrix_open - 1, cell.matrix_close + 1),
-            )
+            _Slot(cell.start, cell.end, label, role, past_fence(source, cell.matrix_open - 1, cell.matrix_close + 1))
         )
     for opening, closing in pairs.items():
         separator = _root_index_separator(source, opening, closing, pairs)
@@ -261,6 +322,7 @@ def _slots(source: str, functions: tuple[str, ...] = DEFAULT_RECOGNIZED_FUNCTION
         detected = _detect_group(source, opening, closing)
         if detected is not None:
             slots.append(_Slot(opening + 1, closing, *detected))
+    slots.extend(_structure_slots(source, pairs))
     slots.extend(_naryand_slots(source, pairs, slots, functions))
     return sorted(slots, key=lambda slot: (slot.start, -slot.end))
 
@@ -312,6 +374,55 @@ def _naryand_slots(source: str, pairs: dict[int, int], slots: list[_Slot], funct
         if name in functions and (name_start == 0 or source[name_start - 1] != "\\") and index + 1 not in starts:
             found.append(_Slot(index + 1, closing, name, "argument", closing + 1))
             starts.add(index + 1)
+    return found
+
+
+def _brace_label(source: str, opening: int) -> str | None:
+    """The label group of `⏞(...)┴(...)` / `⏟(...)┬(...)`: its brace's name."""
+    if opening < 2 or source[opening - 1] not in "┴┬" or source[opening - 2] != ")":
+        return None
+    content_open = next((start for start, end in matching_parens(source).items() if end == opening - 2), None)
+    if content_open is None or content_open == 0 or source[content_open - 1] not in "⏞⏟":
+        return None
+    return CONTENT_SIGNS[source[content_open - 1]][0]
+
+
+def _structure_slots(source: str, pairs: dict[int, int]) -> list[_Slot]:
+    """Equation-array lines, binomial top/bottom, and paired-bracket values."""
+    found: list[_Slot] = []
+    for opening, closing in pairs.items():
+        if opening > 0 and source[opening - 1] == "█":
+            # Each line between the array's own "@"s ("&" only aligns, it does not split).
+            start, line = opening + 1, 1
+            for index in _top_level(source, opening, closing, pairs, "@") + [closing]:
+                found.append(_Slot(start, index, "equation array", f"line {line}", closing + 1))
+                start, line = index + 1, line + 1
+            continue
+        separators = _top_level(source, opening, closing, pairs, "¦")
+        if len(separators) == 1:
+            found.append(_Slot(opening + 1, separators[0], "binomial", "top", closing + 1))
+            found.append(_Slot(separators[0] + 1, closing, "binomial", "bottom", closing + 1))
+    stack: list[tuple[str, int]] = []
+    for index, character in enumerate(source):
+        if stack and character == BRACKET_PAIRS[stack[-1][0]][0]:
+            opening_character, start = stack.pop()
+            found.append(_Slot(start + 1, index, BRACKET_PAIRS[opening_character][1], "value", index + 1))
+        elif character in BRACKET_PAIRS:
+            stack.append((character, index))
+    return found
+
+
+def _top_level(source: str, opening: int, closing: int, pairs: dict[int, int], separator: str) -> list[int]:
+    """Offsets of `separator` directly inside the group `opening`..`closing` (not in a nested group)."""
+    found: list[int] = []
+    index = opening + 1
+    while index < closing:
+        if source[index] == "(" and index in pairs:
+            index = pairs[index] + 1
+            continue
+        if source[index] == separator:
+            found.append(index)
+        index += 1
     return found
 
 
@@ -455,6 +566,11 @@ def _detect_group(source: str, opening: int, closing: int) -> tuple[str, str, in
     )
     if nary is not None:
         return nary
+    if before in CONTENT_SIGNS:
+        return CONTENT_SIGNS[before][0], CONTENT_SIGNS[before][1], closing + 1
+    brace = _brace_label(source, opening)
+    if brace is not None:
+        return brace, "label", closing + 1
     if before == "/":
         return "fraction", "denominator", closing + 1
     if before == "_":

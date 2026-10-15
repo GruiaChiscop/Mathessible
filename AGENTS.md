@@ -145,6 +145,27 @@ equation language; the gap is entirely in the editing UX layered on top.
    `\vec(a)` is a parse error (an earlier note here tested that form and
    wrongly concluded accents did not work). No accent template: there is
    no empty slot to fill, the base comes first.
+   **More of UnicodeMath (Insert menu, no shortcuts):** cases
+   `{■(&@&)┤` (slots "value/condition, case N"; `matrix_label` says
+   "cases"), equation array `█(@)` (a slot per line; `&` only aligns),
+   binomial `(¦)` (top/bottom; build_repair fills an empty side), norm
+   `‖‖`, floor `⌊⌋`, ceiling `⌈⌉`, angle brackets `⟨⟩` (`BRACKET_PAIRS`,
+   slot "value"), box `▭()`, equation number `#()` (always appended at
+   the end), over/underbrace `⏞()┴()`/`⏟()┬()` (content + label), and
+   ∬ ∭ ∮ ⋃ ⋂ (`NARY_LABELS`, "term" for ⋃/⋂). All build empty, all have
+   control words (`\eqarray`, `\boxed`, `\norm`, `\atop`, `\iint`, ...).
+   **Readings fixed for them** (tests/test_math_readings.py):
+   `prepare_for_mathcat` drops the converter's `:fenced`/`:array` intents
+   and invisible `┤` fence of cases (MathCAT then says "2 cases; case 1"),
+   the literal `absolute-value(𝑥)` intent (navigating onto x read the
+   whole), rewrites `intent="ⅆ"` to "d", marks max/min/sup/inf with a
+   condition `:largeop` ("the max over x of f"), and gives labeled braces
+   `overbrace($content,$label)` (MathCAT patch 0003 speaks it). In flat
+   reading, equation arrays have "equation N" and no alignment columns,
+   cases "case N"/"value"/"condition", determinants say "determinant",
+   `|x|`/`‖x‖` and braces get start/end stops instead of their bar/brace
+   leaves (which MathCAT reads as the whole structure), and a lone "−"
+   says "negative" (`_leaf_only`).
    **Slot model:** a Tab-able slot is any template argument, *filled or
    empty* — a "(...)" group classified by `_detect_group`, or any matrix
    cell (`_slots` in math_templates.py). Filled slots must stay reachable:
@@ -671,6 +692,12 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
     leaving the intent pointing at nothing and no node to stand on in a
     half-typed `∫▒` (see build_repair). Each patch file's header says what
     and why; keep doing that for every new MathCAT change.
+  - `Rules/Languages/en/SharedRules/general.yaml` (patch 0003): the large-
+    operator rules no longer add "of" before an invisible function
+    application ("the max over x of of f"), and a `labeled-brace` rule
+    reads MateX's `overbrace($content,$label)` intent. Rules are bundled
+    with include-zip: rebuild (`uv sync --reinstall-package matex-mathcat`)
+    after editing them.
 - **License: GPL-2.0-or-later** (was MIT; changed so NVDA's GPL-2.0
   symbol dictionaries can be used). NVDA's `symbols.dic` files are never
   committed: Settings > "Download NVDA dictionaries…" (for users of a

@@ -11,6 +11,14 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from .math_templates import (
+    insert_binomial_template,
+    insert_box_template,
+    insert_brace_template,
+    insert_bracket_template,
+    insert_cases_template,
+    insert_equation_array_template,
+    insert_equation_number_template,
+    insert_nary_operator_template,
     insert_absolute_value_template,
     insert_fraction_template,
     insert_integral_template,
@@ -95,6 +103,28 @@ INSERT_GROUPS = (
         InsertItem(
             "&Equals with Text Above", lambda source, caret: insert_operator_template(source, caret, operator="=")
         ),
+    ),
+    (
+        InsertItem("&Norm", lambda source, caret: insert_bracket_template(source, caret, "‖")),
+        InsertItem("Floo&r", lambda source, caret: insert_bracket_template(source, caret, "⌊")),
+        InsertItem("Ceili&ng", lambda source, caret: insert_bracket_template(source, caret, "⌈")),
+        InsertItem("Angle Brac&kets", lambda source, caret: insert_bracket_template(source, caret, "⟨")),
+        InsertItem("Bino&mial", insert_binomial_template),
+    ),
+    (
+        InsertItem("Double Inte&gral", lambda source, caret: insert_nary_operator_template(source, caret, "∬")),
+        InsertItem("Triple Integral", lambda source, caret: insert_nary_operator_template(source, caret, "∭")),
+        InsertItem("Contour Integral", lambda source, caret: insert_nary_operator_template(source, caret, "∮")),
+        InsertItem("&Union", lambda source, caret: insert_nary_operator_template(source, caret, "⋃", limits=True)),
+        InsertItem("Intersection", lambda source, caret: insert_nary_operator_template(source, caret, "⋂", limits=True)),
+    ),
+    (
+        InsertItem("&Cases", insert_cases_template),
+        InsertItem("E&quation Array", insert_equation_array_template),
+        InsertItem("Bo&x", insert_box_template),
+        InsertItem("Equation &Number", insert_equation_number_template),
+        InsertItem("Overbrace", insert_brace_template),
+        InsertItem("Underbrace", lambda source, caret: insert_brace_template(source, caret, above=False)),
     ),
     # Shift is required: plain Command+M is macOS's Minimize, which the
     # frame's Window menu claims before the editor sees it.

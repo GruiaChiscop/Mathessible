@@ -43,6 +43,9 @@ def describe_insertion_point(
         return "start of math" if side == "before" else "end of math"
     inside = [leaf for leaf in leaves if leaf is node or _contains(document, node, leaf)]
     if len(inside) == 1 and _is_empty(inside[0]):
+        cell = _cell_name(document, inside[0])
+        if cell is not None:
+            return f"in empty {cell}"
         regions = document.regions(inside[0].identifier or "")
         return f"in empty {regions[0]}" if regions else "in an empty slot"
     if not inside:
@@ -85,15 +88,41 @@ def _left(
 
 
 def _cell_edges(document: MathMLDocument, inner: MathMLNode, neighbor: MathMLNode | None) -> list[str]:
-    """In a matrix: "column C" (and "row R") when the neighbor is in another cell (row), innermost first."""
+    """In a table: its cell and row when the neighbor is in another one, innermost first, named as
+    flat reading names them ("column 2"/"row 1", "condition"/"case 1", just "equation 2")."""
     here = document.table_position(inner.identifier or "")
     if here is None:
         return []
     there = document.table_position(neighbor.identifier or "") if neighbor is not None else None
     if there is not None and there.cell_id == here.cell_id:
         return []
+    column, row = _table_part_names(document, here)
     same_row = there is not None and there.table_id == here.table_id and there.row == here.row
-    return [f"column {here.column}"] if same_row else [f"column {here.column}", f"row {here.row}"]
+    names = [column] if same_row else [column, row]
+    return [name for name in names if name]
+
+
+def _table_part_names(document: MathMLDocument, position) -> tuple[str | None, str]:
+    table = document.node(position.table_id) if position.table_id else None
+    kind = document.table_kind(table) if table is not None else "matrix"
+    if kind == "equations":
+        return None, f"equation {position.row}"
+    if kind == "cases":
+        return ("value" if position.column == 1 else "condition"), f"case {position.row}"
+    return f"column {position.column}", f"row {position.row}"
+
+
+def _cell_name(document: MathMLDocument, leaf: MathMLNode) -> str | None:
+    """An empty table cell as one name: "value, case 1", "line 2", "cell, row 1, column 2"."""
+    position = document.table_position(leaf.identifier or "")
+    if position is None:
+        return None
+    column, row = _table_part_names(document, position)
+    if column is None:
+        return row
+    if row.startswith("case"):
+        return f"{column}, {row}"
+    return f"cell, {row}, {column}"
 
 
 def _contains(document: MathMLDocument, node: MathMLNode, leaf: MathMLNode) -> bool:

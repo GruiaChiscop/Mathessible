@@ -1,6 +1,13 @@
 import unittest
 
 from matex.math_templates import (
+    insert_binomial_template,
+    insert_brace_template,
+    insert_bracket_template,
+    insert_cases_template,
+    insert_equation_array_template,
+    insert_equation_number_template,
+    insert_nary_operator_template,
     group_function_argument,
     insert_absolute_value_template,
     insert_fraction_template,
@@ -319,6 +326,40 @@ class MathTemplateTests(unittest.TestCase):
         self.assertEqual((edit.source, edit.caret, edit.announcement), ("a+√〖〗", 4, "square root, empty radicand"))
         self.assertEqual(group_function_argument("∛", 1).source, "∛〖〗")
         self.assertEqual(move_to_slot("√〖x+1〗+2", 0).announcement, "radicand, x+1")
+
+    def walk_slots(self, edit) -> list[str]:
+        announcements, caret = [edit.announcement], edit.caret
+        for _ in range(8):
+            step = move_to_slot(edit.source, caret)
+            if step is None or step.announcement.startswith("end "):
+                break
+            announcements.append(step.announcement)
+            caret = step.caret
+        return announcements
+
+    def test_cases_slots_are_values_and_conditions(self) -> None:
+        edit = insert_cases_template("f=", 2)
+        self.assertEqual(edit.source, "f={■(&@&)┤")
+        self.assertEqual(
+            self.walk_slots(edit),
+            ["cases template, empty value, case 1", "empty condition, case 1", "empty value, case 2", "empty condition, case 2"],
+        )
+        self.assertEqual(move_to_slot(edit.source, 8).caret, 10)  # Tab out past ")┤".
+
+    def test_equation_array_lines_binomial_and_brackets(self) -> None:
+        self.assertEqual(self.walk_slots(insert_equation_array_template("", 0))[1], "empty line 2")
+        self.assertEqual(move_to_slot("█(a&=b@&=c)", 0).announcement, "line 1, a&=b")
+        self.assertEqual(self.walk_slots(insert_binomial_template("", 0)), ["binomial template, empty top", "empty bottom"])
+        self.assertEqual(insert_bracket_template("", 0, "⌊").source, "⌊⌋")
+        self.assertEqual(move_to_slot("‖v‖+1", 0).announcement, "value, v")
+
+    def test_box_number_brace_and_large_operators(self) -> None:
+        edit = insert_equation_number_template("E=mc^2", 1)
+        self.assertEqual((edit.source, edit.caret), ("E=mc^2#()", 8))  # Always at the end.
+        self.assertEqual(self.walk_slots(insert_brace_template("", 0)), ["overbrace template, empty content", "empty label"])
+        double = insert_nary_operator_template("", 0, "∬", limits=True)
+        self.assertEqual(double.announcement, "double integral template, empty lower limit")
+        self.assertEqual(move_to_slot("⋃_(i)▒A_i", 3).announcement, "term, A_i")
 
     def test_any_recognized_function_gets_the_group_and_its_slot(self) -> None:
         # The recognized-functions setting is the only list: a user's own function counts too.

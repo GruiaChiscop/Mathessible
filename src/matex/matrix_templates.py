@@ -18,7 +18,7 @@ MATRIX_FENCES = {
     "brackets": ("[", "]"),
     "bars": ("|", "|"),
 }
-_CLOSING_FENCES = {"(": ")", "[": "]", "|": "|"}
+_CLOSING_FENCES = {"(": ")", "[": "]", "|": "|", "{": "┤"}
 
 
 @dataclass(frozen=True, slots=True)
@@ -201,6 +201,8 @@ def _rebuild_matrix(
 def matrix_label(source: str, cell: MatrixCell) -> str:
     symbol, after_matrix = cell.matrix_open - 1, cell.matrix_close + 1
     is_determinant = symbol > 0 and after_matrix < len(source) and source[symbol - 1] == source[after_matrix] == "|"
+    if symbol > 0 and source[symbol - 1] == "{" and source[after_matrix : after_matrix + 1] == "┤":
+        return "cases"  # `{■(value&condition@...)┤`: a piecewise definition.
     return "determinant" if is_determinant else "matrix"
 
 

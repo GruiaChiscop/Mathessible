@@ -40,6 +40,21 @@ CONTROL_WORDS = {
     "⊘": "ndiv",
     "〖": "begin",
     "〗": "end",
+    "█": "eqarray",
+    "▭": "boxed",
+    "⏞": "overbrace",
+    "⏟": "underbrace",
+    "‖": "norm",
+    "⌊": "lfloor",
+    "⌋": "rfloor",
+    "⌈": "lceil",
+    "⌉": "rceil",
+    "⟨": "langle",
+    "⟩": "rangle",
+    "¦": "atop",
+    "┤": "close",
+    "⋃": "bigcup",
+    "⋂": "bigcap",
 }
 # Words always followed by a space: what comes next is typed right there
 # (`\begin x\end`), and a letter would run into the word (`\beginx`).

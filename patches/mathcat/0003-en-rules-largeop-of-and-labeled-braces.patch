@@ -1,0 +1,63 @@
+MathCAT (en rules): no doubled "of" after a large operator, and labeled braces
+
+1. `bigop-both`/`bigop-under` add "of" when something follows the large
+   operator. When what follows is an invisible function application
+   (U+2061), as after `max_(x∈A)` (max is a function name, so MathCAT
+   inserts one before `f(x)`), that operator says "of" itself: the result
+   was "the max over x of of f of x". The test now skips U+2061.
+2. A rule for the intents `overbrace($content,$label)` and
+   `underbrace($content,$label)` that MateX gives `⏞(a+b)┴n` /
+   `⏟(a+b)┬n` (src/matex/mathcat.py, prepare_for_mathcat): "a plus b, with
+   brace above, labeled n". Without it the nested movers read "quantity
+   quantity a plus b with top brace above with n above".
+
+Applied by scripts/bootstrap.sh on top of upstream 85c89a37. Part 1 is
+worth proposing upstream to daisy/MathCAT.
+
+diff --git a/Rules/Languages/en/SharedRules/general.yaml b/Rules/Languages/en/SharedRules/general.yaml
+index 832384da..74491460 100644
+--- a/Rules/Languages/en/SharedRules/general.yaml
++++ b/Rules/Languages/en/SharedRules/general.yaml
+@@ -148,6 +148,22 @@
+   - t: "comma"      # phrase(use a 'comma' to divide large numbers or as a decimal point)
+   - x: "*[2]"
+ 
++# MateX: a brace over/under an expression with a label (`⏞(a+b)┴n`), given by MateX as
++# intent="overbrace($content,$label)": "a plus b, with brace above, labeled n".
++- name: labeled-brace
++  tag: [overbrace, underbrace]
++  match: "count(*)=2"
++  replace:
++  - x: "*[1]"
++  - pause: short
++  - test:
++      if: "self::m:overbrace"
++      then: [t: "with brace above"]
++      else: [t: "with brace below"]
++  - pause: short
++  - t: "labeled"
++  - x: "*[2]"
++
+ - name: bigop-both
+   tag: large-op
+   match: "count(*) = 3"
+@@ -162,7 +178,8 @@
+   - t: "to"      # phrase(adding 6 'to' 6 equals  12)
+   - x: "*[3]"
+   - test:
+-      if: "following-sibling::*"
++      # Not when an invisible function application follows ("max_(x) f"): it says "of" itself.
++      if: "following-sibling::*[1][not(self::m:mo and .='\u2061')]"
+       then: [t: "of"]      # phrase(the square root 'of' 25 equals 5)
+ 
+ - name: bigop-under
+@@ -176,7 +193,8 @@
+   - t: "over"      # phrase(2 'over' 3 equals two thirds)
+   - x: "*[2]"
+   - test:
+-      if: "following-sibling::*"
++      # Not when an invisible function application follows ("max_(x) f"): it says "of" itself.
++      if: "following-sibling::*[1][not(self::m:mo and .='\u2061')]"
+       then: [t: "of"]      # phrase(the square root 'of' 25 equals 5)
+ 
+ - name: largeop
