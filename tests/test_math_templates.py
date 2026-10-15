@@ -307,6 +307,18 @@ class MathTemplateTests(unittest.TestCase):
         self.assertIsNone(group_function_argument("f(x)", 4))
         self.assertIsNone(group_function_argument("lim_(x→∞)〖a〗", 9))
 
+    def test_space_after_a_named_function_opens_its_argument(self) -> None:
+        edit = group_function_argument("y=ln", 4, ("ln", "sin"))
+        self.assertEqual((edit.source, edit.caret), ("y=ln 〖〗", 6))
+        self.assertIsNone(group_function_argument("xln", 3, ("ln",)))  # Part of a longer word.
+        self.assertIsNone(group_function_argument("\\sin", 4, ("sin",)))  # A control word.
+        self.assertIsNone(group_function_argument("ln", 2))  # Not in the given list.
+
+    def test_function_and_logarithm_arguments_are_slots(self) -> None:
+        self.assertEqual(move_to_slot("ln(x+1)", 0).announcement, "argument, x+1")
+        self.assertEqual(move_to_slot("log_(2) 〖x〗", 6).announcement, "argument, x")
+        self.assertEqual(move_to_slot("ln 〖(a)/(b)〗", 0).announcement, "argument, (a)/(b)")
+
     def test_the_grouped_argument_is_a_slot(self) -> None:
         source = "lim_(n→∞) 〖a_n〗"
         self.assertEqual(move_to_slot(source, 6).announcement, "argument, a_n")

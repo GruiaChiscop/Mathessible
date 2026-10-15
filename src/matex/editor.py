@@ -15,7 +15,7 @@ from .editor_structures import StructureActionsMixin
 from .edit_history import EditHistory, EditState
 from .mathcat import MathCatNavigator, create_mathcat_navigator
 from .insert_catalog import InsertItem, item_for_key
-from .math_templates import group_function_argument, move_to_slot
+from .math_templates import FUNCTION_NAMES, group_function_argument, move_to_slot
 from .mathml_model import MathMLDocument
 from .model import EquationDocument
 from .settings import AppSettings
@@ -773,7 +773,8 @@ if wx is not None:
                 return
             if key == wx.WXK_SPACE and self.settings.convert_on_space and self._selection_range() is None:
                 # Space after lim_(...)/log_(...) opens the argument box, as in Word.
-                group = self._edit(group_function_argument)
+                functions = tuple(FUNCTION_NAMES | set(self.settings.recognized_functions) - {"sqrt"})
+                group = self._edit(lambda source, caret: group_function_argument(source, caret, functions))
                 if group is not None:
                     self._replace_linear(group.source, group.caret)
                     self._announce(group.announcement)

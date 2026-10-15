@@ -100,11 +100,15 @@ equation language; the gap is entirely in the editing UX layered on top.
    an invisible group (`\begin \end ` as control words; `\begin` always
    gets a space, or a typed letter makes `\beginx`). The group is Word's
    argument box: `/` takes everything glued before it as numerator, so
-   `lim_(x→∞) (a)/(b)` is a fraction with the limit on top, while
-   `lim_(x→∞) 〖(a)/(b)〗` is the limit of the fraction. Typing by hand
-   gets it too: Space right after `lim_(...)`/`log_(...)` opens the group
-   with the caret inside (`group_function_argument`, under the
-   `convert_on_space` setting), as Word does. The space is required: `lim_(n→∞)a_n` folds the argument into the
+   `lim_(x→∞) (a)/(b)` or `ln (a)/(b)` is a fraction with the function on
+   top, while `ln 〖(a)/(b)〗` is the log of the fraction. Typing by hand
+   gets it too, for every function: Space right after `lim_(...)`,
+   `log_(...)` or a function name (`FUNCTION_NAMES` plus the
+   recognized-functions setting; not after `\` or inside a longer word)
+   opens ` 〖〗` with the caret inside (`group_function_argument`, under
+   `convert_on_space`), and the group is a Tab slot ("argument, x+1").
+   Not visible parens: the user wants `\begin`/`\end`, as Word (an
+   earlier attempt with `ln(...)` was a misunderstanding). The space is required: `lim_(n→∞)a_n` folds the argument into the
    subscript and `lim_(...)▒` is a parse error, while `lim_(n→∞) a_n` is a
    function application; empty conditions/bases convert cleanly
    (`FUNCTION_SCRIPTS`, `_function_script`). Plain functions need no

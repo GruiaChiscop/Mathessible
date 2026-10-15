@@ -12,6 +12,11 @@ NARY_LABELS = {"∫": "integral", "∬": "integral", "∭": "integral", "∮": "
 # The argument follows a space ("lim_(n→∞) a_n"): with no separator the
 # converter folds it into the subscript, and "▒" is a parse error there.
 FUNCTION_SCRIPTS = {"lim": ("limit", "limit condition"), "log": ("logarithm", "base")}
+# Named functions whose "〖...〗" or "(...)" is their argument (a Tab slot); the editor
+# adds the user's own recognized functions when opening an argument.
+FUNCTION_NAMES = frozenset(
+    {"sin", "cos", "tan", "tg", "cot", "ctg", "sec", "csc", "log", "ln", "lg", "exp", "arcsin", "arccos", "arctan", "sinh", "cosh", "tanh"}
+)
 FUNCTION_TEMPLATES = frozenset(template for template, _role in FUNCTION_SCRIPTS.values())
 # Word's operator structures: an operator with text above (`→┴(...)`) or
 # below (`→┬(...)`); both stack as `→┬(below)┴(above)`. Like lim, a space
@@ -49,21 +54,31 @@ def insert_limit_template(source: str, caret: int) -> TemplateEdit:
     )
 
 
-def group_function_argument(source: str, caret: int) -> TemplateEdit | None:
-    """Space right after `lim_(...)`/`log_(...)`: open its argument as an invisible group, as Word does.
+def group_function_argument(source: str, caret: int, functions: tuple[str, ...] = ()) -> TemplateEdit | None:
+    """Space right after a function: open its argument box, as Word does.
 
-    Word builds a function with an argument box there, so a fraction typed
-    next stays under the limit; in UnicodeMath that box is `〖...〗`
-    (without it `lim_(x→∞) (a)/(b)` puts the limit on the numerator).
+    After `lim_(...)`, `log_(...)` or a named function (`ln`, `sin`, ... and
+    any in `functions`), the argument becomes an invisible group `〖...〗`
+    (`\\begin ... \\end`), the caret inside. Word's argument box is that
+    group: `/` takes everything glued before it as its numerator, so
+    without it `lim_(x→∞) (a)/(b)` or `ln (a)/(b)` is a fraction with the
+    function in the numerator; `ln 〖(a)/(b)〗` is the log of the fraction.
     """
-    if caret == 0 or source[caret - 1] != ")" or source[caret : caret + 1] in ("〖", " "):
+    if caret == 0 or source[caret : caret + 1] in ("〖", "(", " "):
         return None
-    pairs = matching_parens(source)
-    opening = next((start for start, end in pairs.items() if end == caret - 1), None)
-    script = _function_script(source, opening, caret - 1) if opening is not None else None
-    if script is None:
+    if source[caret - 1] == ")":
+        pairs = matching_parens(source)
+        opening = next((start for start, end in pairs.items() if end == caret - 1), None)
+        if opening is None or _function_script(source, opening, caret - 1) is None:
+            return None
+        return TemplateEdit(source[:caret] + " 〖〗" + source[caret:], caret + 2, "empty argument")
+    start = caret
+    while start > 0 and source[start - 1].isalpha():
+        start -= 1
+    name = source[start:caret]
+    if not name or name not in functions or (start > 0 and source[start - 1] == "\\"):
         return None
-    return TemplateEdit(source[:caret] + " 〖〗" + source[caret:], caret + 2, "empty argument")
+    return TemplateEdit(source[:caret] + " 〖〗" + source[caret:], caret + 2, f"{name}, empty argument")
 
 
 def insert_logarithm_template(source: str, caret: int) -> TemplateEdit:
@@ -272,6 +287,19 @@ def _naryand_slots(source: str, pairs: dict[int, int], slots: list[_Slot]) -> li
                 end = operand_end(source, slot.exit, pairs)
                 found.append(_Slot(slot.exit, end, slot.template, NARYAND_ROLES[slot.template], end))
             starts.add(slot.exit)
+    for index, character in enumerate(source):
+        # `ln 〖...〗`, `sin(...)`: a named function's group or parens hold its argument.
+        closing = _invisible_group_end(source, index) if character == "〖" else pairs.get(index) if character == "(" else None
+        if closing is None:
+            continue
+        name_end = index - 1 if index > 0 and source[index - 1] == " " and character == "〖" else index
+        name_start = name_end
+        while name_start > 0 and source[name_start - 1].isalpha():
+            name_start -= 1
+        name = source[name_start:name_end]
+        if name in FUNCTION_NAMES and (name_start == 0 or source[name_start - 1] != "\\") and index + 1 not in starts:
+            found.append(_Slot(index + 1, closing, name, "argument", closing + 1))
+            starts.add(index + 1)
     return found
 
 
