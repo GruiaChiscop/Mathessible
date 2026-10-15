@@ -427,6 +427,9 @@ class MathMLDocument:
                     return "upper limit"
         return None
 
+    def is_function_argument(self, node: MathMLNode) -> bool:
+        return self._is_function_argument(node)
+
     def is_large_operator(self, node: MathMLNode) -> bool:
         return self._is_large_operator(node)
 
@@ -493,6 +496,10 @@ class MathMLDocument:
         # superscript, and the whole msup is the function name of its row.
         if node.tag in SCRIPT_TAGS:
             return None
+        # The converter marks every function application it recognizes
+        # (lim, max, ... -- not just the user's list): the head comes first.
+        if ":function" in node.attributes.get("intent", "") and node.children:
+            return 0
         for index, child in enumerate(node.children):
             if self._is_function_name(child) or self._is_scripted_function_name(child):
                 return index

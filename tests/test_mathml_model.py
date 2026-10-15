@@ -85,6 +85,18 @@ class MathMLModelTests(unittest.TestCase):
         self.assertEqual(document.regions("two"), ("superscript",))
         self.assertEqual(document.regions("x"), ("argument",))
 
+    def test_a_function_the_converter_marks_has_an_argument_without_being_listed(self) -> None:
+        # Converter output for "lim_(n→∞) s_n"; "lim" is not a recognized function.
+        document = MathMLDocument.parse(
+            """<math><mrow intent=":function"><munder id="head"><mi>lim</mi><mrow id="condition">
+            <mi>𝑛</mi><mo>→</mo><mi>∞</mi></mrow></munder><mo>⁡</mo>
+            <msub id="argument"><mi id="s">𝑠</mi><mi id="n">𝑛</mi></msub></mrow></math>""",
+            recognized_functions=("sin",),
+        )
+        self.assertIn("argument", document.regions("s"))
+        self.assertNotIn("argument", document.regions("condition"))
+        self.assertEqual(document.entered_regions("condition", "s"), ("argument",))
+
     def test_mathcat_speech_is_augmented_when_leaving_integrand(self) -> None:
         navigator = MathCatNavigator(language="en")
         navigator.load(INTEGRAL)

@@ -579,6 +579,8 @@ class MathCatNavigator:
             speech = " ".join(node.content.split())
         speech = _INVISIBLE_OPERATOR_NAMES.get(speech.strip(), speech)
         role = self.structure.semantic_role(node.identifier)
+        if not role and self.structure.is_function_argument(node):
+            role = "argument"
         return f"{role}, {speech}" if role else speech
 
     def _structural_edge_speech(self, side: str, parent: MathMLNode) -> str:

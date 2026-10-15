@@ -98,14 +98,14 @@ equation language; the gap is entirely in the editing UX layered on top.
    function application; empty conditions/bases convert cleanly
    (`FUNCTION_SCRIPTS`, `_function_script`). Plain functions need no
    template: `sin x`, `ln x`, `sin(x)` already convert as functions.
-   Still missing: Operator. **Accent mostly doesn't
-   work**: only `\overline(...)` converts
-   cleanly through the vendored `UnicodeMathML` engine — `\hat`, `\vec`,
-   `\bar`, `\dot`, `\tilde` all fail as control words (confirmed by direct
-   `convert_unicode_math` calls, not assumed); real Word accents use a
-   combining Unicode character glued to an existing base letter instead,
-   which doesn't fit the empty-slot template model at all (there's no
-   "argument" to place a caret in).
+   Still missing: Operator. **Accents work, written after the base** as in
+   Word: `a\vec` → `a⃗` (combining U+20D7, an `mover accent="true"`),
+   `a\hat`, `x\dot`, `x\tilde`, `x\bar` (an `menclose` top), and
+   `(a+b)\vec` over a group; Space/punctuation conversion turns the word
+   into the combining character after the base. Only the prefix form
+   `\vec(a)` is a parse error (an earlier note here tested that form and
+   wrongly concluded accents did not work). No accent template: there is
+   no empty slot to fill, the base comes first.
    **Slot model:** a Tab-able slot is any template argument, *filled or
    empty* — a "(...)" group classified by `_detect_group`, or any matrix
    cell (`_slots` in math_templates.py). Filled slots must stay reachable:

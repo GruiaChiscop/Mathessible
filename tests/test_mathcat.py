@@ -126,6 +126,19 @@ class MathCatTests(unittest.TestCase):
         self.assertEqual(step("MovePrevious"), "denominator, c")
         self.assertEqual(step("ZoomOut"), fraction)
 
+    def test_structural_stops_name_the_argument_of_a_marked_function(self) -> None:
+        # Converter output for "lim_(n→∞) s_n".
+        mathml = (
+            '<math><mrow intent=":function"><munder><mi>lim</mi><mrow><mi>𝑛</mi><mo>→</mo>'
+            "<mi>∞</mi></mrow></munder><mo>⁡</mo><msub><mi>𝑠</mi><mi>𝑛</mi></msub></mrow></math>"
+        )
+        navigator = MathCatNavigator(language="en", auto_zoom_out=False, structural_stops=True)
+        navigator.load(mathml)
+        navigator.command("ZoomIn")
+        step = navigator.structural_command
+        self.assertEqual(step("MoveNext"), "the limit as n approaches infinity")
+        self.assertEqual(step("MoveNext"), "argument, s sub n")
+
 
     def test_local_mathcat_patches_are_applied(self) -> None:
         # scripts/bootstrap.sh applies patches/mathcat/*.patch; without
