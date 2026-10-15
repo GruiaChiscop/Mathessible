@@ -44,6 +44,8 @@ _SPELLINGS = {
     "3": ("∛",),
     "4": ("∜",),
 }
+# Signs that open a structure: "before the square root" is before its "√".
+_STRUCTURE_SIGNS = frozenset("√∛∜■█")
 # How far ahead a leaf is looked for before giving up on it.
 _LOOKAHEAD = 12
 
@@ -160,8 +162,12 @@ def leaf_at(spans: dict[str, SourceSpan], offset: int) -> str | None:
     return None if best is None else best[1]
 
 
-def anchor_offset(source: str, document: MathMLDocument, node_id: str, side: str) -> int:
-    """The source offset just before or after a node (any node: its leaves' spans are joined)."""
+def anchor_offset(source: str, document: MathMLDocument, node_id: str, side: str, outside: bool = False) -> int:
+    """The source offset just before or after a node (any node: its leaves' spans are joined).
+
+    With `outside`, a whole structure's own parens are stepped over too, so
+    "after the fraction" `(1)/(2)` is past its last ")", not inside "(2)".
+    """
     spans = map_leaves(source, document)
     node = document.node(node_id)
     if node is None or node is document.root:
@@ -170,7 +176,38 @@ def anchor_offset(source: str, document: MathMLDocument, node_id: str, side: str
     found = [spans[leaf.identifier] for leaf in leaves if leaf.identifier in spans]
     if not found:
         return 0 if side == "before" else len(source)
-    return min(span.start for span in found) if side == "before" else max(span.end for span in found)
+    start, end = min(span.start for span in found), max(span.end for span in found)
+    if outside:
+        start, end = _with_own_parens(source, start, end)
+    return start if side == "before" else end
+
+
+def _with_own_parens(source: str, start: int, end: int) -> tuple[int, int]:
+    """Widen `start`..`end` over the "(" / ")" whose partner is already inside it, and a structure's sign (√, ■)."""
+    view = view_of(source)
+    text = view.text
+    pairs = {}
+    stack: list[int] = []
+    for index, character in enumerate(text):
+        if character == "(":
+            stack.append(index)
+        elif character == ")" and stack:
+            opening = stack.pop()
+            pairs[opening], pairs[index] = index, opening
+    low, high = view.to_view(start), view.to_view(end)
+    changed = True
+    while changed:
+        changed = False
+        if low > 0 and text[low - 1] == "(" and low - 1 in pairs and pairs[low - 1] <= high:
+            low -= 1
+            changed = True
+        if low > 0 and text[low - 1] in _STRUCTURE_SIGNS and low < len(text) and text[low] == "(":
+            low -= 1
+            changed = True
+        if high < len(text) and text[high] == ")" and high in pairs and pairs[high] >= low:
+            high += 1
+            changed = True
+    return view.to_source(low), view.to_source(high)
 
 
 def _inside(document: MathMLDocument, leaf: MathMLNode, node: MathMLNode) -> bool:

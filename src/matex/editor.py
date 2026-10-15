@@ -5,7 +5,8 @@ from collections.abc import Callable
 
 from .clipboard import get_clipboard_text, set_clipboard_text
 from .character_speech import character_name, deleted_character, inserted_character
-from .source_map import anchor_offset, leaf_before, map_leaves
+from .insertion_point import describe_insertion_point
+from .source_map import anchor_offset, leaf_before, leaf_nodes, map_leaves
 from .symbol_dictionary import load_dictionary
 from .editor_drawing import EditorDrawingMixin
 from .editor_renderer import EquationRendererMixin
@@ -523,7 +524,7 @@ if wx is not None:
         def insert_item(self, item: InsertItem) -> None:
             """Insert an Insert-menu entry at the caret, or where MathCAT is in professional view."""
             if self.mode == "professional" and self.mathcat is not None and self.mathcat.structure is not None:
-                self._edit_in_built(lambda: self._insert_linear(item))
+                self._edit_in_built(lambda: self._insert_linear(item), glue=True)
                 return
             if self.mode != "linear":
                 return
@@ -672,6 +673,10 @@ if wx is not None:
                     self._announce("still preparing the equation, please wait")
                     return
                 if self.mathcat is not None:
+                    if key == wx.WXK_SPACE and event.AltDown() and event.ShiftDown() and not event.CmdDown():
+                        # Where typing would go ("after a, before plus").
+                        self._announce(self._insertion_point())
+                        return
                     if key == wx.WXK_SPACE and event.AltDown() and not event.CmdDown():
                         self._announce(self.mathcat.read_current_zone())
                         return
@@ -861,15 +866,53 @@ if wx is not None:
             def handle_key() -> None:
                 self._on_char(event)  # Announces the character itself.
 
-            self._edit_in_built(handle_key)
+            typed = chr(event.GetUnicodeKey()) if self._is_typed_character(event) else ""
+            # A letter, digit, group or control word glued to a structure joins it.
+            self._edit_in_built(handle_key, glue=bool(typed) and (typed.isalnum() or typed in '(\\"'))
 
-        def _built_offset(self) -> int:
-            """The source offset of MathCAT's position (`edit_anchor`, `source_map`)."""
+        def _insertion_point(self) -> str:
+            assert self.mathcat is not None
+            if self.mathcat.structure is None:
+                return "equation"
+            node_id, side, outside = self.mathcat.edit_anchor()
+            return describe_insertion_point(self.mathcat.structure, node_id, side, outside, self.symbols)
+
+        def _built_offset(self, glue: bool = False) -> int:
+            """The source offset of MathCAT's position (`edit_anchor`, `source_map`).
+
+            With `glue` (something that would join an operand is about to be
+            typed) at the outer edge of a structure, a space is put between:
+            UnicodeMath joins `(1)/(2)x` into the denominator and `x(1)/(2)`
+            into the numerator, while `(1)/(2) x` and `x (1)/(2)` stay apart.
+            """
             assert self.mathcat is not None and self.mathcat.structure is not None
-            node_id, side = self.mathcat.edit_anchor()
-            return anchor_offset(self.document.source, self.mathcat.structure, node_id, side)
+            node_id, side, outside = self.mathcat.edit_anchor()
+            source = self.document.source
+            offset = anchor_offset(source, self.mathcat.structure, node_id, side, outside)
+            if not (glue and outside and self._joins_structure(node_id, side)):
+                return offset
+            if side == "after" and 0 < offset and source[offset - 1] != " ":
+                self.document.replace_source(source[:offset] + " " + source[offset:], offset + 1)
+                return offset + 1
+            if side == "before" and offset < len(source) and source[offset] != " ":
+                self.document.replace_source(source[:offset] + " " + source[offset:], offset)
+            return offset
 
-        def _edit_in_built(self, action: Callable[[], str | None]) -> None:
+        def _joins_structure(self, node_id: str, side: str) -> bool:
+            """Whether typing next to this edge would run into a structure (a whole one, or the math's first/last)."""
+            structure = self.mathcat.structure if self.mathcat is not None else None
+            if structure is None:
+                return False
+            node = structure.node(node_id)
+            if node is not structure.root:
+                return True
+            leaves = [leaf for leaf in leaf_nodes(structure) if leaf.text not in "\u2061\u2062\u2063\u2064"]
+            if not leaves:
+                return False
+            edge = leaves[-1] if side == "after" else leaves[0]
+            return bool(structure.region_entries(edge.identifier or ""))
+
+        def _edit_in_built(self, action: Callable[[], str | None], glue: bool = False) -> None:
             """Run a linear-mode edit at MathCAT's position, then rebuild the equation.
 
             `action` runs in linear mode with the caret on that offset and may
@@ -877,7 +920,7 @@ if wx is not None:
             """
             source = self.document.source
             self._clear_selection()
-            self.caret = self._built_offset()
+            self.caret = self._built_offset(glue)
             self.mode = "linear"
             announcement = action() or ""
             if self.document.source == source:

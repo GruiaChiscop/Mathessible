@@ -38,6 +38,14 @@ class _LinearStop:
     # What to highlight: at an "end ..." stop MathCAT is already on the next
     # node, but what was just announced is the structure being left.
     display_id: str
+    # A "start X"/"end X" stop: X's node, and whether typing there goes
+    # outside it (a whole structure) or inside at its edge (a role, a cell).
+    edge: tuple[str, bool] | None = None
+
+
+# Regions that are whole structures: typing at their "start"/"end" stop goes
+# before/after the structure; at a role's ("end numerator") it stays inside.
+_CONTAINER_REGIONS = frozenset({"fraction", "square root", "root", "matrix"})
 
 
 _MAX_LINEAR_STOPS = 2000
@@ -705,9 +713,16 @@ class MathCatNavigator:
         previous_entries: tuple[tuple[int, str], ...] = ()
         last_id: str | None = None
 
-        def boundary(speech: str, node_id: str, display_id: str) -> _LinearStop:
+        region_nodes: dict[int, str] = {}
+
+        def boundary(speech: str, node_id: str, display_id: str, region: tuple[int, str] | None = None) -> _LinearStop:
             stop = BoundaryStop(speech=speech, pending_speeches=(), resume_command="MoveNext", current_id=node_id)
-            return _LinearStop(node_id, speech, stop, display_id)
+            edge = None
+            if region is not None and region[0] in region_nodes:
+                edge = (region_nodes[region[0]], region[1] in _CONTAINER_REGIONS)
+            elif region is None and structure.root.identifier and speech == "end of math":
+                edge = (structure.root.identifier, True)
+            return _LinearStop(node_id, speech, stop, display_id, edge)
 
         try:
             for leaf in leaves:
@@ -724,20 +739,20 @@ class MathCatNavigator:
                 # A function name is a single word: "start function name,
                 # sine, end function name" would only be noise.
                 entries = tuple(
-                    entry for entry in self._stop_regions(leaf, leaf_id) if entry[1] != "function name"
+                    entry for entry in self._stop_regions(leaf, leaf_id, region_nodes) if entry[1] != "function name"
                 )
                 current, previous = set(entries), set(previous_entries)
                 for entry in previous_entries:
                     if entry not in current:
-                        stops.append(boundary(f"end {entry[1]}", leaf_id, last_id or leaf_id))
+                        stops.append(boundary(f"end {entry[1]}", leaf_id, last_id or leaf_id, entry))
                 for entry in reversed(entries):
                     if entry not in previous:
-                        stops.append(boundary(f"start {entry[1]}", leaf_id, leaf_id))
+                        stops.append(boundary(f"start {entry[1]}", leaf_id, leaf_id, entry))
                 stops.append(_LinearStop(leaf_id, speech, None, leaf_id))
                 previous_entries, last_id = entries, leaf_id
             if last_id is not None:
-                for _key, label in previous_entries:
-                    stops.append(boundary(f"end {label}", last_id, last_id))
+                for entry in previous_entries:
+                    stops.append(boundary(f"end {entry[1]}", last_id, last_id, entry))
                 stops.append(boundary("end of math", last_id, last_id))
         finally:
             current_id, self._boundary_stop, self._ends_announced_at, self._linear_index = saved
@@ -749,17 +764,20 @@ class MathCatNavigator:
         self._linear_done = True
         self._linear_frontier = None
 
-    def _stop_regions(self, leaf: MathMLNode, leaf_id: str) -> list[tuple[int, str]]:
+    def _stop_regions(self, leaf: MathMLNode, leaf_id: str, nodes: dict[int, str]) -> list[tuple[int, str]]:
         """The leaf's regions, innermost first, with matrix rows and cells as regions too.
 
         A flat "1 0 0 0 1 0" says nothing about a matrix's shape, so each
         row and each cell (named by its column) gets "start"/"end" stops.
+        `nodes` collects each region's node id, by region key.
         """
         structure = self.structure
         assert structure is not None
         regions = structure.region_entries(leaf_id)
         entries: list[tuple[int, str]] = []
         for candidate in (leaf,) + structure.ancestors(leaf_id):
+            if candidate.identifier:
+                nodes[id(candidate)] = candidate.identifier
             entries.extend(entry for entry in regions if entry[0] == id(candidate))
             if candidate.tag in {"mtr", "mtd"} and candidate.identifier:
                 parent = structure.parent_by_id.get(candidate.identifier)
@@ -878,23 +896,38 @@ class MathCatNavigator:
         index = self.structure.table_index(position.table_id)
         return None if index is None else (index, position.row, position.column)
 
-    def edit_anchor(self) -> tuple[str, str]:
-        """Where typing would go: (node id, "before" or "after").
+    def edit_anchor(self) -> tuple[str, str, bool]:
+        """Where typing would go: (node id, "before"/"after", outside).
 
-        On a plain item, after it. On a "start X" stop (linear or
-        structural, "start of math" too), before the item it leads into; on
-        an "end X" stop, after the item just left.
+        On a plain item, after it. On a linear "start X"/"end X" stop,
+        before/after X: outside a whole structure ("end fraction"), inside
+        at the edge of a role or cell ("end numerator"). On a structural
+        level's edge, before/after the structure. `outside` asks the source
+        offset to step over the structure's own parens too.
         """
+        index = self._linear_index
+        if index is not None and index < len(self._linear_stops) and self._boundary_stop is not None:
+            stop = self._linear_stops[index]
+            if stop.edge is not None and self._boundary_stop is stop.boundary:
+                side = "before" if stop.speech.startswith("start") else "after"
+                return stop.edge[0], side, stop.edge[1]
+        if self._structural_edge is not None and self.structure is not None:
+            node = self.structure.node(self.current_id)
+            parent = self._level_parent(node) if node is not None else None
+            side = "before" if self._structural_edge == "start" else "after"
+            if parent is not None and parent.identifier:
+                return parent.identifier, side, True
+            return self.current_id, side, False
         stop = self._boundary_stop
-        if self._structural_edge == "start":
-            return self.current_id, "before"
-        if self._structural_edge == "end":
-            return self.current_id, "after"
+        if stop is not None and stop.speech == "start of math" and self.structure is not None:
+            # Before everything, not inside the first numerator or radicand.
+            if self.structure.root.identifier:
+                return self.structure.root.identifier, "before", True
         if stop is not None and stop.speech.startswith("start"):
-            return stop.current_id or self.current_id, "before"
+            return stop.current_id or self.current_id, "before", False
         if stop is not None and stop.speech.startswith("end"):
-            return self.display_id, "after"
-        return self.current_id, "after"
+            return self.display_id, "after", False
+        return self.current_id, "after", False
 
     def move_to(self, identifier: str) -> None:
         """Put MathCAT's cursor on a node, e.g. one clicked in the rendering."""

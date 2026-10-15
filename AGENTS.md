@@ -240,7 +240,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      reader user "built" means: the equation stays built and MathCAT-
      navigable while you type into it. Steps: (1) source↔node map, done;
      (2) typing/Backspace/Delete in professional mode, done (below);
-     (3) a caret between nodes; (4) incomplete source while typing;
+     (3) a caret between nodes, done (below); (4) incomplete source while typing;
      (5) open equations built by default (setting).
      **Step 1, [source_map.py](src/matex/source_map.py):** the converter
      keeps no source positions, and its Ⓐ/Ⓕ selection markers are no help
@@ -274,6 +274,25 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      moves MathCAT, no rebuild); the equation window enables Insert and
      Undo/Redo in professional view (`_enable_when_editable`), cut/paste/
      select all stay linear-only.
+     **Step 3:** every stop already *is* an insertion point (after the
+     item, before it on "start" stops), so the caret is the stop; what was
+     missing was saying it and getting edges right. `edit_anchor` returns
+     `(node, side, outside)`: linear `_LinearStop.edge` records each
+     "start/end X" stop's region node, and `_CONTAINER_REGIONS` (fraction,
+     square root, root, matrix) type *outside* the structure while roles
+     and cells ("end numerator", "end column 1") type inside at the edge;
+     structural level edges and "start/end of math" are outside too.
+     `anchor_offset(..., outside=True)` widens over the structure's own
+     parens and sign (`√`, `■`). Shift+Option+Space (Shift+Alt+Space) reads
+     the point ([insertion_point.py](src/matex/insertion_point.py): "after
+     1, end of numerator, before 2", "start of denominator, before 2",
+     "after the fraction, before plus", "after 1, end of column 1, before
+     2"); it describes the anchor, not an offset, since one offset can be
+     either side of an edge. **Trap:** UnicodeMath juxtaposition joins a
+     letter typed right after/before a structure into it (`(1)/(2)x` puts x
+     in the denominator, `x(1)/(2)` in the numerator); `_built_offset(glue)`
+     adds a space at an outer edge when the neighbor is in a structure
+     (`_joins_structure`), which the converter swallows.
 - **Where it plugs in**: the completeness check must run from `editor.py`
   (only place with WebView access); trigger-character detection (which
   keystrokes/positions qualify — mind that `.`/`,` are also decimal points

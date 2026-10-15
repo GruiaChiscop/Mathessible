@@ -73,7 +73,11 @@ Matrice: inserare de rânduri deasupra/dedesubt, de coloane la stânga/dreapta
 în modul profesional, pe celula curentă, și permite comutarea între modul
 liniar și cel profesional. În modul profesional, săgețile stânga/dreapta
 parcurg nodurile, săgeata jos intră într-o structură, iar săgeata sus revine
-la părinte.
+la părinte. În modul profesional se poate și scrie: textul intră după
+elementul curent (înaintea lui pe opririle „start …”), Backspace și Delete
+șterg, iar inserarea de șabloane, Undo/Redo și Tab funcționează ca în modul
+liniar. `Shift+Option+Space` (`Shift+Alt+Space` în afara macOS) spune unde
+ar ajunge textul, de exemplu „after 1, end of numerator, before 2”.
 
 ## Markdown și ecuații
 
