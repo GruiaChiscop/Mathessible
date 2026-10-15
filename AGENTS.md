@@ -236,8 +236,27 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   1. ~~On a trigger character, if the whole source converts cleanly, switch
      to professional mode.~~ Tried and removed (see above): it takes the
      user out of editing.
-  2. Real incremental mixed-run building, matching Word exactly — do this
-     later, as its own effort.
+  2. Real incremental building — in progress (2026-10-15). For a screen
+     reader user "built" means: the equation stays built and MathCAT-
+     navigable while you type into it. Steps: (1) source↔node map, done;
+     (2) typing/Backspace/Delete in professional mode at the source offset
+     of MathCAT's current node, rebuild, put MathCAT back on the new node;
+     (3) a caret between nodes; (4) incomplete source while typing;
+     (5) open equations built by default (setting).
+     **Step 1, [source_map.py](src/matex/source_map.py):** the converter
+     keeps no source positions, and its Ⓐ/Ⓕ selection markers are no help
+     (they attach to the *next* node, vanish at the end, and break parsing
+     inside parens: `√(xⒶ())` is an error). `map_leaves(source,
+     document)` aligns MathCAT's canonical leaves with the source view, left
+     to right: syntax with no leaf (transparent parens, `_ ^ / ▒ & @`,
+     quotes) is skipped, invisible operators get an empty span, empty slots
+     and matrix cells sit between `(`/`&`/`@` and `)`/`&`/`@`. Traps found
+     on real output: `mroot` puts its index *last* (walked index-first),
+     `∛`'s index leaf is the sign itself, MathCAT turns `̂ ̇ ̈` into `^ ˙ ¨`
+     and `∕` into `/`, the converter `<= /= := ... * ' ~` into single
+     symbols, and NFKC (used for 𝑥 → x) must only touch letters/digits or
+     `∬` becomes `∫∫`. A stress run over ~50 forms leaves no visible leaf
+     unmatched.
 - **Where it plugs in**: the completeness check must run from `editor.py`
   (only place with WebView access); trigger-character detection (which
   keystrokes/positions qualify — mind that `.`/`,` are also decimal points
@@ -417,7 +436,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
 - `src/matex/` — the app. Pure-logic modules (parser, model, mathml_model,
   mathml_sanitize, symbol_dictionary, layout*, notebook, portable_notebook, settings,
   space_conversion, template_source, math_templates, matrix_templates,
-  fraction_styles, structure_edits, source_view, insert_catalog, character_speech, edit_history,
+  fraction_styles, structure_edits, source_view, source_map, insert_catalog, character_speech, edit_history,
   html_export, markdown_math, document_io, unicodemath) import `wx`
   nowhere and are unit tested. Templates: `template_source` holds
   `TemplateEdit` and the paren scan, `math_templates` the inserters and
