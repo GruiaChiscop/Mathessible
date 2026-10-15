@@ -28,9 +28,9 @@ class RootEditTests(unittest.TestCase):
 
     def test_remove_index_gives_a_square_root(self) -> None:
         edit = remove_root_index("√(3&x)", 4)
-        self.assertEqual((edit.source, edit.caret), ("√(x)", 3))
+        self.assertEqual((edit.source, edit.caret), ("√〖x〗", 3))
         self.assertEqual(remove_root_index("∛x+1", 1).source, "√x+1")
-        self.assertEqual(remove_root_index("∜(y)", 2).source, "√(y)")
+        self.assertEqual(remove_root_index("∜(y)", 2).source, "√〖y〗")
         self.assertIsNone(remove_root_index("√(x)", 1))
 
     def test_an_ampersand_inside_a_nested_group_is_not_the_index(self) -> None:

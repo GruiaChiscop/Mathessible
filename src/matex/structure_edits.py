@@ -48,6 +48,11 @@ def roots(source: str) -> list[Root]:
         if character not in ROOT_SIGNS:
             continue
         after = index + 1
+        if source[after : after + 1] == "〖":
+            closing = _group_end(source, after)
+            if closing is not None:
+                found.append(Root(index, character, after + 1, closing, True, None))
+                continue
         if after < len(source) and source[after] == "(" and after in pairs:
             closing = pairs[after]
             separator = _top_level_ampersand(source, after + 1, closing, pairs) if character == "√" else None
@@ -83,7 +88,7 @@ def remove_root_index(source: str, caret: int) -> TemplateEdit | None:
         return None
     radicand_start = root.separator + 1 if root.separator is not None else root.start
     radicand = source[radicand_start : root.end]
-    replacement = f"√({radicand})" if root.grouped else f"√{radicand}"
+    replacement = f"√〖{radicand}〗" if root.grouped else f"√{radicand}"
     edited = source[: root.sign] + replacement + source[root.outer_end :]
     caret = root.sign + len(replacement) - (1 if root.grouped else 0)
     return TemplateEdit(edited, caret, "square root, index removed")
@@ -151,6 +156,19 @@ def remove_nary_limits(source: str, caret: int) -> TemplateEdit | None:
         rest = "▒" + rest.lstrip(" ")
     edited = source[:at] + rest
     return TemplateEdit(edited, at + 1, f"{label}, limits removed")
+
+
+def _group_end(source: str, start: int) -> int | None:
+    """The "〗" closing the "〖" at `start`."""
+    depth = 0
+    for index in range(start, len(source)):
+        if source[index] == "〖":
+            depth += 1
+        elif source[index] == "〗":
+            depth -= 1
+            if depth == 0:
+                return index
+    return None
 
 
 def _top_level_ampersand(source: str, start: int, end: int, pairs: dict[int, int]) -> int | None:

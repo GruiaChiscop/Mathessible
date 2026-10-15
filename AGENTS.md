@@ -109,7 +109,12 @@ equation language; the gap is entirely in the editing UX layered on top.
    opens ` 〖〗` with the caret inside (`group_function_argument`, under
    `convert_on_space`), and the group is a Tab slot ("argument, x+1").
    Not visible parens: the user wants `\begin`/`\end`, as Word (an
-   earlier attempt with `ln(...)` was a misunderstanding). The space is required: `lim_(n→∞)a_n` folds the argument into the
+   earlier attempt with `ln(...)` was a misunderstanding). Radicals too:
+   the square root template is `√〖〗`, and Space right after `√`/`∛`/`∜`
+   (or `\sqrt`...) opens `〖〗` glued to the sign — `√ 〖x〗` does not
+   build — as a "radicand" slot. Root with index stays `√(&)` (the index
+   syntax needs parens); `structure_edits.roots` and the outside-edge
+   widening in `source_map` know `〖〗` as well as `()`. The space is required: `lim_(n→∞)a_n` folds the argument into the
    subscript and `lim_(...)▒` is a parse error, while `lim_(n→∞) a_n` is a
    function application; empty conditions/bases convert cleanly
    (`FUNCTION_SCRIPTS`, `_function_script`). Plain functions need no

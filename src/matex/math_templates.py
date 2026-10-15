@@ -13,6 +13,8 @@ NARY_LABELS = {"∫": "integral", "∬": "integral", "∭": "integral", "∮": "
 # The argument follows a space ("lim_(n→∞) a_n"): with no separator the
 # converter folds it into the subscript, and "▒" is a parse error there.
 FUNCTION_SCRIPTS = {"lim": ("limit", "limit condition"), "log": ("logarithm", "base")}
+# Radical signs whose "〖...〗" right after them is the radicand.
+ROOT_SIGN_LABELS = {"√": "square root", "∛": "cube root", "∜": "fourth root"}
 FUNCTION_TEMPLATES = frozenset(template for template, _role in FUNCTION_SCRIPTS.values())
 # Word's operator structures: an operator with text above (`→┴(...)`) or
 # below (`→┬(...)`); both stack as `→┬(below)┴(above)`. Like lim, a space
@@ -35,7 +37,8 @@ def insert_fraction_template(source: str, caret: int) -> TemplateEdit:
 
 
 def insert_square_root_template(source: str, caret: int) -> TemplateEdit:
-    return insert_template(source, caret, "√()", first_slot_offset=2, announcement="square root template, empty radicand")
+    """`√〖〗`: the radicand is an invisible group, like a function's argument (see group_function_argument)."""
+    return insert_template(source, caret, "√〖〗", first_slot_offset=2, announcement="square root template, empty radicand")
 
 
 def insert_limit_template(source: str, caret: int) -> TemplateEdit:
@@ -62,6 +65,10 @@ def group_function_argument(source: str, caret: int, functions: tuple[str, ...] 
     """
     if caret == 0 or source[caret : caret + 1] in ("〖", "(", " "):
         return None
+    if source[caret - 1] in ROOT_SIGN_LABELS:
+        # A radical: the group goes right after the sign (`√ 〖x〗` does not build).
+        label = ROOT_SIGN_LABELS[source[caret - 1]]
+        return TemplateEdit(source[:caret] + "〖〗" + source[caret:], caret + 1, f"{label}, empty radicand")
     if source[caret - 1] == ")":
         pairs = matching_parens(source)
         opening = next((start for start, end in pairs.items() if end == caret - 1), None)
@@ -285,6 +292,13 @@ def _naryand_slots(source: str, pairs: dict[int, int], slots: list[_Slot], funct
                 end = operand_end(source, slot.exit, pairs)
                 found.append(_Slot(slot.exit, end, slot.template, NARYAND_ROLES[slot.template], end))
             starts.add(slot.exit)
+    for index, character in enumerate(source):
+        # `√〖...〗`: the radicand.
+        if character == "〖" and index > 0 and source[index - 1] in ROOT_SIGN_LABELS and index + 1 not in starts:
+            closing = _invisible_group_end(source, index)
+            if closing is not None:
+                found.append(_Slot(index + 1, closing, ROOT_SIGN_LABELS[source[index - 1]], "radicand", closing + 1))
+                starts.add(index + 1)
     for index, character in enumerate(source):
         # `ln 〖...〗`, `sin(...)`: a named function's group or parens hold its argument.
         closing = _invisible_group_end(source, index) if character == "〖" else pairs.get(index) if character == "(" else None

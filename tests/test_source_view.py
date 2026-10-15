@@ -42,7 +42,7 @@ class EditInViewTests(unittest.TestCase):
         self.assertEqual(
             self.edit("x=", 2, lambda s, c: insert_sum_template(s, c, limits=True)), ("x=\\sum_()^()\\of ", 8)
         )
-        self.assertEqual(self.edit("a", 1, insert_square_root_template), ("a\\sqrt()", 7))
+        self.assertEqual(self.edit("a", 1, insert_square_root_template), ("a\\sqrt\\begin \\end ", 13))
         self.assertEqual(self.edit("a", 1, insert_operator_template), ("a\\rightarrow\\above() ", 19))
         self.assertEqual(
             self.edit("A=", 2, lambda s, c: insert_matrix_template(s, c, 2, 2)), ("A=(\\matrix(&@&))", 11)
@@ -59,7 +59,7 @@ class EditInViewTests(unittest.TestCase):
         self.assertEqual((naryand.caret, naryand.announcement), (15, "integrand, x"))
 
     def test_structure_edits_keep_the_rest_of_the_spelling(self) -> None:
-        self.assertEqual(self.edit("\\sqrt(3&x)+√y", 8, remove_root_index)[0], "\\sqrt(x)+√y")
+        self.assertEqual(self.edit("\\sqrt(3&x)+√y", 8, remove_root_index)[0], "\\sqrt\\begin x\\end+√y")
         self.assertEqual(self.edit("\\int_(0)^(1)\\of x dx", 7, remove_nary_limits), ("\\int\\of x dx", 8))
         self.assertEqual(self.edit("\\int\\of x", 2, add_nary_limits), ("\\int_()^()\\of x", 6))
         self.assertEqual(self.edit("(a+b)/c", 1, lambda s, c: restyle_fraction(s, c, "skewed"))[0], "(a+b)\\sdiv c")

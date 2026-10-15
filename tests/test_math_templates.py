@@ -48,7 +48,7 @@ class MathTemplateTests(unittest.TestCase):
 
     def test_square_root_template_places_caret_in_radicand(self) -> None:
         edit = insert_square_root_template("x+", 2)
-        self.assertEqual(edit.source, "x+√()")
+        self.assertEqual(edit.source, "x+√〖〗")
         self.assertEqual(edit.caret, 4)
         self.assertEqual(edit.announcement, "square root template, empty radicand")
 
@@ -313,6 +313,12 @@ class MathTemplateTests(unittest.TestCase):
         self.assertIsNone(group_function_argument("xln", 3, ("ln",)))  # Part of a longer word.
         self.assertIsNone(group_function_argument("\\sin", 4, ("sin",)))  # A control word.
         self.assertIsNone(group_function_argument("ln", 2))  # Not in the given list.
+
+    def test_space_after_a_radical_sign_opens_its_radicand(self) -> None:
+        edit = group_function_argument("a+√", 3)
+        self.assertEqual((edit.source, edit.caret, edit.announcement), ("a+√〖〗", 4, "square root, empty radicand"))
+        self.assertEqual(group_function_argument("∛", 1).source, "∛〖〗")
+        self.assertEqual(move_to_slot("√〖x+1〗+2", 0).announcement, "radicand, x+1")
 
     def test_any_recognized_function_gets_the_group_and_its_slot(self) -> None:
         # The recognized-functions setting is the only list: a user's own function counts too.

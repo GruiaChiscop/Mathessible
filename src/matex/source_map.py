@@ -192,22 +192,22 @@ def _with_own_parens(source: str, start: int, end: int) -> tuple[int, int]:
     pairs = {}
     stack: list[int] = []
     for index, character in enumerate(text):
-        if character == "(":
+        if character in "(〖":
             stack.append(index)
-        elif character == ")" and stack:
+        elif character in ")〗" and stack:
             opening = stack.pop()
             pairs[opening], pairs[index] = index, opening
     low, high = view.to_view(start), view.to_view(end)
     changed = True
     while changed:
         changed = False
-        if low > 0 and text[low - 1] == "(" and low - 1 in pairs and pairs[low - 1] <= high:
+        if low > 0 and text[low - 1] in "(〖" and low - 1 in pairs and pairs[low - 1] <= high:
             low -= 1
             changed = True
-        if low > 0 and text[low - 1] in _STRUCTURE_SIGNS and low < len(text) and text[low] == "(":
+        if low > 0 and text[low - 1] in _STRUCTURE_SIGNS and low < len(text) and text[low] in "(〖":
             low -= 1
             changed = True
-        if high < len(text) and text[high] == ")" and high in pairs and pairs[high] >= low:
+        if high < len(text) and text[high] in ")〗" and high in pairs and pairs[high] >= low:
             high += 1
             changed = True
     return view.to_source(low), view.to_source(high)
