@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .math_templates import MATRIX_FENCES, MAX_MATRIX_SIZE
+from .matrix_templates import MATRIX_FENCES, MAX_MATRIX_SIZE
 
 try:
     import wx

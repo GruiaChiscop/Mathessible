@@ -1,60 +1,23 @@
 from __future__ import annotations
 
 import threading
-from collections.abc import Callable
 
+from .clipboard import get_clipboard_text, set_clipboard_text
 from .character_speech import character_name, deleted_character, inserted_character
-from .layout import Line, Text, professional_layout
-from .macos_webview import guard_webview_key_equivalents
+from .editor_drawing import EditorDrawingMixin
+from .editor_renderer import EquationRendererMixin
+from .editor_structures import StructureActionsMixin
 from .edit_history import EditHistory, EditState
 from .mathcat import MathCatNavigator, create_mathcat_navigator
-from .math_templates import (
-    FRACTION_STYLES,
-    built_fractions,
-    fraction_at,
-    restyle_fraction,
-    TemplateEdit,
-    delete_matrix_column,
-    delete_matrix_row,
-    insert_absolute_value_template,
-    insert_matrix_column,
-    insert_matrix_row,
-    insert_fraction_template,
-    insert_integral_template,
-    insert_limit_template,
-    insert_logarithm_template,
-    insert_matrix_template,
-    insert_operator_template,
-    insert_product_template,
-    insert_root_template,
-    insert_square_root_template,
-    insert_subscript_template,
-    insert_sum_template,
-    insert_superscript_template,
-    matrix_cell_caret,
-    matrix_count,
-    matrix_position_at,
-    move_to_slot,
-)
-from .mathml_layout import mathml_layout
-from .matrix_dialog import MatrixDialog
-from .mathml_model import MathMLDocument, MathMLModelError, sanitize_mathml
+from .insert_catalog import InsertItem, item_for_key
+from .math_templates import move_to_slot
+from .mathml_model import MathMLDocument
 from .model import EquationDocument
 from .settings import AppSettings
 from .speech import AssistiveOutput, create_output
 from .space_conversion import convert_before_character, convert_on_space, convert_shortcut_on_character
 from .theme import Palette, palette
-from .unicodemath import (
-    ConversionResult,
-    StrayScriptResult,
-    UnicodeMathError,
-    control_words,
-    conversion_script,
-    decode_conversion,
-    highlight_script,
-    render_script,
-    renderer_page,
-)
+from .unicodemath import ConversionResult, UnicodeMathError, control_words
 from .word_navigation import next_word_boundary, previous_word_boundary
 
 try:
@@ -65,26 +28,6 @@ except ImportError:  # The interface is an optional dependency.
 
 
 if wx is not None:
-
-    def _set_clipboard_text(text: str) -> bool:
-        if not wx.TheClipboard.Open():
-            return False
-        try:
-            wx.TheClipboard.SetData(wx.TextDataObject(text))
-        finally:
-            wx.TheClipboard.Close()
-        return True
-
-    def _get_clipboard_text() -> str | None:
-        if not wx.TheClipboard.Open():
-            return None
-        try:
-            data = wx.TextDataObject()
-            if not wx.TheClipboard.GetData(data):
-                return None
-        finally:
-            wx.TheClipboard.Close()
-        return data.GetText()
 
     def _converter_control_words() -> dict[str, str] | None:
         """The converter's control-word table, or None (fallback list) without the submodule."""
@@ -126,7 +69,7 @@ if wx is not None:
                 return wx.WXK_END
         return key
 
-    class EquationEditor(wx.Window):
+    class EquationEditor(EquationRendererMixin, StructureActionsMixin, EditorDrawingMixin, wx.Window):
         _BRAILLE_STRIP_HEIGHT = 28
 
         def __init__(
@@ -196,62 +139,6 @@ if wx is not None:
             self._create_renderer()
             self._layout_children()
 
-        def _create_renderer(self) -> None:
-            try:
-                page, base_url = renderer_page()
-                self._webview = wx.html2.WebView.New(self)
-                # Never focused, so it must not take Cmd+A/C/V/X either.
-                guard_webview_key_equivalents()
-                self._webview.SetName("")
-                self._webview.Hide()
-                # Purely visual: keyboard focus and speech stay with the editor.
-                if hasattr(self._webview, "SetCanFocus"):
-                    self._webview.SetCanFocus(False)
-                self._webview.Bind(wx.EVT_SET_FOCUS, self._on_renderer_focus)
-                self._webview.Bind(wx.html2.EVT_WEBVIEW_LOADED, self._on_renderer_loaded)
-                if hasattr(self._webview, "AddScriptMessageHandler"):
-                    self._webview.AddScriptMessageHandler("matex")
-                    self._webview.Bind(wx.html2.EVT_WEBVIEW_SCRIPT_MESSAGE_RECEIVED, self._on_renderer_click)
-                self._webview.SetPage(page, base_url)
-            except (FileNotFoundError, RuntimeError) as error:
-                self._renderer_error = str(error)
-
-        def _on_renderer_loaded(self, event: wx.html2.WebViewEvent) -> None:
-            if self._webview is not None:
-                success, value = self._webview.RunScript(
-                    "typeof window.matexConvert === 'function' && "
-                    "typeof window.matexRender === 'function'"
-                )
-                self._renderer_ready = success and value.strip().lower() == "true"
-                if not self._renderer_ready:
-                    self._renderer_error = "the UnicodeMathML engine did not initialize"
-                else:
-                    # LOADED can fire for an earlier, blank page first.
-                    self._renderer_error = None
-                    if self._pending_read:
-                        wx.CallAfter(self.read_expression)
-                self.Refresh()
-            event.Skip()
-
-        def _on_renderer_focus(self, event: wx.FocusEvent) -> None:
-            wx.CallAfter(self.SetFocus)
-            event.Skip()
-
-        def _on_renderer_click(self, event: wx.html2.WebViewEvent) -> None:
-            """A click on the rendered equation moves MathCAT to that node."""
-            self.SetFocus()
-            identifier = event.GetString()
-            if self.mode != "professional" or self.mathcat is None or not identifier:
-                return
-            try:
-                self.mathcat.move_to(identifier)
-                self._highlight_matrix_cell = False
-                self._sync_mathcat_cursor()
-                self._announce(self.mathcat.command("ReadCurrent"))
-            except (OSError, RuntimeError, ValueError):
-                return
-            self.Refresh()
-
         def _start_linear_preparation(self) -> None:
             """Compute linear-navigation stops on a worker thread before navigating.
 
@@ -302,79 +189,6 @@ if wx is not None:
         def _colour(rgb: tuple[int, int, int]) -> wx.Colour:
             return wx.Colour(*rgb)
 
-        def _schedule_renderer_sync(self) -> None:
-            if not self._renderer_sync_pending:
-                self._renderer_sync_pending = True
-                wx.CallAfter(self._sync_renderer)
-
-        def _renderer_target(self) -> tuple[tuple[str, str] | None, str | None]:
-            """What the renderer should show now: ((mode, MathML), highlighted id)."""
-            if self.mode == "linear":
-                if not self.document.source:
-                    return ("linear", ""), None
-                try:
-                    mathml = self.convert_unicode_math(self.document.source)
-                except (UnicodeMathError, RuntimeError, ValueError):
-                    return ("linear", ""), None
-                return ("linear", mathml), None
-            mathml = self.mathcat.mathml if self.mathcat is not None else self._professional_mathml
-            if not mathml:
-                return None, None
-            return ("professional", mathml), self.mathml_current_id
-
-        def _sync_renderer(self) -> None:
-            """Show, place and fill the visible renderer for the current mode.
-
-            Professional mode shows MathCAT's own MathML, so its node ids are
-            exactly the ones `mathml_current_id` highlights. Everything is
-            passed through the same allow-list as HTML export first: the page
-            is visible now, and an equation may come from someone else's file.
-            """
-            if not self:  # Destroyed before the deferred call ran.
-                return
-            if self._converting:
-                # RunScript spins a nested event loop; a second synchronous
-                # script started inside it gets the other one's result.
-                wx.CallLater(30, self._sync_renderer)
-                return
-            self._renderer_sync_pending = False
-            webview = self._webview
-            if webview is None:
-                return
-            target, highlight = self._renderer_target() if self._renderer_ready else (None, None)
-            if target is None:
-                if webview.IsShown():
-                    webview.Hide()
-                    self.Refresh()
-                self._rendered = None
-                return
-            if target != self._rendered:
-                mode, mathml = target
-                try:
-                    safe = sanitize_mathml(mathml) if mathml else ""
-                except MathMLModelError:
-                    safe = ""
-                webview.RunScriptAsync(render_script(safe, preview=mode == "linear"))
-                self._rendered = target
-                self._rendered_highlight = None
-            if highlight != self._rendered_highlight:
-                webview.RunScriptAsync(highlight_script(highlight))
-                self._rendered_highlight = highlight
-            rect = self._renderer_rect().Deflate(3, 3)
-            if webview.GetRect() != rect:
-                webview.SetSize(rect)
-            if not webview.IsShown():
-                webview.Show()
-                self.Refresh()
-            self._keep_focus_off_renderer()
-
-        def _keep_focus_off_renderer(self) -> None:
-            """WebKit takes focus when shown or clicked, and wx sends no focus
-            event for it; put keyboard focus (and VoiceOver) back on the editor."""
-            focused = wx.Window.FindFocus()
-            if focused is not None and focused is self._webview:
-                self.SetFocus()
-
         def _on_size(self, event: wx.SizeEvent) -> None:
             self._layout_children()
             event.Skip()
@@ -406,14 +220,6 @@ if wx is not None:
         @property
         def source(self) -> str:
             return self.document.source
-
-        @property
-        def converter_busy(self) -> bool:
-            return self._converting
-
-        @property
-        def converter_ready(self) -> bool:
-            return self._renderer_ready and self._webview is not None
 
         def set_source(self, source: str) -> None:
             self.document = EquationDocument(source)
@@ -547,240 +353,6 @@ if wx is not None:
             width = dc.GetTextExtent(self.document.source[: self.caret])[0] if self.caret else 0
             return wx.Point(content.x + 14 + width, content.y + content.height // 2)
 
-        def _show_context_menu(self, position: wx.Point) -> None:
-            menu = wx.Menu()
-            if self.mode == "linear":
-                has_content = bool(self.document.source)
-                cut_item = menu.Append(wx.ID_ANY, "Cu&t\tCtrl+X")
-                copy_item = menu.Append(wx.ID_ANY, "&Copy\tCtrl+C")
-                paste_item = menu.Append(wx.ID_ANY, "&Paste\tCtrl+V")
-                menu.AppendSeparator()
-                select_all_item = menu.Append(wx.ID_ANY, "Select &All\tCtrl+A")
-                menu.AppendSeparator()
-                matrix_item = menu.Append(wx.ID_ANY, "Insert &Matrix…\tCtrl+Shift+M")
-                operator_menu = wx.Menu()
-                variant = "RawCtrl" if wx.Platform == "__WXMAC__" else "Alt"
-                operators = [
-                    ("Arrow with Text &Above\tCtrl+Shift+O", "→", True),
-                    (f"Arrow with Text &Below\t{variant}+O", "→", False),
-                    ("&Equals with Text Above", "=", True),
-                ]
-                for label, operator, above in operators:
-                    item = operator_menu.Append(wx.ID_ANY, label)
-                    self.Bind(
-                        wx.EVT_MENU,
-                        lambda _e, operator=operator, above=above: self._insert_operator(operator, above),
-                        item,
-                    )
-                menu.AppendSubMenu(operator_menu, "Insert &Operator")
-                cut_item.Enable(has_content)
-                copy_item.Enable(has_content)
-                paste_item.Enable(_get_clipboard_text() is not None)
-                select_all_item.Enable(has_content)
-                self.Bind(wx.EVT_MENU, lambda _e: self._cut_equation(), cut_item)
-                self.Bind(wx.EVT_MENU, lambda _e: self._copy_equation(), copy_item)
-                self.Bind(wx.EVT_MENU, lambda _e: self._paste_equation(), paste_item)
-                self.Bind(wx.EVT_MENU, lambda _e: self._select_all(), select_all_item)
-                self.Bind(wx.EVT_MENU, lambda _e: self._insert_matrix(), matrix_item)
-            # Row/column edits act on the innermost matrix around the caret
-            # (linear) or MathCAT's current cell (professional), so the
-            # submenu only exists while one of those is in a matrix.
-            caret = self._matrix_caret()
-            position_in_matrix = matrix_position_at(self.document.source, caret) if caret is not None else None
-            if position_in_matrix is not None:
-                matrix_menu = wx.Menu()
-                source = self.document.source
-                matrix_actions = [
-                    ("Insert Row &Above", lambda: insert_matrix_row(source, caret, below=False)),
-                    ("Insert Row &Below", lambda: insert_matrix_row(source, caret, below=True)),
-                    ("Insert Column &Left", lambda: insert_matrix_column(source, caret, right=False)),
-                    ("Insert Column &Right", lambda: insert_matrix_column(source, caret, right=True)),
-                    None,
-                    ("Delete R&ow", lambda: delete_matrix_row(source, caret)),
-                    ("Delete C&olumn", lambda: delete_matrix_column(source, caret)),
-                ]
-                for action in matrix_actions:
-                    if action is None:
-                        matrix_menu.AppendSeparator()
-                        continue
-                    label, build = action
-                    item = matrix_menu.Append(wx.ID_ANY, label)
-                    self.Bind(wx.EVT_MENU, lambda _e, build=build: self._apply_matrix_edit(build()), item)
-                delete_row, delete_column = matrix_menu.GetMenuItems()[-2:]
-                delete_row.Enable(position_in_matrix.rows > 1)
-                delete_column.Enable(position_in_matrix.columns > 1)
-                menu.AppendSubMenu(matrix_menu, "Matri&x")
-            fraction_caret = self._fraction_caret()
-            if fraction_caret is not None:
-                fraction_menu = wx.Menu()
-                current_style = fraction_at(self.document.source, fraction_caret).style
-                for style in FRACTION_STYLES:
-                    item = fraction_menu.AppendRadioItem(wx.ID_ANY, f"&{style.capitalize()}")
-                    item.Check(style == current_style)
-                    self.Bind(
-                        wx.EVT_MENU,
-                        lambda _e, style=style: self._apply_fraction_style(fraction_caret, style),
-                        item,
-                    )
-                menu.AppendSubMenu(fraction_menu, "&Fraction")
-            if menu.GetMenuItemCount():
-                menu.AppendSeparator()
-            other_view = "Professional" if self.mode == "linear" else "Linear"
-            view_item = menu.Append(wx.ID_ANY, f"Switch to {other_view} View\tF2")
-            self.Bind(wx.EVT_MENU, lambda _e: self._toggle_mode(), view_item)
-            self.PopupMenu(menu, position)
-            menu.Destroy()
-
-        def _insert_operator(self, operator: str, above: bool) -> None:
-            edit = insert_operator_template(self.document.source, self.caret, operator=operator, above=above)
-            self._replace_linear(edit.source, edit.caret)
-            self._announce(edit.announcement)
-
-        def _matrix_caret(self) -> int | None:
-            """A source offset in the matrix cell the user is on, if any.
-
-            In professional mode MathCAT's cell is mapped back to the source
-            by matrix order: the n-th `mtable` is the n-th `■(`. If the counts
-            differ (another construct made a table), no mapping is trusted.
-            """
-            source = self.document.source
-            if self.mode == "linear":
-                return self.caret if matrix_position_at(source, self.caret) is not None else None
-            if self.mathcat is None or self.mathcat.structure is None:
-                return None
-            location = self.mathcat.matrix_location()
-            if location is None or len(self.mathcat.structure.tables()) != matrix_count(source):
-                return None
-            return matrix_cell_caret(source, *location)
-
-        def _fraction_caret(self) -> int | None:
-            """A source offset in the fraction the user is on, if any.
-
-            In professional mode MathCAT's innermost `mfrac` is mapped back by
-            order: the n-th `mfrac` is the n-th non-linear fraction operator.
-            If the counts differ, no mapping is trusted.
-            """
-            source = self.document.source
-            if self.mode == "linear":
-                return self.caret if fraction_at(source, self.caret) is not None else None
-            structure = self.mathcat.structure if self.mathcat is not None else None
-            if structure is None:
-                return None
-            fraction = structure.enclosing_fraction(self.mathcat.current_id)
-            built = built_fractions(source)
-            found = structure.fractions()
-            if fraction is None or len(found) != len(built):
-                return None
-            index = next(i for i, candidate in enumerate(found) if candidate is fraction)
-            return built[index].operator
-
-        def _apply_fraction_style(self, caret: int, style: str) -> None:
-            edit = restyle_fraction(self.document.source, caret, style)
-            if edit is None or edit.source == self.document.source:
-                self._announce(edit.announcement if edit is not None else "not in a fraction")
-                return
-            self._clear_selection()
-            self._replace_linear(edit.source, edit.caret)
-            self.SetFocus()
-            if self.mode == "professional":
-                self._rebuild_professional_at_caret(edit.announcement, place=self._place_on_fraction)
-                return
-            self._announce(edit.announcement)
-
-        def _place_on_fraction(self) -> None:
-            """Put MathCAT on the fraction around the caret (a linear one has no `mfrac`)."""
-            self._highlight_matrix_cell = False
-            source = self.document.source
-            fraction = fraction_at(source, self.caret)
-            built = built_fractions(source)
-            found = self.mathcat.structure.fractions() if self.mathcat.structure is not None else ()
-            if fraction is None or fraction not in built or len(found) != len(built):
-                return
-            target = found[built.index(fraction)]
-            if target.identifier:
-                self.mathcat.move_to(target.identifier)
-
-        def _apply_matrix_edit(self, edit: TemplateEdit | None) -> None:
-            if edit is None:
-                self._announce("not in a matrix")
-                return
-            self._clear_selection()
-            self._replace_linear(edit.source, edit.caret)
-            self.SetFocus()
-            if self.mode == "professional":
-                self._rebuild_professional_at_caret(edit.announcement)
-                return
-            self._announce(edit.announcement)
-
-        def _rebuild_professional_at_caret(self, announcement: str, place: Callable[[], None] | None = None) -> None:
-            """Reload the edited equation and put MathCAT on the caret's cell (or wherever `place` puts it)."""
-            try:
-                conversion = self._convert_source()
-                self._professional_mathml = conversion.mathml
-                self.mathml_document = MathMLDocument.parse(
-                    conversion.mathml,
-                    recognized_functions=self.settings.recognized_functions,
-                )
-                if self.mathcat is not None:
-                    self.mathcat.load(conversion.mathml)
-                    self.mathml_document = self.mathcat.structure
-                    if place is not None:
-                        place()
-                    else:
-                        position = matrix_position_at(self.document.source, self.caret)
-                        if position is not None:
-                            self.mathcat.move_to_cell(position.index, position.row, position.column)
-                        self._highlight_matrix_cell = True
-                    self._sync_mathcat_cursor()
-                    self._start_linear_preparation()
-            except (UnicodeMathError, OSError, RuntimeError, ValueError) as error:
-                self.mode = "linear"
-                self._update_braille_display()
-                self._announce(f"{announcement}. Professional mode could not be rebuilt, linear mode. {error}")
-                self.Refresh()
-                return
-            self._announce(announcement)
-            self.Refresh()
-
-        def convert_unicode_math(self, source: str) -> str:
-            if not self._renderer_ready or self._webview is None:
-                reason = self._renderer_error or "the UnicodeMathML converter is still loading"
-                raise UnicodeMathError(reason)
-            if self._converting:
-                # RunScript spins a nested event loop: a conversion started
-                # from inside it (a timer, a deferred call) would receive the
-                # outer one's result. Refuse instead; callers already handle
-                # a failed conversion.
-                raise UnicodeMathError("the UnicodeMathML converter is busy")
-            self._converting = True
-            try:
-                # RunScript takes whichever script result arrives first, e.g.
-                # an earlier RunScriptAsync's (matexRender/matexHighlight).
-                # Results arrive in order, so the conversion's own one is
-                # queued behind those strays: wait for it with no-op scripts
-                # (a new conversion would only fall behind the same way).
-                self._conversion_token += 1
-                token = self._conversion_token
-                success, value = self._webview.RunScript(conversion_script(source, token))
-                for _attempt in range(8):
-                    if success:
-                        try:
-                            conversion = decode_conversion(value, token)
-                            break
-                        except StrayScriptResult:
-                            pass
-                    success, value = self._webview.RunScript("null")
-                else:
-                    raise UnicodeMathError("the UnicodeMathML converter could not run")
-            finally:
-                self._converting = False
-            if conversion.error:
-                raise UnicodeMathError(conversion.error)
-            return conversion.mathml
-
-        def _convert_source(self):
-            return ConversionResult(mathml=self.convert_unicode_math(self.document.source))
-
         def read_expression(self) -> None:
             if not self or not self.document.source:
                 return
@@ -875,23 +447,8 @@ if wx is not None:
                 self._word_step(-1 if key == wx.WXK_LEFT else 1, extend=event.ShiftDown())
                 return
             if self.mode == "linear" and _template_variant_down(event):
-                # Control+I/S/P/R/L/O (Alt elsewhere): integral/sum/product with
-                # limits, n-th root, logarithm, arrow with text below --
-                # variants of Cmd+I/S/P/R/L and Cmd+Shift+O.
-                inserters = {
-                    ord("I"): lambda source, caret: insert_integral_template(source, caret, limits=True),
-                    ord("S"): lambda source, caret: insert_sum_template(source, caret, limits=True),
-                    ord("P"): lambda source, caret: insert_product_template(source, caret, limits=True),
-                    ord("R"): insert_root_template,
-                    ord("L"): insert_logarithm_template,
-                    ord("O"): lambda source, caret: insert_operator_template(source, caret, above=False),
-                }
-                letters = {event.GetKeyCode(), event.GetUnicodeKey()}
-                inserter = next((inserters[code] for code in inserters if letters & {code, code + 32}), None)
-                if inserter is not None:
-                    edit = inserter(self.document.source, self.caret)
-                    self._replace_linear(edit.source, edit.caret)
-                    self._announce(edit.announcement)
+                # Control+I/S/P/R/L/O (Alt elsewhere): the variants of Cmd+I/S/P/R/L/Shift+O.
+                if self._insert_for_key(event, "variant"):
                     return
             if self.mode == "linear" and command_modifier:
                 if key in (ord("X"), ord("x")):
@@ -911,60 +468,7 @@ if wx is not None:
                 if key in (ord("Y"), ord("y")):
                     self._restore_history(self.history.redo(), "redo")
                     return
-                if key == ord("/"):
-                    edit = insert_fraction_template(self.document.source, self.caret)
-                    self._replace_linear(edit.source, edit.caret)
-                    self._announce(edit.announcement)
-                    return
-                if key in (ord("R"), ord("r")):
-                    edit = insert_square_root_template(self.document.source, self.caret)
-                    self._replace_linear(edit.source, edit.caret)
-                    self._announce(edit.announcement)
-                    return
-                if key in (ord("="), ord("+")):
-                    edit = (
-                        insert_superscript_template(self.document.source, self.caret)
-                        if event.ShiftDown()
-                        else insert_subscript_template(self.document.source, self.caret)
-                    )
-                    self._replace_linear(edit.source, edit.caret)
-                    self._announce(edit.announcement)
-                    return
-                if key in (ord("\\"), ord("|")):
-                    edit = insert_absolute_value_template(self.document.source, self.caret)
-                    self._replace_linear(edit.source, edit.caret)
-                    self._announce(edit.announcement)
-                    return
-                if key in (ord("I"), ord("i")):
-                    edit = insert_integral_template(self.document.source, self.caret)
-                    self._replace_linear(edit.source, edit.caret)
-                    self._announce(edit.announcement)
-                    return
-                if key in (ord("S"), ord("s")):
-                    edit = insert_sum_template(self.document.source, self.caret)
-                    self._replace_linear(edit.source, edit.caret)
-                    self._announce(edit.announcement)
-                    return
-                if key in (ord("P"), ord("p")):
-                    edit = insert_product_template(self.document.source, self.caret)
-                    self._replace_linear(edit.source, edit.caret)
-                    self._announce(edit.announcement)
-                    return
-                if key in (ord("L"), ord("l")):
-                    edit = insert_limit_template(self.document.source, self.caret)
-                    self._replace_linear(edit.source, edit.caret)
-                    self._announce(edit.announcement)
-                    return
-                # Shift avoids the frame's File > Open (Command+O).
-                if key in (ord("O"), ord("o")) and event.ShiftDown():
-                    edit = insert_operator_template(self.document.source, self.caret)
-                    self._replace_linear(edit.source, edit.caret)
-                    self._announce(edit.announcement)
-                    return
-                # Shift is required: plain Command+M is macOS's Minimize,
-                # which the frame's Window menu claims before we see it.
-                if key in (ord("M"), ord("m")) and event.ShiftDown():
-                    self._insert_matrix()
+                if self._insert_for_key(event, "command"):
                     return
             handled_keys = {
                 wx.WXK_F2,
@@ -983,6 +487,52 @@ if wx is not None:
                 self._on_char(event)
                 return
             event.Skip()
+
+        def _insert_for_key(self, event: wx.KeyEvent, modifier: str) -> bool:
+            # With the physical Control key the key code can be a control
+            # character; the Unicode key still names the letter.
+            codes = (event.GetKeyCode(), event.GetUnicodeKey())
+            key = next((chr(code) for code in codes if 32 < code < 127), "")
+            item = item_for_key(key, modifier, event.ShiftDown()) if key else None
+            if item is None:
+                return False
+            self.insert_item(item)
+            return True
+
+        def insert_item(self, item: InsertItem) -> None:
+            """Insert an Insert-menu entry at the caret (linear view only)."""
+            if self.mode != "linear":
+                self._announce("insert works in linear view, press F2")
+                return
+            if item.insert is None:
+                self._insert_matrix()
+                return
+            self._clear_selection()
+            edit = item.insert(self.document.source, self.caret)
+            self._replace_linear(edit.source, edit.caret)
+            self._announce(edit.announcement)
+
+        def edit_command(self, command: str) -> None:
+            """An Edit-menu command, acting as its shortcut does (only Copy outside linear view)."""
+            if command == "copy":
+                self._copy_equation()
+                return
+            if self.mode != "linear":
+                return
+            if command == "undo":
+                self._restore_history(self.history.undo(), "undo")
+            elif command == "redo":
+                self._restore_history(self.history.redo(), "redo")
+            elif command == "cut":
+                self._cut_equation()
+            elif command == "paste":
+                self._paste_equation()
+            elif command == "select_all":
+                self._select_all()
+
+        def toggle_mode(self) -> None:
+            """F2 / View > Professional View: switch between linear and professional view."""
+            self._toggle_mode()
 
         def _restore_history(self, state: EditState | None, action: str) -> None:
             if state is None:
@@ -1034,7 +584,7 @@ if wx is not None:
             if not text:
                 self._announce("nothing to copy")
                 return
-            if not _set_clipboard_text(text):
+            if not set_clipboard_text(text):
                 self._announce("could not copy")
                 return
             self._announce("selection copied" if selection else "equation copied")
@@ -1045,7 +595,7 @@ if wx is not None:
             if not text:
                 self._announce("nothing to cut")
                 return
-            if not _set_clipboard_text(text):
+            if not set_clipboard_text(text):
                 self._announce("could not cut")
                 return
             if selection:
@@ -1056,7 +606,7 @@ if wx is not None:
                 self._announce("equation cut")
 
         def _paste_equation(self) -> None:
-            text = _get_clipboard_text()
+            text = get_clipboard_text()
             if not text:
                 self._announce("clipboard is empty")
                 return
@@ -1315,24 +865,6 @@ if wx is not None:
                 return
             self.document.cursor.path = path
 
-        def _insert_matrix(self) -> None:
-            if self.mode != "linear":
-                return
-            rows, columns, fence = self._last_matrix_shape
-            dialog = MatrixDialog(self, rows=rows, columns=columns, fence=fence)
-            try:
-                if dialog.ShowModal() != wx.ID_OK:
-                    self.SetFocus()
-                    return
-                shape = (dialog.selected_rows, dialog.selected_columns, dialog.selected_fence)
-            finally:
-                dialog.Destroy()
-            self._last_matrix_shape = shape
-            edit = insert_matrix_template(self.document.source, self.caret, *shape)
-            self._clear_selection()
-            self._replace_linear(edit.source, edit.caret)
-            self.SetFocus()
-            self._announce(edit.announcement)
 
         def _replace_linear(self, source: str, caret: int) -> None:
             self.document.replace_source(source, caret)
@@ -1352,202 +884,17 @@ if wx is not None:
             else:
                 self._announce("end")
 
-        def _source_font(self) -> wx.Font:
-            return wx.Font(22, wx.FONTFAMILY_MODERN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
 
-        def _ui_font(self, size: int = 12, weight: int = wx.FONTWEIGHT_NORMAL) -> wx.Font:
-            return wx.Font(size, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, weight)
 
-        _HEADER_HEIGHT = 36
-        _STATUS_HEIGHT = 30
-        _SOURCE_HEIGHT = 64
-        _PREVIEW_LABEL_HEIGHT = 26
 
-        def _content_rect(self) -> wx.Rect:
-            """Everything between the title bar and the braille strip."""
-            width, height = self.GetClientSize()
-            top = self._HEADER_HEIGHT + 10
-            bottom = height - self._STATUS_HEIGHT - self._BRAILLE_STRIP_HEIGHT - 8
-            return wx.Rect(14, top, max(1, width - 28), max(1, bottom - top))
 
-        def _source_rect(self) -> wx.Rect:
-            content = self._content_rect()
-            return wx.Rect(content.x, content.y, content.width, min(self._SOURCE_HEIGHT, content.height))
 
-        def _renderer_rect(self) -> wx.Rect:
-            """Linear mode: the preview under the source. Professional: all of it."""
-            content = self._content_rect()
-            if self.mode != "linear":
-                return content
-            top = content.y + self._SOURCE_HEIGHT + self._PREVIEW_LABEL_HEIGHT
-            return wx.Rect(content.x, top, content.width, max(1, content.bottom - top))
 
-        def _caret_from_x(self, dc: wx.DC, x: int, origin_x: int) -> int:
-            source = self.document.source
-            if not source:
-                return 0
-            relative_x = x - origin_x
-            if relative_x <= 0:
-                return 0
-            best_index = 0
-            best_distance = abs(relative_x)
-            for index in range(1, len(source) + 1):
-                width = dc.GetTextExtent(source[:index]).width
-                distance = abs(relative_x - width)
-                if distance < best_distance:
-                    best_index = index
-                    best_distance = distance
-            return best_index
 
-        def _status_text(self) -> str:
-            if self.mode == "linear":
-                if not self.document.source:
-                    return "UnicodeMath source — empty equation"
-                return f"UnicodeMath source — character {self.caret + 1} of {len(self.document.source) + 1}"
-            navigation = "linear navigation" if self.settings.linear_navigation else "structural navigation"
-            return (
-                f"Professional mode — {navigation}; Space reads; "
-                "Shift+Space context; Alt+Space zone; F2 source"
-            )
 
-        def _draw_editor_chrome(self, dc: wx.DC, colors: Palette) -> None:
-            width, height = self.GetClientSize()
-            focused = self.HasFocus()
-            dc.SetBrush(wx.Brush(self._colour(colors.background)))
-            dc.SetPen(wx.TRANSPARENT_PEN)
-            dc.DrawRectangle(0, 0, width, height)
 
-            dc.SetBrush(wx.Brush(self._colour(colors.panel)))
-            dc.DrawRectangle(0, 0, width, self._HEADER_HEIGHT)
-            dc.DrawRectangle(0, max(0, height - self._STATUS_HEIGHT), width, self._STATUS_HEIGHT)
 
-            title = "Linear (UnicodeMath source)" if self.mode == "linear" else "Professional (built equation)"
-            dc.SetFont(self._ui_font(13, wx.FONTWEIGHT_BOLD))
-            dc.SetTextForeground(self._colour(colors.text))
-            dc.DrawText(title, 16, 9)
-            hint = "F2 switches view"
-            dc.SetFont(self._ui_font(12))
-            dc.SetTextForeground(self._colour(colors.subtle_text))
-            dc.DrawText(hint, width - 16 - dc.GetTextExtent(hint).width, 10)
 
-            status_y = max(0, height - self._STATUS_HEIGHT + 7)
-            dc.DrawText(self._status_text(), 16, status_y)
-
-            border = wx.Pen(self._colour(colors.focus if focused else colors.border), 2 if focused else 1)
-            dc.SetBrush(wx.Brush(self._colour(colors.background)))
-            if self.mode == "linear":
-                dc.SetPen(border)
-                source = self._source_rect()
-                dc.DrawRoundedRectangle(source.x, source.y, source.width, source.height, 8)
-                dc.SetFont(self._ui_font(12, wx.FONTWEIGHT_BOLD))
-                dc.SetTextForeground(self._colour(colors.subtle_text))
-                dc.DrawText("Preview", source.x + 2, source.bottom + 7)
-                preview = self._renderer_rect()
-                dc.SetPen(wx.Pen(self._colour(colors.border), 1))
-                dc.DrawRoundedRectangle(preview.x, preview.y, preview.width, preview.height, 8)
-            else:
-                dc.SetPen(border)
-                content = self._content_rect()
-                dc.DrawRoundedRectangle(content.x, content.y, content.width, content.height, 8)
-            dc.SetTextForeground(self._colour(colors.text))
-
-        def _on_paint(self, _event: wx.PaintEvent) -> None:
-            self._draw(wx.AutoBufferedPaintDC(self))
-
-        def _draw(self, dc: wx.DC) -> None:
-            colors = self._palette()
-            self._draw_editor_chrome(dc, colors)
-            if self._webview is not None:
-                target = (self.mode, self.document.source, self.mathml_current_id, self._professional_mathml)
-                if target != self._drawn_target:
-                    self._drawn_target = target
-                    self._schedule_renderer_sync()
-            if self.mode == "linear":
-                self._draw_source(dc, colors)
-                if self._webview is None or not self._webview.IsShown():
-                    preview = self._renderer_rect()
-                    dc.SetFont(self._ui_font(12))
-                    dc.SetTextForeground(self._colour(colors.subtle_text))
-                    message = self._renderer_error or ("" if self._renderer_ready else "Loading the math renderer…")
-                    dc.DrawText(message, preview.x + 14, preview.y + 12)
-                return
-            if self._webview is not None and self._webview.IsShown():
-                return
-            self._draw_fallback_layout(dc, colors)
-
-        def _draw_source(self, dc: wx.DC, colors: Palette) -> None:
-            content = self._source_rect()
-            dc.SetClippingRegion(content)
-            dc.SetFont(self._source_font())
-            line_height = dc.GetTextExtent("Mg").height
-            x = content.x + 14
-            y = content.y + max(4, (content.height - line_height) // 2)
-            selection = self._selection_range()
-            if selection is not None:
-                start_x = x + dc.GetTextExtent(self.document.source[: selection[0]]).width
-                end_x = x + dc.GetTextExtent(self.document.source[: selection[1]]).width
-                dc.SetBrush(wx.Brush(self._colour(colors.selection)))
-                dc.SetPen(wx.TRANSPARENT_PEN)
-                dc.DrawRectangle(int(start_x), y - 2, int(end_x - start_x), line_height + 4)
-            if self.document.source:
-                dc.SetTextForeground(self._colour(colors.text))
-                dc.DrawText(self.document.source, x, y)
-            else:
-                dc.SetTextForeground(self._colour(colors.subtle_text))
-                dc.DrawText("Type UnicodeMath here, e.g. (a+b)/2", x, y)
-            prefix_width = dc.GetTextExtent(self.document.source[: self.caret]).width
-            dc.SetPen(wx.Pen(self._colour(colors.focus), 2))
-            dc.DrawLine(x + prefix_width, y - 2, x + prefix_width, y + line_height + 2)
-            dc.DestroyClippingRegion()
-
-        def _draw_fallback_layout(self, dc: wx.DC, colors: Palette) -> None:
-            """Our own rough layout, for when the WebKit renderer is unavailable."""
-            content = self._content_rect()
-            dc.SetClippingRegion(content)
-            dc.SetTextForeground(self._colour(colors.text))
-            if self.mathml_document is not None:
-                self._layout = mathml_layout(self.mathml_document)
-                selected_key: object | None = self.mathml_current_id
-            elif self.document.parse_error is not None:
-                dc.SetFont(self._source_font())
-                dc.DrawText(self.document.source, content.x + 12, content.y + 16)
-                dc.DestroyClippingRegion()
-                return
-            else:
-                self._layout = professional_layout(self.document.root)
-                selected_key = self.document.cursor.path
-            origin_x = content.x + max(12, (content.width - self._layout.width) / 2)
-            origin_y = content.y + max(12, (content.height - self._layout.height) / 2)
-            selected = self._layout.boxes.get(selected_key)
-            if selected is not None:
-                dc.SetBrush(wx.Brush(self._colour(colors.highlight_fill)))
-                dc.SetPen(wx.Pen(self._colour(colors.focus), 2))
-                dc.DrawRoundedRectangle(
-                    int(origin_x + selected.x - 3),
-                    int(origin_y + selected.y - 3),
-                    int(selected.width + 6),
-                    int(selected.height + 6),
-                    4,
-                )
-            for primitive in self._layout.primitives:
-                if isinstance(primitive, Text):
-                    font = wx.Font(
-                        max(10, int(18 * primitive.scale)),
-                        wx.FONTFAMILY_ROMAN,
-                        wx.FONTSTYLE_NORMAL,
-                        wx.FONTWEIGHT_NORMAL,
-                    )
-                    dc.SetFont(font)
-                    dc.DrawText(primitive.value, int(origin_x + primitive.x), int(origin_y + primitive.y))
-                elif isinstance(primitive, Line):
-                    dc.SetPen(wx.Pen(self._colour(colors.text), 2))
-                    dc.DrawLine(
-                        int(origin_x + primitive.x1),
-                        int(origin_y + primitive.y1),
-                        int(origin_x + primitive.x2),
-                        int(origin_y + primitive.y2),
-                    )
-            dc.DestroyClippingRegion()
 
 else:
 

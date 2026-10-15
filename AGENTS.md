@@ -77,7 +77,7 @@ equation language; the gap is entirely in the editing UX layered on top.
    one lands after `▒`, announced as integrand/summand/factor. A bare
    `"∫▒"` with nothing typed after it is a total parse failure until
    filled in, same as any other empty template, not a bug.
-   Matrix (Ctrl+Shift+M, or "Insert Matrix…" in the right-click menu)
+   Matrix (Ctrl+Shift+M, or Insert > Matrix…)
    opens `MatrixDialog` ([matrix_dialog.py](src/matex/matrix_dialog.py):
    rows, columns, fence) and inserts `insert_matrix_template`'s output,
    e.g. `(■(&@&))`. Cells are left genuinely empty, not filled with "()":
@@ -100,8 +100,7 @@ equation language; the gap is entirely in the editing UX layered on top.
    template: `sin x`, `ln x`, `sin(x)` already convert as functions.
    Operator: `→┴() ` (Cmd+Shift+O; Shift because the frame's File > Open
    is Cmd+O) and `→┬() ` (Control+O on macOS, Alt+O elsewhere), plus
-   "Equals with Text Above" `=┴() `, all in the right-click "Insert
-   Operator" submenu; caret in the text, which is a slot (`_operator_text`,
+   "Equals with Text Above" `=┴() `, all in the Insert menu; caret in the text, which is a slot (`_operator_text`,
    stacked `→┬(below)┴(above)` gives two). Like lim, the space is required:
    `a→┴(x)b` folds `b` into the text. Empty text converts cleanly, and
    MathCAT reads "right arrow with x above"; the text is a "text above"/
@@ -140,24 +139,27 @@ equation language; the gap is entirely in the editing UX layered on top.
 2. **Matrix row/column editing** — done for linear mode: the context
    menu's "Matrix" submenu (only present while the caret is in a cell)
    calls `insert_matrix_row`/`insert_matrix_column`/`delete_matrix_row`/
-   `delete_matrix_column` in [math_templates.py](src/matex/math_templates.py),
-   which rebuild the innermost matrix's body from `_matrix_cells` (MathCAT
+   `delete_matrix_column` in [matrix_templates.py](src/matex/matrix_templates.py),
+   which rebuild the innermost matrix's body from `matrix_cells` (MathCAT
    is read-only, so this is pure source rewriting). Ragged rows are padded
    with empty cells on column insert; deleting the last row/column returns
    `None` (menu item disabled). The menu also opens with Shift+F10 / the
    Menu key, and works in professional mode too: `_matrix_caret` in
-   editor.py maps MathCAT's cell back to source by matrix order (the n-th
+   editor_structures.py maps MathCAT's cell back to source by matrix order (the n-th
    `mtable` in `MathMLDocument.tables()` is the n-th `■(`, via
    `matrix_cell_caret`) and refuses when the counts differ (e.g. an
    eqarray `█(` also makes an `mtable`). After the edit
    `_rebuild_professional_at_caret` reloads MathCAT and puts it back on
    the target cell with `MathCatNavigator.move_to_cell`.
 3. **Right-click "Equation Options"-style menu** — partly done: the menu
-   (`_show_context_menu`) now opens in both modes and has the Matrix
+   (`_show_context_menu`) now opens in both modes and has an Insert
+   submenu (the same entries as the equation window's Insert menu), the
+   Matrix
    submenu, a Linear/Professional switch, and a "Fraction" submenu (only
    while in a fraction) switching Word's styles: stacked `/`, skewed `⁄`
    (`bevelled`), linear `∕` (an inline `<mo>/</mo>`), small `⊘`
-   (`displaystyle="false"`) — `restyle_fraction` in math_templates.py.
+   (`displaystyle="false"`) — `restyle_fraction` in
+   [fraction_styles.py](src/matex/fraction_styles.py).
    Linear drops the parens around its operands, so a multi-token "(...)"
    operand is doubled (`((a+b))∕c`) and undoubled on the way back.
    Professional mode maps MathCAT's innermost `mfrac` to the n-th
@@ -244,7 +246,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   table/matrix position. [mathml_layout.py](src/matex/mathml_layout.py)
   is now only the fallback drawing when WebKit is unavailable.
 - **The same WebView is the visible renderer** (`_sync_renderer` in
-  editor.py): in linear mode it is a live preview under the source, in
+  editor_renderer.py): in linear mode it is a live preview under the source, in
   professional mode it fills the editor and shows *MathCAT's* canonical
   MathML, so `mathml_current_id` is a real DOM id and `matexHighlight`
   marks exactly what MathCAT is on; a click posts the clicked node's id
@@ -274,11 +276,23 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   [macos_webview.py](src/matex/macos_webview.py) replaces that one method
   (ctypes, Objective-C runtime) to act only when the web view has the focus.
   Separately, the stock Edit ids `wxID_CUT/COPY/PASTE/SELECTALL` are native
-  actions only a native text view can perform; while the custom-drawn
-  equation dialog is open, `MainFrame._use_equation_edit_items` swaps them for
-  plain-id items so the key reaches `EquationEditor._on_key_down`. The
+  actions only a native text view can perform, so the equation window's
+  Edit menu uses plain ids that call `EquationEditor.edit_command`. The
   Markdown editor keeps the stock ids. Verified by the user with a key log,
   not by synthetic events (CGEventPostToPid results were inconsistent here).
+- **The equation editor is a window, not a modal dialog**
+  (`EquationWindow` in [document_editor.py](src/matex/document_editor.py)):
+  a macOS modal session disables every other window's menu bar, so a
+  modal dialog could never offer an Insert menu (confirmed by the user:
+  the main frame's Insert stayed dimmed). It is a `wx.Frame` with its own
+  menu bar (Equation, Edit, Insert, View), shown by `begin(on_done)` with
+  the other windows disabled one by one — *not* `wx.WindowDisabler`, which
+  on macOS begins a modal session as well and dims this window's menus
+  (checked through `[NSApp modalWindow]`/`[NSMenuItem isEnabled]`) — and `finish(saved)` hides it
+  and calls back `DocumentEditor._finish_equation` — no nested event loop.
+  Its menu accelerators now take keys before `_on_key_down` (Cmd+Z, Cmd+/,
+  F2, ...), so a menu handler must do exactly what the key does; Insert and
+  Edit items are disabled outside linear view so their keys fall through.
 - **Document preview** (View → Document Preview, `show_preview` setting,
   off by default): a second WebView in a splitter beside the Markdown
   editor, filled via `html_export.preview_update_script` (same sanitized
@@ -383,10 +397,22 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
 ## Repo Layout
 
 - `src/matex/` — the app. Pure-logic modules (parser, model, mathml_model,
-  layout*, notebook, portable_notebook, settings, space_conversion,
-  math_templates, character_speech, edit_history, html_export,
-  markdown_math, document_io, unicodemath) import `wx` nowhere and are unit
-  tested. GUI modules (`editor.py`, `document_editor.py`, `main_frame.py`,
+  mathml_sanitize, layout*, notebook, portable_notebook, settings,
+  space_conversion, template_source, math_templates, matrix_templates,
+  fraction_styles, insert_catalog, character_speech, edit_history,
+  html_export, markdown_math, document_io, unicodemath) import `wx`
+  nowhere and are unit tested. Templates: `template_source` holds
+  `TemplateEdit` and the paren scan, `math_templates` the inserters and
+  Tab slots, `matrix_templates`/`fraction_styles` their structures'
+  edits, and `insert_catalog` the one list of Insert entries and their
+  shortcuts (menu bar, context menu and key handling all read it, so a
+  new template is added there, not as another `if key == ...`).
+  `EquationEditor` is split into mixins by concern: `editor_renderer`
+  (the WebView converter/renderer and its re-entrancy traps),
+  `editor_structures` (context menu, Insert menu builder, matrix/fraction
+  edits), `editor_drawing` (painting); `editor.py` keeps state, keys and
+  navigation. The mixins only add methods, all state lives in
+  `EquationEditor.__init__`. GUI modules (`editor.py`, `document_editor.py`, `main_frame.py`,
   `settings_dialog.py`, `app.py`) guard `import wx` in a `try/except
   ImportError` and expose a stub class that raises `RuntimeError` when wx is
   absent, so the whole package stays importable (and the logic modules
@@ -448,7 +474,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
 
 ## Security-Sensitive Spots — Change With Extra Care
 
-- [mathml_model.py](src/matex/mathml_model.py) `sanitize_mathml` — allow-list
+- [mathml_sanitize.py](src/matex/mathml_sanitize.py) `sanitize_mathml` — allow-list
   gate before converter output is embedded verbatim into exported HTML
   (`html_export.py`). Adding a MathML tag/attribute to the allow-list is a
   security decision (script/foreignObject/event-handler smuggling), not a

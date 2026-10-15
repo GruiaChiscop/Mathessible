@@ -21,17 +21,6 @@ except ImportError:
 
 
 if wx is not None:
-    # Stock ids wxOSX maps to native actions (cut:, selectAll:, ...): only a
-    # native text view can perform those, so while the custom-drawn equation
-    # editor is open they swallowed Cmd+X/C/V/A without it ever seeing them.
-    # During the dialog they are swapped for plain items with the same
-    # labels; those leave the key to the editor's own handling.
-    NATIVE_EDIT_ITEMS = (
-        (wx.ID_CUT, "Cu&t\tCtrl+X"),
-        (wx.ID_COPY, "&Copy\tCtrl+C"),
-        (wx.ID_PASTE, "&Paste\tCtrl+V"),
-        (wx.ID_SELECTALL, "Select &All\tCtrl+A"),
-    )
 
     class MainFrame(wx.Frame):
         def __init__(self, settings: AppSettings | None = None):
@@ -64,7 +53,6 @@ if wx is not None:
             self.splitter.SetMinimumPaneSize(220)
             self.splitter.SetSashGravity(0.5)
             self.editor = DocumentEditor(self.splitter, settings=self.settings)
-            self.editor.on_equation_editing = self._use_equation_edit_items
             self.preview: wx.html2.WebView | None = None
             self._preview_ready = False
             self._preview_timer: wx.CallLater | None = None
@@ -101,18 +89,15 @@ if wx is not None:
             menu_bar = wx.MenuBar()
             menu_bar.Append(file_menu, "&File")
             edit_menu = wx.Menu()
-            self._edit_menu = edit_menu
-            self._equation_edit_ids = {command: wx.NewIdRef() for command, _label in NATIVE_EDIT_ITEMS}
-            labels = dict(NATIVE_EDIT_ITEMS)
             edit_menu.Append(wx.ID_UNDO, "&Undo\tCtrl+Z")
             edit_menu.Append(wx.ID_REDO, "&Redo\tCtrl+Shift+Z")
             edit_menu.AppendSeparator()
-            edit_menu.Append(wx.ID_CUT, labels[wx.ID_CUT])
-            edit_menu.Append(wx.ID_COPY, labels[wx.ID_COPY])
-            edit_menu.Append(wx.ID_PASTE, labels[wx.ID_PASTE])
+            edit_menu.Append(wx.ID_CUT, "Cu&t\tCtrl+X")
+            edit_menu.Append(wx.ID_COPY, "&Copy\tCtrl+C")
+            edit_menu.Append(wx.ID_PASTE, "&Paste\tCtrl+V")
             edit_menu.Append(wx.ID_DELETE, "&Delete")
             edit_menu.AppendSeparator()
-            edit_menu.Append(wx.ID_SELECTALL, labels[wx.ID_SELECTALL])
+            edit_menu.Append(wx.ID_SELECTALL, "Select &All\tCtrl+A")
             edit_menu.AppendSeparator()
             edit_menu.Append(wx.ID_PREFERENCES, "&Settings…")
             menu_bar.Append(edit_menu, "&Edit")
@@ -262,7 +247,7 @@ if wx is not None:
         def _update_preview(self) -> None:
             if not self or self.preview is None or not self._preview_ready or not self.splitter.IsSplit():
                 return
-            equation_editor = self.editor.equation_dialog.equation
+            equation_editor = self.editor.equation_window.equation
             if not equation_editor.converter_ready or equation_editor.converter_busy:
                 self._schedule_preview(delay=300)
                 return
@@ -272,17 +257,6 @@ if wx is not None:
         def _on_editor_position_changed(self, event: wx.Event) -> None:
             wx.CallAfter(self._update_status)
             event.Skip()
-
-        def _use_equation_edit_items(self, equation: bool) -> None:
-            for command, label in NATIVE_EDIT_ITEMS:
-                plain = self._equation_edit_ids[command]
-                old, new = (command, plain) if equation else (plain, command)
-                items = self._edit_menu.GetMenuItems()
-                position = next((index for index, item in enumerate(items) if item.GetId() == old), None)
-                if position is None:
-                    continue
-                self._edit_menu.Delete(old)
-                self._edit_menu.Insert(position, new, label)
 
         def _on_edit_command(self, event: wx.CommandEvent) -> None:
             control = self.editor.markdown
@@ -392,7 +366,7 @@ if wx is not None:
                     dialog.apply()
                     save_settings(self.settings)
                     for window in self._application_windows():
-                        window.editor.equation_dialog.equation.apply_settings()
+                        window.editor.equation_window.equation.apply_settings()
                         window.Refresh()
             except OSError as error:
                 self._show_error("save settings", error)
@@ -556,7 +530,7 @@ if wx is not None:
                 default_file = f"{self.document_path.stem if self.document_path else 'matex-document'}.html"
                 default_directory = str(self.document_path.parent) if self.document_path else ""
 
-            equation_editor = self.editor.equation_dialog.equation
+            equation_editor = self.editor.equation_window.equation
             if any(find_math_zones(page.source) for page in pages) and not equation_editor.converter_ready:
                 self._show_error(
                     "export the HTML document",

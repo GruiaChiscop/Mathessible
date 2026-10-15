@@ -1,0 +1,202 @@
+"""The equation editor's WebView: the UnicodeMath converter and the visible rendering."""
+
+from __future__ import annotations
+
+from .macos_webview import guard_webview_key_equivalents
+from .mathml_sanitize import MathMLModelError, sanitize_mathml
+from .unicodemath import (
+    ConversionResult,
+    StrayScriptResult,
+    UnicodeMathError,
+    conversion_script,
+    decode_conversion,
+    highlight_script,
+    render_script,
+    renderer_page,
+)
+
+try:
+    import wx
+    import wx.html2
+except ImportError:  # The interface is an optional dependency.
+    wx = None
+
+
+class EquationRendererMixin:
+    """Methods of `EquationEditor` (editor.py); relies on its state."""
+
+    def _create_renderer(self) -> None:
+        try:
+            page, base_url = renderer_page()
+            self._webview = wx.html2.WebView.New(self)
+            # Never focused, so it must not take Cmd+A/C/V/X either.
+            guard_webview_key_equivalents()
+            self._webview.SetName("")
+            self._webview.Hide()
+            # Purely visual: keyboard focus and speech stay with the editor.
+            if hasattr(self._webview, "SetCanFocus"):
+                self._webview.SetCanFocus(False)
+            self._webview.Bind(wx.EVT_SET_FOCUS, self._on_renderer_focus)
+            self._webview.Bind(wx.html2.EVT_WEBVIEW_LOADED, self._on_renderer_loaded)
+            if hasattr(self._webview, "AddScriptMessageHandler"):
+                self._webview.AddScriptMessageHandler("matex")
+                self._webview.Bind(wx.html2.EVT_WEBVIEW_SCRIPT_MESSAGE_RECEIVED, self._on_renderer_click)
+            self._webview.SetPage(page, base_url)
+        except (FileNotFoundError, RuntimeError) as error:
+            self._renderer_error = str(error)
+
+    def _on_renderer_loaded(self, event: wx.html2.WebViewEvent) -> None:
+        if self._webview is not None:
+            success, value = self._webview.RunScript(
+                "typeof window.matexConvert === 'function' && "
+                "typeof window.matexRender === 'function'"
+            )
+            self._renderer_ready = success and value.strip().lower() == "true"
+            if not self._renderer_ready:
+                self._renderer_error = "the UnicodeMathML engine did not initialize"
+            else:
+                # LOADED can fire for an earlier, blank page first.
+                self._renderer_error = None
+                if self._pending_read:
+                    wx.CallAfter(self.read_expression)
+            self.Refresh()
+        event.Skip()
+
+    def _on_renderer_focus(self, event: wx.FocusEvent) -> None:
+        wx.CallAfter(self.SetFocus)
+        event.Skip()
+
+    def _on_renderer_click(self, event: wx.html2.WebViewEvent) -> None:
+        """A click on the rendered equation moves MathCAT to that node."""
+        self.SetFocus()
+        identifier = event.GetString()
+        if self.mode != "professional" or self.mathcat is None or not identifier:
+            return
+        try:
+            self.mathcat.move_to(identifier)
+            self._highlight_matrix_cell = False
+            self._sync_mathcat_cursor()
+            self._announce(self.mathcat.command("ReadCurrent"))
+        except (OSError, RuntimeError, ValueError):
+            return
+        self.Refresh()
+
+    def _schedule_renderer_sync(self) -> None:
+        if not self._renderer_sync_pending:
+            self._renderer_sync_pending = True
+            wx.CallAfter(self._sync_renderer)
+
+    def _renderer_target(self) -> tuple[tuple[str, str] | None, str | None]:
+        """What the renderer should show now: ((mode, MathML), highlighted id)."""
+        if self.mode == "linear":
+            if not self.document.source:
+                return ("linear", ""), None
+            try:
+                mathml = self.convert_unicode_math(self.document.source)
+            except (UnicodeMathError, RuntimeError, ValueError):
+                return ("linear", ""), None
+            return ("linear", mathml), None
+        mathml = self.mathcat.mathml if self.mathcat is not None else self._professional_mathml
+        if not mathml:
+            return None, None
+        return ("professional", mathml), self.mathml_current_id
+
+    def _sync_renderer(self) -> None:
+        """Show, place and fill the visible renderer for the current mode.
+
+        Professional mode shows MathCAT's own MathML, so its node ids are
+        exactly the ones `mathml_current_id` highlights. Everything is
+        passed through the same allow-list as HTML export first: the page
+        is visible now, and an equation may come from someone else's file.
+        """
+        if not self:  # Destroyed before the deferred call ran.
+            return
+        if self._converting:
+            # RunScript spins a nested event loop; a second synchronous
+            # script started inside it gets the other one's result.
+            wx.CallLater(30, self._sync_renderer)
+            return
+        self._renderer_sync_pending = False
+        webview = self._webview
+        if webview is None:
+            return
+        target, highlight = self._renderer_target() if self._renderer_ready else (None, None)
+        if target is None:
+            if webview.IsShown():
+                webview.Hide()
+                self.Refresh()
+            self._rendered = None
+            return
+        if target != self._rendered:
+            mode, mathml = target
+            try:
+                safe = sanitize_mathml(mathml) if mathml else ""
+            except MathMLModelError:
+                safe = ""
+            webview.RunScriptAsync(render_script(safe, preview=mode == "linear"))
+            self._rendered = target
+            self._rendered_highlight = None
+        if highlight != self._rendered_highlight:
+            webview.RunScriptAsync(highlight_script(highlight))
+            self._rendered_highlight = highlight
+        rect = self._renderer_rect().Deflate(3, 3)
+        if webview.GetRect() != rect:
+            webview.SetSize(rect)
+        if not webview.IsShown():
+            webview.Show()
+            self.Refresh()
+        self._keep_focus_off_renderer()
+
+    def _keep_focus_off_renderer(self) -> None:
+        """WebKit takes focus when shown or clicked, and wx sends no focus
+        event for it; put keyboard focus (and VoiceOver) back on the editor."""
+        focused = wx.Window.FindFocus()
+        if focused is not None and focused is self._webview:
+            self.SetFocus()
+
+    @property
+    def converter_busy(self) -> bool:
+        return self._converting
+
+    @property
+    def converter_ready(self) -> bool:
+        return self._renderer_ready and self._webview is not None
+
+    def convert_unicode_math(self, source: str) -> str:
+        if not self._renderer_ready or self._webview is None:
+            reason = self._renderer_error or "the UnicodeMathML converter is still loading"
+            raise UnicodeMathError(reason)
+        if self._converting:
+            # RunScript spins a nested event loop: a conversion started
+            # from inside it (a timer, a deferred call) would receive the
+            # outer one's result. Refuse instead; callers already handle
+            # a failed conversion.
+            raise UnicodeMathError("the UnicodeMathML converter is busy")
+        self._converting = True
+        try:
+            # RunScript takes whichever script result arrives first, e.g.
+            # an earlier RunScriptAsync's (matexRender/matexHighlight).
+            # Results arrive in order, so the conversion's own one is
+            # queued behind those strays: wait for it with no-op scripts
+            # (a new conversion would only fall behind the same way).
+            self._conversion_token += 1
+            token = self._conversion_token
+            success, value = self._webview.RunScript(conversion_script(source, token))
+            for _attempt in range(8):
+                if success:
+                    try:
+                        conversion = decode_conversion(value, token)
+                        break
+                    except StrayScriptResult:
+                        pass
+                success, value = self._webview.RunScript("null")
+            else:
+                raise UnicodeMathError("the UnicodeMathML converter could not run")
+        finally:
+            self._converting = False
+        if conversion.error:
+            raise UnicodeMathError(conversion.error)
+        return conversion.mathml
+
+    def _convert_source(self):
+        return ConversionResult(mathml=self.convert_unicode_math(self.document.source))

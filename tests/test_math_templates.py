@@ -1,23 +1,11 @@
 import unittest
 
 from matex.math_templates import (
-    MatrixPosition,
-    built_fractions,
-    fraction_at,
-    restyle_fraction,
-    delete_matrix_column,
-    delete_matrix_row,
     insert_absolute_value_template,
-    insert_matrix_column,
-    insert_matrix_row,
-    matrix_cell_caret,
-    matrix_count,
-    matrix_position_at,
     insert_fraction_template,
     insert_integral_template,
     insert_limit_template,
     insert_logarithm_template,
-    insert_matrix_template,
     insert_operator_template,
     insert_product_template,
     insert_root_template,
@@ -337,55 +325,6 @@ class MathTemplateTests(unittest.TestCase):
         self.assertEqual(move_to_slot(source, above.caret).caret, 11)
         self.assertEqual(move_to_slot(source, above.caret, reverse=True).announcement, "text below, y")
 
-    def test_fraction_at_finds_the_innermost_fraction_with_its_operands(self) -> None:
-        outer = fraction_at("x=(a+b)/c+1", 4)
-        self.assertEqual((outer.start, outer.end, outer.style), (2, 9, "stacked"))
-        inner = fraction_at("(x/2)/y", 2)
-        self.assertEqual((inner.operator, inner.start, inner.end), (2, 1, 4))
-        self.assertEqual(fraction_at("(x/2)/y", 0).operator, 5)
-        function = fraction_at("f(x)/√(2)", 0)
-        self.assertEqual((function.start, function.end), (0, 9))
-        self.assertIsNone(fraction_at("a+b", 1))
-
-    def test_restyle_fraction_swaps_the_operator(self) -> None:
-        self.assertEqual(restyle_fraction("x=a/b+1", 3, "skewed").source, "x=a⁄b+1")
-        self.assertEqual(restyle_fraction("(x/2)/y", 0, "small").source, "(x/2)⊘y")
-        self.assertEqual(restyle_fraction("a⊘b", 0, "stacked").announcement, "stacked fraction")
-        self.assertIsNone(restyle_fraction("a+b", 1, "linear"))
-
-    def test_linear_fraction_keeps_visible_parens_around_groups(self) -> None:
-        # The converter drops the parens of a linear fraction's operands.
-        edit = restyle_fraction("(a+b)/(c+d)", 2, "linear")
-        self.assertEqual((edit.source, edit.caret), ("((a+b))∕((c+d))", 3))
-        self.assertEqual(restyle_fraction("(x)/2", 0, "linear").source, "(x)∕2")
-        back = restyle_fraction(edit.source, edit.caret, "stacked")
-        self.assertEqual((back.source, back.caret), ("(a+b)/(c+d)", 2))
-
-    def test_built_fractions_skip_linear_ones_and_count_binomials(self) -> None:
-        styles = [fraction.style for fraction in built_fractions("(n¦k)/2+a∕b")]
-        self.assertEqual(styles, ["stacked", "no bar"])
-
-    def test_matrix_template_has_empty_cells_and_caret_in_the_first(self) -> None:
-        edit = insert_matrix_template("A=", 2, rows=2, columns=3)
-        self.assertEqual(edit.source, "A=(■(&&@&&))")
-        self.assertEqual(edit.caret, 5)
-        self.assertEqual(edit.announcement, "2 by 3 matrix template, empty cell, row 1, column 1")
-
-    def test_matrix_template_fences(self) -> None:
-        self.assertEqual(insert_matrix_template("", 0, 2, 2, fence="none").source, "■(&@&)")
-        self.assertEqual(insert_matrix_template("", 0, 2, 2, fence="brackets").source, "[■(&@&)]")
-        determinant = insert_matrix_template("", 0, 2, 2, fence="bars")
-        self.assertEqual(determinant.source, "|■(&@&)|")
-        self.assertEqual(determinant.announcement, "2 by 2 determinant template, empty cell, row 1, column 1")
-
-    def test_matrix_template_rejects_bad_sizes_and_fences(self) -> None:
-        with self.assertRaises(ValueError):
-            insert_matrix_template("", 0, 0, 2)
-        with self.assertRaises(ValueError):
-            insert_matrix_template("", 0, 2, 11)
-        with self.assertRaises(ValueError):
-            insert_matrix_template("", 0, 2, 2, fence="double bars")
-
     def test_tab_walks_matrix_cells_row_by_row_then_exits_past_the_fence(self) -> None:
         source = "(■(&@&))+x"
         expected = [
@@ -454,80 +393,6 @@ class MathTemplateTests(unittest.TestCase):
         self.assertEqual(outer.caret, 7)
         self.assertEqual(outer.announcement, "empty cell, row 1, column 2")
 
-
-    def test_matrix_position_reports_the_caret_cell_and_shape(self) -> None:
-        # "(■(a&b@c&d))": "d" is at index 9.
-        self.assertEqual(matrix_position_at("(■(a&b@c&d))", 9), MatrixPosition(2, 2, 2, 2, 0))
-        self.assertIsNone(matrix_position_at("x+(■(a&b))", 1))
-
-    def test_matrix_position_uses_the_innermost_matrix(self) -> None:
-        source = "■(■(x&y@z&w)&b)"
-        self.assertEqual(matrix_position_at(source, 4), MatrixPosition(1, 1, 2, 2, 1))
-        self.assertEqual(matrix_position_at(source, 14), MatrixPosition(1, 2, 1, 2, 0))
-
-    def test_insert_row_below_and_above(self) -> None:
-        below = insert_matrix_row("(■(a&b@c&d))", 3, below=True)
-        self.assertIsNotNone(below)
-        self.assertEqual(below.source, "(■(a&b@&@c&d))")
-        self.assertEqual(below.caret, 7)
-        self.assertEqual(below.announcement, "inserted row 2, 3 by 2 matrix, empty cell, row 2, column 1")
-        above = insert_matrix_row("(■(a&b@c&d))", 3, below=False)
-        self.assertIsNotNone(above)
-        self.assertEqual(above.source, "(■(&@a&b@c&d))")
-        self.assertEqual(above.caret, 3)
-
-    def test_insert_column_right_and_left_keeps_the_caret_row(self) -> None:
-        right = insert_matrix_column("[■(a&b@c&d)]", 7, right=True)
-        self.assertIsNotNone(right)
-        self.assertEqual(right.source, "[■(a&&b@c&&d)]")
-        self.assertEqual(right.caret, 10)
-        self.assertEqual(right.announcement, "inserted column 2, 2 by 3 matrix, empty cell, row 2, column 2")
-        left = insert_matrix_column("[■(a&b@c&d)]", 7, right=False)
-        self.assertIsNotNone(left)
-        self.assertEqual(left.source, "[■(&a&b@&c&d)]")
-
-    def test_insert_column_pads_a_ragged_row(self) -> None:
-        edit = insert_matrix_column("■(a&b&c@d)", 6, right=True)
-        self.assertIsNotNone(edit)
-        self.assertEqual(edit.source, "■(a&b&c&@d&&&)")
-
-    def test_delete_row_and_column(self) -> None:
-        row = delete_matrix_row("(■(a&b@c&d))", 9)
-        self.assertIsNotNone(row)
-        self.assertEqual(row.source, "(■(a&b))")
-        self.assertEqual(row.caret, 5)
-        self.assertEqual(row.announcement, "deleted row 2, 1 by 2 matrix, row 1, column 2")
-        column = delete_matrix_column("|■(a&b@c&d)|", 3)
-        self.assertIsNotNone(column)
-        self.assertEqual(column.source, "|■(b@d)|")
-        self.assertEqual(column.caret, 3)
-        self.assertEqual(column.announcement, "deleted column 1, 2 by 1 determinant, row 1, column 1")
-
-    def test_the_last_row_or_column_cannot_be_deleted(self) -> None:
-        self.assertIsNone(delete_matrix_row("■(a&b)", 2))
-        self.assertIsNone(delete_matrix_column("■(a@b)", 2))
-        self.assertIsNone(insert_matrix_row("a+b", 1))
-
-    def test_editing_a_nested_matrix_leaves_the_outer_one_alone(self) -> None:
-        edit = insert_matrix_row("■(■(x&y)&b)", 4)
-        self.assertIsNotNone(edit)
-        self.assertEqual(edit.source, "■(■(x&y@&)&b)")
-
-    def test_cells_with_nested_groups_are_kept_whole(self) -> None:
-        edit = delete_matrix_column("■((a)/(b)&c)", 10)
-        self.assertIsNotNone(edit)
-        self.assertEqual(edit.source, "■((a)/(b))")
-
-    def test_matrix_cells_are_found_by_matrix_index_row_and_column(self) -> None:
-        source = "[■(1&2@3&4)]+■(■(x&y@z)&b)"
-        self.assertEqual(matrix_count(source), 3)
-        self.assertEqual(matrix_cell_caret(source, 0, 2, 2), 9)
-        self.assertEqual(matrix_cell_caret(source, 2, 2, 1), 21)
-        # A short row gives its last cell; a missing matrix or row gives None.
-        self.assertEqual(matrix_cell_caret(source, 2, 2, 2), 21)
-        self.assertIsNone(matrix_cell_caret(source, 3, 1, 1))
-        self.assertIsNone(matrix_cell_caret(source, 0, 3, 1))
-        self.assertEqual(matrix_position_at(source, 21), MatrixPosition(2, 1, 2, 2, 2))
 
 if __name__ == "__main__":
     unittest.main()

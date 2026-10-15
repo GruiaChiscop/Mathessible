@@ -9,7 +9,7 @@ from pathlib import Path
 from markdown_it import MarkdownIt
 
 from .markdown_math import find_math_zones
-from .mathml_model import sanitize_mathml
+from .mathml_sanitize import sanitize_mathml
 
 
 MathConverter = Callable[[str], str]

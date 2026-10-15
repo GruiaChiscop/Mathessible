@@ -5,6 +5,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from .editor import EquationEditor
+from .editor_structures import append_insert_items
 from .markdown_math import MathZone, math_zone_at
 from .settings import AppSettings
 from .speech import AssistiveOutput, create_output
@@ -38,27 +39,94 @@ if wx is not None:
             return event.RawControlDown() and not event.CmdDown() and not event.AltDown()
         return event.AltDown()
 
-    class EquationDialog(wx.Dialog):
+    class EquationWindow(wx.Frame):
+        """The equation editor: a window of its own with its own menu bar.
+
+        Not a modal dialog: on macOS a modal session disables the menu bar of
+        every other window, so the Insert menu could never be used. Instead
+        the other windows are disabled while it is open (`begin`/`finish`),
+        and its menus (Equation, Edit, Insert, View) replace the document's
+        in the menu bar while it is active.
+        """
+
         def __init__(self, parent: wx.Window, output: AssistiveOutput, settings: AppSettings):
             super().__init__(
-                parent,
+                wx.GetTopLevelParent(parent),
                 title="Equation Editor",
-                size=(900, 520),
-                style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER,
+                size=(900, 560),
+                style=wx.DEFAULT_FRAME_STYLE | wx.FRAME_FLOAT_ON_PARENT,
             )
-            self.SetMinSize((620, 420))
-            self.SetName("Equation Editor dialog")
+            self.SetMinSize((620, 440))
+            self.SetName("Equation Editor window")
+            self._on_done: Callable[[bool], None] | None = None
+            self._disabled: list[wx.TopLevelWindow] = []
+            panel = wx.Panel(self)
             sizer = wx.BoxSizer(wx.VERTICAL)
             self.heading = wx.StaticText(
-                self,
+                panel,
                 label=f"Enter or {EQUATION_SHORTCUT_LABEL} saves. Escape cancels.",
             )
-            self.equation = EquationEditor(self, source="", output=output, settings=settings)
+            self.equation = EquationEditor(panel, source="", output=output, settings=settings)
             sizer.Add(self.heading, 0, wx.ALL | wx.EXPAND, 10)
             sizer.Add(self.equation, 1, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 10)
-            self.SetSizer(sizer)
+            panel.SetSizer(sizer)
+            self._create_menu()
             self.Bind(wx.EVT_CHAR_HOOK, self._on_char_hook)
             self.Bind(wx.EVT_CLOSE, self._on_close)
+
+        def _create_menu(self) -> None:
+            # Plain ids, never the stock wxID_CUT/COPY/...: wxOSX maps those to
+            # native actions only a native text view can perform.
+            menu_bar = wx.MenuBar()
+            equation_menu = wx.Menu()
+            save_item = equation_menu.Append(wx.ID_ANY, "&Save Equation (Enter)")
+            cancel_item = equation_menu.Append(wx.ID_ANY, "&Cancel (Escape)")
+            self.Bind(wx.EVT_MENU, lambda _event: self.finish(True), save_item)
+            self.Bind(wx.EVT_MENU, lambda _event: self.finish(False), cancel_item)
+            menu_bar.Append(equation_menu, "E&quation")
+            edit_menu = wx.Menu()
+            edit_items = (
+                ("undo", "&Undo\tCtrl+Z"),
+                ("redo", "&Redo\tCtrl+Shift+Z"),
+                None,
+                ("cut", "Cu&t\tCtrl+X"),
+                ("copy", "&Copy\tCtrl+C"),
+                ("paste", "&Paste\tCtrl+V"),
+                None,
+                ("select_all", "Select &All\tCtrl+A"),
+            )
+            for entry in edit_items:
+                if entry is None:
+                    edit_menu.AppendSeparator()
+                    continue
+                command, label = entry
+                item = edit_menu.Append(wx.ID_ANY, label)
+                self.Bind(wx.EVT_MENU, lambda _event, command=command: self.equation.edit_command(command), item)
+                if command != "copy":
+                    self.Bind(wx.EVT_UPDATE_UI, self._enable_in_linear_view, item)
+            menu_bar.Append(edit_menu, "&Edit")
+            insert_menu = wx.Menu()
+            for item_id, entry in append_insert_items(insert_menu).items():
+                self.Bind(wx.EVT_MENU, lambda _event, entry=entry: self.equation.insert_item(entry), id=item_id)
+                self.Bind(wx.EVT_UPDATE_UI, self._enable_in_linear_view, id=item_id)
+            menu_bar.Append(insert_menu, "&Insert")
+            view_menu = wx.Menu()
+            professional_item = view_menu.AppendCheckItem(wx.ID_ANY, "&Professional View\tF2")
+            self.Bind(wx.EVT_MENU, lambda _event: self.equation.toggle_mode(), professional_item)
+            self.Bind(
+                wx.EVT_UPDATE_UI,
+                lambda event: event.Check(self.equation.mode == "professional"),
+                professional_item,
+            )
+            menu_bar.Append(view_menu, "&View")
+            self.SetMenuBar(menu_bar)
+
+        def _enable_in_linear_view(self, event: wx.UpdateUIEvent) -> None:
+            event.Enable(self.equation.mode == "linear")
+
+        @property
+        def active(self) -> bool:
+            return self._on_done is not None
 
         def prepare(self, source: str, display: bool) -> None:
             kind = "display" if display else "inline"
@@ -67,25 +135,54 @@ if wx is not None:
             )
             self.equation.set_source(source)
 
+        def begin(self, on_done: Callable[[bool], None]) -> None:
+            """Show the editor, the other windows disabled until `finish` calls `on_done(saved)`."""
+            self._on_done = on_done
+            self.CentreOnParent()
+            # Not wx.WindowDisabler: on macOS it begins a modal session too,
+            # which dims this window's own menus as well.
+            self._disabled = [window for window in wx.GetTopLevelWindows() if window is not self and window.IsEnabled()]
+            for window in self._disabled:
+                window.Disable()
+            self.Show()
+            self.Raise()
+
+        def finish(self, saved: bool) -> None:
+            on_done, self._on_done = self._on_done, None
+            if on_done is None:
+                return
+            self._enable_others()
+            self.Hide()
+            on_done(saved)
+
         def _on_char_hook(self, event: wx.KeyEvent) -> None:
             key = event.GetKeyCode()
             if key == wx.WXK_ESCAPE:
-                self.EndModal(wx.ID_CANCEL)
+                self.finish(False)
                 return
             # The equation editor has no use for Enter itself, so it saves.
             if key in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
-                self.EndModal(wx.ID_OK)
+                self.finish(True)
                 return
             if _is_equation_shortcut(event):
-                self.EndModal(wx.ID_OK)
+                self.finish(True)
                 return
             event.Skip()
 
         def _on_close(self, event: wx.CloseEvent) -> None:
-            if self.IsModal():
-                self.EndModal(wx.ID_CANCEL)
-            else:
-                event.Skip()
+            # Closing the window cancels; it is kept for the next equation.
+            if event.CanVeto():
+                event.Veto()
+                self.finish(False)
+                return
+            self._enable_others()
+            event.Skip()
+
+        def _enable_others(self) -> None:
+            for window in self._disabled:
+                if window:  # A window destroyed meanwhile is falsy.
+                    window.Enable()
+            self._disabled = []
 
     class DocumentEditor(wx.Panel):
         def __init__(
@@ -99,9 +196,6 @@ if wx is not None:
             self.settings = settings or AppSettings()
             self.output = output or create_output()
             self._session: EquationEditSession | None = None
-            # Called with True before the equation dialog opens and False once
-            # it has closed (the main frame swaps its Edit menu items).
-            self.on_equation_editing: Callable[[bool], None] | None = None
 
             self.markdown = wx.TextCtrl(
                 self,
@@ -113,7 +207,7 @@ if wx is not None:
             # which breaks Markdown and UnicodeMath source.
             if hasattr(self.markdown, "OSXDisableAllSmartSubstitutions"):
                 self.markdown.OSXDisableAllSmartSubstitutions()
-            self.equation_dialog = EquationDialog(self, self.output, self.settings)
+            self.equation_window = EquationWindow(self, self.output, self.settings)
 
             self._sizer = wx.BoxSizer(wx.VERTICAL)
             self._sizer.Add(self.markdown, 1, wx.EXPAND)
@@ -147,8 +241,8 @@ if wx is not None:
             self.markdown.SetFocus()
 
         def commit_active_equation(self) -> None:
-            if self._session is not None and self.equation_dialog.IsModal():
-                self.equation_dialog.EndModal(wx.ID_OK)
+            if self._session is not None:
+                self.equation_window.finish(True)
 
         def _announce(self, message: str) -> None:
             try:
@@ -185,25 +279,20 @@ if wx is not None:
                 content = zone.content(source)
 
             self._session = EquationEditSession(zone, selection_start, selection_end)
-            self.equation_dialog.prepare(content, zone.display)
-            wx.CallAfter(self.equation_dialog.equation.SetFocus)
+            self.equation_window.prepare(content, zone.display)
+            wx.CallAfter(self.equation_window.equation.SetFocus)
             if content:
-                wx.CallAfter(self.equation_dialog.equation.read_expression)
-            self.equation_dialog.CentreOnParent()
-            if self.on_equation_editing is not None:
-                self.on_equation_editing(True)
-            try:
-                result = self.equation_dialog.ShowModal()
-            finally:
-                if self.on_equation_editing is not None:
-                    self.on_equation_editing(False)
+                wx.CallAfter(self.equation_window.equation.read_expression)
+            self.equation_window.begin(self._finish_equation)
+
+        def _finish_equation(self, saved: bool) -> None:
             session = self._session
             self._session = None
             if session is None:
                 return
-            if result == wx.ID_OK:
+            if saved:
                 replacement = (
-                    f"{session.zone.delimiter}{self.equation_dialog.equation.source}"
+                    f"{session.zone.delimiter}{self.equation_window.equation.source}"
                     f"{session.zone.delimiter}"
                 )
                 self.markdown.SetSelection(session.zone.start, session.zone.end)
@@ -214,6 +303,7 @@ if wx is not None:
             else:
                 self.markdown.SetSelection(session.selection_start, session.selection_end)
                 self._announce("equation editing canceled")
+            wx.GetTopLevelParent(self).Raise()
             self.markdown.SetFocus()
 
 else:
