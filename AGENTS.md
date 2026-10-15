@@ -415,7 +415,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
 ## Repo Layout
 
 - `src/matex/` — the app. Pure-logic modules (parser, model, mathml_model,
-  mathml_sanitize, layout*, notebook, portable_notebook, settings,
+  mathml_sanitize, symbol_dictionary, layout*, notebook, portable_notebook, settings,
   space_conversion, template_source, math_templates, matrix_templates,
   fraction_styles, structure_edits, source_view, insert_catalog, character_speech, edit_history,
   html_export, markdown_math, document_io, unicodemath) import `wx`
@@ -532,6 +532,15 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   - `src/speech.rs` `replace_single_char`: `should_ignore_file_time` uses
     `!= "All"`, matching `read_files` (upstream has `== "All"`, which
     reloads the full Unicode table on each lookup in include-zip builds).
+- **License: GPL-2.0-or-later** (was MIT; changed so NVDA's GPL-2.0
+  symbol dictionaries can be used). NVDA's `symbols.dic` files are never
+  committed: `matex-fetch-symbols` ([symbol_download.py](src/matex/symbol_download.py))
+  downloads them into `~/.matex/symbols/nvda-<lang>.dic`. Spoken symbol
+  names come only from dictionaries ([symbol_dictionary.py](src/matex/symbol_dictionary.py),
+  the `symbol_dictionary` setting, built-in `src/matex/symbols/matex-en.dic`);
+  do not add hardcoded name tables. Only the `symbols:` section is parsed;
+  layers: chosen → `nvda-en` (for another NVDA locale) → built-in.
+  MathCAT's professional-mode speech still uses its own Rules.
 - Do not run `cargo fmt` or broad formatting sweeps inside `MathCAT/` (its
   own `AGENTS.md` says the same).
 - Do not touch `.venv/`, `.tools/`, `.uv-cache/`, or `native/mathcat_py/target/`

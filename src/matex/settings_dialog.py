@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from .settings import AppSettings, format_recognized_functions, parse_recognized_functions
+from .symbol_dictionary import SymbolDictionaryError, available_dictionaries, import_dictionary
 
 try:
     import wx
@@ -89,6 +92,23 @@ if wx is not None:
                 ),
             )
             functions_help.Wrap(460)
+            symbols_label = wx.StaticText(self, label="Symbol dictionary (names spoken for symbols)")
+            self.symbol_dictionary = wx.Choice(self)
+            self.symbol_dictionary.SetName("Symbol dictionary")
+            self._fill_dictionaries(settings.symbol_dictionary)
+            import_button = wx.Button(self, label="&Import dictionary…")
+            import_button.Bind(wx.EVT_BUTTON, self._on_import_dictionary)
+            symbols_help = wx.StaticText(
+                self,
+                label=(
+                    "Any file in NVDA's symbols.dic format. NVDA's own dictionaries are "
+                    "downloaded with: uv run matex-fetch-symbols"
+                ),
+            )
+            symbols_help.Wrap(460)
+            symbols_row = wx.BoxSizer(wx.HORIZONTAL)
+            symbols_row.Add(self.symbol_dictionary, 1, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 8)
+            symbols_row.Add(import_button, 0, wx.ALIGN_CENTER_VERTICAL)
             buttons = self.CreateSeparatedButtonSizer(wx.OK | wx.CANCEL)
 
             sizer.Add(heading, 0, wx.ALL, 12)
@@ -103,11 +123,41 @@ if wx is not None:
             sizer.Add(functions_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
             sizer.Add(self.recognized_functions, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
             sizer.Add(functions_help, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
+            sizer.Add(symbols_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
+            sizer.Add(symbols_row, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
+            sizer.Add(symbols_help, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
             if buttons is not None:
                 sizer.Add(buttons, 0, wx.ALL | wx.EXPAND, 12)
             self.SetSizerAndFit(sizer)
 
+        def _fill_dictionaries(self, selected: str) -> None:
+            self._dictionaries = available_dictionaries()
+            self.symbol_dictionary.Set([info.label for info in self._dictionaries])
+            identifiers = [info.identifier for info in self._dictionaries]
+            self.symbol_dictionary.SetSelection(identifiers.index(selected) if selected in identifiers else 0)
+
+        def _on_import_dictionary(self, _event: wx.CommandEvent) -> None:
+            with wx.FileDialog(
+                self,
+                "Import a symbol dictionary",
+                wildcard="NVDA symbol dictionaries (*.dic)|*.dic|All files|*",
+                style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST,
+            ) as dialog:
+                if dialog.ShowModal() != wx.ID_OK:
+                    return
+                path = Path(dialog.GetPath())
+            try:
+                info = import_dictionary(path)
+            except (SymbolDictionaryError, OSError) as error:
+                wx.MessageBox(str(error), "Import failed", wx.OK | wx.ICON_ERROR, self)
+                return
+            self._fill_dictionaries(info.identifier)
+            self.symbol_dictionary.SetFocus()
+
         def apply(self) -> None:
+            selection = self.symbol_dictionary.GetSelection()
+            if selection != wx.NOT_FOUND:
+                self._settings.symbol_dictionary = self._dictionaries[selection].identifier
             self._settings.linear_navigation = self.linear_navigation.GetValue()
             self._settings.structure_stops = self.structure_stops.GetValue()
             self._settings.invisible_operator_stops = self.invisible_operator_stops.GetValue()

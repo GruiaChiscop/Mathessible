@@ -4,6 +4,7 @@ import threading
 
 from .clipboard import get_clipboard_text, set_clipboard_text
 from .character_speech import character_name, deleted_character, inserted_character
+from .symbol_dictionary import load_dictionary
 from .editor_drawing import EditorDrawingMixin
 from .editor_renderer import EquationRendererMixin
 from .editor_structures import StructureActionsMixin
@@ -87,6 +88,7 @@ if wx is not None:
             self.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
             self.document = EquationDocument(source)
             self.settings = settings or AppSettings()
+            self.symbols = load_dictionary(self.settings.symbol_dictionary)
             self.output = output or create_output()
             self.mathcat: MathCatNavigator | None = create_mathcat_navigator(
                 recognized_functions=self.settings.recognized_functions,
@@ -249,6 +251,7 @@ if wx is not None:
             return self.settings.structure_stops and not self.settings.linear_navigation
 
         def apply_settings(self) -> None:
+            self.symbols = load_dictionary(self.settings.symbol_dictionary)
             if self.mathcat is not None:
                 self.mathcat.recognized_functions = self.settings.recognized_functions
                 self.mathcat.auto_zoom_out = self._auto_zoom_out
@@ -761,14 +764,14 @@ if wx is not None:
                 elif self.caret:
                     deleted = self.document.source[self.caret - 1]
                     self._replace_linear(self.document.source[: self.caret - 1] + self.document.source[self.caret :], self.caret - 1)
-                    self._announce(deleted_character(deleted))
+                    self._announce(deleted_character(deleted, self.symbols))
             elif key == wx.WXK_DELETE:
                 if self._replace_selection(""):
                     self._announce("selection deleted")
                 elif self.caret < len(self.document.source):
                     deleted = self.document.source[self.caret]
                     self._replace_linear(self.document.source[: self.caret] + self.document.source[self.caret + 1 :], self.caret)
-                    self._announce(deleted_character(deleted))
+                    self._announce(deleted_character(deleted, self.symbols))
             else:
                 codepoint = event.GetUnicodeKey()
                 if codepoint not in (wx.WXK_NONE, 0) and codepoint >= 32:
@@ -783,7 +786,7 @@ if wx is not None:
                         )
                         if edit is not None:
                             self._replace_linear(edit.source, edit.caret)
-                            self._announce(f"{edit.announcement}, {inserted_character(value)}")
+                            self._announce(f"{edit.announcement}, {inserted_character(value, self.symbols)}")
                             return
                         if self.settings.convert_shortcuts_immediately:
                             edit = convert_shortcut_on_character(self.document.source, self.caret, value)
@@ -796,7 +799,7 @@ if wx is not None:
                             self.document.source[: self.caret] + value + self.document.source[self.caret :],
                             self.caret + len(value),
                         )
-                    self._announce(inserted_character(value))
+                    self._announce(inserted_character(value, self.symbols))
                     return
                 event.Skip()
                 return
@@ -880,9 +883,9 @@ if wx is not None:
             if not self.document.source:
                 self._announce("start")
             elif moved_right and self.caret > 0:
-                self._announce(character_name(self.document.source[self.caret - 1]))
+                self._announce(character_name(self.document.source[self.caret - 1], self.symbols))
             elif not moved_right and self.caret < len(self.document.source):
-                self._announce(character_name(self.document.source[self.caret]))
+                self._announce(character_name(self.document.source[self.caret], self.symbols))
             elif self.caret == 0:
                 self._announce("start")
             else:

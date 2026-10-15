@@ -1,80 +1,30 @@
 from __future__ import annotations
 
-CHARACTER_NAMES = {
-    " ": "space",
-    "\t": "tab",
-    "\n": "new line",
-    "(": "left parenthesis",
-    ")": "right parenthesis",
-    "[": "left bracket",
-    "]": "right bracket",
-    "{": "left brace",
-    "}": "right brace",
-    "+": "plus",
-    "-": "minus",
-    "*": "asterisk",
-    "/": "slash",
-    "\\": "backslash",
-    "=": "equals",
-    "<": "less than",
-    ">": "greater than",
-    "_": "underscore",
-    "^": "caret",
-    ".": "period",
-    ",": "comma",
-    ";": "semicolon",
-    ":": "colon",
-    "'": "apostrophe",
-    '"': "quote",
-    "`": "grave accent",
-    "~": "tilde",
-    "!": "exclamation mark",
-    "?": "question mark",
-    "@": "at sign",
-    "#": "number sign",
-    "$": "dollar sign",
-    "%": "percent",
-    "&": "ampersand",
-    "|": "vertical bar",
-    "⇒": "implies",
-    "→": "right arrow",
-    "←": "left arrow",
-    "∞": "infinity",
-    "≤": "less than or equal to",
-    "≥": "greater than or equal to",
-    "≠": "not equal to",
-    "×": "times",
-    "·": "dot",
-    "÷": "divided by",
-    "±": "plus or minus",
-    "√": "square root",
-    "∫": "integral",
-    "∑": "sum",
-    "∏": "product",
-    "α": "alpha",
-    "β": "beta",
-    "γ": "gamma",
-    "δ": "delta",
-    "π": "pi",
-    "θ": "theta",
-    "λ": "lambda",
-    "μ": "mu",
-    "σ": "sigma",
-    "φ": "phi",
-    "ω": "omega",
-}
+from .symbol_dictionary import BUILTIN_ID, SymbolDictionary, load_dictionary
+
+# The names come from a symbols.dic dictionary (symbol_dictionary.py); the
+# built-in one is used when none is passed.
+_BUILTIN: SymbolDictionary | None = None
 
 
-def character_name(character: str) -> str:
+def _default() -> SymbolDictionary:
+    global _BUILTIN
+    if _BUILTIN is None:
+        _BUILTIN = load_dictionary(BUILTIN_ID)
+    return _BUILTIN
+
+
+def character_name(character: str, symbols: SymbolDictionary | None = None) -> str:
     if not character:
         return ""
-    return CHARACTER_NAMES.get(character, character)
+    spoken = (symbols or _default()).name(character)
+    return spoken or character
 
 
-def inserted_character(character: str) -> str:
-    return character_name(character)
+def inserted_character(character: str, symbols: SymbolDictionary | None = None) -> str:
+    return character_name(character, symbols)
 
 
-def deleted_character(character: str) -> str:
-    name = character_name(character)
+def deleted_character(character: str, symbols: SymbolDictionary | None = None) -> str:
+    name = character_name(character, symbols)
     return f"deleted {name}" if name else "deleted"

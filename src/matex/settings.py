@@ -35,6 +35,8 @@ class AppSettings:
     # Templates and structure edits write control words (\sum, \sqrt, \of)
     # instead of the symbols they stand for; the converter reads both.
     template_control_words: bool = True
+    # Which symbols.dic names symbols in speech (symbol_dictionary.py).
+    symbol_dictionary: str = "matex-en"
     auto_zoom_out: bool = False
     show_preview: bool = False
     recognized_functions: tuple[str, ...] = DEFAULT_RECOGNIZED_FUNCTIONS
@@ -57,6 +59,7 @@ def load_settings(path: Path | None = None) -> AppSettings:
         convert_on_space=bool(data.get("convert_on_space", True)),
         convert_shortcuts_immediately=bool(data.get("convert_shortcuts_immediately", True)),
         template_control_words=bool(data.get("template_control_words", True)),
+        symbol_dictionary=str(data.get("symbol_dictionary", "matex-en")),
         auto_zoom_out=bool(data.get("auto_zoom_out", False)),
         show_preview=bool(data.get("show_preview", False)),
         recognized_functions=_normalize_functions(data.get("recognized_functions")),
