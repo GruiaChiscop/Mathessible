@@ -95,9 +95,16 @@ equation language; the gap is entirely in the editing UX layered on top.
    caret in the index; a top-level `&` inside `√(...)` splits it into
    "index" and "radicand" slots (`_root_index_separator`). Unlike empty
    n-ary limits, an empty index is a parse error until filled in.
-   Limit/Log: `lim_() ` (Cmd+L) and `log_() ` (Control+L on macOS, Alt+L
-   elsewhere), caret in the condition/base, Tab to the argument after the
-   space. The space is required: `lim_(n→∞)a_n` folds the argument into the
+   Limit/Log: `lim_() 〖〗` (Cmd+L) and `log_() 〖〗` (Control+L on macOS,
+   Alt+L elsewhere), caret in the condition/base, Tab into the argument,
+   an invisible group (`\begin \end ` as control words; `\begin` always
+   gets a space, or a typed letter makes `\beginx`). The group is Word's
+   argument box: `/` takes everything glued before it as numerator, so
+   `lim_(x→∞) (a)/(b)` is a fraction with the limit on top, while
+   `lim_(x→∞) 〖(a)/(b)〗` is the limit of the fraction. Typing by hand
+   gets it too: Space right after `lim_(...)`/`log_(...)` opens the group
+   with the caret inside (`group_function_argument`, under the
+   `convert_on_space` setting), as Word does. The space is required: `lim_(n→∞)a_n` folds the argument into the
    subscript and `lim_(...)▒` is a parse error, while `lim_(n→∞) a_n` is a
    function application; empty conditions/bases convert cleanly
    (`FUNCTION_SCRIPTS`, `_function_script`). Plain functions need no
@@ -240,7 +247,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      reader user "built" means: the equation stays built and MathCAT-
      navigable while you type into it. Steps: (1) source↔node map, done;
      (2) typing/Backspace/Delete in professional mode, done (below);
-     (3) a caret between nodes, done (below); (4) incomplete source while typing;
+     (3) a caret between nodes, done (below); (4) incomplete source while typing, done (below);
      (5) open equations built by default (setting).
      **Step 1, [source_map.py](src/matex/source_map.py):** the converter
      keeps no source positions, and its Ⓐ/Ⓕ selection markers are no help
@@ -293,6 +300,22 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      in the denominator, `x(1)/(2)` in the numerator); `_built_offset(glue)`
      adds a space at an outer edge when the neighbor is in a structure
      (`_joins_structure`), which the converter swallows.
+     **Step 4, [build_repair.py](src/matex/build_repair.py):** sources the
+     converter cannot build at all while half-typed (a bare `▒`, `√(&x)`,
+     `√(&)`, an open quote, `|` or `■(`) are built from a *repaired* text
+     instead: U+200B (a clean empty argument to the converter) where an
+     argument is missing, closers at the end. Partial errors (`a/`, `x^`)
+     build as they are and are left alone. `_convert_source` (renderer
+     mixin) tries `repairs()` least invasive first and records the built
+     one in `self._repair`; every source-map use in professional mode
+     (`_built_offset`, `_place_after_caret`) maps through it
+     (`to_real`/`to_repaired`), and `source_map._empty_slot` takes a U+200B
+     as an empty argument's place. Still linear: an extra `)` (nothing to
+     add makes it build). Needed MathCAT patch 0002: canonicalization
+     removed the empty `arg="naryand"` whitespace, so the empty integrand
+     was no node at all; the stop builder now speaks such an empty leaf as
+     "empty" instead of skipping it like an invisible operator, and "index"
+     is a region (so "in empty index").
 - **Where it plugs in**: the completeness check must run from `editor.py`
   (only place with WebView access); trigger-character detection (which
   keystrokes/positions qualify — mind that `.`/`,` are also decimal points
@@ -587,6 +610,12 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   - `src/speech.rs` `replace_single_char`: `should_ignore_file_time` uses
     `!= "All"`, matching `read_files` (upstream has `== "All"`, which
     reloads the full Unicode table on each lookup in include-zip builds).
+  - `src/canonicalize.rs` `merge_whitespace` (patch 0002): a whitespace
+    `mtext` carrying `arg` is not spacing. Upstream removed the empty
+    integrand of `:nary(,,$naryand)` (an `mspace` turned nbsp `mtext`),
+    leaving the intent pointing at nothing and no node to stand on in a
+    half-typed `∫▒` (see build_repair). Each patch file's header says what
+    and why; keep doing that for every new MathCAT change.
 - **License: GPL-2.0-or-later** (was MIT; changed so NVDA's GPL-2.0
   symbol dictionaries can be used). NVDA's `symbols.dic` files are never
   committed: Settings > "Download NVDA dictionaries…" (for users of a

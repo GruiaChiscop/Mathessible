@@ -4,6 +4,7 @@ import threading
 from collections.abc import Callable
 
 from .clipboard import get_clipboard_text, set_clipboard_text
+from .build_repair import BuildRepair
 from .character_speech import character_name, deleted_character, inserted_character
 from .insertion_point import describe_insertion_point
 from .source_map import anchor_offset, leaf_before, leaf_nodes, map_leaves
@@ -14,7 +15,7 @@ from .editor_structures import StructureActionsMixin
 from .edit_history import EditHistory, EditState
 from .mathcat import MathCatNavigator, create_mathcat_navigator
 from .insert_catalog import InsertItem, item_for_key
-from .math_templates import move_to_slot
+from .math_templates import group_function_argument, move_to_slot
 from .mathml_model import MathMLDocument
 from .model import EquationDocument
 from .settings import AppSettings
@@ -126,6 +127,8 @@ if wx is not None:
             self._preparation_token: object | None = None
             self._drawn_target: tuple[object, ...] | None = None
             self._professional_mathml: str | None = None
+            # The text last built: the source, or it repaired (build_repair).
+            self._repair = BuildRepair("", "")
             self.braille_label = wx.StaticText(self, label="Braille")
             self.braille_label.SetForegroundColour(self._colour(self._palette().subtle_text))
             self.braille_display = wx.TextCtrl(self, style=wx.TE_READONLY)
@@ -768,6 +771,13 @@ if wx is not None:
                 self._announce(edit.announcement)
                 self.Refresh()
                 return
+            if key == wx.WXK_SPACE and self.settings.convert_on_space and self._selection_range() is None:
+                # Space after lim_(...)/log_(...) opens the argument box, as in Word.
+                group = self._edit(group_function_argument)
+                if group is not None:
+                    self._replace_linear(group.source, group.caret)
+                    self._announce(group.announcement)
+                    return
             if key == wx.WXK_SPACE:
                 selection = self._selection_range()
                 if selection is not None:
@@ -888,7 +898,8 @@ if wx is not None:
             assert self.mathcat is not None and self.mathcat.structure is not None
             node_id, side, outside = self.mathcat.edit_anchor()
             source = self.document.source
-            offset = anchor_offset(source, self.mathcat.structure, node_id, side, outside)
+            repair = self._built_repair()
+            offset = repair.to_real(anchor_offset(repair.text, self.mathcat.structure, node_id, side, outside))
             if not (glue and outside and self._joins_structure(node_id, side)):
                 return offset
             if side == "after" and 0 < offset and source[offset - 1] != " ":
@@ -897,6 +908,11 @@ if wx is not None:
             if side == "before" and offset < len(source) and source[offset] != " ":
                 self.document.replace_source(source[:offset] + " " + source[offset:], offset)
             return offset
+
+        def _built_repair(self) -> BuildRepair:
+            """The text the built equation came from, if it is still this source's."""
+            source = self.document.source
+            return self._repair if self._repair.source == source else BuildRepair(source, source)
 
         def _joins_structure(self, node_id: str, side: str) -> bool:
             """Whether typing next to this edge would run into a structure (a whole one, or the math's first/last)."""
@@ -938,10 +954,11 @@ if wx is not None:
             in linear view; partial errors ("a/") stay built.
             """
             try:
-                mathml = self.convert_unicode_math(self.document.source)
+                mathml = self._convert_source().mathml
             except (UnicodeMathError, RuntimeError):
                 mathml = 'mathcolor="#F00"'
             if 'mathcolor="#F00"' in mathml:
+                # Not even a repair builds (an extra ")"): keep typing in linear view.
                 self.mode = "linear"
                 self._update_braille_display()
                 self._announce(f"{announcement}, linear mode" if announcement else "linear mode")
@@ -978,8 +995,9 @@ if wx is not None:
             """Put MathCAT on the leaf holding the character before the caret (the start of the math at 0)."""
             assert self.mathcat is not None and self.mathcat.structure is not None
             self._highlight_matrix_cell = False
-            spans = map_leaves(self.document.source, self.mathcat.structure)
-            leaf = leaf_before(spans, self.caret, self.mathcat.structure)
+            repair = self._built_repair()
+            spans = map_leaves(repair.text, self.mathcat.structure)
+            leaf = leaf_before(spans, repair.to_repaired(self.caret), self.mathcat.structure)
             if leaf is None:
                 self.mathcat.command("ZoomIn")
             else:

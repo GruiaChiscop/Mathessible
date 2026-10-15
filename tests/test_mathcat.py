@@ -185,6 +185,17 @@ class MathCatTests(unittest.TestCase):
         self.assertEqual(step("MoveNext"), "argument, s sub n")
 
 
+    def test_an_empty_naryand_stays_a_node(self) -> None:
+        # Needs patches/mathcat/0002 (canonicalize keeps an `arg` whitespace mtext).
+        mathml = (
+            '<math><mrow intent=":nary(,,$naryand)"><mo>∫</mo><mrow arg="naryand">'
+            '<mspace width="0" /></mrow></mrow></math>'
+        )
+        navigator = MathCatNavigator(language="en")
+        navigator.load(mathml)
+        leaves = [node.text for node in navigator.structure.by_id.values() if not node.children]
+        self.assertIn("\u00a0", leaves)
+
     def test_local_mathcat_patches_are_applied(self) -> None:
         # scripts/bootstrap.sh applies patches/mathcat/*.patch; without
         # 0001, every navigation command reloads MathCAT's Unicode table.

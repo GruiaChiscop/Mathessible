@@ -66,7 +66,7 @@ class EditInViewTests(unittest.TestCase):
         self.assertEqual(self.edit("\\matrix(1&2@3&4)", 9, insert_matrix_row)[0], "\\matrix(1&2@&@3&4)")
 
     def test_a_word_right_before_an_insertion_does_not_swallow_it(self) -> None:
-        self.assertEqual(self.edit("\\alpha", 6, insert_limit_template)[0], "\\alpha lim_() ")
+        self.assertEqual(self.edit("\\alpha", 6, insert_limit_template)[0], "\\alpha lim_() \\begin \\end ")
 
 
 if __name__ == "__main__":

@@ -158,6 +158,7 @@ class MathMLDocument:
                 "numerator",
                 "denominator",
                 "radicand",
+                "index",
                 "subscript",
                 "superscript",
                 "lower limit",

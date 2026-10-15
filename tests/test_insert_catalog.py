@@ -29,7 +29,7 @@ class InsertCatalogTests(unittest.TestCase):
 
     def test_entries_insert_their_template(self) -> None:
         edit = item_for_key("L", "command", False).insert("", 0)
-        self.assertEqual(edit.source, "lim_() ")
+        self.assertEqual(edit.source, "lim_() 〖〗")
         equals = next(item for item in all_items() if "Equals" in item.label)
         self.assertEqual(equals.insert("", 0).source, "=┴() ")
 

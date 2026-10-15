@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from .build_repair import BuildRepair, repair_for_build
 from .macos_webview import guard_webview_key_equivalents
 from .mathml_sanitize import MathMLModelError, sanitize_mathml
 from .unicodemath import (
@@ -199,4 +200,18 @@ class EquationRendererMixin:
         return conversion.mathml
 
     def _convert_source(self):
-        return ConversionResult(mathml=self.convert_unicode_math(self.document.source))
+        """Convert the source for building, repaired if it cannot be built as it is (build_repair).
+
+        `self._repair` records which text was built, so offsets from the
+        built equation can be mapped back to the real source.
+        """
+        source = self.document.source
+        converted: dict[str, str] = {}
+
+        def builds(text: str) -> bool:
+            converted[text] = self.convert_unicode_math(text)
+            return 'mathcolor="#F00"' not in converted[text]
+
+        repair = repair_for_build(source, builds)
+        self._repair = repair or BuildRepair(source, source)
+        return ConversionResult(mathml=converted[self._repair.text])

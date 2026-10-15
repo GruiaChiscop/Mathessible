@@ -1,6 +1,7 @@
 import unittest
 
 from matex.math_templates import (
+    group_function_argument,
     insert_absolute_value_template,
     insert_fraction_template,
     insert_integral_template,
@@ -293,14 +294,27 @@ class MathTemplateTests(unittest.TestCase):
 
     def test_limit_template_starts_in_the_condition_and_tabs_to_the_argument(self) -> None:
         edit = insert_limit_template("x=", 2)
-        self.assertEqual((edit.source, edit.caret), ("x=lim_() ", 7))
+        self.assertEqual((edit.source, edit.caret), ("x=lim_() 〖〗", 7))
         self.assertEqual(edit.announcement, "limit template, empty limit condition")
         argument = move_to_slot(edit.source, edit.caret)
-        self.assertEqual((argument.caret, argument.announcement), (9, "empty argument"))
+        self.assertEqual((argument.caret, argument.announcement), (10, "empty argument"))
+
+    def test_space_after_a_limit_opens_its_argument_as_a_group(self) -> None:
+        # As Word's argument box: a fraction typed next stays under the limit.
+        edit = group_function_argument("lim_(x→∞)", 9)
+        self.assertEqual((edit.source, edit.caret, edit.announcement), ("lim_(x→∞) 〖〗", 11, "empty argument"))
+        self.assertEqual(group_function_argument("log_(2)", 7).source, "log_(2) 〖〗")
+        self.assertIsNone(group_function_argument("f(x)", 4))
+        self.assertIsNone(group_function_argument("lim_(x→∞)〖a〗", 9))
+
+    def test_the_grouped_argument_is_a_slot(self) -> None:
+        source = "lim_(n→∞) 〖a_n〗"
+        self.assertEqual(move_to_slot(source, 6).announcement, "argument, a_n")
+        self.assertEqual(move_to_slot(source, 12).caret, 15)
 
     def test_logarithm_template_starts_in_the_base(self) -> None:
         edit = insert_logarithm_template("", 0)
-        self.assertEqual((edit.source, edit.caret, edit.announcement), ("log_() ", 5, "logarithm template, empty base"))
+        self.assertEqual((edit.source, edit.caret, edit.announcement), ("log_() 〖〗", 5, "logarithm template, empty base"))
 
     def test_typed_limit_and_logarithm_subscripts_are_slots(self) -> None:
         self.assertEqual(move_to_slot("lim_(n→∞) a_n", 0).announcement, "limit condition, n→∞")

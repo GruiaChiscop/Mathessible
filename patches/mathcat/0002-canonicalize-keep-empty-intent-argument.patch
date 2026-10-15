@@ -1,0 +1,31 @@
+MathCAT: keep an empty argument an intent refers to (e.g. an empty naryand)
+
+UnicodeMathML builds `∫▒` with an empty integrand as
+`<mrow intent=":nary(,,$naryand)"><mo>∫</mo><mrow arg="naryand"><mspace/></mrow></mrow>`.
+Canonicalization turns the mspace into a whitespace `mtext` (nbsp), lifts
+it into the `arg="naryand"` mrow, and `merge_whitespace` then removes it as
+mere spacing: the intent's `$naryand` refers to nothing, and the empty
+integrand is not a node anyone can navigate to. MateX keeps half-typed
+equations built (a zero-width space stands in for the missing integrand,
+see src/matex/build_repair.py) and needs that empty argument as a node, so
+a whitespace mtext carrying `arg` is no longer treated as spacing.
+
+Applied by scripts/bootstrap.sh on top of upstream 85c89a37. Worth
+proposing upstream to daisy/MathCAT (an intent referring to a removed
+child is a bug on its own).
+
+diff --git a/src/canonicalize.rs b/src/canonicalize.rs
+index 0ccf108f..dc01963a 100644
+--- a/src/canonicalize.rs
++++ b/src/canonicalize.rs
+@@ -2025,7 +2025,9 @@ impl CanonicalizeContext {
+ 			let mut whitespace: Option<f64> = None;
+ 			while i < children.len() {
+ 				let child = as_element(children[i]);
+-				let is_child_whitespace = name(child) == "mtext" && as_text(child) == "\u{00A0}";
++				// An argument an intent refers to (e.g. the empty naryand of `:nary(,,$naryand)`) is not
++				// spacing: removing it leaves the intent pointing at nothing.
++				let is_child_whitespace = name(child) == "mtext" && as_text(child) == "\u{00A0}" && child.attribute("arg").is_none();
+ 				// debug!("merge_whitespace: i={}, whitespace={:?}, mtext set={} {}",
+ 				// 		i, whitespace, previous_mtext_with_width.is_some(), mml_to_string(child));
+ 				if is_child_whitespace {

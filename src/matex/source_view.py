@@ -38,7 +38,12 @@ CONTROL_WORDS = {
     "⁄": "sdiv",
     "∕": "ldiv",
     "⊘": "ndiv",
+    "〖": "begin",
+    "〗": "end",
 }
+# Words always followed by a space: what comes next is typed right there
+# (`\begin x\end`), and a letter would run into the word (`\beginx`).
+_SPACED_WORDS = frozenset({"begin"})
 _CONTROL_WORD = re.compile(r"\\([A-Za-z0-9]+) ?")
 _WORD_CHARACTER = re.compile(r"[A-Za-z0-9]")
 _ENDS_WITH_CONTROL_WORD = re.compile(r"\\[A-Za-z0-9]+$")
@@ -168,7 +173,8 @@ def spell_with_control_words(text: str, caret: int | None, following: str = "") 
             parts.append(character)
             continue
         after = text[index + 1 : index + 2] or following[:1]
-        spelled = f"\\{word}" + (" " if not after or _WORD_CHARACTER.match(after) else "")
+        spaced = not after or _WORD_CHARACTER.match(after) or (word in _SPACED_WORDS and after != " ")
+        spelled = f"\\{word}" + (" " if spaced else "")
         if caret is not None and caret > index:
             new_caret += len(spelled) - 1
         parts.append(spelled)

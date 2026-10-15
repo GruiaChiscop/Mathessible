@@ -38,13 +38,37 @@ def insert_square_root_template(source: str, caret: int) -> TemplateEdit:
 
 
 def insert_limit_template(source: str, caret: int) -> TemplateEdit:
-    """`lim_() `: caret in the limit condition; Tab goes on to the argument."""
-    return insert_template(source, caret, "lim_() ", first_slot_offset=5, announcement="limit template, empty limit condition")
+    """`lim_() 〖〗`: caret in the limit condition; Tab goes on to the argument.
+
+    The argument is an invisible group: `/` takes everything glued before
+    it as its numerator, so `lim_(x→∞) (a)/(b)` is a fraction with the limit
+    on top, while `lim_(x→∞) 〖(a)/(b)〗` is the limit of the fraction.
+    """
+    return insert_template(
+        source, caret, "lim_() 〖〗", first_slot_offset=5, announcement="limit template, empty limit condition"
+    )
+
+
+def group_function_argument(source: str, caret: int) -> TemplateEdit | None:
+    """Space right after `lim_(...)`/`log_(...)`: open its argument as an invisible group, as Word does.
+
+    Word builds a function with an argument box there, so a fraction typed
+    next stays under the limit; in UnicodeMath that box is `〖...〗`
+    (without it `lim_(x→∞) (a)/(b)` puts the limit on the numerator).
+    """
+    if caret == 0 or source[caret - 1] != ")" or source[caret : caret + 1] in ("〖", " "):
+        return None
+    pairs = matching_parens(source)
+    opening = next((start for start, end in pairs.items() if end == caret - 1), None)
+    script = _function_script(source, opening, caret - 1) if opening is not None else None
+    if script is None:
+        return None
+    return TemplateEdit(source[:caret] + " 〖〗" + source[caret:], caret + 2, "empty argument")
 
 
 def insert_logarithm_template(source: str, caret: int) -> TemplateEdit:
-    """`log_() `: caret in the base; Tab goes on to the argument. An empty base is fine."""
-    return insert_template(source, caret, "log_() ", first_slot_offset=5, announcement="logarithm template, empty base")
+    """`log_() 〖〗`: caret in the base; Tab goes on to the argument, an invisible group as for lim."""
+    return insert_template(source, caret, "log_() 〖〗", first_slot_offset=5, announcement="logarithm template, empty base")
 
 
 def insert_operator_template(source: str, caret: int, operator: str = "→", above: bool = True) -> TemplateEdit:
@@ -240,10 +264,30 @@ def _naryand_slots(source: str, pairs: dict[int, int], slots: list[_Slot]) -> li
     for slot in slots:
         # lim_(...)/log_(...) exit past the space before their argument.
         if slot.template in FUNCTION_TEMPLATES and source[slot.exit - 1 : slot.exit] == " " and slot.exit not in starts:
-            end = operand_end(source, slot.exit, pairs)
-            found.append(_Slot(slot.exit, end, slot.template, NARYAND_ROLES[slot.template], end))
+            group_end = _invisible_group_end(source, slot.exit)
+            if group_end is not None:
+                # `lim_(...) 〖...〗`: the argument is the group's content; Tab leaves past "〗".
+                found.append(_Slot(slot.exit + 1, group_end, slot.template, NARYAND_ROLES[slot.template], group_end + 1))
+            else:
+                end = operand_end(source, slot.exit, pairs)
+                found.append(_Slot(slot.exit, end, slot.template, NARYAND_ROLES[slot.template], end))
             starts.add(slot.exit)
     return found
+
+
+def _invisible_group_end(source: str, start: int) -> int | None:
+    """The index of the "〗" closing a "〖" at `start`, if there is one."""
+    if source[start : start + 1] != "〖":
+        return None
+    depth = 0
+    for index in range(start, len(source)):
+        if source[index] == "〖":
+            depth += 1
+        elif source[index] == "〗":
+            depth -= 1
+            if depth == 0:
+                return index
+    return None
 
 
 def _nary_label_before(source: str, marker: int, pairs: dict[int, int]) -> str | None:

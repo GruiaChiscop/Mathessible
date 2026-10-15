@@ -108,9 +108,12 @@ def map_leaves(source: str, document: MathMLDocument) -> dict[str, SourceSpan]:
 
 
 def _empty_slot(text: str, position: int) -> int:
-    """The next empty argument: between "(" / "&" / "@" and ")" / "&" / "@" (a "()" or an empty cell)."""
-    for index in range(max(position, 1), min(len(text), position + _LOOKAHEAD) + 1):
-        if text[index - 1] in "(&@" and (index == len(text) or text[index] in ")&@"):
+    """The next empty argument: between "(" / "&" / "@" and ")" / "&" / "@" (a "()" or an empty cell),
+    or a zero-width space standing in for one."""
+    for index in range(max(position, 0), min(len(text), position + _LOOKAHEAD) + 1):
+        if index < len(text) and text[index] == "\u200b":
+            return index  # A placeholder for a missing argument (build_repair).
+        if index > 0 and text[index - 1] in "(&@〖" and (index == len(text) or text[index] in ")&@〗"):
             return index
     return position
 

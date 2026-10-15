@@ -733,6 +733,9 @@ class MathCatNavigator:
                     speech = self._navigate("ReadCurrent")
                 except RuntimeError:
                     speech = " ".join(leaf.content.split())
+                if not speech.strip() and leaf.text == "\u00a0":
+                    # An empty argument (a half-typed integrand) is a place to type, not spacing.
+                    speech = "empty"
                 if self._skips_invisible_operator(speech):
                     continue
                 speech = _INVISIBLE_OPERATOR_NAMES.get(speech.strip(), speech)
