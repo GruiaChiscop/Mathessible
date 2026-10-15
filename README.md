@@ -77,7 +77,9 @@ la părinte. În modul profesional se poate și scrie: textul intră după
 elementul curent (înaintea lui pe opririle „start …”), Backspace și Delete
 șterg, iar inserarea de șabloane, Undo/Redo și Tab funcționează ca în modul
 liniar. `Shift+Option+Space` (`Shift+Alt+Space` în afara macOS) spune unde
-ar ajunge textul, de exemplu „after 1, end of numerator, before 2”.
+ar ajunge textul, de exemplu „after 1, end of numerator, before 2”. Cu
+setarea `Open equations built`, ecuațiile se deschid direct în modul
+profesional (o ecuație goală se deschide tot liniar).
 
 ## Markdown și ecuații
 

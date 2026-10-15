@@ -374,6 +374,10 @@ if wx is not None:
             self._pending_read = False
             try:
                 conversion = self._convert_source()
+                if self.settings.open_built and self.mode == "linear":
+                    # Open straight in professional view, MathCAT on the start of the math.
+                    self._enter_professional_mode(conversion, error_prefix="The equation could not be built")
+                    return
                 self.mathml_document = MathMLDocument.parse(
                     conversion.mathml,
                     recognized_functions=self.settings.recognized_functions,
@@ -394,6 +398,10 @@ if wx is not None:
                 wx.CallLater(30, self._retry_toggle_mode, attempts - 1)
                 return
             self._clear_selection()
+            if self.mode == "linear" and not self.document.source.strip():
+                # Nothing to build (and MathCAT cannot even zoom into empty math).
+                self._announce("empty equation")
+                return
             if self.mode == "linear":
                 try:
                     conversion = self._convert_source()
@@ -954,6 +962,12 @@ if wx is not None:
             A source that converts only to a total failure (a bare "∫▒") stays
             in linear view; partial errors ("a/") stay built.
             """
+            if not self.document.source.strip():
+                self.mode = "linear"
+                self._update_braille_display()
+                self._announce(f"{announcement}, empty, linear mode" if announcement else "empty, linear mode")
+                self.Refresh()
+                return
             try:
                 mathml = self._convert_source().mathml
             except (UnicodeMathError, RuntimeError):

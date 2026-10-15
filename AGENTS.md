@@ -258,7 +258,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      navigable while you type into it. Steps: (1) source↔node map, done;
      (2) typing/Backspace/Delete in professional mode, done (below);
      (3) a caret between nodes, done (below); (4) incomplete source while typing, done (below);
-     (5) open equations built by default (setting).
+     (5) open equations built, done (below).
      **Step 1, [source_map.py](src/matex/source_map.py):** the converter
      keeps no source positions, and its Ⓐ/Ⓕ selection markers are no help
      (they attach to the *next* node, vanish at the end, and break parsing
@@ -326,6 +326,13 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      was no node at all; the stop builder now speaks such an empty leaf as
      "empty" instead of skipping it like an invisible operator, and "index"
      is a region (so "in empty index").
+     **Step 5:** the `open_built` setting (off by default) opens an
+     equation straight in professional view (`read_expression` enters it
+     instead of only reading). An empty equation still opens linear:
+     MathCAT cannot ZoomIn into empty math ("no speech generated"), and
+     `_enter_professional_mode` used to answer that by dropping MathCAT
+     altogether — so F2 on an empty source now just says "empty equation",
+     and deleting everything in professional view goes back to linear.
 - **Where it plugs in**: the completeness check must run from `editor.py`
   (only place with WebView access); trigger-character detection (which
   keystrokes/positions qualify — mind that `.`/`,` are also decimal points
