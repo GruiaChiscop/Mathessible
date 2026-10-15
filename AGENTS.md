@@ -98,7 +98,17 @@ equation language; the gap is entirely in the editing UX layered on top.
    function application; empty conditions/bases convert cleanly
    (`FUNCTION_SCRIPTS`, `_function_script`). Plain functions need no
    template: `sin x`, `ln x`, `sin(x)` already convert as functions.
-   Still missing: Operator. **Accents work, written after the base** as in
+   Operator: `→┴() ` (Cmd+Shift+O; Shift because the frame's File > Open
+   is Cmd+O) and `→┬() ` (Control+O on macOS, Alt+O elsewhere), plus
+   "Equals with Text Above" `=┴() `, all in the right-click "Insert
+   Operator" submenu; caret in the text, which is a slot (`_operator_text`,
+   stacked `→┬(below)┴(above)` gives two). Like lim, the space is required:
+   `a→┴(x)b` folds `b` into the text. Empty text converts cleanly, and
+   MathCAT reads "right arrow with x above"; the text is a "text above"/
+   "text below" region (`_special_script_role`, base an `mo`), so linear
+   navigation says "start text above", and structural navigation names the
+   structure "arrow"/"operator" instead of "script". Plain operators (`≔`, `≝`)
+   need no template. **Accents work, written after the base** as in
    Word: `a\vec` → `a⃗` (combining U+20D7, an `mover accent="true"`),
    `a\hat`, `x\dot`, `x\tilde`, `x\bar` (an `menclose` top), and
    `(a+b)\vec` over a group; Space/punctuation conversion turns the word

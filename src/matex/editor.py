@@ -19,6 +19,7 @@ from .math_templates import (
     insert_limit_template,
     insert_logarithm_template,
     insert_matrix_template,
+    insert_operator_template,
     insert_product_template,
     insert_root_template,
     insert_square_root_template,
@@ -552,6 +553,21 @@ if wx is not None:
                 select_all_item = menu.Append(wx.ID_ANY, "Select &All\tCtrl+A")
                 menu.AppendSeparator()
                 matrix_item = menu.Append(wx.ID_ANY, "Insert &Matrix…\tCtrl+Shift+M")
+                operator_menu = wx.Menu()
+                variant = "RawCtrl" if wx.Platform == "__WXMAC__" else "Alt"
+                operators = [
+                    ("Arrow with Text &Above\tCtrl+Shift+O", "→", True),
+                    (f"Arrow with Text &Below\t{variant}+O", "→", False),
+                    ("&Equals with Text Above", "=", True),
+                ]
+                for label, operator, above in operators:
+                    item = operator_menu.Append(wx.ID_ANY, label)
+                    self.Bind(
+                        wx.EVT_MENU,
+                        lambda _e, operator=operator, above=above: self._insert_operator(operator, above),
+                        item,
+                    )
+                menu.AppendSubMenu(operator_menu, "Insert &Operator")
                 cut_item.Enable(has_content)
                 copy_item.Enable(has_content)
                 paste_item.Enable(_get_clipboard_text() is not None)
@@ -596,6 +612,11 @@ if wx is not None:
             self.Bind(wx.EVT_MENU, lambda _e: self._toggle_mode(), view_item)
             self.PopupMenu(menu, position)
             menu.Destroy()
+
+        def _insert_operator(self, operator: str, above: bool) -> None:
+            edit = insert_operator_template(self.document.source, self.caret, operator=operator, above=above)
+            self._replace_linear(edit.source, edit.caret)
+            self._announce(edit.announcement)
 
         def _matrix_caret(self) -> int | None:
             """A source offset in the matrix cell the user is on, if any.
@@ -786,14 +807,16 @@ if wx is not None:
                 self._word_step(-1 if key == wx.WXK_LEFT else 1, extend=event.ShiftDown())
                 return
             if self.mode == "linear" and _template_variant_down(event):
-                # Control+I/S/P/R/L (Alt elsewhere): integral/sum/product with
-                # limits, n-th root, logarithm -- variants of Cmd+I/S/P/R/L.
+                # Control+I/S/P/R/L/O (Alt elsewhere): integral/sum/product with
+                # limits, n-th root, logarithm, arrow with text below --
+                # variants of Cmd+I/S/P/R/L and Cmd+Shift+O.
                 inserters = {
                     ord("I"): lambda source, caret: insert_integral_template(source, caret, limits=True),
                     ord("S"): lambda source, caret: insert_sum_template(source, caret, limits=True),
                     ord("P"): lambda source, caret: insert_product_template(source, caret, limits=True),
                     ord("R"): insert_root_template,
                     ord("L"): insert_logarithm_template,
+                    ord("O"): lambda source, caret: insert_operator_template(source, caret, above=False),
                 }
                 letters = {event.GetKeyCode(), event.GetUnicodeKey()}
                 inserter = next((inserters[code] for code in inserters if letters & {code, code + 32}), None)
@@ -861,6 +884,12 @@ if wx is not None:
                     return
                 if key in (ord("L"), ord("l")):
                     edit = insert_limit_template(self.document.source, self.caret)
+                    self._replace_linear(edit.source, edit.caret)
+                    self._announce(edit.announcement)
+                    return
+                # Shift avoids the frame's File > Open (Command+O).
+                if key in (ord("O"), ord("o")) and event.ShiftDown():
+                    edit = insert_operator_template(self.document.source, self.caret)
                     self._replace_linear(edit.source, edit.caret)
                     self._announce(edit.announcement)
                     return

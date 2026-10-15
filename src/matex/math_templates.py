@@ -21,6 +21,11 @@ NARY_LABELS = {"∫": "integral", "∬": "integral", "∭": "integral", "∮": "
 # The argument follows a space ("lim_(n→∞) a_n"): with no separator the
 # converter folds it into the subscript, and "▒" is a parse error there.
 FUNCTION_SCRIPTS = {"lim": ("limit", "limit condition"), "log": ("logarithm", "base")}
+# Word's operator structures: an operator with text above (`→┴(...)`) or
+# below (`→┬(...)`); both stack as `→┬(below)┴(above)`. Like lim, a space
+# must follow, or the converter folds the next operand into the text.
+OPERATOR_TEXT_ROLES = {"┴": "text above", "┬": "text below"}
+ARROWS = frozenset("→←↔⇒⇐⇔⟶⟵⟷⟹⟸⟺↦⇌")
 # What Tab past a template's last slot lands in, after its "▒" or space
 # (the n-ary names are the ones MathMLDocument uses too).
 NARYAND_ROLES = {
@@ -65,6 +70,19 @@ def insert_limit_template(source: str, caret: int) -> TemplateEdit:
 def insert_logarithm_template(source: str, caret: int) -> TemplateEdit:
     """`log_() `: caret in the base; Tab goes on to the argument. An empty base is fine."""
     return _insert_template(source, caret, "log_() ", first_slot_offset=5, announcement="logarithm template, empty base")
+
+
+def insert_operator_template(source: str, caret: int, operator: str = "→", above: bool = True) -> TemplateEdit:
+    """`→┴() `/`→┬() `: an operator with text above/below, caret in the text."""
+    mark = "┴" if above else "┬"
+    label = _operator_label(operator)
+    return _insert_template(
+        source,
+        caret,
+        f"{operator}{mark}() ",
+        first_slot_offset=len(operator) + 2,
+        announcement=f"{label} template, empty {OPERATOR_TEXT_ROLES[mark]}",
+    )
 
 
 def insert_root_template(source: str, caret: int) -> TemplateEdit:
@@ -519,6 +537,31 @@ def _function_script(source: str, opening: int, closing: int) -> tuple[str, str,
     return None
 
 
+def _operator_label(operator: str) -> str:
+    return "arrow" if operator in ARROWS else "operator"
+
+
+def _operator_text(source: str, opening: int, closing: int) -> tuple[str, str, int] | None:
+    """The `(...)` of `→┴(...)`/`→┬(...)`; Tab past it skips the space after it."""
+    if opening < 2 or source[opening - 1] not in OPERATOR_TEXT_ROLES:
+        return None
+    base = opening - 2
+    if source[base] == ")" and source[opening - 1] == "┴":
+        # `→┬(below)┴(above)`: step back over the text below to the operator.
+        below_open = next((start for start, end in _matching_parens(source).items() if end == base), None)
+        if below_open is None or below_open < 2 or source[below_open - 1] != "┬":
+            return None
+        base = below_open - 2
+    if source[base].isspace() or source[base] in "()":
+        return None
+    exit = closing + 1
+    if source[exit : exit + 2] == "┴(":
+        return _operator_label(source[base]), OPERATOR_TEXT_ROLES[source[opening - 1]], exit
+    if source[exit : exit + 1] == " ":
+        exit += 1
+    return _operator_label(source[base]), OPERATOR_TEXT_ROLES[source[opening - 1]], exit
+
+
 def _detect_group(source: str, opening: int, closing: int) -> tuple[str, str, int] | None:
     """Classify a "(...)" group as a template argument: (template, role, exit).
 
@@ -534,7 +577,11 @@ def _detect_group(source: str, opening: int, closing: int) -> tuple[str, str, in
     """
     before = source[opening - 1] if opening > 0 else ""
     after = source[closing + 1] if closing + 1 < len(source) else ""
-    nary = _nary_limit(source, opening, closing) or _function_script(source, opening, closing)
+    nary = (
+        _nary_limit(source, opening, closing)
+        or _function_script(source, opening, closing)
+        or _operator_text(source, opening, closing)
+    )
     if nary is not None:
         return nary
     if before == "/":

@@ -15,6 +15,7 @@ from matex.math_templates import (
     insert_limit_template,
     insert_logarithm_template,
     insert_matrix_template,
+    insert_operator_template,
     insert_product_template,
     insert_root_template,
     insert_square_root_template,
@@ -310,6 +311,28 @@ class MathTemplateTests(unittest.TestCase):
 
     def test_a_word_ending_in_lim_is_not_a_limit(self) -> None:
         self.assertEqual(move_to_slot("clim_(1)", 6).announcement, "end scripts")
+
+    def test_operator_template_puts_text_above_an_arrow(self) -> None:
+        edit = insert_operator_template("a", 1)
+        self.assertEqual((edit.source, edit.caret), ("a→┴() ", 4))
+        self.assertEqual(edit.announcement, "arrow template, empty text above")
+        after = move_to_slot(edit.source + "b", edit.caret)
+        self.assertEqual((after.caret, after.announcement), (6, "end arrow"))
+
+    def test_operator_template_below_and_with_another_operator(self) -> None:
+        below = insert_operator_template("", 0, above=False)
+        self.assertEqual((below.source, below.announcement), ("→┬() ", "arrow template, empty text below"))
+        equals = insert_operator_template("", 0, operator="=")
+        self.assertEqual((equals.source, equals.announcement), ("=┴() ", "operator template, empty text above"))
+
+    def test_text_below_and_above_one_operator_are_both_slots(self) -> None:
+        source = "a→┬(y)┴(x) b"
+        below = move_to_slot(source, 0)
+        self.assertEqual(below.announcement, "text below, y")
+        above = move_to_slot(source, below.caret)
+        self.assertEqual(above.announcement, "text above, x")
+        self.assertEqual(move_to_slot(source, above.caret).caret, 11)
+        self.assertEqual(move_to_slot(source, above.caret, reverse=True).announcement, "text below, y")
 
     def test_matrix_template_has_empty_cells_and_caret_in_the_first(self) -> None:
         edit = insert_matrix_template("A=", 2, rows=2, columns=3)

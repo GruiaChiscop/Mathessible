@@ -6,6 +6,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from .ast import Path, path_from_mathml_id
+from .math_templates import ARROWS
 from .mathml_model import MathMLDocument, MathMLNode, TablePosition
 from .settings import DEFAULT_RECOGNIZED_FUNCTIONS
 
@@ -612,6 +613,12 @@ class MathCatNavigator:
                 return f"row {next(i for i, row in enumerate(rows, start=1) if row is node)}"
         if named == "script" and node.children and structure.is_large_operator(node.children[0]):
             return "limits"
+        if named == "script" and node.tag in {"mover", "munder", "munderover"} and node.children:
+            # An operator with text over/under it (`→┴(x)`): named like its template.
+            base = node.children[0]
+            if base.tag == "mo" and len(node.children) > 1 and node.children[1].identifier:
+                if structure.semantic_role(node.children[1].identifier) in {"text above", "text below"}:
+                    return "arrow" if base.content.strip() in ARROWS else "operator"
         if named:
             return named
         if node.identifier:

@@ -310,6 +310,8 @@ class MathMLDocument:
                 "lower limit",
                 "upper limit",
                 "limit condition",
+                "text above",
+                "text below",
             }:
                 entries.append((key, role))
             if self._is_function_argument(candidate):
@@ -425,6 +427,12 @@ class MathMLDocument:
                     return "lower limit"
                 if index == 2:
                     return "upper limit"
+        if parent.tag in {"mover", "munder", "munderover"} and index > 0:
+            # An operator with text over/under it (`→┴(x)`, `=┴(def)`).
+            base = parent.children[0] if parent.children else None
+            if base is not None and base.tag == "mo" and not self._is_large_operator(base):
+                above = parent.tag == "mover" or index == 2
+                return "text above" if above else "text below"
         return None
 
     def is_function_argument(self, node: MathMLNode) -> bool:

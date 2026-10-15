@@ -126,6 +126,23 @@ class MathCatTests(unittest.TestCase):
         self.assertEqual(step("MovePrevious"), "denominator, c")
         self.assertEqual(step("ZoomOut"), fraction)
 
+    def test_text_above_an_arrow_is_announced_in_both_navigation_modes(self) -> None:
+        # Converter output for "a→┴(q) x".
+        mathml = '<math><mi>𝑎</mi><mover><mo stretchy="true">→</mo><mi>𝑞</mi></mover><mi>𝑥</mi></math>'
+        linear = MathCatNavigator(language="en", auto_zoom_out=True, boundary_stops=True)
+        linear.load(mathml)
+        linear.command("ZoomIn")
+        forward = [linear.linear_command("MoveNext") for _ in range(5)]
+        self.assertEqual(forward, ["eigh", "right arrow", "start text above", "q", "end text above"])
+        structural = MathCatNavigator(language="en", auto_zoom_out=False, structural_stops=True)
+        structural.load(mathml)
+        structural.command("ZoomIn")
+        step = structural.structural_command
+        step("MoveNext")
+        step("MoveNext")
+        self.assertEqual(step("ZoomIn"), "start arrow")
+        self.assertEqual([step("MoveNext") for _ in range(3)], ["base, right arrow", "text above, q", "end arrow"])
+
     def test_structural_stops_name_the_argument_of_a_marked_function(self) -> None:
         # Converter output for "lim_(n→∞) s_n".
         mathml = (

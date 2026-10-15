@@ -85,6 +85,15 @@ class MathMLModelTests(unittest.TestCase):
         self.assertEqual(document.regions("two"), ("superscript",))
         self.assertEqual(document.regions("x"), ("argument",))
 
+    def test_text_over_and_under_an_operator_has_a_role(self) -> None:
+        document = MathMLDocument.parse(
+            """<math><munderover><mo id="arrow">→</mo><mi id="below">y</mi><mi id="above">x</mi></munderover>
+            <mover><mi id="base">a</mi><mo id="accent">→</mo></mover></math>"""
+        )
+        self.assertEqual(document.regions("below"), ("text below",))
+        self.assertEqual(document.regions("above"), ("text above",))
+        self.assertEqual(document.semantic_role("accent"), "overscript")
+
     def test_a_function_the_converter_marks_has_an_argument_without_being_listed(self) -> None:
         # Converter output for "lim_(n→∞) s_n"; "lim" is not a recognized function.
         document = MathMLDocument.parse(
