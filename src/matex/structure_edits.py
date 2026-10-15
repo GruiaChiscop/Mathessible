@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from .math_templates import NARY_LABELS
-from .template_source import TemplateEdit, matching_parens
+from .template_source import TemplateEdit, matching_parens, operand_end
 
 ROOT_SIGNS = "√∛∜"
 
@@ -119,7 +119,7 @@ def nary_operators(source: str) -> list[NaryOperator]:
         naryand = limits_end + 1 if has_marker else limits_end
         while not has_marker and naryand < len(source) and source[naryand] == " ":
             naryand += 1  # "∑_i x_i": the space separates the limit from the naryand.
-        found.append(NaryOperator(index, limits_end, _naryand_end(source, naryand, pairs)))
+        found.append(NaryOperator(index, limits_end, operand_end(source, naryand, pairs)))
     return found
 
 
@@ -173,17 +173,3 @@ def _script_end(source: str, start: int, pairs: dict[int, int]) -> int:
     while end < len(source) and source[end].isalnum():
         end += 1
     return end
-
-
-def _naryand_end(source: str, start: int, pairs: dict[int, int]) -> int:
-    """Roughly where the naryand stops: at a top-level space or relation/sum sign."""
-    index = start
-    while index < len(source):
-        character = source[index]
-        if character == "(" and index in pairs:
-            index = pairs[index] + 1
-            continue
-        if character in " +-=<>,":
-            break
-        index += 1
-    return index

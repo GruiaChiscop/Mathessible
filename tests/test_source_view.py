@@ -56,7 +56,7 @@ class EditInViewTests(unittest.TestCase):
         upper = edit_in_view("\\int_()^()\\of x", 6, move_to_slot, True)
         self.assertEqual((upper.caret, upper.announcement), (9, "empty upper limit"))
         naryand = edit_in_view("\\int_()^()\\of x", 9, move_to_slot, True)
-        self.assertEqual((naryand.caret, naryand.announcement), (14, "integrand"))
+        self.assertEqual((naryand.caret, naryand.announcement), (15, "integrand, x"))
 
     def test_structure_edits_keep_the_rest_of_the_spelling(self) -> None:
         self.assertEqual(self.edit("\\sqrt(3&x)+√y", 8, remove_root_index)[0], "\\sqrt(x)+√y")

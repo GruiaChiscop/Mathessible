@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from .matrix_templates import matrix_cells, matrix_label, past_fence
-from .template_source import TemplateEdit, insert_template, matching_parens
+from .template_source import TemplateEdit, insert_template, matching_parens, operand_end
 
 
 # N-ary operators whose `_(...)`/`^(...)` groups are limits, not scripts.
@@ -12,6 +12,7 @@ NARY_LABELS = {"∫": "integral", "∬": "integral", "∭": "integral", "∮": "
 # The argument follows a space ("lim_(n→∞) a_n"): with no separator the
 # converter folds it into the subscript, and "▒" is a parse error there.
 FUNCTION_SCRIPTS = {"lim": ("limit", "limit condition"), "log": ("logarithm", "base")}
+FUNCTION_TEMPLATES = frozenset(template for template, _role in FUNCTION_SCRIPTS.values())
 # Word's operator structures: an operator with text above (`→┴(...)`) or
 # below (`→┬(...)`); both stack as `→┬(below)┴(above)`. Like lim, a space
 # must follow, or the converter folds the next operand into the text.
@@ -180,9 +181,6 @@ def move_to_slot(source: str, caret: int, reverse: bool = False) -> TemplateEdit
     if not around:
         return None
     current = around[-1]
-    if current.template in NARYAND_ROLES and source[current.exit - 1 : current.exit] in ("▒", " "):
-        naryand = NARYAND_ROLES[current.template]
-        return TemplateEdit(source, current.exit, naryand if current.exit < len(source) else f"empty {naryand}")
     return TemplateEdit(source, current.exit, f"end {current.template}")
 
 
@@ -219,7 +217,53 @@ def _slots(source: str) -> list[_Slot]:
         detected = _detect_group(source, opening, closing)
         if detected is not None:
             slots.append(_Slot(opening + 1, closing, *detected))
+    slots.extend(_naryand_slots(source, pairs, slots))
     return sorted(slots, key=lambda slot: (slot.start, -slot.end))
+
+
+def _naryand_slots(source: str, pairs: dict[int, int], slots: list[_Slot]) -> list[_Slot]:
+    """The integrand/summand/factor after each n-ary `▒`, and a lim/log's argument.
+
+    Not a "()" group (a "()" after `▒` stays visible), just the operand that
+    follows, so it can be read back and re-entered after typing in it.
+    """
+    found: list[_Slot] = []
+    for index, character in enumerate(source):
+        if character != "▒":
+            continue
+        label = _nary_label_before(source, index, pairs)
+        if label is not None:
+            start = index + 1
+            end = operand_end(source, start, pairs)
+            found.append(_Slot(start, end, label, NARYAND_ROLES[label], end))
+    starts = {slot.start for slot in found}
+    for slot in slots:
+        # lim_(...)/log_(...) exit past the space before their argument.
+        if slot.template in FUNCTION_TEMPLATES and source[slot.exit - 1 : slot.exit] == " " and slot.exit not in starts:
+            end = operand_end(source, slot.exit, pairs)
+            found.append(_Slot(slot.exit, end, slot.template, NARYAND_ROLES[slot.template], end))
+            starts.add(slot.exit)
+    return found
+
+
+def _nary_label_before(source: str, marker: int, pairs: dict[int, int]) -> str | None:
+    """The n-ary operator a `▒` belongs to, stepping back over its `_`/`^` limits."""
+    closing_to_opening = {end: start for start, end in pairs.items()}
+    index = marker - 1
+    while index >= 0:
+        if source[index] == ")" and index in closing_to_opening:
+            start = closing_to_opening[index]
+        else:
+            start = index
+            while start > 0 and source[start].isalnum() and source[start - 1].isalnum():
+                start -= 1
+            if not source[start].isalnum():
+                break
+        if start > 0 and source[start - 1] in "_^":
+            index = start - 2
+            continue
+        break
+    return NARY_LABELS.get(source[index]) if index >= 0 else None
 
 
 def _root_index_separator(source: str, opening: int, closing: int, pairs: dict[int, int]) -> int | None:

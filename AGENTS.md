@@ -70,11 +70,15 @@ equation language; the gap is entirely in the editing UX layered on top.
    (Ctrl+\\), integral/sum/product (Ctrl+I/Ctrl+S/Ctrl+P bare `∫▒`, caret
    after `▒`; with limits `∫_()^()▒` on Control+I/S/P on macOS — the
    physical Control key, `_template_variant_down`, since Option+S/P/I type
-   ß/π/a dead key — and Alt+I/S/P elsewhere). The naryand after `▒` is
-   never a slot (`▒`'s argument is not paren-transparent); empty limits
-   are clean zero-width `mspace`s. `_nary_limit` makes `_(...)`/`^(...)`
-   after an n-ary sign "lower/upper limit" slots, and Tab past the last
-   one lands after `▒`, announced as integrand/summand/factor. A bare
+   ß/π/a dead key — and Alt+I/S/P elsewhere). The naryand after `▒` gets
+   no "()" placeholder (`▒`'s argument is not paren-transparent); empty
+   limits are clean zero-width `mspace`s. `_nary_limit` makes
+   `_(...)`/`^(...)` after an n-ary sign "lower/upper limit" slots. The
+   naryand itself (and a lim/log argument after its space) is a slot
+   without parens (`_naryand_slots`, bounded by `operand_end`: up to a
+   top-level space or `+-=<>,`), so after typing in it Tab/Shift+Tab
+   still read it back ("integrand, x^2") — it was once only a landing
+   spot, and its content was never announced again. A bare
    `"∫▒"` with nothing typed after it is a total parse failure until
    filled in, same as any other empty template, not a bug.
    Matrix (Ctrl+Shift+M, or Insert > Matrix…)

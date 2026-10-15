@@ -207,10 +207,17 @@ class MathTemplateTests(unittest.TestCase):
         self.assertEqual(edit.caret, 4)
         self.assertEqual(edit.announcement, "integral template")
 
-    def test_integral_template_has_no_tab_able_slot(self) -> None:
-        # There is deliberately no empty-slot placeholder for the integrand
-        # (see insert_integral_template's docstring) — Tab finds nothing.
-        self.assertIsNone(move_to_slot("∫▒", 2))
+    def test_the_integrand_is_a_slot_without_a_placeholder(self) -> None:
+        # No "()" after "▒" (it would stay visible); the operand itself is the slot.
+        self.assertEqual(move_to_slot("∫▒", 2).announcement, "end integral")
+        self.assertEqual(move_to_slot("∫▒x dx", 0).announcement, "integrand, x")
+
+    def test_a_typed_integrand_is_read_back_when_tabbing_to_it(self) -> None:
+        source = "∫_(0)^(1)▒x^2 dx"
+        integrand = move_to_slot(source, 8)
+        self.assertEqual((integrand.caret, integrand.announcement), (13, "integrand, x^2"))
+        back = move_to_slot(source, len(source), reverse=True)
+        self.assertEqual((back.caret, back.announcement), (13, "integrand, x^2"))
 
     def test_typing_after_the_integral_template_produces_the_integrand(self) -> None:
         edit = insert_integral_template("", 0)
@@ -248,7 +255,7 @@ class MathTemplateTests(unittest.TestCase):
         lower = move_to_slot(source, 0)
         self.assertEqual((lower.caret, lower.announcement), (6, "lower limit, i=1"))
         self.assertEqual(move_to_slot(source, 13, reverse=True).announcement, "upper limit, n")
-        self.assertEqual(move_to_slot(source, 10).announcement, "summand")
+        self.assertEqual(move_to_slot(source, 10).announcement, "summand, i")
 
     def test_sum_and_product_with_limits(self) -> None:
         self.assertEqual(insert_sum_template("", 0, limits=True).source, "∑_()^()▒")
@@ -297,7 +304,7 @@ class MathTemplateTests(unittest.TestCase):
 
     def test_typed_limit_and_logarithm_subscripts_are_slots(self) -> None:
         self.assertEqual(move_to_slot("lim_(n→∞) a_n", 0).announcement, "limit condition, n→∞")
-        self.assertEqual(move_to_slot("lim_(n→∞) a_n", 8).announcement, "argument")
+        self.assertEqual(move_to_slot("lim_(n→∞) a_n", 8).announcement, "argument, a_n")
         self.assertEqual(move_to_slot("log_(2) x", 0).announcement, "base, 2")
 
     def test_a_word_ending_in_lim_is_not_a_limit(self) -> None:

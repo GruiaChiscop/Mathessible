@@ -31,3 +31,18 @@ def matching_parens(source: str) -> dict[int, int]:
         elif character == ")" and stack:
             pairs[stack.pop()] = index
     return pairs
+
+
+def operand_end(source: str, start: int, pairs: dict[int, int] | None = None) -> int:
+    """Roughly where an integrand or function argument stops: at a top-level space or relation/sum sign."""
+    pairs = matching_parens(source) if pairs is None else pairs
+    index = start
+    while index < len(source):
+        character = source[index]
+        if character == "(" and index in pairs:
+            index = pairs[index] + 1
+            continue
+        if character in " +-=<>,":
+            break
+        index += 1
+    return index
