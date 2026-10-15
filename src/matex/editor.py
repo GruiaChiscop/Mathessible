@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import threading
+from collections.abc import Callable
 
 from .clipboard import get_clipboard_text, set_clipboard_text
 from .character_speech import character_name, deleted_character, inserted_character
@@ -450,6 +451,18 @@ if wx is not None:
             if self.mode == "linear" and key in (wx.WXK_LEFT, wx.WXK_RIGHT) and _word_navigation_down(event):
                 self._word_step(-1 if key == wx.WXK_LEFT else 1, extend=event.ShiftDown())
                 return
+            if self.mode == "professional" and self.mathcat is not None and command_modifier:
+                if key in (ord("Z"), ord("z")):
+                    self._built_history("redo" if event.ShiftDown() else "undo")
+                    return
+                if key in (ord("Y"), ord("y")):
+                    self._built_history("redo")
+                    return
+                if self._insert_for_key(event, "command"):
+                    return
+            if self.mode == "professional" and self.mathcat is not None and _template_variant_down(event):
+                if self._insert_for_key(event, "variant"):
+                    return
             if self.mode == "linear" and _template_variant_down(event):
                 # Control+I/S/P/R/L/O (Alt elsewhere): the variants of Cmd+I/S/P/R/L/Shift+O.
                 if self._insert_for_key(event, "variant"):
@@ -508,22 +521,33 @@ if wx is not None:
             return True
 
         def insert_item(self, item: InsertItem) -> None:
-            """Insert an Insert-menu entry at the caret (linear view only)."""
-            if self.mode != "linear":
-                self._announce("insert works in linear view, press F2")
+            """Insert an Insert-menu entry at the caret, or where MathCAT is in professional view."""
+            if self.mode == "professional" and self.mathcat is not None and self.mathcat.structure is not None:
+                self._edit_in_built(lambda: self._insert_linear(item))
                 return
+            if self.mode != "linear":
+                return
+            announcement = self._insert_linear(item)
+            if announcement:
+                self._announce(announcement)
+
+        def _insert_linear(self, item: InsertItem) -> str | None:
+            """Insert in the linear source; returns what to announce (the matrix dialog speaks itself)."""
             if item.insert is None:
                 self._insert_matrix()
-                return
+                return None
             self._clear_selection()
             edit = self._edit(item.insert)
             self._replace_linear(edit.source, edit.caret)
-            self._announce(edit.announcement)
+            return edit.announcement
 
         def edit_command(self, command: str) -> None:
             """An Edit-menu command, acting as its shortcut does (only Copy outside linear view)."""
             if command == "copy":
                 self._copy_equation()
+                return
+            if self.mode == "professional" and command in ("undo", "redo") and self.mathcat is not None:
+                self._built_history(command)
                 return
             if self.mode != "linear":
                 return
@@ -704,6 +728,9 @@ if wx is not None:
                             self.mathcat = None
                             self._announce("MathCAT is no longer available; fallback navigation is active")
                         return
+                    if key == wx.WXK_TAB:
+                        self._built_slot(reverse=event.ShiftDown())
+                        return
                     if key in (wx.WXK_BACK, wx.WXK_DELETE) or self._is_typed_character(event):
                         self._edit_built_equation(event)
                         return
@@ -828,36 +855,81 @@ if wx is not None:
         def _edit_built_equation(self, event: wx.KeyEvent) -> None:
             """Type, Backspace or Delete in professional mode, as if in the source.
 
-            The source offset comes from MathCAT's position (`edit_anchor`,
-            `source_map`); the key is then handled exactly as in linear mode
-            (autocorrect, history, speech), and the equation is rebuilt with
-            MathCAT on the node holding the character before the caret.
+            The key is handled exactly as in linear mode (autocorrect,
+            history, speech) at MathCAT's position; see `_edit_in_built`.
             """
+            def handle_key() -> None:
+                self._on_char(event)  # Announces the character itself.
+
+            self._edit_in_built(handle_key)
+
+        def _built_offset(self) -> int:
+            """The source offset of MathCAT's position (`edit_anchor`, `source_map`)."""
             assert self.mathcat is not None and self.mathcat.structure is not None
-            source = self.document.source
             node_id, side = self.mathcat.edit_anchor()
-            offset = anchor_offset(source, self.mathcat.structure, node_id, side)
+            return anchor_offset(self.document.source, self.mathcat.structure, node_id, side)
+
+        def _edit_in_built(self, action: Callable[[], str | None]) -> None:
+            """Run a linear-mode edit at MathCAT's position, then rebuild the equation.
+
+            `action` runs in linear mode with the caret on that offset and may
+            announce on its own or return what to announce after rebuilding.
+            """
+            source = self.document.source
             self._clear_selection()
+            self.caret = self._built_offset()
             self.mode = "linear"
-            self.caret = offset
-            self._on_char(event)
+            announcement = action() or ""
             if self.document.source == source:
                 self.mode = "professional"
+                if announcement:
+                    self._announce(announcement)
                 self.Refresh()
                 return
+            self._finish_built_edit(announcement)
+
+        def _finish_built_edit(self, announcement: str) -> None:
+            """Rebuild after an edit made from professional mode, MathCAT on the caret's node.
+
+            A source that converts only to a total failure (a bare "∫▒") stays
+            in linear view; partial errors ("a/") stay built.
+            """
             try:
                 mathml = self.convert_unicode_math(self.document.source)
             except (UnicodeMathError, RuntimeError):
                 mathml = 'mathcolor="#F00"'
             if 'mathcolor="#F00"' in mathml:
-                # Nothing can be built yet (e.g. a bare "∫▒"): keep typing in linear view.
+                self.mode = "linear"
                 self._update_braille_display()
-                self._announce("linear mode")
+                self._announce(f"{announcement}, linear mode" if announcement else "linear mode")
                 self.Refresh()
                 return
             self.mode = "professional"
             self._update_braille_display()
-            self._rebuild_professional_at_caret("", place=self._place_after_caret)
+            self._rebuild_professional_at_caret(announcement, place=self._place_after_caret)
+
+        def _built_slot(self, reverse: bool) -> None:
+            """Tab/Shift+Tab in professional mode: the next template slot, no rebuild needed."""
+            self.caret = self._built_offset()
+            edit = self._edit(lambda source, caret: move_to_slot(source, caret, reverse=reverse))
+            if edit is None:
+                self._announce("no slot")
+                return
+            self.caret = edit.caret
+            self._place_after_caret()
+            self._sync_mathcat_cursor()
+            self._announce(edit.announcement)
+            self.Refresh()
+
+        def _built_history(self, action: str) -> None:
+            """Undo/redo from professional mode: restore the source, then rebuild there."""
+            state = self.history.undo() if action == "undo" else self.history.redo()
+            if state is None:
+                self._announce(f"nothing to {action}")
+                return
+            self.document.replace_source(state.source, state.caret)
+            self.caret = state.caret
+            self._finish_built_edit(action)
 
         def _place_after_caret(self) -> None:
             """Put MathCAT on the leaf holding the character before the caret (the start of the math at 0)."""

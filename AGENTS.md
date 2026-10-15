@@ -267,8 +267,13 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      `_on_key_down` (`event.Skip()`) and handled on EVT_CHAR: key-down
      reports letters upper-case. A source that converts only to a total
      failure (`mathcolor="#F00"`, e.g. a bare `∫▒`) stays in linear view;
-     partial errors (`a/`) stay built. Not yet: undo, Insert templates and
-     Tab slots in professional mode.
+     partial errors (`a/`) stay built. The same path
+     (`_built_offset` → `_edit_in_built` → `_finish_built_edit`) serves
+     Insert templates (menu and shortcuts, matrix dialog included), undo/
+     redo (`_built_history`) and Tab/Shift+Tab (`_built_slot`, which only
+     moves MathCAT, no rebuild); the equation window enables Insert and
+     Undo/Redo in professional view (`_enable_when_editable`), cut/paste/
+     select all stay linear-only.
 - **Where it plugs in**: the completeness check must run from `editor.py`
   (only place with WebView access); trigger-character detection (which
   keystrokes/positions qualify — mind that `.`/`,` are also decimal points

@@ -102,13 +102,16 @@ if wx is not None:
                 command, label = entry
                 item = edit_menu.Append(wx.ID_ANY, label)
                 self.Bind(wx.EVT_MENU, lambda _event, command=command: self.equation.edit_command(command), item)
-                if command != "copy":
+                if command in ("undo", "redo"):
+                    # Undo works on the built equation too (it is rebuilt).
+                    self.Bind(wx.EVT_UPDATE_UI, self._enable_when_editable, item)
+                elif command != "copy":
                     self.Bind(wx.EVT_UPDATE_UI, self._enable_in_linear_view, item)
             menu_bar.Append(edit_menu, "&Edit")
             insert_menu = wx.Menu()
             for item_id, entry in append_insert_items(insert_menu).items():
                 self.Bind(wx.EVT_MENU, lambda _event, entry=entry: self.equation.insert_item(entry), id=item_id)
-                self.Bind(wx.EVT_UPDATE_UI, self._enable_in_linear_view, id=item_id)
+                self.Bind(wx.EVT_UPDATE_UI, self._enable_when_editable, id=item_id)
             menu_bar.Append(insert_menu, "&Insert")
             view_menu = wx.Menu()
             professional_item = view_menu.AppendCheckItem(wx.ID_ANY, "&Professional View\tF2")
@@ -123,6 +126,10 @@ if wx is not None:
 
         def _enable_in_linear_view(self, event: wx.UpdateUIEvent) -> None:
             event.Enable(self.equation.mode == "linear")
+
+        def _enable_when_editable(self, event: wx.UpdateUIEvent) -> None:
+            # Professional view edits the source too, where MathCAT is.
+            event.Enable(self.equation.mode == "linear" or self.equation.mathcat is not None)
 
         @property
         def active(self) -> bool:
