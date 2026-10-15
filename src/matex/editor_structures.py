@@ -265,6 +265,8 @@ class StructureActionsMixin:
         self._apply_edit(self._edit(build, caret), kind)
 
     def _apply_edit(self, edit: TemplateEdit | None, kind: _StructureKind) -> None:
+        if self._writing_off():
+            return
         if edit is None:
             self._announce("not available here")
             return
@@ -301,6 +303,8 @@ class StructureActionsMixin:
             self.mathcat.move_to(target.identifier)
 
     def _apply_matrix_edit(self, edit: TemplateEdit | None) -> None:
+        if self._writing_off():
+            return
         if edit is None:
             self._announce("not in a matrix")
             return
@@ -344,6 +348,8 @@ class StructureActionsMixin:
         self.Refresh()
 
     def _insert_matrix(self) -> None:
+        if self._writing_off():
+            return
         if self.mode != "linear":
             return
         rows, columns, fence = self._last_matrix_shape

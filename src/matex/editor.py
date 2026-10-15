@@ -135,6 +135,9 @@ if wx is not None:
             # True right after typing in professional view: Space keeps typing
             # (autocorrect, argument boxes) instead of reading; navigation resets it.
             self._typing_streak = False
+            # F10 turns writing off: nothing can change the equation, and Space
+            # always reads in professional view (no typing streak).
+            self.writing_enabled = True
             # A whole structure Backspace/Delete was pressed on once: the next
             # press deletes it, any other key forgets it (never by accident).
             self._armed_removal: str | None = None
@@ -474,6 +477,12 @@ if wx is not None:
             ):
                 self._show_context_menu(self._caret_point())
                 return
+            if key == wx.WXK_F10 and not event.ShiftDown() and not command_modifier:
+                self.toggle_writing()
+                return
+            if not self.writing_enabled and self._is_edit_key(event, key):
+                self._announce_writing_off()
+                return
             if self.mode == "linear" and key in (wx.WXK_LEFT, wx.WXK_RIGHT) and _word_navigation_down(event):
                 self._word_step(-1 if key == wx.WXK_LEFT else 1, extend=event.ShiftDown())
                 return
@@ -552,8 +561,47 @@ if wx is not None:
             self.insert_item(item)
             return True
 
+        def toggle_writing(self) -> None:
+            """F10: allow or forbid changing the equation (reading stays as it is)."""
+            self.writing_enabled = not self.writing_enabled
+            self._typing_streak = False
+            self._armed_removal = None
+            self._announce("writing on" if self.writing_enabled else "writing off")
+
+        def _announce_writing_off(self) -> None:
+            self._announce("writing off, F10 turns it on")
+
+        def _writing_off(self) -> bool:
+            """For menu edits: True (and say so) when writing is off."""
+            if self.writing_enabled:
+                return False
+            self._announce_writing_off()
+            return True
+
+        def _is_edit_key(self, event: wx.KeyEvent, key: int) -> bool:
+            """A key that would change the equation (typing, deleting, cut/paste/undo, templates)."""
+            if key in (wx.WXK_BACK, wx.WXK_DELETE):
+                return True
+            if key == wx.WXK_SPACE:
+                # Space reads in professional view; with modifiers it reads there too.
+                return self.mode == "linear" and not (event.AltDown() or event.CmdDown())
+            letters = {event.GetKeyCode(), event.GetUnicodeKey()}
+            if event.CmdDown():
+                if letters & {ord(c) for c in "XxVvZzYy"}:
+                    return True
+                character = next((chr(code) for code in letters if 32 < code < 127), "")
+                return bool(character) and item_for_key(character, "command", event.ShiftDown()) is not None
+            if _template_variant_down(event):
+                character = next((chr(code) for code in letters if 32 < code < 127), "")
+                return bool(character) and item_for_key(character, "variant", event.ShiftDown()) is not None
+            if event.RawControlDown():
+                return False
+            return 32 < key < 127 or event.GetUnicodeKey() > 127
+
         def insert_item(self, item: InsertItem) -> None:
             """Insert an Insert-menu entry at the caret, or where MathCAT is in professional view."""
+            if self._writing_off():
+                return
             if self.mode == "professional" and self.mathcat is not None and self.mathcat.structure is not None:
                 self._edit_in_built(lambda: self._insert_linear(item), glue=True)
                 return
@@ -577,6 +625,8 @@ if wx is not None:
             """An Edit-menu command, acting as its shortcut does (only Copy outside linear view)."""
             if command == "copy":
                 self._copy_equation()
+                return
+            if command != "select_all" and self._writing_off():
                 return
             if self.mode == "professional" and command in ("undo", "redo") and self.mathcat is not None:
                 self._built_history(command)
@@ -760,6 +810,10 @@ if wx is not None:
 
         def _on_char(self, event: wx.KeyEvent) -> None:
             key = _effective_key(event)
+            if not self.writing_enabled and self._is_typed_character(event):
+                # Key-down already stops these; EVT_CHAR is a second guard.
+                self._announce_writing_off()
+                return
             if key == wx.WXK_F2:
                 self._toggle_mode()
                 return
@@ -808,7 +862,7 @@ if wx is not None:
                         }
                         cell_navigation = False
                     plain_space = key == wx.WXK_SPACE and not (event.AltDown() or event.ShiftDown() or event.CmdDown())
-                    if plain_space and self._typing_streak and not cell_navigation:
+                    if plain_space and self._typing_streak and self.writing_enabled and not cell_navigation:
                         # Right after typing, Space types too (as in Word); it reads once you navigate.
                         self._edit_built_equation(event)
                         return

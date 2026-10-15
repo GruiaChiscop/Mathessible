@@ -82,7 +82,9 @@ curent (o fracție întreagă, un numărător, un simbol), iar `Cmd+V` lipește
 acolo unde ar ajunge textul. Backspace și Delete șterg câte un caracter; pe
 o structură întreagă (în navigarea structurală) prima apăsare doar întreabă
 („the fraction, press again to delete it”), iar a doua, imediat după, o
-șterge. Cu
+șterge. `F10` (sau `View → Allow Writing`) oprește și repornește scrierea:
+cât e oprită, nimic nu modifică ecuația, iar Space doar recitește zona
+curentă. Cu
 setarea `Open equations built`, ecuațiile se deschid direct în modul
 profesional (o ecuație goală se deschide tot liniar). Cu `Build equations as you type`
 (activă implicit), ca în Word, o ecuație scrisă în modul liniar se

@@ -357,6 +357,13 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      *outside* it (`edit_anchor`'s `outside` for a composite node), and
      `move_to` clears a leftover structural edge, which otherwise kept
      anchoring edits at "start of math".
+     **F10 (View > Allow Writing) turns writing off**, the user's way to
+     re-read with Space without inserting anything: `writing_enabled`
+     false blocks every edit at key-down (`_is_edit_key`: typing,
+     Backspace/Delete, linear Space, Cmd+X/V/Z/Y, template shortcuts), again
+     on EVT_CHAR, and in the menu paths (`_writing_off`: Insert, Edit,
+     structure submenus); Space then always reads in professional view.
+     Shift+F10 stays the context menu.
      **Step 5:** the `open_built` setting (off by default) opens an
      equation straight in professional view (`read_expression` enters it
      instead of only reading). An empty equation still opens linear:
