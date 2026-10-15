@@ -314,6 +314,13 @@ class MathTemplateTests(unittest.TestCase):
         self.assertIsNone(group_function_argument("\\sin", 4, ("sin",)))  # A control word.
         self.assertIsNone(group_function_argument("ln", 2))  # Not in the given list.
 
+    def test_any_recognized_function_gets_the_group_and_its_slot(self) -> None:
+        # The recognized-functions setting is the only list: a user's own function counts too.
+        functions = ("arcsin", "sgn")
+        self.assertEqual(group_function_argument("arcsin", 6, functions).source, "arcsin 〖〗")
+        self.assertEqual(move_to_slot("sgn 〖x〗", 0, functions=functions).announcement, "argument, x")
+        self.assertIsNone(move_to_slot("sgn 〖x〗", 0, functions=("ln",)))
+
     def test_function_and_logarithm_arguments_are_slots(self) -> None:
         self.assertEqual(move_to_slot("ln(x+1)", 0).announcement, "argument, x+1")
         self.assertEqual(move_to_slot("log_(2) 〖x〗", 6).announcement, "argument, x")

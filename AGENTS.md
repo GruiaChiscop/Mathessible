@@ -103,8 +103,9 @@ equation language; the gap is entirely in the editing UX layered on top.
    `lim_(x→∞) (a)/(b)` or `ln (a)/(b)` is a fraction with the function on
    top, while `ln 〖(a)/(b)〗` is the log of the fraction. Typing by hand
    gets it too, for every function: Space right after `lim_(...)`,
-   `log_(...)` or a function name (`FUNCTION_NAMES` plus the
-   recognized-functions setting; not after `\` or inside a longer word)
+   `log_(...)` or a function name (exactly the recognized-functions
+   setting, which also drives the Tab slots — `move_to_slot(...,
+   functions)`; no hardcoded list; not after `\` or inside a longer word)
    opens ` 〖〗` with the caret inside (`group_function_argument`, under
    `convert_on_space`), and the group is a Tab slot ("argument, x+1").
    Not visible parens: the user wants `\begin`/`\end`, as Word (an

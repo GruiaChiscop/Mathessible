@@ -15,7 +15,7 @@ from .editor_structures import StructureActionsMixin
 from .edit_history import EditHistory, EditState
 from .mathcat import MathCatNavigator, create_mathcat_navigator
 from .insert_catalog import InsertItem, item_for_key
-from .math_templates import FUNCTION_NAMES, group_function_argument, move_to_slot
+from .math_templates import group_function_argument, move_to_slot
 from .mathml_model import MathMLDocument
 from .model import EquationDocument
 from .settings import AppSettings
@@ -763,7 +763,7 @@ if wx is not None:
 
             if key == wx.WXK_TAB:
                 self._clear_selection()
-                edit = self._edit(lambda source, caret: move_to_slot(source, caret, reverse=event.ShiftDown()))
+                edit = self._edit(lambda source, caret: move_to_slot(source, caret, event.ShiftDown(), self.settings.recognized_functions))
                 if edit is None:
                     self._announce("no slot")
                     return
@@ -773,7 +773,7 @@ if wx is not None:
                 return
             if key == wx.WXK_SPACE and self.settings.convert_on_space and self._selection_range() is None:
                 # Space after lim_(...)/log_(...) opens the argument box, as in Word.
-                functions = tuple(FUNCTION_NAMES | set(self.settings.recognized_functions) - {"sqrt"})
+                functions = self.settings.recognized_functions
                 group = self._edit(lambda source, caret: group_function_argument(source, caret, functions))
                 if group is not None:
                     self._replace_linear(group.source, group.caret)
@@ -972,7 +972,7 @@ if wx is not None:
         def _built_slot(self, reverse: bool) -> None:
             """Tab/Shift+Tab in professional mode: the next template slot, no rebuild needed."""
             self.caret = self._built_offset()
-            edit = self._edit(lambda source, caret: move_to_slot(source, caret, reverse=reverse))
+            edit = self._edit(lambda source, caret: move_to_slot(source, caret, reverse, self.settings.recognized_functions))
             if edit is None:
                 self._announce("no slot")
                 return

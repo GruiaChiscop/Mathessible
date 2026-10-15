@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from .matrix_templates import matrix_cells, matrix_label, past_fence
+from .settings import DEFAULT_RECOGNIZED_FUNCTIONS
 from .template_source import TemplateEdit, insert_template, matching_parens, operand_end
 
 
@@ -12,11 +13,6 @@ NARY_LABELS = {"∫": "integral", "∬": "integral", "∭": "integral", "∮": "
 # The argument follows a space ("lim_(n→∞) a_n"): with no separator the
 # converter folds it into the subscript, and "▒" is a parse error there.
 FUNCTION_SCRIPTS = {"lim": ("limit", "limit condition"), "log": ("logarithm", "base")}
-# Named functions whose "〖...〗" or "(...)" is their argument (a Tab slot); the editor
-# adds the user's own recognized functions when opening an argument.
-FUNCTION_NAMES = frozenset(
-    {"sin", "cos", "tan", "tg", "cot", "ctg", "sec", "csc", "log", "ln", "lg", "exp", "arcsin", "arccos", "arctan", "sinh", "cosh", "tanh"}
-)
 FUNCTION_TEMPLATES = frozenset(template for template, _role in FUNCTION_SCRIPTS.values())
 # Word's operator structures: an operator with text above (`→┴(...)`) or
 # below (`→┬(...)`); both stack as `→┬(below)┴(above)`. Like lim, a space
@@ -198,14 +194,16 @@ class _Slot:
     exit: int
 
 
-def move_to_slot(source: str, caret: int, reverse: bool = False) -> TemplateEdit | None:
+def move_to_slot(
+    source: str, caret: int, reverse: bool = False, functions: tuple[str, ...] = DEFAULT_RECOGNIZED_FUNCTIONS
+) -> TemplateEdit | None:
     """Tab/Shift+Tab: the next/previous template argument in source order.
 
     Filled slots count too, so a slot stays reachable after typing in it.
     The caret lands at the end of a slot's content, ready to keep typing.
     Tab from the last slot leaves the template the caret is in.
     """
-    slots = _slots(source)
+    slots = _slots(source, functions)
     caret = max(0, min(caret, len(source)))
     if reverse:
         # Slots around the caret are where it already is, not behind it.
@@ -229,7 +227,7 @@ def _enter_slot(source: str, slot: _Slot) -> TemplateEdit:
     return TemplateEdit(source, slot.end, announcement)
 
 
-def _slots(source: str) -> list[_Slot]:
+def _slots(source: str, functions: tuple[str, ...] = DEFAULT_RECOGNIZED_FUNCTIONS) -> list[_Slot]:
     """Every template argument, sorted by where its content starts.
 
     An enclosing slot sorts before the ones nested in it (the numerator
@@ -256,11 +254,11 @@ def _slots(source: str) -> list[_Slot]:
         detected = _detect_group(source, opening, closing)
         if detected is not None:
             slots.append(_Slot(opening + 1, closing, *detected))
-    slots.extend(_naryand_slots(source, pairs, slots))
+    slots.extend(_naryand_slots(source, pairs, slots, functions))
     return sorted(slots, key=lambda slot: (slot.start, -slot.end))
 
 
-def _naryand_slots(source: str, pairs: dict[int, int], slots: list[_Slot]) -> list[_Slot]:
+def _naryand_slots(source: str, pairs: dict[int, int], slots: list[_Slot], functions: tuple[str, ...]) -> list[_Slot]:
     """The integrand/summand/factor after each n-ary `▒`, and a lim/log's argument.
 
     Not a "()" group (a "()" after `▒` stays visible), just the operand that
@@ -297,7 +295,7 @@ def _naryand_slots(source: str, pairs: dict[int, int], slots: list[_Slot]) -> li
         while name_start > 0 and source[name_start - 1].isalpha():
             name_start -= 1
         name = source[name_start:name_end]
-        if name in FUNCTION_NAMES and (name_start == 0 or source[name_start - 1] != "\\") and index + 1 not in starts:
+        if name in functions and (name_start == 0 or source[name_start - 1] != "\\") and index + 1 not in starts:
             found.append(_Slot(index + 1, closing, name, "argument", closing + 1))
             starts.add(index + 1)
     return found
