@@ -67,6 +67,12 @@ if wx is not None:
             )
             self.open_built.SetName("Open equations built")
             self.open_built.SetValue(settings.open_built)
+            self.build_as_you_type = wx.CheckBox(
+                self,
+                label="Build equations as you type (on Space or a closing bracket, once complete)",
+            )
+            self.build_as_you_type.SetName("Build equations as you type")
+            self.build_as_you_type.SetValue(settings.build_as_you_type)
             self.template_control_words = wx.CheckBox(
                 self,
                 label="Insert templates as control words (for example \\sum and \\sqrt instead of ∑ and √)",
@@ -130,6 +136,7 @@ if wx is not None:
             sizer.Add(self.convert_on_space, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.convert_shortcuts_immediately, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.open_built, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
+            sizer.Add(self.build_as_you_type, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.template_control_words, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.auto_zoom_out, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(explanation, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
@@ -244,6 +251,7 @@ if wx is not None:
             self._settings.convert_on_space = self.convert_on_space.GetValue()
             self._settings.convert_shortcuts_immediately = self.convert_shortcuts_immediately.GetValue()
             self._settings.open_built = self.open_built.GetValue()
+            self._settings.build_as_you_type = self.build_as_you_type.GetValue()
             self._settings.template_control_words = self.template_control_words.GetValue()
             self._settings.auto_zoom_out = self.auto_zoom_out.GetValue()
             self._settings.recognized_functions = parse_recognized_functions(

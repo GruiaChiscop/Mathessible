@@ -220,13 +220,22 @@ not just mouse-driven like Word's ribbon.
 
 ## Math AutoCorrect (Word's Autobuild-on-Space)
 
-**Space must never switch modes.** Stage 1 below (Space auto-switches to
-professional mode when the source converts cleanly) was built and then
-removed at the user's request (2026-10-13): professional mode is read-only
-navigation here, so switching on Space stopped the user from typing, which
-Word never does. Space now only converts control words in the linear source
-(see `space_conversion.py`); professional mode opens only with F2. Real
-autobuild needs Stage 2 (editing inside the built equation). In Word, typing a syntactically complete equation (e.g. a
+**Autobuild is back (2026-10-16), now that the built equation is
+editable.** Stage 1 below (Space switches to professional mode when the
+source converts cleanly) was first removed at the user's request
+(2026-10-13) because professional mode was read-only then, so building
+stopped the user from typing. With Stage 2 done the user asked for it
+again: `_build_as_you_type` (setting `build_as_you_type`, on by default)
+builds after Space or any typed character that is not an ASCII letter or
+digit — the same trigger as control-word conversion (`convert_before_character`),
+as the user pointed out Word does — in linear view, when the source then
+converts with no error marker at all (no repair: `a+` builds, `a/` and
+`x^` wait),
+says "built", and puts MathCAT on the node before the caret; typing goes
+on in professional view. Space there reads, *except* right after typing
+(`_typing_streak`, reset by any navigation command): then it types, so
+autocorrect (`\alpha` + Space) and argument boxes still work. Not during
+a professional-view edit's own linear handling (`_editing_built`). In Word, typing a syntactically complete equation (e.g. a
 fraction, radical, or matrix) and then pressing Space or a punctuation
 character that isn't part of the equation auto-builds it from linear text
 into 2D display. Design notes so this doesn't get re-derived from scratch:

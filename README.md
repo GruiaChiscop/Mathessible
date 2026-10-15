@@ -79,7 +79,11 @@ elementul curent (înaintea lui pe opririle „start …”), Backspace și Dele
 liniar. `Shift+Option+Space` (`Shift+Alt+Space` în afara macOS) spune unde
 ar ajunge textul, de exemplu „after 1, end of numerator, before 2”. Cu
 setarea `Open equations built`, ecuațiile se deschid direct în modul
-profesional (o ecuație goală se deschide tot liniar).
+profesional (o ecuație goală se deschide tot liniar). Cu `Build equations as you type`
+(activă implicit), ca în Word, o ecuație scrisă în modul liniar se
+construiește la Space sau la un operator ori semn de punctuație (aceeași
+regulă ca la conversia comenzilor), de îndată ce e completă, și scrierea continuă în modul profesional. Acolo Space citește
+elementul curent, dar imediat după ce ai scris ceva, Space scrie și el.
 
 ## Markdown și ecuații
 

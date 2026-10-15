@@ -22,7 +22,7 @@ from .settings import AppSettings
 from .speech import AssistiveOutput, create_output
 from .space_conversion import convert_before_character, convert_on_space, convert_shortcut_on_character
 from .theme import Palette, palette
-from .unicodemath import ConversionResult, UnicodeMathError, control_words
+from .unicodemath import ConversionResult, UnicodeMathError, control_words, mathml_has_parse_error
 from .word_navigation import next_word_boundary, previous_word_boundary
 
 try:
@@ -129,6 +129,11 @@ if wx is not None:
             self._professional_mathml: str | None = None
             # The text last built: the source, or it repaired (build_repair).
             self._repair = BuildRepair("", "")
+            # Set while a professional-view edit runs its linear handling (no autobuild then).
+            self._editing_built = False
+            # True right after typing in professional view: Space keeps typing
+            # (autocorrect, argument boxes) instead of reading; navigation resets it.
+            self._typing_streak = False
             self.braille_label = wx.StaticText(self, label="Braille")
             self.braille_label.SetForegroundColour(self._colour(self._palette().subtle_text))
             self.braille_display = wx.TextCtrl(self, style=wx.TE_READONLY)
@@ -238,6 +243,7 @@ if wx is not None:
             self.mathml_current_id = None
             self._highlight_matrix_cell = False
             self._pending_read = False
+            self._typing_streak = False
             self.history.reset(source, self.caret)
             self._update_braille_display()
             self.Refresh()
@@ -420,6 +426,7 @@ if wx is not None:
                 self._toggle_mode(attempts)
 
         def _enter_professional_mode(self, conversion: ConversionResult, error_prefix: str) -> bool:
+            self._typing_streak = False
             self._professional_mathml = conversion.mathml
             try:
                 self.mode = "professional"
@@ -716,7 +723,14 @@ if wx is not None:
                             wx.WXK_SPACE: "ReadCurrent",
                         }
                         cell_navigation = False
+                    plain_space = key == wx.WXK_SPACE and not (event.AltDown() or event.ShiftDown() or event.CmdDown())
+                    if plain_space and self._typing_streak and not cell_navigation:
+                        # Right after typing, Space types too (as in Word); it reads once you navigate.
+                        self._edit_built_equation(event)
+                        return
                     command = commands.get(key)
+                    if command is not None:
+                        self._typing_streak = False
                     if command in ("ZoomIn", "ZoomOut") and self.settings.linear_navigation:
                         # Flat reading has no levels: a stray Up/Down only
                         # threw MathCAT off the linear stops. Ignored, silently.
@@ -786,6 +800,7 @@ if wx is not None:
                 if group is not None:
                     self._replace_linear(group.source, group.caret)
                     self._announce(group.announcement)
+                    self._build_as_you_type()
                     return
             if key == wx.WXK_SPACE:
                 selection = self._selection_range()
@@ -800,6 +815,7 @@ if wx is not None:
                 )
                 self._replace_linear(edit.source, edit.caret)
                 self._announce(edit.announcement)
+                self._build_as_you_type()
                 return
             if key == wx.WXK_LEFT:
                 self._step_caret(-1, extend=event.ShiftDown())
@@ -835,6 +851,9 @@ if wx is not None:
                 codepoint = event.GetUnicodeKey()
                 if codepoint not in (wx.WXK_NONE, 0) and codepoint >= 32:
                     value = chr(codepoint)
+                    # Word's autobuild fires on the same characters as control-word
+                    # conversion: anything but a space or an ASCII letter/digit.
+                    builds = not value.isspace() and not (value.isascii() and value.isalnum())
                     if self._selection_range() is None:
                         edit = convert_before_character(
                             self.document.source,
@@ -846,12 +865,16 @@ if wx is not None:
                         if edit is not None:
                             self._replace_linear(edit.source, edit.caret)
                             self._announce(f"{edit.announcement}, {inserted_character(value, self.symbols)}")
+                            if builds:
+                                self._build_as_you_type()
                             return
                         if self.settings.convert_shortcuts_immediately:
                             edit = convert_shortcut_on_character(self.document.source, self.caret, value)
                             if edit is not None:
                                 self._replace_linear(edit.source, edit.caret)
                                 self._announce(edit.announcement)
+                                if builds:
+                                    self._build_as_you_type()
                                 return
                     if not self._replace_selection(value):
                         self._replace_linear(
@@ -859,6 +882,8 @@ if wx is not None:
                             self.caret + len(value),
                         )
                     self._announce(inserted_character(value, self.symbols))
+                    if builds:
+                        self._build_as_you_type()
                     return
                 event.Skip()
                 return
@@ -888,6 +913,7 @@ if wx is not None:
             typed = chr(event.GetUnicodeKey()) if self._is_typed_character(event) else ""
             # A letter, digit, group or control word glued to a structure joins it.
             self._edit_in_built(handle_key, glue=bool(typed) and (typed.isalnum() or typed in '(\\"'))
+            self._typing_streak = True
 
         def _insertion_point(self) -> str:
             assert self.mathcat is not None
@@ -895,6 +921,34 @@ if wx is not None:
                 return "equation"
             node_id, side, outside = self.mathcat.edit_anchor()
             return describe_insertion_point(self.mathcat.structure, node_id, side, outside, self.symbols)
+
+        def _build_as_you_type(self) -> None:
+            """Word's autobuild: build the equation once its source converts with no error.
+
+            Called after Space or a closing bracket in linear view. An incomplete
+            source ("a/") stays linear; typing goes on in professional view.
+            """
+            source = self.document.source
+            if (
+                not self.settings.build_as_you_type
+                or self._editing_built
+                or self.mode != "linear"
+                or self.mathcat is None
+                or not source.strip()
+                or self._converting
+            ):
+                return
+            try:
+                mathml = self.convert_unicode_math(source)
+            except (UnicodeMathError, RuntimeError):
+                return
+            if mathml_has_parse_error(mathml):
+                return
+            self._clear_selection()
+            self.mode = "professional"
+            self._typing_streak = True
+            self._update_braille_display()
+            self._rebuild_professional_at_caret("built", place=self._place_after_caret)
 
         def _built_offset(self, glue: bool = False) -> int:
             """The source offset of MathCAT's position (`edit_anchor`, `source_map`).
@@ -947,7 +1001,11 @@ if wx is not None:
             self._clear_selection()
             self.caret = self._built_offset(glue)
             self.mode = "linear"
-            announcement = action() or ""
+            self._editing_built = True
+            try:
+                announcement = action() or ""
+            finally:
+                self._editing_built = False
             if self.document.source == source:
                 self.mode = "professional"
                 if announcement:
