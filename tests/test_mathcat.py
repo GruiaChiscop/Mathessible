@@ -143,6 +143,34 @@ class MathCatTests(unittest.TestCase):
         self.assertEqual(step("ZoomIn"), "start arrow")
         self.assertEqual([step("MoveNext") for _ in range(3)], ["base, right arrow", "text above, q", "end arrow"])
 
+    def test_flat_reading_frames_matrix_rows_and_cells(self) -> None:
+        # Converter output for "(■(1&0@0&1))": "1 0 0 1" alone says nothing about the shape.
+        mathml = (
+            '<math><mrow intent=":fenced"><mo>(</mo><mtable intent=":array(2,2)"><mtr><mtd><mn>1</mn></mtd>'
+            "<mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd></mtr></mtable>"
+            "<mo>)</mo></mrow></math>"
+        )
+        navigator = MathCatNavigator(language="en", auto_zoom_out=True, boundary_stops=True)
+        navigator.load(mathml)
+        navigator.command("ZoomIn")
+        forward = [navigator.linear_command("MoveNext") for _ in range(10)]
+        self.assertEqual(
+            forward,
+            [
+                "start matrix",
+                "start row 1",
+                "start column 1",
+                "1",
+                "end column 1",
+                "start column 2",
+                "0",
+                "end column 2",
+                "end row 1",
+                "start row 2",
+            ],
+        )
+        self.assertEqual(navigator.linear_command("MovePrevious"), "end row 1")
+
     def test_structural_stops_name_the_argument_of_a_marked_function(self) -> None:
         # Converter output for "lim_(n→∞) s_n".
         mathml = (

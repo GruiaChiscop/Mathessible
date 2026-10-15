@@ -724,7 +724,7 @@ class MathCatNavigator:
                 # A function name is a single word: "start function name,
                 # sine, end function name" would only be noise.
                 entries = tuple(
-                    entry for entry in structure.region_entries(leaf_id) if entry[1] != "function name"
+                    entry for entry in self._stop_regions(leaf, leaf_id) if entry[1] != "function name"
                 )
                 current, previous = set(entries), set(previous_entries)
                 for entry in previous_entries:
@@ -748,6 +748,26 @@ class MathCatNavigator:
         self._linear_stops = stops
         self._linear_done = True
         self._linear_frontier = None
+
+    def _stop_regions(self, leaf: MathMLNode, leaf_id: str) -> list[tuple[int, str]]:
+        """The leaf's regions, innermost first, with matrix rows and cells as regions too.
+
+        A flat "1 0 0 0 1 0" says nothing about a matrix's shape, so each
+        row and each cell (named by its column) gets "start"/"end" stops.
+        """
+        structure = self.structure
+        assert structure is not None
+        regions = structure.region_entries(leaf_id)
+        entries: list[tuple[int, str]] = []
+        for candidate in (leaf,) + structure.ancestors(leaf_id):
+            entries.extend(entry for entry in regions if entry[0] == id(candidate))
+            if candidate.tag in {"mtr", "mtd"} and candidate.identifier:
+                parent = structure.parent_by_id.get(candidate.identifier)
+                siblings = [child for child in parent.children if child.tag == candidate.tag] if parent else []
+                index = next((i for i, child in enumerate(siblings, start=1) if child is candidate), None)
+                if index is not None:
+                    entries.append((id(candidate), f"{'row' if candidate.tag == 'mtr' else 'column'} {index}"))
+        return entries
 
     def _linear_step(self, command: str) -> str:
         if command != "MoveNext":

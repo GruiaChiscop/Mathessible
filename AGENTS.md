@@ -383,7 +383,11 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
     leaf, plus standalone "start X"/"end X" stops from
     `MathMLDocument.region_entries`, and entering professional mode lands on
     a "start of math" stop. Matrix fences are skipped (MathCAT reads them as
-    the whole matrix) and "function name" gets no start/end of its own.
+    the whole matrix), matrix rows and cells are regions of their own
+    in the stops ("start row 1", "start column 1", ..., "end column 1",
+    "end row 1"; `_stop_regions`, only here, not in `region_entries`, so the
+    other navigation modes are unchanged; flat "1 0 0 0 1 0" told the user
+    nothing), and "function name" gets no start/end of its own.
     Math edges are stops in both navigation modes (`_edge_stop`): the
     opposite arrow comes back to the node next to the edge, not past it.
   - **Structural navigation with `structure_stops`** (`structural_stops` on
