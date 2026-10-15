@@ -12,6 +12,7 @@ class SettingsTests(unittest.TestCase):
         self.assertFalse(settings.linear_navigation)
         self.assertTrue(settings.convert_on_space)
         self.assertTrue(settings.convert_shortcuts_immediately)
+        self.assertTrue(settings.template_control_words)
         self.assertFalse(settings.auto_zoom_out)
         self.assertTrue(settings.structure_stops)
 

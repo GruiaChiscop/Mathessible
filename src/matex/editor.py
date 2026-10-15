@@ -508,7 +508,7 @@ if wx is not None:
                 self._insert_matrix()
                 return
             self._clear_selection()
-            edit = item.insert(self.document.source, self.caret)
+            edit = self._edit(item.insert)
             self._replace_linear(edit.source, edit.caret)
             self._announce(edit.announcement)
 
@@ -713,7 +713,7 @@ if wx is not None:
 
             if key == wx.WXK_TAB:
                 self._clear_selection()
-                edit = move_to_slot(self.document.source, self.caret, reverse=event.ShiftDown())
+                edit = self._edit(lambda source, caret: move_to_slot(source, caret, reverse=event.ShiftDown()))
                 if edit is None:
                     self._announce("no slot")
                     return

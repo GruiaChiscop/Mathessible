@@ -166,7 +166,14 @@ equation language; the gap is entirely in the editing UX layered on top.
    non-linear fraction operator (`built_fractions`; `¦` counts too) and
    refuses on a count mismatch, like matrices. MathCAT says "fraction"
    for every built style, "divided by" for linear.
-   Still to add: actions for other structures (root degree, ...).
+   "Root" (Add/Remove Index: `√(x)` ↔ `√(&x)`, `∛`/`∜` → `√`) and
+   "Integral"/"Sum"/"Product" (Add/Remove Limits: `∫▒x` ↔ `∫_()^()▒x`)
+   submenus, in [structure_edits.py](src/matex/structure_edits.py). All
+   structure submenus share one source↔MathCAT mapping
+   (`_StructureKind`/`_structure_offset`/`_place_on` in
+   editor_structures.py: n-th node of a kind = n-th source offset). An
+   added empty index is a parse error, so in professional mode that edit
+   drops to linear view with the caret in the index instead of rebuilding.
    **Trap:** `(` `)` are not uniformly transparent grouping in UnicodeMath.
    `/` and `√` strip parens on *both* sides of the operator for a single
    token (`(a)/(b)` renders identically to `a/b`), but `_`/`^` only strip
@@ -399,7 +406,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
 - `src/matex/` — the app. Pure-logic modules (parser, model, mathml_model,
   mathml_sanitize, layout*, notebook, portable_notebook, settings,
   space_conversion, template_source, math_templates, matrix_templates,
-  fraction_styles, insert_catalog, character_speech, edit_history,
+  fraction_styles, structure_edits, source_view, insert_catalog, character_speech, edit_history,
   html_export, markdown_math, document_io, unicodemath) import `wx`
   nowhere and are unit tested. Templates: `template_source` holds
   `TemplateEdit` and the paren scan, `math_templates` the inserters and
@@ -407,6 +414,18 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   edits, and `insert_catalog` the one list of Insert entries and their
   shortcuts (menu bar, context menu and key handling all read it, so a
   new template is added there, not as another `if key == ...`).
+  **Control words in the source:** templates and structure edits are
+  written as control words (`\sum_()^()\of `, `\sqrt()`, `\matrix(`,
+  `\rightarrow\above() `, `\sdiv`) when `template_control_words` is on
+  (default), symbols otherwise. The scanners stay symbol-based: the editor
+  never calls them on the raw source but through `source_view`
+  (`edit_in_view` for edits and Tab, `in_view`/`view_of` for queries, the
+  `_edit` helper in editor_structures.py), which resolves control words
+  exactly as the converter's `resolveCW` does (`\\[A-Za-z0-9]+` plus one
+  optional space, so `\of  x` with two spaces is an error) and writes only
+  the changed span back. A word needs a trailing space before a letter or
+  digit or at the end (`\int\of x`, `\sdiv b`); a new structure function
+  must go through the view too, or it breaks on typed `\sum`.
   `EquationEditor` is split into mixins by concern: `editor_renderer`
   (the WebView converter/renderer and its re-entrancy traps),
   `editor_structures` (context menu, Insert menu builder, matrix/fraction

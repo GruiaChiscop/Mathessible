@@ -55,6 +55,12 @@ if wx is not None:
             )
             self.convert_shortcuts_immediately.SetName("Convert symbol shortcuts immediately")
             self.convert_shortcuts_immediately.SetValue(settings.convert_shortcuts_immediately)
+            self.template_control_words = wx.CheckBox(
+                self,
+                label="Insert templates as control words (for example \\sum and \\sqrt instead of ∑ and √)",
+            )
+            self.template_control_words.SetName("Insert templates as control words")
+            self.template_control_words.SetValue(settings.template_control_words)
             self.auto_zoom_out = wx.CheckBox(
                 self,
                 label="Leave a structure automatically at its end (for example, from the numerator to the denominator)",
@@ -91,6 +97,7 @@ if wx is not None:
             sizer.Add(self.invisible_operator_stops, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.convert_on_space, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.convert_shortcuts_immediately, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
+            sizer.Add(self.template_control_words, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.auto_zoom_out, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(explanation, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
             sizer.Add(functions_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
@@ -106,6 +113,7 @@ if wx is not None:
             self._settings.invisible_operator_stops = self.invisible_operator_stops.GetValue()
             self._settings.convert_on_space = self.convert_on_space.GetValue()
             self._settings.convert_shortcuts_immediately = self.convert_shortcuts_immediately.GetValue()
+            self._settings.template_control_words = self.template_control_words.GetValue()
             self._settings.auto_zoom_out = self.auto_zoom_out.GetValue()
             self._settings.recognized_functions = parse_recognized_functions(
                 self.recognized_functions.GetValue()

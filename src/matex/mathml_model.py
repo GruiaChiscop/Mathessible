@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from xml.etree import ElementTree
 
@@ -452,30 +453,27 @@ class MathMLDocument:
 
     def tables(self) -> tuple[MathMLNode, ...]:
         """Every `mtable`, in reading order (an outer one before those inside it)."""
-        return self._all_with_tag("mtable")
+        return self.find_all(lambda node: node.tag == "mtable")
 
-    def fractions(self) -> tuple[MathMLNode, ...]:
-        """Every `mfrac`, in reading order (an outer one before those inside it)."""
-        return self._all_with_tag("mfrac")
-
-    def enclosing_fraction(self, identifier: str) -> MathMLNode | None:
-        """The innermost `mfrac` that is the node or contains it."""
-        node = self.node(identifier)
-        if node is None:
-            return None
-        return next((candidate for candidate in (node,) + self.ancestors(identifier) if candidate.tag == "mfrac"), None)
-
-    def _all_with_tag(self, tag: str) -> tuple[MathMLNode, ...]:
+    def find_all(self, predicate: Callable[[MathMLNode], bool]) -> tuple[MathMLNode, ...]:
+        """Every node matching `predicate`, in reading order (an outer one before those inside it)."""
         found: list[MathMLNode] = []
 
         def walk(current: MathMLNode) -> None:
-            if current.tag == tag:
+            if predicate(current):
                 found.append(current)
             for child in current.children:
                 walk(child)
 
         walk(self.root)
         return tuple(found)
+
+    def enclosing(self, identifier: str, predicate: Callable[[MathMLNode], bool]) -> MathMLNode | None:
+        """The innermost node matching `predicate` that is the node or contains it."""
+        node = self.node(identifier)
+        if node is None:
+            return None
+        return next((candidate for candidate in (node,) + self.ancestors(identifier) if predicate(candidate)), None)
 
     def table_index(self, table_id: str) -> int | None:
         for index, table in enumerate(self.tables()):
