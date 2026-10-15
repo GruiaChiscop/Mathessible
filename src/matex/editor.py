@@ -669,6 +669,10 @@ if wx is not None:
                         }
                         cell_navigation = False
                     command = commands.get(key)
+                    if command in ("ZoomIn", "ZoomOut") and self.settings.linear_navigation:
+                        # Flat reading has no levels: a stray Up/Down only
+                        # threw MathCAT off the linear stops. Ignored, silently.
+                        return
                     if command is not None:
                         try:
                             self._highlight_matrix_cell = cell_navigation

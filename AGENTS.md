@@ -366,8 +366,11 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
     seconds before), but navigation is still *not* held up meanwhile: the first stop is
     recorded by the ZoomIn that enters professional mode, Right discovers
     the next stop itself, and Left works over stops reached that way.
-    Only Left/Right after a jump to an undiscovered spot (End, a click,
-    Up/Down) says "still preparing", then "equation ready" when adopted. Node ids match between the two instances
+    Only Left/Right after a jump to an undiscovered spot (End, a click)
+    says "still preparing", then "equation ready" when adopted. Up/Down
+    (ZoomIn/ZoomOut) are ignored in this mode: flat reading has no levels,
+    and a stray one threw speech off the stops (matrix-cell Up/Down with
+    Cmd+Option still works). Node ids match between the two instances
     because both load the same canonical MathML. (Building the list on
     the UI thread froze it for ~4 s; spreading it over idle timers still
     starved key presses.) Plain MathCAT MovePrevious did not: it
