@@ -534,12 +534,23 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
     reloads the full Unicode table on each lookup in include-zip builds).
 - **License: GPL-2.0-or-later** (was MIT; changed so NVDA's GPL-2.0
   symbol dictionaries can be used). NVDA's `symbols.dic` files are never
-  committed: `matex-fetch-symbols` ([symbol_download.py](src/matex/symbol_download.py))
-  downloads them into `~/.matex/symbols/nvda-<lang>.dic`. Spoken symbol
+  committed: Settings > "Download NVDA dictionaries…" (for users of a
+  binary, no `uv`) and `matex-fetch-symbols` both call
+  `download_languages` in [symbol_download.py](src/matex/symbol_download.py),
+  into `~/.matex/symbols/nvda-<lang>.dic`. In Settings the network calls
+  run on a worker thread behind a pulsing `wx.ProgressDialog`
+  (`_in_background`); the thread only writes files, results go back
+  through a `wx.CallLater` poll. Spoken symbol
   names come only from dictionaries ([symbol_dictionary.py](src/matex/symbol_dictionary.py),
   the `symbol_dictionary` setting, built-in `src/matex/symbols/matex-en.dic`);
   do not add hardcoded name tables. Only the `symbols:` section is parsed;
-  layers: chosen → `nvda-en` (for another NVDA locale) → built-in.
+  layers: chosen → the downloaded NVDA English one (for another NVDA
+  locale) → built-in. **Provenance is a header, never the file name:**
+  the downloader prepends `# MateX-Source: NVDA`, `-Language`, `-Origin`,
+  `-Downloaded` lines, import writes `-Origin`/`-Imported` and drops any
+  provenance lines the file claimed (`read_provenance`). Labels ("ro (NVDA,
+  downloaded …)") and the NVDA fallback read only that; a file merely
+  named `nvda-ro.dic` is shown by its name and gets no NVDA fallback.
   MathCAT's professional-mode speech still uses its own Rules.
 - Do not run `cargo fmt` or broad formatting sweeps inside `MathCAT/` (its
   own `AGENTS.md` says the same).

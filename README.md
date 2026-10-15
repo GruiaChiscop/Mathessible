@@ -138,8 +138,9 @@ de JavaScript ori de o conexiune la internet.
 
 Numele rostite pentru simboluri (la scriere, ștergere și deplasarea
 cursorului în modul liniar) vin dintr-un dicționar în formatul `symbols.dic`
-al NVDA. MateX are unul propriu, în engleză. Dicționarele NVDA, în toate
-limbile sale, se descarcă din repository-ul NVDA cu:
+al NVDA. MateX are unul propriu, în engleză. Dicționarele NVDA se descarcă
+din repository-ul NVDA din aplicație, cu `Settings → Download NVDA
+dictionaries…` (se aleg limbile dintr-o listă), sau din linia de comandă:
 
 ```shell
 uv run matex-fetch-symbols          # toate limbile
@@ -147,7 +148,9 @@ uv run matex-fetch-symbols ro en    # doar acestea
 ```
 
 Ele ajung în `~/.matex/symbols/` și se aleg din `Settings → Symbol
-dictionary`. Tot de acolo, `Import dictionary…` aduce orice fișier în același
+dictionary`. Scriptul notează în primele rânduri ale fiecărui fișier sursa
+(NVDA), limba, adresa și data descărcării; lista din Settings arată „NVDA”
+doar pentru fișierele care au această notă, nu după numele fișierului. Tot de acolo, `Import dictionary…` aduce orice fișier în același
 format (scris de mână sau copiat dintr-o instalare NVDA). Un dicționar NVDA
 într-o altă limbă folosește, pentru ce nu definește, dicționarul NVDA în
 engleză, dacă e descărcat, apoi pe cel al MateX. În modul profesional,

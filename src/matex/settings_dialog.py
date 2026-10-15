@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import threading
+from collections.abc import Callable
 from pathlib import Path
 
 from .settings import AppSettings, format_recognized_functions, parse_recognized_functions
 from .symbol_dictionary import SymbolDictionaryError, available_dictionaries, import_dictionary
+from .symbol_download import SymbolDownloadError, download_languages, nvda_languages
 
 try:
     import wx
@@ -98,17 +101,20 @@ if wx is not None:
             self._fill_dictionaries(settings.symbol_dictionary)
             import_button = wx.Button(self, label="&Import dictionary…")
             import_button.Bind(wx.EVT_BUTTON, self._on_import_dictionary)
+            download_button = wx.Button(self, label="&Download NVDA dictionaries…")
+            download_button.Bind(wx.EVT_BUTTON, self._on_download_dictionaries)
             symbols_help = wx.StaticText(
                 self,
                 label=(
-                    "Any file in NVDA's symbols.dic format. NVDA's own dictionaries are "
-                    "downloaded with: uv run matex-fetch-symbols"
+                    "Any file in NVDA's symbols.dic format can be imported. NVDA's own "
+                    "dictionaries are downloaded from the NVDA project on GitHub."
                 ),
             )
             symbols_help.Wrap(460)
             symbols_row = wx.BoxSizer(wx.HORIZONTAL)
             symbols_row.Add(self.symbol_dictionary, 1, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 8)
-            symbols_row.Add(import_button, 0, wx.ALIGN_CENTER_VERTICAL)
+            symbols_row.Add(import_button, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 8)
+            symbols_row.Add(download_button, 0, wx.ALIGN_CENTER_VERTICAL)
             buttons = self.CreateSeparatedButtonSizer(wx.OK | wx.CANCEL)
 
             sizer.Add(heading, 0, wx.ALL, 12)
@@ -153,6 +159,73 @@ if wx is not None:
                 return
             self._fill_dictionaries(info.identifier)
             self.symbol_dictionary.SetFocus()
+
+        def _on_download_dictionaries(self, _event: wx.CommandEvent) -> None:
+            self._in_background("Listing NVDA's languages…", nvda_languages, self._choose_languages)
+
+        def _choose_languages(self, languages: list[str]) -> None:
+            with wx.MultiChoiceDialog(
+                self,
+                "Choose the languages to download (Space checks one).",
+                "Download NVDA dictionaries",
+                languages,
+            ) as dialog:
+                if "en" in languages:
+                    dialog.SetSelections([languages.index("en")])
+                if dialog.ShowModal() != wx.ID_OK:
+                    return
+                chosen = [languages[index] for index in dialog.GetSelections()]
+            if not chosen:
+                return
+            self._in_background(
+                f"Downloading {len(chosen)} dictionaries…",
+                lambda: download_languages(chosen),
+                self._downloaded,
+            )
+
+        def _downloaded(self, report) -> None:
+            selected = self._dictionaries[max(0, self.symbol_dictionary.GetSelection())].identifier
+            if report.saved:
+                # Select the first one fetched; a language NVDA has no file for is reported.
+                selected = report.saved[0].stem
+            self._fill_dictionaries(selected)
+            message = f"{len(report.saved)} dictionaries downloaded."
+            if report.missing:
+                message += f" NVDA has no symbol dictionary for: {', '.join(report.missing)}."
+            wx.MessageBox(message, "Download NVDA dictionaries", wx.OK | wx.ICON_INFORMATION, self)
+            self.symbol_dictionary.SetFocus()
+
+        def _in_background(self, message: str, job: Callable[[], object], done: Callable[[object], None]) -> None:
+            """Run a network job off the UI thread behind a pulsing progress dialog."""
+            progress = wx.ProgressDialog("Download NVDA dictionaries", message, parent=self, style=wx.PD_APP_MODAL)
+            outcome: dict[str, object] = {}
+
+            def work() -> None:
+                try:
+                    outcome["result"] = job()
+                except (SymbolDownloadError, OSError) as error:
+                    outcome["error"] = error
+
+            worker = threading.Thread(target=work, daemon=True)
+            worker.start()
+
+            def poll() -> None:
+                if worker.is_alive():
+                    progress.Pulse()
+                    wx.CallLater(150, poll)
+                    return
+                progress.Destroy()
+                if "error" in outcome:
+                    wx.MessageBox(
+                        f"The download failed: {outcome['error']}",
+                        "Download NVDA dictionaries",
+                        wx.OK | wx.ICON_ERROR,
+                        self,
+                    )
+                    return
+                done(outcome["result"])
+
+            wx.CallLater(150, poll)
 
         def apply(self) -> None:
             selection = self.symbol_dictionary.GetSelection()

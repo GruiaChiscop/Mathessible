@@ -11,9 +11,9 @@ expressions, which have no use for single-character echo.
 
 from __future__ import annotations
 
-import shutil
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import date
 from pathlib import Path
 
 BUILTIN_ID = "matex-en"
@@ -23,8 +23,32 @@ _UNSET = "-"
 _ESCAPES = {"0": "\0", "t": "\t", "n": "\n", "r": "\r", "f": "\f", "v": "\v", "#": "#", "\\": "\\"}
 
 
+# Provenance MateX writes at the top of a file it brings in ("# MateX-Source:
+# NVDA"). Labels and fallbacks come only from these lines, never from the
+# file name: a file without them is just a file, whatever it is called.
+_PROVENANCE_PREFIX = "# MateX-"
+
+
 class SymbolDictionaryError(ValueError):
     pass
+
+
+def provenance_header(**fields: str) -> str:
+    """Comment lines recording where a dictionary came from, e.g. `source="NVDA", language="ro"`."""
+    lines = [f"{_PROVENANCE_PREFIX}{key.capitalize()}: {value}" for key, value in fields.items() if value]
+    return "\n".join(lines) + "\n"
+
+
+def read_provenance(text: str) -> dict[str, str]:
+    """The `# MateX-Key: value` lines at the top of a dictionary, keys lowercased."""
+    fields: dict[str, str] = {}
+    for line in text.splitlines():
+        if not line.startswith(_PROVENANCE_PREFIX):
+            break
+        key, _, value = line[len(_PROVENANCE_PREFIX) :].partition(":")
+        if value.strip():
+            fields[key.strip().lower()] = value.strip()
+    return fields
 
 
 def symbols_directory() -> Path:
@@ -89,6 +113,11 @@ class DictionaryInfo:
     identifier: str
     label: str
     path: Path
+    provenance: dict[str, str] = field(default_factory=dict)
+
+    @property
+    def from_nvda(self) -> bool:
+        return self.provenance.get("source") == "NVDA"
 
 
 def available_dictionaries(directory: Path | None = None) -> list[DictionaryInfo]:
@@ -97,30 +126,49 @@ def available_dictionaries(directory: Path | None = None) -> list[DictionaryInfo
     found = [DictionaryInfo(BUILTIN_ID, "MateX (English, built in)", BUILTIN_PATH)]
     if directory.is_dir():
         for path in sorted(directory.glob("*.dic")):
-            found.append(DictionaryInfo(path.stem, _label(path.stem), path))
+            provenance = _provenance_of(path)
+            found.append(DictionaryInfo(path.stem, _label(path.stem, provenance), path, provenance))
     return found
 
 
-def _label(identifier: str) -> str:
-    if identifier.startswith("nvda-"):
-        return f"NVDA ({identifier[len('nvda-'):]})"
-    return identifier
+def _provenance_of(path: Path) -> dict[str, str]:
+    try:
+        with path.open(encoding="utf-8-sig") as file:
+            head = "".join(line for _index, line in zip(range(10), file))
+    except (OSError, UnicodeDecodeError):
+        return {}
+    return read_provenance(head)
+
+
+def _label(identifier: str, provenance: dict[str, str]) -> str:
+    language = provenance.get("language")
+    if provenance.get("source") == "NVDA" and language:
+        downloaded = provenance.get("downloaded")
+        return f"{language} (NVDA, downloaded {downloaded})" if downloaded else f"{language} (NVDA)"
+    imported = provenance.get("imported")
+    return f"{identifier} (imported {imported})" if imported else identifier
 
 
 def load_dictionary(identifier: str, directory: Path | None = None) -> SymbolDictionary:
     """The chosen dictionary layered over its fallbacks; unknown or unreadable ones fall back silently.
 
     An NVDA locale file only names what differs from NVDA's English one, so
-    `nvda-en` (when downloaded) comes next; MateX's built-in names come last.
+    a downloaded NVDA English dictionary (when there is one) comes next;
+    MateX's built-in names come last. "NVDA" means the file's provenance
+    header says so, not its name.
     """
     directory = symbols_directory() if directory is None else directory
     layers: list[Mapping[str, str]] = []
-    chosen = [info for info in available_dictionaries(directory) if info.identifier == identifier]
-    if chosen and identifier != BUILTIN_ID:
-        layers.append(_read(chosen[0].path))
-        english = directory / "nvda-en.dic"
-        if identifier.startswith("nvda-") and identifier != "nvda-en" and english.is_file():
-            layers.append(_read(english))
+    dictionaries = available_dictionaries(directory)
+    chosen = next((info for info in dictionaries if info.identifier == identifier), None)
+    if chosen is not None and identifier != BUILTIN_ID:
+        layers.append(_read(chosen.path))
+        if chosen.from_nvda and chosen.provenance.get("language") != "en":
+            english = next(
+                (info for info in dictionaries if info.from_nvda and info.provenance.get("language") == "en"), None
+            )
+            if english is not None:
+                layers.append(_read(english.path))
     layers.append(_read(BUILTIN_PATH))
     return SymbolDictionary(tuple(layers))
 
@@ -146,5 +194,10 @@ def import_dictionary(source: Path, directory: Path | None = None) -> Dictionary
         identifier = f"{identifier}-imported"
     directory.mkdir(parents=True, exist_ok=True)
     target = directory / f"{identifier}.dic"
-    shutil.copyfile(source, target)
-    return DictionaryInfo(identifier, _label(identifier), target)
+    # Whatever the file says about itself, MateX only knows it was imported
+    # from this path: earlier provenance lines are replaced, not trusted.
+    text = source.read_text(encoding="utf-8-sig")
+    body = "\n".join(line for line in text.splitlines() if not line.startswith(_PROVENANCE_PREFIX))
+    provenance = {"origin": str(source), "imported": date.today().isoformat()}
+    target.write_text(provenance_header(**provenance) + body + "\n", encoding="utf-8")
+    return DictionaryInfo(identifier, _label(identifier, provenance), target, provenance)
