@@ -41,6 +41,9 @@ class AppSettings:
     # Word's autobuild: in linear view, Space or a closing bracket builds the
     # equation (professional view) once it converts with no error.
     build_as_you_type: bool = True
+    # Closing lim_(...)/log_(...) opens the argument (and builds) at once,
+    # instead of on the Space after it, as Word does.
+    argument_on_closing_paren: bool = False
     # Which symbols.dic names symbols in speech (symbol_dictionary.py).
     symbol_dictionary: str = "matex-en"
     auto_zoom_out: bool = False
@@ -67,6 +70,7 @@ def load_settings(path: Path | None = None) -> AppSettings:
         template_control_words=bool(data.get("template_control_words", True)),
         open_built=bool(data.get("open_built", False)),
         build_as_you_type=bool(data.get("build_as_you_type", True)),
+        argument_on_closing_paren=bool(data.get("argument_on_closing_paren", False)),
         symbol_dictionary=str(data.get("symbol_dictionary", "matex-en")),
         auto_zoom_out=bool(data.get("auto_zoom_out", False)),
         show_preview=bool(data.get("show_preview", False)),

@@ -77,7 +77,12 @@ la părinte. În modul profesional se poate și scrie: textul intră după
 elementul curent (înaintea lui pe opririle „start …”), Backspace și Delete
 șterg, iar inserarea de șabloane, Undo/Redo și Tab funcționează ca în modul
 liniar. `Shift+Option+Space` (`Shift+Alt+Space` în afara macOS) spune unde
-ar ajunge textul, de exemplu „after 1, end of numerator, before 2”. Cu
+ar ajunge textul, de exemplu „after 1, end of numerator, before 2”. În modul profesional, `Cmd+C`/`Cmd+X` copiază/taie elementul
+curent (o fracție întreagă, un numărător, un simbol), iar `Cmd+V` lipește
+acolo unde ar ajunge textul. Backspace și Delete șterg câte un caracter; pe
+o structură întreagă (în navigarea structurală) prima apăsare doar întreabă
+(„the fraction, press again to delete it”), iar a doua, imediat după, o
+șterge. Cu
 setarea `Open equations built`, ecuațiile se deschid direct în modul
 profesional (o ecuație goală se deschide tot liniar). Cu `Build equations as you type`
 (activă implicit), ca în Word, o ecuație scrisă în modul liniar se

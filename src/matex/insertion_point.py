@@ -51,16 +51,16 @@ def describe_insertion_point(
         edge = inside[-1]
         index = leaves.index(edge)
         neighbor = leaves[index + 1] if index + 1 < len(leaves) else None
-        pieces = [f"after {_name(node if outside or not node.children else edge, symbols)}"]
+        pieces = [f"after {node_name(node if outside or not node.children else edge, symbols)}"]
         pieces += [f"end of {label}" for label in _left(document, node if outside else edge, neighbor, node)]
-        pieces.append(f"before {_name(neighbor, symbols)}" if neighbor is not None else "end of math")
+        pieces.append(f"before {node_name(neighbor, symbols)}" if neighbor is not None else "end of math")
         return ", ".join(pieces)
     edge = inside[0]
     index = leaves.index(edge)
     neighbor = leaves[index - 1] if index > 0 else None
-    pieces = [f"after {_name(neighbor, symbols)}" if neighbor is not None else "start of math"]
+    pieces = [f"after {node_name(neighbor, symbols)}" if neighbor is not None else "start of math"]
     pieces += [f"start of {label}" for label in reversed(_left(document, node if outside else edge, neighbor, node))]
-    pieces.append(f"before {_name(node if outside or not node.children else edge, symbols)}")
+    pieces.append(f"before {node_name(node if outside or not node.children else edge, symbols)}")
     return ", ".join(pieces)
 
 
@@ -104,7 +104,7 @@ def _is_empty(leaf: MathMLNode) -> bool:
     return leaf.text.strip("  ") == ""
 
 
-def _name(node: MathMLNode, symbols: SymbolDictionary | None) -> str:
+def node_name(node: MathMLNode, symbols: SymbolDictionary | None) -> str:
     """A node as spoken: a plain letter for 𝑥, a symbol's dictionary name, a structure by its kind."""
     if node.children:
         return f"the {_STRUCTURE_NAMES.get(node.tag, 'group')}"

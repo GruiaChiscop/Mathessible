@@ -930,12 +930,15 @@ class MathCatNavigator:
             return stop.current_id or self.current_id, "before", False
         if stop is not None and stop.speech.startswith("end"):
             return self.display_id, "after", False
-        return self.current_id, "after", False
+        # After a whole structure (structural navigation stands on one): outside it.
+        node = self.structure.node(self.current_id) if self.structure is not None else None
+        return self.current_id, "after", bool(node is not None and node.children)
 
     def move_to(self, identifier: str) -> None:
         """Put MathCAT's cursor on a node, e.g. one clicked in the rendering."""
         self._boundary_stop = None
         self._linear_index = None
+        self._structural_edge = None  # Else a level edge left from before still anchors edits.
         self._native.set_navigation(identifier, 0)
 
     def move_to_cell(self, index: int, row: int, column: int) -> bool:

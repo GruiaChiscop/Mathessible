@@ -15,6 +15,7 @@ class SettingsTests(unittest.TestCase):
         self.assertTrue(settings.template_control_words)
         self.assertFalse(settings.open_built)
         self.assertTrue(settings.build_as_you_type)
+        self.assertFalse(settings.argument_on_closing_paren)
         self.assertFalse(settings.auto_zoom_out)
         self.assertTrue(settings.structure_stops)
 

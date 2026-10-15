@@ -6,7 +6,8 @@ from collections.abc import Callable
 from .clipboard import get_clipboard_text, set_clipboard_text
 from .build_repair import BuildRepair
 from .character_speech import character_name, deleted_character, inserted_character
-from .insertion_point import describe_insertion_point
+from .insertion_point import describe_insertion_point, node_name
+from .node_edits import removal
 from .source_map import anchor_offset, leaf_before, leaf_nodes, map_leaves
 from .symbol_dictionary import load_dictionary
 from .editor_drawing import EditorDrawingMixin
@@ -134,6 +135,9 @@ if wx is not None:
             # True right after typing in professional view: Space keeps typing
             # (autocorrect, argument boxes) instead of reading; navigation resets it.
             self._typing_streak = False
+            # A whole structure Backspace/Delete was pressed on once: the next
+            # press deletes it, any other key forgets it (never by accident).
+            self._armed_removal: str | None = None
             self.braille_label = wx.StaticText(self, label="Braille")
             self.braille_label.SetForegroundColour(self._colour(self._palette().subtle_text))
             self.braille_display = wx.TextCtrl(self, style=wx.TE_READONLY)
@@ -244,6 +248,7 @@ if wx is not None:
             self._highlight_matrix_cell = False
             self._pending_read = False
             self._typing_streak = False
+            self._armed_removal = None
             self.history.reset(source, self.caret)
             self._update_braille_display()
             self.Refresh()
@@ -457,6 +462,8 @@ if wx is not None:
         def _on_key_down(self, event: wx.KeyEvent) -> None:
             key = event.GetKeyCode()
             command_modifier = event.CmdDown()
+            if key not in (wx.WXK_BACK, wx.WXK_DELETE):
+                self._armed_removal = None
             if command_modifier and key in (ord("C"), ord("c")):
                 self._copy_equation()
                 return
@@ -471,6 +478,12 @@ if wx is not None:
                 self._word_step(-1 if key == wx.WXK_LEFT else 1, extend=event.ShiftDown())
                 return
             if self.mode == "professional" and self.mathcat is not None and command_modifier:
+                if key in (ord("X"), ord("x")):
+                    self._cut_node()
+                    return
+                if key in (ord("V"), ord("v")):
+                    self._edit_in_built(self._paste_equation, glue=True)
+                    return
                 if key in (ord("Z"), ord("z")):
                     self._built_history("redo" if event.ShiftDown() else "undo")
                     return
@@ -568,6 +581,12 @@ if wx is not None:
             if self.mode == "professional" and command in ("undo", "redo") and self.mathcat is not None:
                 self._built_history(command)
                 return
+            if self.mode == "professional" and command == "cut" and self.mathcat is not None:
+                self._cut_node()
+                return
+            if self.mode == "professional" and command == "paste" and self.mathcat is not None:
+                self._edit_in_built(self._paste_equation, glue=True)
+                return
             if self.mode != "linear":
                 return
             if command == "undo":
@@ -629,7 +648,72 @@ if wx is not None:
             self._announce_selection()
             self.Refresh()
 
+        def _current_node(self):
+            """MathCAT's node in professional view, unless it is the math itself."""
+            structure = self.mathcat.structure if self.mathcat is not None else None
+            if self.mode != "professional" or structure is None:
+                return None
+            node = structure.node(self.mathcat.current_id)
+            return None if node is None or node is structure.root else node
+
+        def _node_label(self, node) -> str:
+            """How a node is named when copied, cut or deleted: by its role if it fills one ("the numerator")."""
+            role = self.mathcat.structure.semantic_role(node.identifier) if node.children else None
+            return f"the {role}" if role else node_name(node, self.symbols)
+
+        def _node_removal(self, node_id: str) -> tuple[int, int, str]:
+            """(start, end, replacement) in real-source terms for removing a built node."""
+            repair = self._built_repair()
+            span, replacement = removal(repair.text, self.mathcat.structure, node_id)
+            return repair.to_real(span.start), repair.to_real(span.end), replacement
+
+        def _removes_whole_structure(self) -> bool:
+            """Backspace/Delete on a whole structure: the first press asks, the second deletes.
+
+            On a single character (the usual case in flat reading) it is not
+            handled here and deletes that character, as in linear view.
+            """
+            node = self._current_node()
+            if node is None or not node.children:
+                return False
+            name = self._node_label(node)
+            if self._armed_removal != node.identifier:
+                self._armed_removal = node.identifier
+                self._announce(f"{name}, press again to delete it")
+                return True
+            self._armed_removal = None
+            self._remove_node(node.identifier, f"deleted {name}")
+            return True
+
+        def _remove_node(self, node_id: str, announcement: str) -> None:
+            start, end, replacement = self._node_removal(node_id)
+            source = self.document.source
+            caret = start + (1 if replacement else 0)
+            self._clear_selection()
+            self._replace_linear(source[:start] + replacement + source[end:], caret)
+            self._finish_built_edit(announcement)
+
+        def _cut_node(self) -> None:
+            node = self._current_node()
+            if node is None:
+                self._cut_equation()
+                return
+            start, end, _replacement = self._node_removal(node.identifier)
+            if not set_clipboard_text(self.document.source[start:end]):
+                self._announce("could not cut")
+                return
+            self._remove_node(node.identifier, f"cut {self._node_label(node)}")
+
         def _copy_equation(self) -> None:
+            node = self._current_node()
+            if node is not None:
+                # Professional view: the current node (a whole fraction, a numerator, a symbol).
+                start, end, _replacement = self._node_removal(node.identifier)
+                if set_clipboard_text(self.document.source[start:end]):
+                    self._announce(f"copied {self._node_label(node)}")
+                else:
+                    self._announce("could not copy")
+                return
             selection = self._selection_range()
             text = self.document.source[selection[0] : selection[1]] if selection else self.document.source
             if not text:
@@ -761,6 +845,8 @@ if wx is not None:
                     if key == wx.WXK_TAB:
                         self._built_slot(reverse=event.ShiftDown())
                         return
+                    if key in (wx.WXK_BACK, wx.WXK_DELETE) and self._removes_whole_structure():
+                        return
                     if key in (wx.WXK_BACK, wx.WXK_DELETE) or self._is_typed_character(event):
                         self._edit_built_equation(event)
                         return
@@ -800,7 +886,7 @@ if wx is not None:
                 if group is not None:
                     self._replace_linear(group.source, group.caret)
                     self._announce(group.announcement)
-                    self._build_as_you_type()
+                    self._build_as_you_type(f"built, {group.announcement}")
                     return
             if key == wx.WXK_SPACE:
                 selection = self._selection_range()
@@ -865,16 +951,14 @@ if wx is not None:
                         if edit is not None:
                             self._replace_linear(edit.source, edit.caret)
                             self._announce(f"{edit.announcement}, {inserted_character(value, self.symbols)}")
-                            if builds:
-                                self._build_as_you_type()
+                            self._after_typed(value, builds)
                             return
                         if self.settings.convert_shortcuts_immediately:
                             edit = convert_shortcut_on_character(self.document.source, self.caret, value)
                             if edit is not None:
                                 self._replace_linear(edit.source, edit.caret)
                                 self._announce(edit.announcement)
-                                if builds:
-                                    self._build_as_you_type()
+                                self._after_typed(value, builds)
                                 return
                     if not self._replace_selection(value):
                         self._replace_linear(
@@ -882,8 +966,7 @@ if wx is not None:
                             self.caret + len(value),
                         )
                     self._announce(inserted_character(value, self.symbols))
-                    if builds:
-                        self._build_as_you_type()
+                    self._after_typed(value, builds)
                     return
                 event.Skip()
                 return
@@ -922,7 +1005,29 @@ if wx is not None:
             node_id, side, outside = self.mathcat.edit_anchor()
             return describe_insertion_point(self.mathcat.structure, node_id, side, outside, self.symbols)
 
-        def _build_as_you_type(self) -> None:
+        def _after_typed(self, value: str, builds: bool) -> None:
+            """After a character typed in linear handling (whichever way it was inserted).
+
+            A ")" closing `lim_(...)`/`log_(...)` opens the argument box, as
+            Space does; then autobuild, if the character is a trigger. Every
+            insertion path comes here: `\\infty)` goes through control-word
+            conversion first, and was missed when only the plain path did this.
+            """
+            announcement = "built"
+            if value == ")" and self.settings.convert_on_space and self._selection_range() is None:
+                functions = self.settings.recognized_functions
+                group = self._edit(lambda source, caret: group_function_argument(source, caret, functions))
+                if group is not None:
+                    if not self.settings.argument_on_closing_paren:
+                        # As Word: ")" only closes the condition; Space opens the argument and builds.
+                        return
+                    self._replace_linear(group.source, group.caret)
+                    self._announce(group.announcement)
+                    announcement = f"built, {group.announcement}"
+            if builds:
+                self._build_as_you_type(announcement)
+
+        def _build_as_you_type(self, announcement: str = "built") -> None:
             """Word's autobuild: build the equation once its source converts with no error.
 
             Called after Space or a closing bracket in linear view. An incomplete
@@ -948,7 +1053,7 @@ if wx is not None:
             self.mode = "professional"
             self._typing_streak = True
             self._update_braille_display()
-            self._rebuild_professional_at_caret("built", place=self._place_after_caret)
+            self._rebuild_professional_at_caret(announcement, place=self._place_after_caret)
 
         def _built_offset(self, glue: bool = False) -> int:
             """The source offset of MathCAT's position (`edit_anchor`, `source_map`).

@@ -108,6 +108,15 @@ equation language; the gap is entirely in the editing UX layered on top.
    functions)`; no hardcoded list; not after `\` or inside a longer word)
    opens ` 〖〗` with the caret inside (`group_function_argument`, under
    `convert_on_space`), and the group is a Tab slot ("argument, x+1").
+   The `)` that closes `lim_(...)`/`log_(...)` is *not* an autobuild
+   trigger by default, as in Word: it only converts the control word
+   before it (`\infty)` → `∞)`), and the Space after it opens the
+   argument and builds ("built, empty argument"). Otherwise autobuild
+   built the bare `lim_(x→∞)` with MathCAT on the `∞`, and typing went on
+   into the condition. Setting `argument_on_closing_paren` (off) does it
+   all on the `)` instead. Every insertion path ends in `_after_typed`:
+   `\infty)` goes through control-word conversion first, and was missed
+   when only the plain path handled this.
    Not visible parens: the user wants `\begin`/`\end`, as Word (an
    earlier attempt with `ln(...)` was a misunderstanding). Radicals too:
    the square root template is `√〖〗`, and Space right after `√`/`∛`/`∜`
@@ -335,6 +344,19 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      was no node at all; the stop builder now speaks such an empty leaf as
      "empty" instead of skipping it like an invisible operator, and "index"
      is a region (so "in empty index").
+     **Whole nodes ([node_edits.py](src/matex/node_edits.py)):** in
+     professional view Cmd+C/X copy/cut MathCAT's current node (its source
+     widened over its own parens and sign) and Cmd+V pastes at the
+     insertion point. Backspace/Delete still delete *one character* on a
+     leaf; only on a whole structure (structural navigation stands on one)
+     the first press says "the fraction, press again to delete it" and a
+     second, with no other key between (`_armed_removal`), deletes it — the
+     user's own rule, from Word deleting a whole fraction when they meant a
+     paren. An emptied slot stays (`()`, `〖〗`, an empty cell), a matrix
+     row goes with one `@`. After a whole structure, typing/pasting goes
+     *outside* it (`edit_anchor`'s `outside` for a composite node), and
+     `move_to` clears a leftover structural edge, which otherwise kept
+     anchoring edits at "start of math".
      **Step 5:** the `open_built` setting (off by default) opens an
      equation straight in professional view (`read_expression` enters it
      instead of only reading). An empty equation still opens linear:
