@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import threading
+from collections.abc import Callable
 
 from .character_speech import character_name, deleted_character, inserted_character
 from .layout import Line, Text, professional_layout
@@ -8,6 +9,10 @@ from .macos_webview import guard_webview_key_equivalents
 from .edit_history import EditHistory, EditState
 from .mathcat import MathCatNavigator, create_mathcat_navigator
 from .math_templates import (
+    FRACTION_STYLES,
+    built_fractions,
+    fraction_at,
+    restyle_fraction,
     TemplateEdit,
     delete_matrix_column,
     delete_matrix_row,
@@ -605,6 +610,19 @@ if wx is not None:
                 delete_row.Enable(position_in_matrix.rows > 1)
                 delete_column.Enable(position_in_matrix.columns > 1)
                 menu.AppendSubMenu(matrix_menu, "Matri&x")
+            fraction_caret = self._fraction_caret()
+            if fraction_caret is not None:
+                fraction_menu = wx.Menu()
+                current_style = fraction_at(self.document.source, fraction_caret).style
+                for style in FRACTION_STYLES:
+                    item = fraction_menu.AppendRadioItem(wx.ID_ANY, f"&{style.capitalize()}")
+                    item.Check(style == current_style)
+                    self.Bind(
+                        wx.EVT_MENU,
+                        lambda _e, style=style: self._apply_fraction_style(fraction_caret, style),
+                        item,
+                    )
+                menu.AppendSubMenu(fraction_menu, "&Fraction")
             if menu.GetMenuItemCount():
                 menu.AppendSeparator()
             other_view = "Professional" if self.mode == "linear" else "Linear"
@@ -635,6 +653,53 @@ if wx is not None:
                 return None
             return matrix_cell_caret(source, *location)
 
+        def _fraction_caret(self) -> int | None:
+            """A source offset in the fraction the user is on, if any.
+
+            In professional mode MathCAT's innermost `mfrac` is mapped back by
+            order: the n-th `mfrac` is the n-th non-linear fraction operator.
+            If the counts differ, no mapping is trusted.
+            """
+            source = self.document.source
+            if self.mode == "linear":
+                return self.caret if fraction_at(source, self.caret) is not None else None
+            structure = self.mathcat.structure if self.mathcat is not None else None
+            if structure is None:
+                return None
+            fraction = structure.enclosing_fraction(self.mathcat.current_id)
+            built = built_fractions(source)
+            found = structure.fractions()
+            if fraction is None or len(found) != len(built):
+                return None
+            index = next(i for i, candidate in enumerate(found) if candidate is fraction)
+            return built[index].operator
+
+        def _apply_fraction_style(self, caret: int, style: str) -> None:
+            edit = restyle_fraction(self.document.source, caret, style)
+            if edit is None or edit.source == self.document.source:
+                self._announce(edit.announcement if edit is not None else "not in a fraction")
+                return
+            self._clear_selection()
+            self._replace_linear(edit.source, edit.caret)
+            self.SetFocus()
+            if self.mode == "professional":
+                self._rebuild_professional_at_caret(edit.announcement, place=self._place_on_fraction)
+                return
+            self._announce(edit.announcement)
+
+        def _place_on_fraction(self) -> None:
+            """Put MathCAT on the fraction around the caret (a linear one has no `mfrac`)."""
+            self._highlight_matrix_cell = False
+            source = self.document.source
+            fraction = fraction_at(source, self.caret)
+            built = built_fractions(source)
+            found = self.mathcat.structure.fractions() if self.mathcat.structure is not None else ()
+            if fraction is None or fraction not in built or len(found) != len(built):
+                return
+            target = found[built.index(fraction)]
+            if target.identifier:
+                self.mathcat.move_to(target.identifier)
+
         def _apply_matrix_edit(self, edit: TemplateEdit | None) -> None:
             if edit is None:
                 self._announce("not in a matrix")
@@ -647,8 +712,8 @@ if wx is not None:
                 return
             self._announce(edit.announcement)
 
-        def _rebuild_professional_at_caret(self, announcement: str) -> None:
-            """Reload the edited equation and put MathCAT on the caret's cell."""
+        def _rebuild_professional_at_caret(self, announcement: str, place: Callable[[], None] | None = None) -> None:
+            """Reload the edited equation and put MathCAT on the caret's cell (or wherever `place` puts it)."""
             try:
                 conversion = self._convert_source()
                 self._professional_mathml = conversion.mathml
@@ -659,10 +724,13 @@ if wx is not None:
                 if self.mathcat is not None:
                     self.mathcat.load(conversion.mathml)
                     self.mathml_document = self.mathcat.structure
-                    position = matrix_position_at(self.document.source, self.caret)
-                    if position is not None:
-                        self.mathcat.move_to_cell(position.index, position.row, position.column)
-                    self._highlight_matrix_cell = True
+                    if place is not None:
+                        place()
+                    else:
+                        position = matrix_position_at(self.document.source, self.caret)
+                        if position is not None:
+                            self.mathcat.move_to_cell(position.index, position.row, position.column)
+                        self._highlight_matrix_cell = True
                     self._sync_mathcat_cursor()
                     self._start_linear_preparation()
             except (UnicodeMathError, OSError, RuntimeError, ValueError) as error:

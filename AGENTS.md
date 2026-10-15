@@ -154,8 +154,17 @@ equation language; the gap is entirely in the editing UX layered on top.
    the target cell with `MathCatNavigator.move_to_cell`.
 3. **Right-click "Equation Options"-style menu** — partly done: the menu
    (`_show_context_menu`) now opens in both modes and has the Matrix
-   submenu and a Linear/Professional switch. Still to add: actions for
-   other structures (fraction style, root degree, ...).
+   submenu, a Linear/Professional switch, and a "Fraction" submenu (only
+   while in a fraction) switching Word's styles: stacked `/`, skewed `⁄`
+   (`bevelled`), linear `∕` (an inline `<mo>/</mo>`), small `⊘`
+   (`displaystyle="false"`) — `restyle_fraction` in math_templates.py.
+   Linear drops the parens around its operands, so a multi-token "(...)"
+   operand is doubled (`((a+b))∕c`) and undoubled on the way back.
+   Professional mode maps MathCAT's innermost `mfrac` to the n-th
+   non-linear fraction operator (`built_fractions`; `¦` counts too) and
+   refuses on a count mismatch, like matrices. MathCAT says "fraction"
+   for every built style, "divided by" for linear.
+   Still to add: actions for other structures (root degree, ...).
    **Trap:** `(` `)` are not uniformly transparent grouping in UnicodeMath.
    `/` and `√` strip parens on *both* sides of the operator for a single
    token (`(a)/(b)` renders identically to `a/b`), but `_`/`^` only strip
