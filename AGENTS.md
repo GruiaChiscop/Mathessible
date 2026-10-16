@@ -739,9 +739,22 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   `EquationEditor` is split into mixins by concern: `editor_renderer`
   (the WebView converter/renderer and its re-entrancy traps),
   `editor_structures` (context menu, Insert menu builder, matrix/fraction
-  edits), `editor_drawing` (painting); `editor.py` keeps state, keys and
-  navigation. The mixins only add methods, all state lives in
-  `EquationEditor.__init__`. GUI modules (`editor.py`, `document_editor.py`, `main_frame.py`,
+  edits), `editor_drawing` (painting), `editor_built` (editing and moving
+  in the built equation: insertion point, character/node steps, selection,
+  whole-node edits, rebuilding), `editor_assist` (completion, symbol
+  search, error list); `editor_keys` holds the platform modifier helpers
+  they share. `editor.py` keeps state, key dispatch, linear editing and
+  view switching. The mixins only add methods, all state lives in
+  `EquationEditor.__init__`. `MathCatNavigator` likewise: `mathcat_stops`
+  (linear stops), `mathcat_structural`, `mathcat_tables` (cells, rows) are
+  mixins (`__slots__ = ()`, the navigator is a slotted dataclass),
+  `mathcat_common` their shared types, `mathcat_prepare` the converter-
+  output fixups (`prepare_for_mathcat`, re-exported by `mathcat`).
+  **Speed** (measured on a 264-character equation): an arrow ~2 ms, a typed
+  character ~30 ms, mostly the WebView conversion; `_convert_source`
+  reuses its last result (an edit checked the build, then converted again
+  to rebuild) and `MathCatNavigator.load(speak=False)` skips the whole
+  expression's speech where nothing reads it. GUI modules (`editor.py`, `document_editor.py`, `main_frame.py`,
   `settings_dialog.py`, `app.py`) guard `import wx` in a `try/except
   ImportError` and expose a stub class that raises `RuntimeError` when wx is
   absent, so the whole package stays importable (and the logic modules

@@ -212,6 +212,11 @@ class EquationRendererMixin:
         built equation can be mapped back to the real source.
         """
         source = self.document.source
+        # A professional edit checks the build and then rebuilds: one conversion for both.
+        key = (source, self.caret, self.settings.decimal_separator)
+        if self._built_conversion is not None and self._built_conversion[0] == key:
+            self._repair, mathml = self._built_conversion[1], self._built_conversion[2]
+            return ConversionResult(mathml=mathml)
         converted: dict[str, str] = {}
 
         def builds(text: str) -> bool:
@@ -220,4 +225,5 @@ class EquationRendererMixin:
 
         repair = repair_for_build(source, builds, self.caret)
         self._repair = repair or BuildRepair(source, source)
+        self._built_conversion = (key, self._repair, converted[self._repair.text])
         return ConversionResult(mathml=converted[self._repair.text])

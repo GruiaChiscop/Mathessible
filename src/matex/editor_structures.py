@@ -343,7 +343,7 @@ class StructureActionsMixin:
                 recognized_functions=self.settings.recognized_functions,
             )
             if self.mathcat is not None:
-                self.mathcat.load(conversion.mathml)
+                self.mathcat.load(conversion.mathml, speak=False)
                 self.mathml_document = self.mathcat.structure
                 if place is not None:
                     place()
