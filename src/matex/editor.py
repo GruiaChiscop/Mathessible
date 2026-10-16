@@ -1018,12 +1018,8 @@ if wx is not None:
                     if command is not None:
                         try:
                             self._highlight_matrix_cell = cell_navigation
-                            if command == "MoveColumnStart":
-                                speech = self.mathcat.move_to_column_boundary(False)
-                            elif command == "MoveColumnEnd":
-                                speech = self.mathcat.move_to_column_boundary(True)
-                            elif cell_navigation:
-                                speech = self.mathcat.cell_command(command)
+                            if cell_navigation:
+                                speech = self.mathcat.table_command(command)
                             elif self._linear_now:
                                 speech = self.mathcat.linear_command(command)
                             elif self.mathcat.structural_stops:

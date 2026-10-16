@@ -547,6 +547,25 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
     converter-output fixups for MathCAT through that function.
   - Cell commands issued while MathCAT's cursor sits on an `mtd` itself
     answer "not in table" — target the cell's *content* node.
+  - **Cell navigation (Cmd+Option+arrows, Home/End, Space) no longer uses
+    MathCAT's cell commands** (`MathCatNavigator.table_command`): they
+    took cases for one column ("no previous column" from a condition) and
+    left the cursor on the cell's content as a whole (`x>0` is an `mrow`,
+    no linear stop), so typing and character steps after a cell move
+    were lost. Rows/columns come from `MathMLDocument` (innermost table),
+    MathCAT only reads the cell's content (ReadCurrent), and the cursor
+    goes to the cell's last leaf (`_move_to_cell_end`, shared with
+    `read_line`). Speech: "column 2; 22" sideways, "row 2, column 2; 4"
+    up/down; cases say "case 1, value; 1" / "condition; x is greater than
+    0", equations "equation 2; ...". From a "start ..." stop, Right
+    enters the cell the cursor is before. `cell_command` and
+    `move_to_column_boundary` are left only for their tests.
+    **Trap:** MathCAT's ReadCurrent on an *empty* cell of cases raises
+    "no speech generated" (the editor then dropped MathCAT: "MathCAT is
+    no longer available"), so `_cell_speech` never asks it for one
+    ("empty"). Structural navigation reads a cell item through
+    `_cell_speech` too (MathCAT read a case's cell as the whole case), and
+    names tables/rows by kind ("start cases", "start case 1").
   - `matex_mathcat.set_navigation(id, offset)` (wrapping MathCAT's
     `set_navigation_node`) is how to jump the cursor; zoom commands only
     ever descend into the current node.

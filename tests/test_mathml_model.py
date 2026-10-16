@@ -435,6 +435,47 @@ class MathMLModelTests(unittest.TestCase):
         self.assertIn("row 2, column 2", speech)
 
 
+class TableCommandTests(unittest.TestCase):
+    CASES = (
+        '<math><mrow intent=":fenced"><mo>{</mo><mtable intent=":array(2,2)"><mtr><mtd><mn>1</mn></mtd>'
+        "<mtd><mi>𝑥</mi><mo>></mo><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd><mtd><mi>𝑥</mi>"
+        "<mo>&lt;</mo><mn>0</mn></mtd></mtr></mtable><mo>\u200b</mo></mrow></math>"
+    )
+
+    HALF_FILLED = (
+        '<math><mrow intent=":fenced"><mo>{</mo><mtable intent=":array(2,2)"><mtr><mtd><mn>1</mn></mtd>'
+        '<mtd><mspace width="0" /></mtd></mtr><mtr><mtd><mspace width="0" /></mtd><mtd><mspace width="0" />'
+        "</mtd></mtr></mtable><mo>\u200b</mo></mrow></math>"
+    )
+
+    def test_empty_cases_cells_are_read_as_empty_not_a_crash(self) -> None:
+        # MathCAT's ReadCurrent fails on an empty cell of cases ("no speech generated").
+        navigator = MathCatNavigator(language="en")
+        navigator.load(self.HALF_FILLED)
+        navigator.command("ZoomIn")
+        self.assertEqual(navigator.table_command("MoveCellNext"), "case 1, value; 1")
+        self.assertEqual(navigator.table_command("MoveCellNext"), "condition; empty")
+        self.assertEqual(navigator.table_command("MoveCellDown"), "case 2, condition; empty")
+        self.assertEqual(navigator.table_command("MoveCellPrevious"), "value; empty")
+
+    def test_cases_cells_are_value_and_condition_and_the_cursor_lands_on_a_leaf(self) -> None:
+        navigator = MathCatNavigator(language="en")
+        navigator.load(self.CASES)
+        navigator.command("ZoomIn")
+        self.assertEqual(navigator.table_command("MoveCellNext"), "case 1, value; 1")
+        self.assertEqual(navigator.table_command("MoveCellNext"), "condition; x is greater than 0")
+        # At the end of the condition: its last leaf, not the "x > 0" group.
+        self.assertEqual(navigator.structure.node(navigator.current_id).text, "0")
+        self.assertEqual(navigator.table_command("MoveCellNext"), "no next column")
+        self.assertEqual(navigator.table_command("MoveCellDown"), "case 2, condition; x is less than 0")
+        self.assertEqual(navigator.table_command("MoveCellDown"), "no next case")
+        self.assertEqual(navigator.table_command("MoveCellPrevious"), "value; 0")
+        self.assertEqual(navigator.table_command("MoveColumnStart"), "case 1, value; 1")
+        before = navigator.current_id
+        self.assertEqual(navigator.table_command("ReadCellCurrent"), "case 1, value; 1")
+        self.assertEqual(navigator.current_id, before)
+
+
 class MathMLDocumentTableTests(unittest.TestCase):
     def test_tables_are_numbered_in_reading_order_and_cells_found_by_position(self) -> None:
         document = MathMLDocument.parse(
