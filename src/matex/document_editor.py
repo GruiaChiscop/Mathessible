@@ -168,6 +168,8 @@ if wx is not None:
         def _on_char_hook(self, event: wx.KeyEvent) -> None:
             key = event.GetKeyCode()
             if key == wx.WXK_ESCAPE:
+                if self.equation.dismiss_completion():
+                    return
                 self.finish(False)
                 return
             # The equation editor has no use for Enter itself, so it saves.

@@ -12,6 +12,7 @@ class SettingsTests(unittest.TestCase):
         self.assertFalse(settings.linear_navigation)
         self.assertTrue(settings.convert_on_space)
         self.assertTrue(settings.convert_shortcuts_immediately)
+        self.assertTrue(settings.complete_control_words)
         self.assertTrue(settings.template_control_words)
         self.assertFalse(settings.open_built)
         self.assertTrue(settings.build_as_you_type)
@@ -27,6 +28,7 @@ class SettingsTests(unittest.TestCase):
                     linear_navigation=True,
                     structure_stops=False,
                     convert_on_space=False,
+                    complete_control_words=False,
                     auto_zoom_out=True,
                     recognized_functions=("sin", "tg"),
                 ),
@@ -36,6 +38,7 @@ class SettingsTests(unittest.TestCase):
         self.assertTrue(settings.linear_navigation)
         self.assertFalse(settings.structure_stops)
         self.assertFalse(settings.convert_on_space)
+        self.assertFalse(settings.complete_control_words)
         self.assertTrue(settings.auto_zoom_out)
         self.assertEqual(settings.recognized_functions, ("sin", "tg"))
 

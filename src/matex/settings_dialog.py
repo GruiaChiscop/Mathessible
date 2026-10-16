@@ -55,6 +55,12 @@ if wx is not None:
             )
             self.convert_on_space.SetName("Convert control words while typing")
             self.convert_on_space.SetValue(settings.convert_on_space)
+            self.complete_control_words = wx.CheckBox(
+                self,
+                label="Suggest control words while one is typed (Up/Down browse, Tab completes)",
+            )
+            self.complete_control_words.SetName("Suggest control words while typing")
+            self.complete_control_words.SetValue(settings.complete_control_words)
             self.convert_shortcuts_immediately = wx.CheckBox(
                 self,
                 label="Convert symbol shortcuts (for example << or ->) as soon as they are typed",
@@ -140,6 +146,7 @@ if wx is not None:
             sizer.Add(self.structure_stops, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.invisible_operator_stops, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.convert_on_space, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
+            sizer.Add(self.complete_control_words, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.convert_shortcuts_immediately, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.open_built, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.build_as_you_type, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
@@ -256,6 +263,7 @@ if wx is not None:
             self._settings.structure_stops = self.structure_stops.GetValue()
             self._settings.invisible_operator_stops = self.invisible_operator_stops.GetValue()
             self._settings.convert_on_space = self.convert_on_space.GetValue()
+            self._settings.complete_control_words = self.complete_control_words.GetValue()
             self._settings.convert_shortcuts_immediately = self.convert_shortcuts_immediately.GetValue()
             self._settings.open_built = self.open_built.GetValue()
             self._settings.build_as_you_type = self.build_as_you_type.GetValue()

@@ -5,6 +5,7 @@ from collections.abc import Callable
 
 from .clipboard import get_clipboard_text, set_clipboard_text
 from .build_repair import BuildRepair
+from .completion import Completion, accept_completion, completion_at, symbol_insertion
 from .character_speech import character_name, deleted_character, inserted_character
 from .insertion_point import describe_insertion_point, node_name
 from .node_edits import removal
@@ -21,7 +22,12 @@ from .mathml_model import MathMLDocument
 from .model import EquationDocument
 from .settings import AppSettings
 from .speech import AssistiveOutput, create_output
-from .space_conversion import convert_before_character, convert_on_space, convert_shortcut_on_character
+from .space_conversion import (
+    FALLBACK_CONTROL_WORDS,
+    convert_before_character,
+    convert_on_space,
+    convert_shortcut_on_character,
+)
 from .theme import Palette, palette
 from .unicodemath import ConversionResult, UnicodeMathError, control_words, mathml_has_parse_error
 from .word_navigation import next_word_boundary, previous_word_boundary
@@ -141,6 +147,10 @@ if wx is not None:
             # A whole structure Backspace/Delete was pressed on once: the next
             # press deletes it, any other key forgets it (never by accident).
             self._armed_removal: str | None = None
+            # The control word being typed and its suggestions (Up/Down, Tab),
+            # with the source they were made for; any other key drops them.
+            self._completion: tuple[Completion, str] | None = None
+            self._last_symbol_query = ""
             self.braille_label = wx.StaticText(self, label="Braille")
             self.braille_label.SetForegroundColour(self._colour(self._palette().subtle_text))
             self.braille_display = wx.TextCtrl(self, style=wx.TE_READONLY)
@@ -252,6 +262,7 @@ if wx is not None:
             self._pending_read = False
             self._typing_streak = False
             self._armed_removal = None
+            self._completion = None
             self.history.reset(source, self.caret)
             self._update_braille_display()
             self.Refresh()
@@ -467,6 +478,8 @@ if wx is not None:
             command_modifier = event.CmdDown()
             if key not in (wx.WXK_BACK, wx.WXK_DELETE):
                 self._armed_removal = None
+            if self._completion_key(event, key):
+                return
             if command_modifier and key in (ord("C"), ord("c")):
                 self._copy_equation()
                 return
@@ -561,11 +574,101 @@ if wx is not None:
             self.insert_item(item)
             return True
 
+        def _offer_completion(self, announcement: str) -> str:
+            """`announcement`, plus the first suggestion when a control word is being typed (`\\al`)."""
+            self._completion = None
+            if not self.settings.complete_control_words or self._selection_range() is not None:
+                return announcement
+            table = _converter_control_words() or FALLBACK_CONTROL_WORDS
+            completion = completion_at(self.document.source, self.caret, table)
+            if completion is None:
+                return announcement
+            self._completion = (completion, self.document.source)
+            return f"{announcement}, {completion.speech(self.symbols.name)}"
+
+        def _current_completion(self) -> Completion | None:
+            """The suggestions, if still for this source (and, in linear view, this caret)."""
+            if self._completion is None:
+                return None
+            completion, source = self._completion
+            if source != self.document.source or (self.mode == "linear" and self.caret != completion.end):
+                self._completion = None
+                return None
+            return completion
+
+        def _completion_key(self, event: wx.KeyEvent, key: int) -> bool:
+            """Up/Down browse the suggestions, Tab takes one; any other key drops them."""
+            completion = self._current_completion()
+            self._completion = None
+            if completion is None or event.ShiftDown() or event.CmdDown() or event.AltDown() or event.RawControlDown():
+                return False
+            if key in (wx.WXK_DOWN, wx.WXK_UP):
+                completion = completion.moved(1 if key == wx.WXK_DOWN else -1)
+                self._completion = (completion, self.document.source)
+                self._announce(completion.speech(self.symbols.name))
+                self.Refresh()
+                return True
+            if key == wx.WXK_TAB:
+                self._accept_completion(completion)
+                return True
+            return False
+
+        def dismiss_completion(self) -> bool:
+            """Escape: close the suggestions (True), so it does not cancel the equation as well."""
+            if self._current_completion() is None:
+                return False
+            self._completion = None
+            self._announce("suggestions closed")
+            self.Refresh()
+            return True
+
+        def _accept_completion(self, completion: Completion) -> None:
+            """Tab on a suggestion: the word becomes it (its symbol, when control words convert)."""
+            convert = self.settings.convert_on_space
+            spoken = completion.current.speech(self.symbols.name)
+
+            def apply() -> str:
+                edit = accept_completion(self.document.source, completion, convert)
+                self._replace_linear(edit.source, edit.caret)
+                return spoken
+
+            if self.mode == "professional" and self.mathcat is not None and self.mathcat.structure is not None:
+                self._edit_in_built(apply)
+                self._typing_streak = True
+                return
+            apply()
+            self._announce(spoken)
+            if convert:
+                self._build_as_you_type(f"{spoken}, built")
+
+        def _insert_symbol(self) -> str | None:
+            """Insert > Symbol: search control words and symbols by name, insert the chosen one."""
+            from .symbol_dialog import SymbolDialog
+
+            if self.mode != "linear":
+                return None
+            table = _converter_control_words() or FALLBACK_CONTROL_WORDS
+            dialog = SymbolDialog(self, table, self.symbols.name, self._announce, self._last_symbol_query)
+            try:
+                chosen = dialog.ShowModal() == wx.ID_OK
+                self._last_symbol_query = dialog.query
+                suggestion = dialog.selected if chosen else None
+            finally:
+                dialog.Destroy()
+            self.SetFocus()
+            if suggestion is None:
+                return None
+            self._clear_selection()
+            edit = symbol_insertion(self.document.source, self.caret, suggestion, self.settings.template_control_words)
+            self._replace_linear(edit.source, edit.caret)
+            return suggestion.speech(self.symbols.name)
+
         def toggle_writing(self) -> None:
             """F10: allow or forbid changing the equation (reading stays as it is)."""
             self.writing_enabled = not self.writing_enabled
             self._typing_streak = False
             self._armed_removal = None
+            self._completion = None
             self._announce("writing on" if self.writing_enabled else "writing off")
 
         def _announce_writing_off(self) -> None:
@@ -613,6 +716,8 @@ if wx is not None:
 
         def _insert_linear(self, item: InsertItem) -> str | None:
             """Insert in the linear source; returns what to announce (the matrix dialog speaks itself)."""
+            if item.dialog == "symbol":
+                return self._insert_symbol()
             if item.insert is None:
                 self._insert_matrix()
                 return None
@@ -979,7 +1084,7 @@ if wx is not None:
                 elif self.caret:
                     deleted = self.document.source[self.caret - 1]
                     self._replace_linear(self.document.source[: self.caret - 1] + self.document.source[self.caret :], self.caret - 1)
-                    self._announce(deleted_character(deleted, self.symbols))
+                    self._announce(self._offer_completion(deleted_character(deleted, self.symbols)))
             elif key == wx.WXK_DELETE:
                 if self._replace_selection(""):
                     self._announce("selection deleted")
@@ -1019,7 +1124,7 @@ if wx is not None:
                             self.document.source[: self.caret] + value + self.document.source[self.caret :],
                             self.caret + len(value),
                         )
-                    self._announce(inserted_character(value, self.symbols))
+                    self._announce(self._offer_completion(inserted_character(value, self.symbols)))
                     self._after_typed(value, builds)
                     return
                 event.Skip()

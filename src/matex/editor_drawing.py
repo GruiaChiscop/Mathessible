@@ -73,6 +73,19 @@ class EditorDrawingMixin:
             "Shift+Space context; Alt+Space zone; F2 source"
         )
 
+    def _suggestions_text(self) -> str:
+        """The control-word suggestions around the current one, for the line under the source."""
+        completion = self._current_completion()
+        if completion is None:
+            return ""
+        first = max(0, min(completion.index - 1, len(completion.suggestions) - 4))
+        shown = completion.suggestions[first : first + 4]
+        words = [
+            f"[\\{s.word} {s.symbol}]" if first + offset == completion.index else f"\\{s.word}"
+            for offset, s in enumerate(shown)
+        ]
+        return f"{'  '.join(words)}  ({completion.index + 1} of {len(completion.suggestions)}; Tab completes)"
+
     def _draw_editor_chrome(self, dc: wx.DC, colors: Palette) -> None:
         width, height = self.GetClientSize()
         focused = self.HasFocus()
@@ -105,6 +118,11 @@ class EditorDrawingMixin:
             dc.SetFont(self._ui_font(12, wx.FONTWEIGHT_BOLD))
             dc.SetTextForeground(self._colour(colors.subtle_text))
             dc.DrawText("Preview", source.x + 2, source.bottom + 7)
+            suggestions = self._suggestions_text()
+            if suggestions:
+                dc.SetFont(self._ui_font(12))
+                dc.SetTextForeground(self._colour(colors.text))
+                dc.DrawText(suggestions, source.right - 2 - dc.GetTextExtent(suggestions).width, source.bottom + 7)
             preview = self._renderer_rect()
             dc.SetPen(wx.Pen(self._colour(colors.border), 1))
             dc.DrawRoundedRectangle(preview.x, preview.y, preview.width, preview.height, 8)

@@ -39,13 +39,14 @@ Inserter = Callable[[str, int], TemplateEdit]
 
 @dataclass(frozen=True, slots=True)
 class InsertItem:
-    """One Insert entry. `insert` is None for the matrix, which asks for its shape first."""
+    """One Insert entry. `insert` is None for the entries that open a `dialog` first ("matrix", "symbol")."""
 
     label: str
     insert: Inserter | None
     key: str = ""
     modifier: str = ""
     shift: bool = False
+    dialog: str = ""
 
     def accelerator(self, mac: bool) -> str:
         """The shortcut as wx menu-label text ("Ctrl+Shift+O"), or "" without one."""
@@ -128,7 +129,11 @@ INSERT_GROUPS = (
     ),
     # Shift is required: plain Command+M is macOS's Minimize, which the
     # frame's Window menu claims before the editor sees it.
-    (InsertItem("&Matrix…", None, "M", "command", shift=True),),
+    (
+        InsertItem("&Matrix…", None, "M", "command", shift=True, dialog="matrix"),
+        # Searches control words and symbols by name (completion.py).
+        InsertItem("S&ymbol…", None, "S", "command", shift=True, dialog="symbol"),
+    ),
 )
 
 # Keys that arrive as another character with Shift held ("+" for Shift+=).

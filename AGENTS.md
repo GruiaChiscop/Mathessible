@@ -47,6 +47,26 @@ equation language; the gap is entirely in the editing UX layered on top.
   (`<<`, `->`, `...`; `SHORTCUTS`) convert as soon as their last character
   is typed (`convert_shortcuts_immediately` setting), a longer one
   replacing an already converted prefix (`←` + `>` → `↔`).
+- Control-word completion, as Word's autocomplete list
+  ([completion.py](src/matex/completion.py), setting
+  `complete_control_words`, on by default): while `\` + letters is typed
+  (`\al`), the matching words of the converter's table are spoken after
+  the character ("l, alef, 1 of 3"; the word typed in full first, then
+  alphabetical; nothing when the word is already complete and unique),
+  and shown under the source. Up/Down browse, Tab takes one (its symbol
+  when `convert_on_space` is on, else the word), Escape closes the list
+  (`dismiss_completion`, asked by the equation window before Escape
+  cancels). Any other key drops it (`_completion_key` at the top of
+  `_on_key_down`); state is `(Completion, source)`, stale once the source
+  or the linear caret moves. It is computed in the linear typing/Backspace
+  path, so professional-view typing (which runs that path) gets it too,
+  and Tab there goes through `_edit_in_built`. Insert > Symbol…
+  (Cmd+Shift+S, `SymbolDialog` in [symbol_dialog.py](src/matex/symbol_dialog.py))
+  searches the same table by word, symbol or dictionary name
+  (`search_symbols`) and inserts the control word or the symbol, per
+  `template_control_words`; Up/Down in its search field move the
+  selection and speak it through the editor's output, since the screen
+  reader stays on the field.
 - Selection, clipboard (Cmd/Ctrl+C/X/V), word navigation, and a right-click
   context menu in linear mode, all platform-correct (`CmdDown()` for the
   primary modifier, Option-not-Command for word movement on macOS — see
@@ -570,7 +590,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
 
 - `src/matex/` — the app. Pure-logic modules (parser, model, mathml_model,
   mathml_sanitize, symbol_dictionary, layout*, notebook, portable_notebook, settings,
-  space_conversion, template_source, math_templates, matrix_templates,
+  space_conversion, completion, template_source, math_templates, matrix_templates,
   fraction_styles, structure_edits, source_view, source_map, insert_catalog, character_speech, edit_history,
   html_export, markdown_math, document_io, unicodemath) import `wx`
   nowhere and are unit tested. Templates: `template_source` holds

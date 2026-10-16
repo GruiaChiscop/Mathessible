@@ -30,6 +30,9 @@ class AppSettings:
     invisible_operator_stops: bool = False
     # Control words (\alpha) on Space or punctuation, and shortcuts (->) on Space.
     convert_on_space: bool = True
+    # While a control word is typed (\al), suggest the words it may become
+    # (\alpha, \aleph): spoken, Up/Down browse them, Tab takes one.
+    complete_control_words: bool = True
     # Symbol shortcuts (<<, ->, <=) as soon as their last character is typed.
     convert_shortcuts_immediately: bool = True
     # Templates and structure edits write control words (\sum, \sqrt, \of)
@@ -66,6 +69,7 @@ def load_settings(path: Path | None = None) -> AppSettings:
         structure_stops=bool(data.get("structure_stops", True)),
         invisible_operator_stops=bool(data.get("invisible_operator_stops", False)),
         convert_on_space=bool(data.get("convert_on_space", True)),
+        complete_control_words=bool(data.get("complete_control_words", True)),
         convert_shortcuts_immediately=bool(data.get("convert_shortcuts_immediately", True)),
         template_control_words=bool(data.get("template_control_words", True)),
         open_built=bool(data.get("open_built", False)),
