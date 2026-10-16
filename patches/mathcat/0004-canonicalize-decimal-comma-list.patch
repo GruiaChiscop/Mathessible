@@ -1,0 +1,28 @@
+MathCAT: with a decimal comma, a list separator after a decimal number starts no new number
+
+With the DecimalSeparator preference set to "," (MateX's default, so that
+`1,5` reads as one number), `{1,5, 2}` came out as "the set 1,5,2":
+`merge_number_blocks` skips the `mn` "1,5" as already parsed, but then
+takes the following `mo` "," for the decimal separator of a new number
+and merges it with "2" into ",2". A comma (or other decimal separator)
+right after an `mn` that already contains a decimal separator now starts
+no number; it stays the list separator.
+
+Applied by scripts/bootstrap.sh on top of upstream 85c89a37. Worth
+proposing upstream to daisy/MathCAT.
+
+--- a/src/canonicalize.rs
++++ b/src/canonicalize.rs
+@@ -2113,7 +2113,11 @@
+ 					}
+ 				} else if child_name != "mo" ||
+ 						  (do_not_merge_comma && as_text(child) == ",") ||
+-						  !context.patterns.decimal_separator.is_match(as_str!(as_text(child))) {
++						  !context.patterns.decimal_separator.is_match(as_str!(as_text(child))) ||
++						  // MateX: a separator right after a number that already has its decimal separator
++						  //   ("1,5" "," "2" with a decimal comma) separates numbers; it does not start ",2"
++						  (i > 0 && name(as_element(children[i-1])) == "mn" &&
++						   context.patterns.decimal_separator.is_match(as_str!(as_text(as_element(children[i-1]))))) {
+ 					i += 1;
+ 					continue;
+ 				}

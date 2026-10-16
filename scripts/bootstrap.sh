@@ -6,17 +6,23 @@ cd "$root_dir"
 
 git submodule update --init --recursive
 
-# Local fixes on top of the MathCAT submodule (see each patch's header).
-for patch in "$root_dir"/patches/mathcat/*.patch; do
-    [ -e "$patch" ] || continue
-    if git -C MathCAT apply --reverse --check "$patch" >/dev/null 2>&1; then
-        continue  # Already applied.
-    fi
-    if ! git -C MathCAT apply "$patch"; then
-        printf '%s\n' "Patch-ul $(basename "$patch") nu se aplică pe MathCAT." >&2
-        exit 1
-    fi
-done
+# Local fixes on top of the MathCAT and UnicodeMathML submodules (see each
+# patch's header).
+apply_patches() {
+    submodule=$1
+    for patch in "$root_dir"/patches/"$2"/*.patch; do
+        [ -e "$patch" ] || continue
+        if git -C "$submodule" apply --reverse --check "$patch" >/dev/null 2>&1; then
+            continue  # Already applied.
+        fi
+        if ! git -C "$submodule" apply "$patch"; then
+            printf '%s\n' "Patch-ul $(basename "$patch") nu se aplică pe $submodule." >&2
+            exit 1
+        fi
+    done
+}
+apply_patches MathCAT mathcat
+apply_patches UnicodeMathML unicodemathml
 
 export UV_CACHE_DIR="$root_dir/.uv-cache"
 export UV_PYTHON_INSTALL_DIR="$root_dir/.tools/python"

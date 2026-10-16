@@ -1,0 +1,83 @@
+UnicodeMathML: a decimal comma only on request (options.decimalComma)
+
+UnicodeMath reads both "." and "," as a decimal separator, so `{1,2,3}`
+became the numbers 1,2 and ,3 rather than a set of three. MateX lets the
+user choose (setting `decimal_separator`): with `decimalComma: false` in
+the converter options, "," is never part of a number and `{1,2,3}` is a
+list; with it true (the default, as upstream), `1,5` is a number and a
+list needs a space, `{1, 2, 3}`. The parser rule `opDecimal` checks the
+option (the generated dist parser by hand, the .pegjs to match), and
+`parse` passes the converter's option on to the parser.
+
+Applied by scripts/bootstrap.sh on top of the UnicodeMathML submodule.
+
+diff --git a/dist/unicodemathml-parser.js b/dist/unicodemathml-parser.js
+index 4c7b712..3cabc66 100644
+--- a/dist/unicodemathml-parser.js
++++ b/dist/unicodemathml-parser.js
+@@ -2849,7 +2849,9 @@
+         if (peg$silentFails === 0) { peg$fail(peg$c102); }
+       }
+       if (s0 === peg$FAILED) {
+-        if (input.charCodeAt(peg$currPos) === 44) {
++        // MateX: a decimal comma only with options.decimalComma (default on);
++        // off, "1,2" is the list 1, 2 and only "." makes decimals.
++        if (input.charCodeAt(peg$currPos) === 44 && options.decimalComma !== false) {
+           s0 = peg$c103;
+           peg$currPos++;
+         } else {
+diff --git a/dist/unicodemathml.js b/dist/unicodemathml.js
+index 6ae5a6e..5f4adb5 100644
+--- a/dist/unicodemathml.js
++++ b/dist/unicodemathml.js
+@@ -2435,13 +2435,13 @@ function parse(unicodemath) {
+     if (typeof ummlConfig === "undefined" || typeof ummlConfig.tracing === "undefined" || !ummlConfig.tracing) {
+ 
+         // no tracing
+-        uast = ummlParser.parse(unicodemath);
++        uast = ummlParser.parse(unicodemath, {decimalComma: ummlConfig ? ummlConfig.decimalComma : undefined});
+     } else {
+ 
+         // tracing
+         let tracer = new SimpleTracer();
+         try {
+-            uast = ummlParser.parse(unicodemath, {tracer: tracer});
++            uast = ummlParser.parse(unicodemath, {tracer: tracer, decimalComma: ummlConfig ? ummlConfig.decimalComma : undefined});
+         } finally {
+ 
+             // output trace (independent of whether the parse was successful or
+diff --git a/src/unicodemathml-parser.pegjs b/src/unicodemathml-parser.pegjs
+index f706bc4..d33f60e 100644
+--- a/src/unicodemathml-parser.pegjs
++++ b/src/unicodemathml-parser.pegjs
+@@ -317,7 +317,9 @@ opArray
+     / "Ⓒ" // cases
+ opOpen = [([{⟨〖⌈⌊❲⟦⟨⟪⟬⟮⦃⦅⦇⦉⦋⦍⦏⦑⦓⦕⦗⧘⧚⧼]
+ opClose = [)}⟩〗⌉⌋❳⟧⟩⟫⟭⟯⦄⦆⦈⦊⦌⦎⦐⦒⦔⦖⦘⧙⧛⧽] / "]"
+-opDecimal = "." / ","
++// MateX: a decimal comma only with options.decimalComma (default on); off,
++// "1,2" is the list 1, 2 and only "." makes decimals.
++opDecimal = "." / c:"," &{ return options.decimalComma !== false; } { return c; }
+ opHbracket = [⏜⏝⏞⏟⏠⏡⎴⎵¯]  // no underbar since U+2581 is used for enclosures
+ opStretchyArrow = [←→↔⇐⇒⇔↩↪↼⇀↽⇁⊢⊣⟵⟶⟷⟸⟹⟺↦⊨]
+ opNary = [∑⅀⨊∏∐⨋∫∬∭⨌∮∯∰∱⨑∲∳⨍⨎⨏⨕⨖⨗⨘⨙⨚⨛⨜⨒⨓⨔⋀⋁⋂⋃⨃⨄⨅⨆⨀⨁⨂⨉⫿]  // ⚡ performance optimization
+diff --git a/src/unicodemathml.js b/src/unicodemathml.js
+index 1991fae..6c1da62 100644
+--- a/src/unicodemathml.js
++++ b/src/unicodemathml.js
+@@ -2529,13 +2529,13 @@ function parse(unicodemath) {
+     if (!ummlConfig || !ummlConfig.tracing) {
+ 
+         // no tracing
+-        uast = ummlParser.parse(unicodemath);
++        uast = ummlParser.parse(unicodemath, {decimalComma: ummlConfig ? ummlConfig.decimalComma : undefined});
+     } else {
+ 
+         // tracing
+         let tracer = new SimpleTracer();
+         try {
+-            uast = ummlParser.parse(unicodemath, {tracer: tracer});
++            uast = ummlParser.parse(unicodemath, {tracer: tracer, decimalComma: ummlConfig ? ummlConfig.decimalComma : undefined});
+         } finally {
+ 
+             // output trace (independent of whether the parse was successful or

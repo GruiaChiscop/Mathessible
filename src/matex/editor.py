@@ -112,6 +112,9 @@ if wx is not None:
                 structural_stops=self._structural_stops,
                 invisible_operator_stops=self.settings.invisible_operator_stops,
             )
+            if self.mathcat is not None:
+                self.mathcat.symbols = self.symbols
+                self.mathcat.decimal_separator = self.settings.decimal_separator
             self.mode = "linear"
             self.caret = len(source)
             self.selection_anchor: int | None = None
@@ -313,6 +316,8 @@ if wx is not None:
                 self.mathcat.boundary_stops = self._boundary_stops
                 self.mathcat.structural_stops = self._structural_stops
                 self.mathcat.invisible_operator_stops = self.settings.invisible_operator_stops
+                self.mathcat.symbols = self.symbols
+                self.mathcat.decimal_separator = self.settings.decimal_separator
                 if self.mathcat.mathml:
                     try:
                         self.mathcat.load(self.mathcat.mathml, keep_position=True)
@@ -1000,8 +1005,10 @@ if wx is not None:
                         }
                         cell_navigation = False
                     plain_space = key == wx.WXK_SPACE and not (event.AltDown() or event.ShiftDown() or event.CmdDown())
-                    if plain_space and self._typing_streak and self.writing_enabled and not cell_navigation:
-                        # Right after typing, Space types too (as in Word); it reads once you navigate.
+                    if plain_space and self.writing_enabled and not cell_navigation:
+                        # Writing mode: Space types, as in a text field (it once read
+                        # after any navigation, so no space could be added once built).
+                        # Exploration mode (F10) is for reading: Space reads there.
                         self._edit_built_equation(event)
                         return
                     if not cell_navigation and self._mode_arrow(event, key):
@@ -1199,7 +1206,11 @@ if wx is not None:
                 _leaf, count, characters, _mathml = inside
                 return f"inside {characters}, after {characters[:count]}, before {characters[count:]}"
             node_id, side, outside = self.mathcat.edit_anchor()
-            return describe_insertion_point(self.mathcat.structure, node_id, side, outside, self.symbols)
+            described = describe_insertion_point(self.mathcat.structure, node_id, side, outside, self.symbols)
+            remembered = self._remembered_caret()
+            if remembered is not None and self.document.source[remembered - 1 : remembered] == " ":
+                return f"after space, {described}"  # A space has no node of its own.
+            return described
 
         def _remembered_caret(self) -> int | None:
             """The caret left by the last professional-view edit, if nothing has moved since."""

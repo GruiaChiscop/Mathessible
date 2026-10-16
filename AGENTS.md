@@ -185,7 +185,17 @@ equation language; the gap is entirely in the editing UX layered on top.
    cases "case N"/"value"/"condition", determinants say "determinant",
    `|x|`/`‖x‖` and braces get start/end stops instead of their bar/brace
    leaves (which MathCAT reads as the whole structure), and a lone "−"
-   says "negative" (`_leaf_only`).
+   says "negative" (`_leaf_only`). An interval's or a set's parens,
+   brackets, braces and commas, which MathCAT reads as the whole ("the
+   open interval from a to b"), say their own name from the symbol
+   dictionary (`_leaf_only`, `MathCatNavigator.symbols`, set by the
+   editor and passed to the stops worker; only when MathCAT's reading is
+   longer than three words, so `f(x,y)` keeps "open paren"), in flat
+   stops and structural items alike. `[0,1)`/`(a,b]` come with a literal
+   `intent="closed-open-interval(0,1)"`, which made every stop read the
+   whole; `prepare_for_mathcat` drops it (`_INTERVAL_INTENT`) and MathCAT
+   still infers the interval. Not fixed: the converter turns `(1,2,3)`
+   into the numbers `1,2` and `,3` (a decimal comma), read "12 3".
    **Slot model:** a Tab-able slot is any template argument, *filled or
    empty* — a "(...)" group classified by `_detect_group`, or any matrix
    cell (`_slots` in math_templates.py). Filled slots must stay reachable:
@@ -288,9 +298,21 @@ as the user pointed out Word does — in linear view, when the source then
 converts with no error marker at all (no repair: `a+` builds, `a/` and
 `x^` wait),
 says "built", and puts MathCAT on the node before the caret; typing goes
-on in professional view. Space there reads, *except* right after typing
-(`_typing_streak`, reset by any navigation command): then it types, so
-autocorrect (`\alpha` + Space) and argument boxes still work. Not during
+on in professional view. In writing mode Space there
+*types* (a text field; it used to read after any navigation, so no space
+could be added once built); exploration mode (F10) is for reading, and
+Space reads there. **Decimal separator** (setting
+`decimal_separator`, "," by default; both the converter and MathCAT
+follow it): with "," `1,5` is a number and a set needs spaces,
+`{1, 2, 3}`; with "." `{1,2,3}` is a set and `3.14` a number. The
+converter took both for decimals (`{1,2,3}` was `1,2` and `,3`), so
+UnicodeMathML patch 0001 makes the comma a converter option
+(`decimalComma`, sent by `conversion_script`); MathCAT's DecimalSeparator
+preference is set on every load (`MathCatNavigator.decimal_separator`;
+with "." it read `1,5` as "15"), and MathCAT patch 0004 stops it merging
+`1,5` `,` `2` into "1,5,2". An automatic space after "digit," was tried
+first and dropped: it made decimal commas impossible. `leaf_before` after a space takes the leaf before
+it (it took the one after, `leaf_at`). Not during
 a professional-view edit's own linear handling (`_editing_built`). In Word, typing a syntactically complete equation (e.g. a
 fraction, radical, or matrix) and then pressing Space or a punctuation
 character that isn't part of the equation auto-builds it from linear text
@@ -778,6 +800,15 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
     reads MateX's `overbrace($content,$label)` intent. Rules are bundled
     with include-zip: rebuild (`uv sync --reinstall-package matex-mathcat`)
     after editing them.
+  - `src/canonicalize.rs` `merge_number_blocks` (patch 0004): with a
+    decimal comma, a "," right after an `mn` that already has a decimal
+    separator starts no new number (`{1,5, 2}` read "the set 1,5,2").
+- **Local UnicodeMathML patches** (`patches/unicodemathml/`, applied by
+  `scripts/bootstrap.sh` like MathCAT's): 0001 makes the decimal comma an
+  option (`decimalComma`, default on as upstream). The dist parser is
+  generated from `src/unicodemathml-parser.pegjs`; the patch edits both
+  by hand (the dist one is what MateX loads), and passes the option from
+  `parse` in both `unicodemathml.js` copies.
 - **License: GPL-2.0-or-later** (was MIT; changed so NVDA's GPL-2.0
   symbol dictionaries can be used). NVDA's `symbols.dic` files are never
   committed: Settings > "Download NVDA dictionaries…" (for users of a

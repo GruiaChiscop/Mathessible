@@ -33,6 +33,10 @@ class AppSettings:
     # While a control word is typed (\al), suggest the words it may become
     # (\alpha, \aleph): spoken, Up/Down browse them, Tab takes one.
     complete_control_words: bool = True
+    # The decimal separator, for the converter (patches/unicodemathml/0001)
+    # and MathCAT's speech alike: "," (1,5 is a number; a list needs a
+    # space, {1, 2, 3}) or "." (3.14; {1,2,3} is a list).
+    decimal_separator: str = ","
     # Symbol shortcuts (<<, ->, <=) as soon as their last character is typed.
     convert_shortcuts_immediately: bool = True
     # Templates and structure edits write control words (\sum, \sqrt, \of)
@@ -70,6 +74,7 @@ def load_settings(path: Path | None = None) -> AppSettings:
         invisible_operator_stops=bool(data.get("invisible_operator_stops", False)),
         convert_on_space=bool(data.get("convert_on_space", True)),
         complete_control_words=bool(data.get("complete_control_words", True)),
+        decimal_separator="." if data.get("decimal_separator") == "." else ",",
         convert_shortcuts_immediately=bool(data.get("convert_shortcuts_immediately", True)),
         template_control_words=bool(data.get("template_control_words", True)),
         open_built=bool(data.get("open_built", False)),

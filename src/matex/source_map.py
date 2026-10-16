@@ -231,7 +231,12 @@ def leaf_before(spans: dict[str, SourceSpan], caret: int, document: MathMLDocume
         node = document.node(identifier)
         if span.start == span.end == caret and node is not None and node.text not in _INVISIBLE:
             return identifier
-    return leaf_at(spans, caret) if caret > 0 else None
+    if caret <= 0:
+        return None
+    # After a space (no leaf of its own): the last leaf ending before the
+    # caret, not the one right after it (`leaf_at` would give that one).
+    before = [(span.end, identifier) for identifier, span in spans.items() if span.start < span.end <= caret]
+    return max(before)[1] if before else leaf_at(spans, caret)
 
 
 def leaf_characters(source: str, spans: dict[str, SourceSpan], document: MathMLDocument, leaf_id: str) -> str | None:

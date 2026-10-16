@@ -184,7 +184,9 @@ class EquationRendererMixin:
             # (a new conversion would only fall behind the same way).
             self._conversion_token += 1
             token = self._conversion_token
-            success, value = self._webview.RunScript(conversion_script(source, token))
+            success, value = self._webview.RunScript(
+                conversion_script(source, token, decimal_comma=self.settings.decimal_separator == ",")
+            )
             for _attempt in range(8):
                 if success:
                     try:

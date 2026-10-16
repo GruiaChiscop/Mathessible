@@ -40,10 +40,37 @@ class UnicodeMathMLTests(unittest.TestCase):
             with self.assertRaises(StrayScriptResult):
                 decode_conversion(stray, 7)
         self.assertIn('{token: 7}', conversion_script("x", 7))
+        self.assertIn('window.matexConvert("x", false)', conversion_script("x", decimal_comma=False))
 
     def test_parse_error_markers_are_detected(self) -> None:
         self.assertTrue(mathml_has_parse_error('<math><mo mathcolor="#F01">/</mo></math>'))
         self.assertFalse(mathml_has_parse_error("<math><mi>x</mi></math>"))
+
+    @unittest.skipUnless(shutil.which("node"), "Node este folosit numai pentru testul parserului oficial")
+    def test_decimal_comma_is_an_option(self) -> None:
+        # patches/unicodemathml/0001: without decimalComma, "{1,2,3}" is a list of three.
+        distribution = distribution_directory()
+        program = """
+const fs = require('fs'), vm = require('vm');
+const context = { performance: require('perf_hooks').performance };
+vm.createContext(context);
+vm.runInContext(fs.readFileSync(process.argv[1], 'utf8'), context);
+vm.runInContext(fs.readFileSync(process.argv[2], 'utf8'), context);
+const out = {};
+for (const comma of [true, false]) {
+  out[comma] = context.convertUnicodeMathToMathML('{1,2,3}', {resolveControlWords: true, decimalComma: comma}).mathml;
+}
+process.stdout.write(JSON.stringify(out));
+"""
+        completed = subprocess.run(
+            ["node", "-e", program, str(distribution / "unicodemathml-parser.js"), str(distribution / "unicodemathml.js")],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        results = json.loads(completed.stdout)
+        self.assertIn("<mn>1,2</mn>", results["true"])
+        self.assertIn("<mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn>", results["false"])
 
     @unittest.skipUnless(shutil.which("node"), "Node este folosit numai pentru testul parserului oficial")
     def test_official_engine_covers_major_syntax_families(self) -> None:

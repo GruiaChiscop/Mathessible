@@ -11,6 +11,8 @@ from .math_templates import ARROWS
 from .mathml_model import MathMLDocument, MathMLNode, TablePosition
 from .settings import DEFAULT_RECOGNIZED_FUNCTIONS
 from .source_map import leaf_nodes
+from .character_speech import character_name
+from .symbol_dictionary import SymbolDictionary
 
 
 # MathCAT starts some phrases with a separator meant to follow other speech,
@@ -62,6 +64,8 @@ _INVISIBLE_OPERATOR_NAMES = {
     "\u2064": "invisible plus",
 }
 _LINEAR_SEARCH_BUDGET = 0.25  # seconds
+# Leaves MathCAT may read as their whole interval or set (see `_leaf_only`).
+_FENCES_AND_SEPARATORS = frozenset("()[]{}⟨⟩,;")
 # Cell commands as (row, column) steps.
 _CELL_STEPS = {
     "MoveCellNext": (0, 1),
@@ -100,6 +104,11 @@ class MathCatNavigator:
     # Invisible times/separator/plus get a stop of their own in both
     # navigation modes, read by name ("invisible times").
     invisible_operator_stops: bool = False
+    # Names for leaves read by themselves (`_leaf_only`); the built-in dictionary if None.
+    symbols: SymbolDictionary | None = None
+    # MathCAT's DecimalSeparator: with "," it reads `1,5` as one number
+    # ("1,5"); with "." it took the comma for a thousands separator ("15").
+    decimal_separator: str = ","
     _native: object = field(init=False, repr=False)
     mathml: str = field(default="", init=False)
     structure: MathMLDocument | None = field(default=None, init=False)
@@ -136,6 +145,7 @@ class MathCatNavigator:
         self._linear_frontier = None
         self._linear_index = None
         self._native.preference("AutoZoomOut", "true" if self.auto_zoom_out else "false")
+        self._native.preference("DecimalSeparator", self.decimal_separator)
         self.mathml = self._native.set_expression(prepare_for_mathcat(mathml))
         self.structure = MathMLDocument.parse(
             self.mathml,
@@ -414,6 +424,8 @@ class MathCatNavigator:
             self.auto_zoom_out,
             self.boundary_stops,
             self.invisible_operator_stops,
+            self.symbols,
+            self.decimal_separator,
         )
 
         def job() -> tuple[_LinearStop, ...]:
@@ -425,6 +437,8 @@ class MathCatNavigator:
                 auto_zoom_out,
                 boundary_stops,
                 invisible_operator_stops,
+                symbols,
+                decimal_separator,
             ) = settings
             worker = MathCatNavigator(
                 language=language,
@@ -434,6 +448,8 @@ class MathCatNavigator:
                 auto_zoom_out=auto_zoom_out,
                 boundary_stops=boundary_stops,
                 invisible_operator_stops=invisible_operator_stops,
+                symbols=symbols,
+                decimal_separator=decimal_separator,
             )
             worker.load(mathml)
             while worker.extend_linear_stops(64):
@@ -609,6 +625,8 @@ class MathCatNavigator:
         except RuntimeError:
             speech = " ".join(node.content.split())
         speech = _INVISIBLE_OPERATOR_NAMES.get(speech.strip(), speech)
+        if not node.children:
+            speech = self._leaf_only(node, speech)
         role = self.structure.semantic_role(node.identifier)
         if not role and self.structure.is_function_argument(node):
             role = "argument"
@@ -827,14 +845,21 @@ class MathCatNavigator:
                     entries.append((id(candidate), label))
         return entries
 
-    @staticmethod
-    def _leaf_only(leaf: MathMLNode, speech: str) -> str:
-        """A leaf's own words where MathCAT reads more: "−" of "−x" says "negative x", `ⅆ` its whole term."""
+    def _leaf_only(self, leaf: MathMLNode, speech: str) -> str:
+        """A leaf's own words where MathCAT reads more: "−" of "−x" says "negative x", `ⅆ` its whole term.
+
+        An interval's or a set's parens, brackets, braces and commas read as
+        the whole ("the open interval from a to b"); they say their own name,
+        from the symbol dictionary, as anywhere else in the source.
+        """
         intent = leaf.attributes.get("intent", "")
         if re.fullmatch(r"[A-Za-z][A-Za-z-]*", intent):
             return intent.replace("-", " ")  # `ⅆ` given intent="d" (prepare_for_mathcat).
-        if leaf.text.strip() in ("−", "-") and speech.startswith("negative "):
+        text = leaf.text.strip()
+        if text in ("−", "-") and speech.startswith("negative "):
             return "negative"
+        if leaf.tag == "mo" and text in _FENCES_AND_SEPARATORS and len(speech.split()) > 3:
+            return character_name(text, self.symbols)
         return speech
 
     def _table_part_label(self, part: MathMLNode, index: int | None) -> str | None:
@@ -1208,6 +1233,9 @@ def prepare_for_mathcat(mathml: str) -> str:
     # `|x|` carries intent="absolute-value(𝑥)" with the content written into it, so
     # navigating onto x reads the whole thing; MathCAT infers the absolute value itself.
     mathml = _ABSOLUTE_VALUE_INTENT.sub("", mathml)
+    # `[0,1)`, `(a,b]` likewise carry intent="closed-open-interval(0,1)": every
+    # stop in them read the whole interval. MathCAT infers the interval itself.
+    mathml = _INTERVAL_INTENT.sub("", mathml)
     # `ⅆ` (\dd) carries intent="ⅆ", read "double-struck italic d"; "d" is what is meant.
     mathml = mathml.replace('intent="ⅆ"', 'intent="d"')
     if any(name in mathml for name in _LARGE_FUNCTIONS) or "⏞" in mathml or "⏟" in mathml:
@@ -1218,6 +1246,7 @@ def prepare_for_mathcat(mathml: str) -> str:
 # max/min/sup/inf with a condition under them read like ∑ ("the max over x of f").
 _LARGE_FUNCTIONS = ("max", "min", "sup", "inf", "argmax", "argmin")
 _ABSOLUTE_VALUE_INTENT = re.compile(r'\s+intent="absolute-value\([^"$]*\)"')
+_INTERVAL_INTENT = re.compile(r'\s+intent="(?:open|closed|open-closed|closed-open)-interval\([^"$]*\)"')
 _CASES_INTENTS = re.compile(r'<mrow intent=":fenced">\s*<mo>\{</mo>\s*<mtable intent=":array\([^)]*\)"')
 
 

@@ -26,6 +26,18 @@ CONVERTED = {
         '<mi>𝑏</mi></mtd></mtr><mtr><mtd><mspace width="0" /></mtd><mtd><mo>=</mo><mi>𝑐</mi></mtd></mtr>'
         "</mtable></math>"
     ),
+    "x∈(a,b)": (
+        '<math><mi>𝑥</mi><mo>∈</mo><mrow intent=":fenced"><mo>(</mo><mrow><mi>𝑎</mi><mo>,</mo><mi>𝑏</mi>'
+        "</mrow><mo>)</mo></mrow></math>"
+    ),
+    "[0,1)": (
+        '<math><mrow intent="closed-open-interval(0,1)"><mo>[</mo><mn>0</mn><mo>,</mo><mn>1</mn>'
+        "<mo>)</mo></mrow></math>"
+    ),
+    "{a,b}": (
+        '<math><mrow intent=":fenced"><mo>{</mo><mrow><mi>𝑎</mi><mo>,</mo><mi>𝑏</mi></mrow><mo>}</mo>'
+        "</mrow></math>"
+    ),
 }
 
 
@@ -44,6 +56,26 @@ def read(source: str) -> tuple[str, list[str]]:
 
 
 class MathReadingTests(unittest.TestCase):
+    def test_a_decimal_comma_is_read_as_one_number(self) -> None:
+        mathml = (
+            '<math><mrow intent=":fenced"><mo>{</mo><mrow><mn>1,5</mn><mo>,</mo><mn>2</mn></mrow>'
+            "<mo>}</mo></mrow></math>"
+        )
+        for separator, number in ((",", "1,5"), (".", "15")):
+            navigator = MathCatNavigator(language="en", decimal_separator=separator)
+            navigator.load(mathml)
+            self.assertIn(f"the set {number} comma", navigator.command("ReadCurrent"))
+
+    def test_interval_and_set_fences_and_commas_read_by_themselves(self) -> None:
+        whole, stops = read("x∈(a,b)")
+        self.assertIn("open interval from", whole)
+        self.assertEqual(stops[2:7], ["left parenthesis", "eigh", "comma", "b", "right parenthesis"])
+        whole, stops = read("[0,1)")
+        self.assertIn("closed open interval from 0 to 1", whole)
+        self.assertEqual(stops[:5], ["left bracket", "0", "comma", "1", "right parenthesis"])
+        _whole, stops = read("{a,b}")
+        self.assertEqual(stops[:5], ["left brace", "eigh", "comma", "b", "right brace"])
+
     def test_cases_read_as_cases(self) -> None:
         whole, stops = read("f={■(x&x≥0@-x&x<0)┤")
         self.assertIn("2 cases; case 1", whole)

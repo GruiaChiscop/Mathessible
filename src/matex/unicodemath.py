@@ -107,8 +107,9 @@ def renderer_page() -> tuple[str, str]:
 <body aria-hidden="true">
   <div id="equation" aria-hidden="true"></div>
   <script>
-    window.matexConvert = function(source) {
+    window.matexConvert = function(source, decimalComma) {
       const result = convertUnicodeMathToMathML(source, {
+        decimalComma: decimalComma !== false,
         splitInput: true,
         resolveControlWords: true,
         displaystyle: true,
@@ -169,13 +170,12 @@ def highlight_script(identifier: str | None) -> str:
     return f"window.matexHighlight({json.dumps(identifier)})"
 
 
-def conversion_script(source: str, token: int | None = None) -> str:
+def conversion_script(source: str, token: int | None = None, decimal_comma: bool = True) -> str:
+    """The script converting `source`; `decimal_comma` False makes "1,2" a list (only "." is decimal)."""
+    call = f"window.matexConvert({json.dumps(source)}, {json.dumps(decimal_comma)})"
     if token is None:
-        return f"JSON.stringify(window.matexConvert({json.dumps(source)}))"
-    return (
-        f"JSON.stringify(Object.assign(window.matexConvert({json.dumps(source)}), "
-        f"{{token: {int(token)}}}))"
-    )
+        return f"JSON.stringify({call})"
+    return f"JSON.stringify(Object.assign({call}, {{token: {int(token)}}}))"
 
 
 def decode_conversion(value: str, token: int | None = None) -> ConversionResult:

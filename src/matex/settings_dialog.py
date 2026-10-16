@@ -61,6 +61,15 @@ if wx is not None:
             )
             self.complete_control_words.SetName("Suggest control words while typing")
             self.complete_control_words.SetValue(settings.complete_control_words)
+            self.decimal_comma = wx.CheckBox(
+                self,
+                label=(
+                    "Decimal comma: 1,5 is a number and a set is written {1, 2, 3}; "
+                    "off: decimal point (3.14), and {1,2,3} is a set"
+                ),
+            )
+            self.decimal_comma.SetName("Decimal comma")
+            self.decimal_comma.SetValue(settings.decimal_separator == ",")
             self.convert_shortcuts_immediately = wx.CheckBox(
                 self,
                 label="Convert symbol shortcuts (for example << or ->) as soon as they are typed",
@@ -147,6 +156,7 @@ if wx is not None:
             sizer.Add(self.invisible_operator_stops, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.convert_on_space, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.complete_control_words, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
+            sizer.Add(self.decimal_comma, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.convert_shortcuts_immediately, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.open_built, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.build_as_you_type, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
@@ -264,6 +274,7 @@ if wx is not None:
             self._settings.invisible_operator_stops = self.invisible_operator_stops.GetValue()
             self._settings.convert_on_space = self.convert_on_space.GetValue()
             self._settings.complete_control_words = self.complete_control_words.GetValue()
+            self._settings.decimal_separator = "," if self.decimal_comma.GetValue() else "."
             self._settings.convert_shortcuts_immediately = self.convert_shortcuts_immediately.GetValue()
             self._settings.open_built = self.open_built.GetValue()
             self._settings.build_as_you_type = self.build_as_you_type.GetValue()

@@ -13,6 +13,7 @@ class SettingsTests(unittest.TestCase):
         self.assertTrue(settings.convert_on_space)
         self.assertTrue(settings.convert_shortcuts_immediately)
         self.assertTrue(settings.complete_control_words)
+        self.assertEqual(settings.decimal_separator, ",")
         self.assertTrue(settings.template_control_words)
         self.assertFalse(settings.open_built)
         self.assertTrue(settings.build_as_you_type)
