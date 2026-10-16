@@ -10,6 +10,9 @@ from matex.matrix_templates import (
     matrix_cell_caret,
     matrix_count,
     matrix_position_at,
+    delete_table_row,
+    insert_table_row,
+    table_position_at,
 )
 
 
@@ -108,6 +111,45 @@ class MatrixTemplateTests(unittest.TestCase):
         self.assertIsNone(matrix_cell_caret(source, 3, 1, 1))
         self.assertIsNone(matrix_cell_caret(source, 0, 3, 1))
         self.assertEqual(matrix_position_at(source, 21), MatrixPosition(2, 1, 2, 2, 2))
+
+
+class TableRowTests(unittest.TestCase):
+    def test_a_new_case_has_an_empty_value_and_condition(self) -> None:
+        source = "f={■(1&x>0@0&x<0)┤"
+        edit = insert_table_row(source, source.index("x>0"), below=True)
+        self.assertEqual(edit.source, "f={■(1&x>0@&@0&x<0)┤")
+        self.assertEqual(edit.caret, source.index("@") + 1)
+        self.assertEqual(edit.announcement, "inserted case 2, 3 cases, empty value, case 2")
+        above = insert_table_row(source, source.index("x>0"), below=False)
+        self.assertEqual(above.source, "f={■(&@1&x>0@0&x<0)┤")
+
+    def test_deleting_a_case(self) -> None:
+        source = "f={■(1&x>0@0&x<0)┤"
+        edit = delete_table_row(source, source.index("x>0"))
+        self.assertEqual(edit.source, "f={■(0&x<0)┤")
+        self.assertEqual(edit.announcement, "deleted case 1, 1 case, case 1")
+        self.assertIsNone(delete_table_row(edit.source, 5))
+
+    def test_equations_get_single_lines(self) -> None:
+        source = "█(x&=1@y&=2)"
+        edit = insert_table_row(source, source.index("y"), below=True)
+        self.assertEqual(edit.source, "█(x&=1@y&=2@)")
+        self.assertEqual(edit.caret, len(source))
+        self.assertEqual(edit.announcement, "inserted equation 3, 3 equations, empty equation 3")
+        self.assertEqual(delete_table_row(source, 2).source, "█(y&=2)")
+
+    def test_matrix_rows_keep_their_width(self) -> None:
+        edit = insert_table_row("(■(1&2))", 3, below=True)
+        self.assertEqual(edit.source, "(■(1&2@&))")
+        self.assertTrue(edit.announcement.startswith("inserted row 2, 2 by 2 matrix"))
+
+    def test_table_positions_count_equation_arrays_like_the_mathml(self) -> None:
+        source = "█(x=1@(■(1&2))=y)"
+        position = table_position_at(source, source.index("2"))
+        self.assertEqual((position.index, position.kind, position.row, position.column), (1, "matrix", 1, 2))
+        self.assertEqual(table_position_at(source, 2).kind, "equations")
+        # Matrices alone still count only matrices.
+        self.assertEqual(matrix_position_at(source, source.index("2")).index, 0)
 
 
 if __name__ == "__main__":

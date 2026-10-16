@@ -19,6 +19,11 @@ MATRIX_FENCES = {
     "bars": ("|", "|"),
 }
 _CLOSING_FENCES = {"(": ")", "[": "]", "|": "|", "{": "┤"}
+# Every source construct that becomes an `mtable`: matrices (cases are one,
+# `{■(...)┤`) and equation arrays. In source order they are the MathML's
+# tables in order, which is how professional view finds its cell's source.
+MATRIX_SIGNS = "■"
+TABLE_SIGNS = "■█"
 
 
 @dataclass(frozen=True, slots=True)
@@ -63,41 +68,50 @@ class MatrixPosition:
     column: int
     rows: int
     columns: int
-    # Which matrix, counting every `■(` in source order from 0 — the same
-    # order as the `mtable`s in the converter's MathML.
+    # Which table, counting every `signs` table in source order from 0 —
+    # with TABLE_SIGNS, the same order as the `mtable`s in the MathML.
     index: int
+    # "matrix", "determinant", "cases" or "equations" (an equation array).
+    kind: str = "matrix"
 
 
-def matrix_position_at(source: str, caret: int) -> MatrixPosition | None:
-    """Where the caret sits in the innermost matrix around it, if any."""
-    found = _matrix_at(source, caret)
+def matrix_position_at(source: str, caret: int, signs: str = MATRIX_SIGNS) -> MatrixPosition | None:
+    """Where the caret sits in the innermost matrix (or, with TABLE_SIGNS, any table) around it."""
+    found = _matrix_at(source, caret, signs)
     if found is None:
         return None
     cell, grid = found
-    index = _matrix_opens(source).index(cell.matrix_open)
-    return MatrixPosition(cell.row, cell.column, len(grid), max(len(row) for row in grid), index)
+    index = _matrix_opens(source, signs).index(cell.matrix_open)
+    columns = max(len(row) for row in grid)
+    return MatrixPosition(cell.row, cell.column, len(grid), columns, index, table_kind(source, cell))
 
 
-def matrix_count(source: str) -> int:
-    return len(_matrix_opens(source))
+def table_position_at(source: str, caret: int) -> MatrixPosition | None:
+    """`matrix_position_at` over every table: equation arrays too."""
+    return matrix_position_at(source, caret, TABLE_SIGNS)
 
 
-def matrix_cell_caret(source: str, index: int, row: int, column: int) -> int | None:
+def matrix_count(source: str, signs: str = MATRIX_SIGNS) -> int:
+    return len(_matrix_opens(source, signs))
+
+
+def matrix_cell_caret(source: str, index: int, row: int, column: int, signs: str = MATRIX_SIGNS) -> int | None:
     """A caret inside a matrix cell given by matrix index and 1-based row/column.
 
     A row shorter than `column` (rows may be ragged) gives its last cell.
     """
-    opens = _matrix_opens(source)
+    opens = _matrix_opens(source, signs)
     if not 0 <= index < len(opens):
         return None
-    in_row = [cell for cell in matrix_cells(source) if cell.matrix_open == opens[index] and cell.row == row]
+    cells = matrix_cells(source, signs)
+    in_row = [cell for cell in cells if cell.matrix_open == opens[index] and cell.row == row]
     if not in_row:
         return None
     return in_row[min(column, len(in_row)) - 1].start
 
 
-def _matrix_opens(source: str) -> list[int]:
-    return sorted({cell.matrix_open for cell in matrix_cells(source)})
+def _matrix_opens(source: str, signs: str = MATRIX_SIGNS) -> list[int]:
+    return sorted({cell.matrix_open for cell in matrix_cells(source, signs)})
 
 
 def insert_matrix_row(source: str, caret: int, below: bool = True) -> TemplateEdit | None:
@@ -149,10 +163,64 @@ def delete_matrix_column(source: str, caret: int) -> TemplateEdit | None:
     return _rebuild_matrix(source, cell, grid, cell.row - 1, cell.column - 1, f"deleted column {cell.column}")
 
 
-def _matrix_at(source: str, caret: int) -> tuple[MatrixCell, list[list[str]]] | None:
+def insert_table_row(source: str, caret: int, below: bool = True) -> TemplateEdit | None:
+    """A new row in the innermost table: an equation (equation array), a case, or a matrix row."""
+    found = _matrix_at(source, caret, TABLE_SIGNS)
+    if found is None:
+        return None
+    cell, grid = found
+    kind = table_kind(source, cell)
+    index = cell.row if below else cell.row - 1
+    # An equation's "&" only aligns it: a new one starts as a single empty line.
+    grid.insert(index, [""] if kind == "equations" else [""] * max(len(row) for row in grid))
+    edit = _rebuild_matrix(source, cell, grid, index, 0 if kind in _ROW_NAMES else cell.column - 1, "")
+    if kind in ("equations", "cases"):
+        part = _ROW_NAMES[kind]
+        empty = "empty value, " if kind == "cases" else "empty "
+        return TemplateEdit(
+            edit.source, edit.caret, f"inserted {part} {index + 1}, {_count(len(grid), part)}, {empty}{part} {index + 1}"
+        )
+    return TemplateEdit(edit.source, edit.caret, f"inserted row {index + 1}{edit.announcement}")
+
+
+def delete_table_row(source: str, caret: int) -> TemplateEdit | None:
+    """Remove the caret's row of the innermost table; None if it is the only one."""
+    found = _matrix_at(source, caret, TABLE_SIGNS)
+    if found is None or len(found[1]) < 2:
+        return None
+    cell, grid = found
+    kind = table_kind(source, cell)
+    del grid[cell.row - 1]
+    row = min(cell.row - 1, len(grid) - 1)
+    edit = _rebuild_matrix(source, cell, grid, row, 0 if kind in _ROW_NAMES else cell.column - 1, "")
+    if kind in ("equations", "cases"):
+        part = _ROW_NAMES[kind]
+        return TemplateEdit(
+            edit.source, edit.caret, f"deleted {part} {cell.row}, {_count(len(grid), part)}, {part} {row + 1}"
+        )
+    return TemplateEdit(edit.source, edit.caret, f"deleted row {cell.row}{edit.announcement}")
+
+
+_ROW_NAMES = {"equations": "equation", "cases": "case"}
+
+
+def _count(count: int, part: str) -> str:
+    return f"{count} {part}" if count == 1 else f"{count} {part}s"
+
+
+def table_kind(source: str, cell: MatrixCell) -> str:
+    """"equations" for an equation array `█(...)`, else `matrix_label`."""
+    if cell.matrix_open > 0 and source[cell.matrix_open - 1] == "█":
+        return "equations"
+    return matrix_label(source, cell)
+
+
+def _matrix_at(
+    source: str, caret: int, signs: str = MATRIX_SIGNS
+) -> tuple[MatrixCell, list[list[str]]] | None:
     """The innermost cell around the caret, plus its matrix as a grid of cell texts."""
     caret = max(0, min(caret, len(source)))
-    cells = matrix_cells(source)
+    cells = matrix_cells(source, signs)
     around = [cell for cell in cells if cell.start <= caret <= cell.end]
     if not around:
         return None
@@ -212,8 +280,8 @@ def past_fence(source: str, start: int, end: int) -> int:
     return end
 
 
-def matrix_cells(source: str) -> list[MatrixCell]:
-    """Every cell of every `■(...)` in the source, nested matrices included.
+def matrix_cells(source: str, signs: str = MATRIX_SIGNS) -> list[MatrixCell]:
+    """Every cell of every `■(...)` (or other `signs` table) in the source, nested ones included.
 
     `&`/`@` only separate cells at the matrix's own depth: anything inside a
     nested "(...)" (a fraction slot, an inner matrix) is skipped as a whole.
@@ -221,7 +289,7 @@ def matrix_cells(source: str) -> list[MatrixCell]:
     pairs = matching_parens(source)
     cells: list[MatrixCell] = []
     for matrix_open, matrix_close in sorted(pairs.items()):
-        if matrix_open == 0 or source[matrix_open - 1] != "■":
+        if matrix_open == 0 or source[matrix_open - 1] not in signs:
             continue
         row = column = 1
         start = index = matrix_open + 1

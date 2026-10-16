@@ -27,9 +27,12 @@ from .matrix_templates import (
     insert_matrix_column,
     insert_matrix_row,
     insert_matrix_template,
+    TABLE_SIGNS,
+    delete_table_row,
+    insert_table_row,
     matrix_cell_caret,
     matrix_count,
-    matrix_position_at,
+    table_position_at,
 )
 from .matrix_dialog import MatrixDialog
 from .mathml_model import MathMLDocument, MathMLNode
@@ -126,12 +129,26 @@ class StructureActionsMixin:
             self.Bind(wx.EVT_MENU, lambda _e: self._copy_equation(), copy_item)
             self.Bind(wx.EVT_MENU, lambda _e: self._paste_equation(), paste_item)
             self.Bind(wx.EVT_MENU, lambda _e: self._select_all(), select_all_item)
-        # Row/column edits act on the innermost matrix around the caret
+        # Row/column edits act on the innermost table around the caret
         # (linear) or MathCAT's current cell (professional), so the
-        # submenu only exists while one of those is in a matrix.
+        # submenu only exists while one of those is in a table: "Matrix"
+        # for a matrix or determinant, "Cases", "Equations" (rows only).
         caret = self._matrix_caret()
-        position_in_matrix = in_view(self.document.source, caret, matrix_position_at) if caret is not None else None
-        if position_in_matrix is not None:
+        position_in_matrix = in_view(self.document.source, caret, table_position_at) if caret is not None else None
+        if position_in_matrix is not None and position_in_matrix.kind in ("cases", "equations"):
+            part = "Case" if position_in_matrix.kind == "cases" else "Equation"
+            rows_menu = wx.Menu()
+            rows_actions = [
+                (f"Insert {part} &Above", lambda: self._edit(lambda s, c: insert_table_row(s, c, below=False), caret)),
+                (f"Insert {part} &Below", lambda: self._edit(lambda s, c: insert_table_row(s, c, below=True), caret)),
+                (f"&Delete {part}", lambda: self._edit(delete_table_row, caret)),
+            ]
+            for label, build in rows_actions:
+                item = rows_menu.Append(wx.ID_ANY, label)
+                self.Bind(wx.EVT_MENU, lambda _e, build=build: self._apply_matrix_edit(build()), item)
+            rows_menu.GetMenuItems()[-1].Enable(position_in_matrix.rows > 1)
+            menu.AppendSubMenu(rows_menu, "&Cases" if part == "Case" else "&Equations")
+        elif position_in_matrix is not None:
             matrix_menu = wx.Menu()
             matrix_actions = [
                 ("Insert Row &Above", lambda: self._edit(lambda s, c: insert_matrix_row(s, c, below=False), caret)),
@@ -208,22 +225,22 @@ class StructureActionsMixin:
         menu.Destroy()
 
     def _matrix_caret(self) -> int | None:
-        """A source offset in the matrix cell the user is on, if any.
+        """A source offset in the table cell (matrix, case, equation) the user is on, if any.
 
         In professional mode MathCAT's cell is mapped back to the source
-        by matrix order: the n-th `mtable` is the n-th `■(`. If the counts
-        differ (another construct made a table), no mapping is trusted.
+        by table order: the n-th `mtable` is the n-th `■(`/`█(`. If the
+        counts differ (another construct made a table), no mapping is trusted.
         """
         source = self.document.source
         if self.mode == "linear":
-            return self.caret if in_view(source, self.caret, matrix_position_at) is not None else None
+            return self.caret if in_view(source, self.caret, table_position_at) is not None else None
         if self.mathcat is None or self.mathcat.structure is None:
             return None
         location = self.mathcat.matrix_location()
         view = view_of(source)
-        if location is None or len(self.mathcat.structure.tables()) != matrix_count(view.text):
+        if location is None or len(self.mathcat.structure.tables()) != matrix_count(view.text, TABLE_SIGNS):
             return None
-        caret = matrix_cell_caret(view.text, *location)
+        caret = matrix_cell_caret(view.text, *location, signs=TABLE_SIGNS)
         return None if caret is None else view.to_source(caret)
 
     def _structure_offset(self, kind: _StructureKind) -> int | None:
@@ -306,7 +323,7 @@ class StructureActionsMixin:
         if self._writing_off():
             return
         if edit is None:
-            self._announce("not in a matrix")
+            self._announce("not in a table")
             return
         self._clear_selection()
         self._replace_linear(edit.source, edit.caret)
@@ -331,7 +348,7 @@ class StructureActionsMixin:
                 if place is not None:
                     place()
                 else:
-                    position = in_view(self.document.source, self.caret, matrix_position_at)
+                    position = in_view(self.document.source, self.caret, table_position_at)
                     if position is not None:
                         self.mathcat.move_to_cell(position.index, position.row, position.column)
                     self._highlight_matrix_cell = True

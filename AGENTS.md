@@ -216,10 +216,16 @@ equation language; the gap is entirely in the editing UX layered on top.
    with empty cells on column insert; deleting the last row/column returns
    `None` (menu item disabled). The menu also opens with Shift+F10 / the
    Menu key, and works in professional mode too: `_matrix_caret` in
-   editor_structures.py maps MathCAT's cell back to source by matrix order (the n-th
-   `mtable` in `MathMLDocument.tables()` is the n-th `■(`, via
-   `matrix_cell_caret`) and refuses when the counts differ (e.g. an
-   eqarray `█(` also makes an `mtable`). After the edit
+   editor_structures.py maps MathCAT's cell back to source by table order
+   (the n-th `mtable` in `MathMLDocument.tables()` is the n-th `■(` or
+   `█(`: `TABLE_SIGNS`, `matrix_cell_caret(..., signs=)`) and refuses when
+   the counts differ. Cases and equation arrays get "Cases"/"Equations"
+   submenus instead (Insert Case/Equation Above/Below, Delete;
+   `insert_table_row`/`delete_table_row`, rows only: a case's `&` is its
+   value/condition, an equation's only aligns, so a new equation is one
+   empty line). `table_position_at` names the innermost table's kind;
+   `matrix_position_at`'s default (`■` only) is unchanged for the
+   matrix-only callers. After the edit
    `_rebuild_professional_at_caret` reloads MathCAT and puts it back on
    the target cell with `MathCatNavigator.move_to_cell`.
 3. **Right-click "Equation Options"-style menu** — partly done: the menu
