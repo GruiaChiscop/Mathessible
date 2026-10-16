@@ -14,6 +14,7 @@ class SettingsTests(unittest.TestCase):
         self.assertTrue(settings.convert_shortcuts_immediately)
         self.assertTrue(settings.complete_control_words)
         self.assertEqual(settings.decimal_separator, ",")
+        self.assertEqual(settings.braille_code, "Nemeth")
         self.assertTrue(settings.template_control_words)
         self.assertFalse(settings.open_built)
         self.assertTrue(settings.build_as_you_type)
@@ -52,6 +53,16 @@ class SettingsTests(unittest.TestCase):
 
     def test_parse_recognized_functions_normalizes_and_deduplicates(self) -> None:
         self.assertEqual(parse_recognized_functions("sin, TG, tg,\nctg"), ("sin", "tg", "ctg"))
+
+
+class BrailleCodeSettingTests(unittest.TestCase):
+    def test_a_known_code_round_trips_and_an_unknown_one_falls_back(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            save_settings(AppSettings(braille_code="UEB"), path)
+            self.assertEqual(load_settings(path).braille_code, "UEB")
+            path.write_text('{"braille_code": "Klingon"}', encoding="utf-8")
+            self.assertEqual(load_settings(path).braille_code, "Nemeth")
 
 
 if __name__ == "__main__":

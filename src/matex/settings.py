@@ -20,6 +20,21 @@ DEFAULT_RECOGNIZED_FUNCTIONS: tuple[str, ...] = (
 )
 
 
+# The braille codes MathCAT ships (its Rules/Braille), with how they are
+# offered in Settings. ASCIIMath and LaTeX are text, for a braille display.
+BRAILLE_CODES: tuple[tuple[str, str], ...] = (
+    ("Nemeth", "Nemeth (US)"),
+    ("UEB", "UEB (Unified English Braille)"),
+    ("CMU", "CMU (Spanish, Portuguese)"),
+    ("French", "French"),
+    ("Russian", "Russian"),
+    ("Swedish", "Swedish"),
+    ("Vietnam", "Vietnamese"),
+    ("ASCIIMath", "ASCIIMath (text)"),
+    ("LaTeX", "LaTeX (text)"),
+)
+
+
 @dataclass(slots=True)
 class AppSettings:
     linear_navigation: bool = False
@@ -37,6 +52,8 @@ class AppSettings:
     # and MathCAT's speech alike: "," (1,5 is a number; a list needs a
     # space, {1, 2, 3}) or "." (3.14; {1,2,3} is a list).
     decimal_separator: str = ","
+    # MathCAT's braille code for the braille strip (BRAILLE_CODES).
+    braille_code: str = "Nemeth"
     # Symbol shortcuts (<<, ->, <=) as soon as their last character is typed.
     convert_shortcuts_immediately: bool = True
     # Templates and structure edits write control words (\sum, \sqrt, \of)
@@ -75,6 +92,7 @@ def load_settings(path: Path | None = None) -> AppSettings:
         convert_on_space=bool(data.get("convert_on_space", True)),
         complete_control_words=bool(data.get("complete_control_words", True)),
         decimal_separator="." if data.get("decimal_separator") == "." else ",",
+        braille_code=_braille_code(data.get("braille_code")),
         convert_shortcuts_immediately=bool(data.get("convert_shortcuts_immediately", True)),
         template_control_words=bool(data.get("template_control_words", True)),
         open_built=bool(data.get("open_built", False)),
@@ -85,6 +103,11 @@ def load_settings(path: Path | None = None) -> AppSettings:
         show_preview=bool(data.get("show_preview", False)),
         recognized_functions=_normalize_functions(data.get("recognized_functions")),
     )
+
+
+def _braille_code(value: object) -> str:
+    codes = [code for code, _label in BRAILLE_CODES]
+    return value if isinstance(value, str) and value in codes else "Nemeth"
 
 
 def save_settings(settings: AppSettings, path: Path | None = None) -> None:

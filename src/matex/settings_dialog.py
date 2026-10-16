@@ -4,7 +4,7 @@ import threading
 from collections.abc import Callable
 from pathlib import Path
 
-from .settings import AppSettings, format_recognized_functions, parse_recognized_functions
+from .settings import BRAILLE_CODES, AppSettings, format_recognized_functions, parse_recognized_functions
 from .symbol_dictionary import SymbolDictionaryError, available_dictionaries, import_dictionary
 from .symbol_download import SymbolDownloadError, download_languages, nvda_languages
 
@@ -128,6 +128,11 @@ if wx is not None:
                 ),
             )
             functions_help.Wrap(460)
+            braille_label = wx.StaticText(self, label="&Braille code (the braille strip under the equation)")
+            self.braille_code = wx.Choice(self, choices=[label for _code, label in BRAILLE_CODES])
+            self.braille_code.SetName("Braille code")
+            codes = [code for code, _label in BRAILLE_CODES]
+            self.braille_code.SetSelection(codes.index(settings.braille_code) if settings.braille_code in codes else 0)
             symbols_label = wx.StaticText(self, label="Symbol dictionary (names spoken for symbols)")
             self.symbol_dictionary = wx.Choice(self)
             self.symbol_dictionary.SetName("Symbol dictionary")
@@ -167,6 +172,8 @@ if wx is not None:
             sizer.Add(functions_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
             sizer.Add(self.recognized_functions, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
             sizer.Add(functions_help, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
+            sizer.Add(braille_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
+            sizer.Add(self.braille_code, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
             sizer.Add(symbols_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
             sizer.Add(symbols_row, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
             sizer.Add(symbols_help, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
@@ -269,6 +276,9 @@ if wx is not None:
             selection = self.symbol_dictionary.GetSelection()
             if selection != wx.NOT_FOUND:
                 self._settings.symbol_dictionary = self._dictionaries[selection].identifier
+            braille = self.braille_code.GetSelection()
+            if braille != wx.NOT_FOUND:
+                self._settings.braille_code = BRAILLE_CODES[braille][0]
             self._settings.linear_navigation = self.linear_navigation.GetValue()
             self._settings.structure_stops = self.structure_stops.GetValue()
             self._settings.invisible_operator_stops = self.invisible_operator_stops.GetValue()

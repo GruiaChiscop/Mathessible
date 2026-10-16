@@ -116,6 +116,7 @@ if wx is not None:
             if self.mathcat is not None:
                 self.mathcat.symbols = self.symbols
                 self.mathcat.decimal_separator = self.settings.decimal_separator
+                self.mathcat.braille_code = self.settings.braille_code
             self.mode = "linear"
             self.caret = len(source)
             self.selection_anchor: int | None = None
@@ -326,6 +327,7 @@ if wx is not None:
                 self.mathcat.invisible_operator_stops = self.settings.invisible_operator_stops
                 self.mathcat.symbols = self.symbols
                 self.mathcat.decimal_separator = self.settings.decimal_separator
+                self.mathcat.braille_code = self.settings.braille_code
                 if self.mathcat.mathml:
                     try:
                         self.mathcat.load(self.mathcat.mathml, keep_position=True)

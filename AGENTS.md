@@ -275,6 +275,13 @@ equation language; the gap is entirely in the editing UX layered on top.
    converter's table, and its `FALLBACK_CONTROL_WORDS` (like `parser.py`'s)
    only matters without the submodule.
 
+**Braille code** (setting `braille_code`, Settings > Braille code):
+MathCAT's own `BrailleCode` preference, set on every load
+(`MathCatNavigator.braille_code`), from `settings.BRAILLE_CODES` (the codes
+MathCAT ships in Rules/Braille: Nemeth, UEB, CMU, French, Russian,
+Swedish, Vietnam, and ASCIIMath/LaTeX as text); an unknown value falls back
+to Nemeth. There is no Romanian math braille code in MathCAT.
+
 **Where MateX should stay ahead of Word, not just catch up:** MathCAT
 structural navigation/speech, the braille strip
 (`_update_braille_display` in [editor.py](src/matex/editor.py)), and
