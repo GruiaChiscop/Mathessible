@@ -109,20 +109,47 @@ def _closers(source: str) -> str:
     return ('"' if quoted else "") + ")" * depth + ("|" if bars else "")
 
 
-def repairs(source: str) -> Iterator[BuildRepair]:
-    """Candidate repairs, least invasive first: none, missing arguments, then closing what is open."""
-    yield BuildRepair(source, source)
-    arguments = _missing_arguments(source)
-    if arguments:
+def _escape_insertions(source: str, caret: int | None) -> list[tuple[int, str]]:
+    """A backslash just typed before a separator or bracket (`1&x \\@&`): build it as a literal one.
+
+    UnicodeMath's `\\` escapes the next character, so the control word the
+    user is starting would turn the case's `@`, a cell's `&` or a `)` into
+    plain text until its first letter, and the structure fall apart
+    meanwhile. Only right before the caret: `\\(` typed on purpose stays an
+    escaped paren once the caret has moved past it.
+    """
+    if caret is None or not 0 < caret < len(source) or source[caret - 1] != "\\":
+        return []
+    run = 0
+    while run < caret and source[caret - 1 - run] == "\\":
+        run += 1
+    following = source[caret]
+    if run % 2 == 0 or (following.isascii() and following.isalnum()):
+        return []
+    return [(caret, "\\")]
+
+
+def repairs(source: str, caret: int | None = None) -> Iterator[BuildRepair]:
+    """Candidate repairs, least invasive first: none, missing arguments, then closing what is open.
+
+    With `caret`, a backslash just typed there is built as a literal one
+    in every candidate (`_escape_insertions`).
+    """
+    escape = _escape_insertions(source, caret)
+    yield _apply(source, escape) if escape else BuildRepair(source, source)
+    arguments = escape + _missing_arguments(source)
+    if len(arguments) > len(escape):
         yield _apply(source, arguments)
     closers = _closers(source)
     if closers:
         yield _apply(source, arguments + [(len(source), closers)])
 
 
-def repair_for_build(source: str, builds: Callable[[str], bool]) -> BuildRepair | None:
+def repair_for_build(
+    source: str, builds: Callable[[str], bool], caret: int | None = None
+) -> BuildRepair | None:
     """The first candidate `builds` accepts (no total failure), or None if none does."""
-    for candidate in repairs(source):
+    for candidate in repairs(source, caret):
         if builds(candidate.text):
             return candidate
     return None

@@ -9,7 +9,7 @@ from .completion import Completion, accept_completion, completion_at, symbol_ins
 from .character_speech import character_name, deleted_character, inserted_character
 from .insertion_point import describe_insertion_point, node_name
 from .node_edits import removal
-from .source_map import anchor_offset, leaf_before, leaf_nodes, map_leaves
+from .source_map import anchor_offset, inside_leaf, leaf_before, leaf_characters, leaf_nodes, map_leaves
 from .symbol_dictionary import load_dictionary
 from .editor_drawing import EditorDrawingMixin
 from .editor_renderer import EquationRendererMixin
@@ -101,6 +101,10 @@ if wx is not None:
             self.settings = settings or AppSettings()
             self.symbols = load_dictionary(self.settings.symbol_dictionary)
             self.output = output or create_output()
+            # Writing mode (default) or, after F10, exploration mode: nothing can
+            # change the equation, Space always reads in professional view (no
+            # typing streak), and navigation follows the settings (`_linear_now`).
+            self.writing_enabled = True
             self.mathcat: MathCatNavigator | None = create_mathcat_navigator(
                 recognized_functions=self.settings.recognized_functions,
                 auto_zoom_out=self._auto_zoom_out,
@@ -141,9 +145,6 @@ if wx is not None:
             # True right after typing in professional view: Space keeps typing
             # (autocorrect, argument boxes) instead of reading; navigation resets it.
             self._typing_streak = False
-            # F10 turns writing off: nothing can change the equation, and Space
-            # always reads in professional view (no typing streak).
-            self.writing_enabled = True
             # A whole structure Backspace/Delete was pressed on once: the next
             # press deletes it, any other key forgets it (never by accident).
             self._armed_removal: str | None = None
@@ -151,6 +152,15 @@ if wx is not None:
             # with the source they were made for; any other key drops them.
             self._completion: tuple[Completion, str] | None = None
             self._last_symbol_query = ""
+            # Writing mode's caret between the characters of a leaf ("12",
+            # "sin"): (leaf id, characters before it, the characters, MathML).
+            # MathCAT stays on the leaf's own stop meanwhile.
+            self._inside_leaf: tuple[str, int, str, str] | None = None
+            # The real source caret after a professional-view edit or build,
+            # (source, caret, MathML): typing goes on exactly there until a
+            # navigation command moves MathCAT. A typed space has no node, so
+            # MathCAT's position alone put the next character before it.
+            self._built_caret: tuple[str, int, str] | None = None
             self.braille_label = wx.StaticText(self, label="Braille")
             self.braille_label.SetForegroundColour(self._colour(self._palette().subtle_text))
             self.braille_display = wx.TextCtrl(self, style=wx.TE_READONLY)
@@ -182,7 +192,7 @@ if wx is not None:
             self._preparation_token = None
             self._preparing = False
             navigator = self.mathcat
-            if navigator is None or not self.settings.linear_navigation or navigator.linear_ready:
+            if navigator is None or not self._linear_now or navigator.linear_ready:
                 return
             token = object()
             self._preparation_token = token
@@ -252,6 +262,13 @@ if wx is not None:
             return self.document.source
 
         def set_source(self, source: str) -> None:
+            if not self.writing_enabled:
+                # Every equation opens in writing mode.
+                self.writing_enabled = True
+                if self.mathcat is not None:
+                    self.mathcat.auto_zoom_out = self._auto_zoom_out
+                    self.mathcat.boundary_stops = self._boundary_stops
+                    self.mathcat.structural_stops = self._structural_stops
             self.document = EquationDocument(source)
             self.caret = len(source)
             self.selection_anchor = None
@@ -263,23 +280,30 @@ if wx is not None:
             self._typing_streak = False
             self._armed_removal = None
             self._completion = None
+            self._inside_leaf = None
+            self._built_caret = None
             self.history.reset(source, self.caret)
             self._update_braille_display()
             self.Refresh()
 
         @property
+        def _linear_now(self) -> bool:
+            """Writing mode always navigates linearly; exploration (F10) as the setting says."""
+            return self.writing_enabled or self.settings.linear_navigation
+
+        @property
         def _auto_zoom_out(self) -> bool:
             # Linear navigation flows through every structure by design, so
             # it needs MathCAT to step out at a structure's end regardless.
-            return self.settings.auto_zoom_out or self.settings.linear_navigation
+            return self.settings.auto_zoom_out or self._linear_now
 
         @property
         def _boundary_stops(self) -> bool:
-            return self.settings.structure_stops and self.settings.linear_navigation
+            return self.settings.structure_stops and self._linear_now
 
         @property
         def _structural_stops(self) -> bool:
-            return self.settings.structure_stops and not self.settings.linear_navigation
+            return self.settings.structure_stops and not self._linear_now
 
         def apply_settings(self) -> None:
             self.symbols = load_dictionary(self.settings.symbol_dictionary)
@@ -664,15 +688,23 @@ if wx is not None:
             return suggestion.speech(self.symbols.name)
 
         def toggle_writing(self) -> None:
-            """F10: allow or forbid changing the equation (reading stays as it is)."""
+            """F10: writing mode <-> exploration mode.
+
+            Exploration forbids changing the equation and navigates as the
+            settings say (linear or structural); writing always navigates
+            linearly, by character, with Option/Ctrl for whole nodes.
+            """
             self.writing_enabled = not self.writing_enabled
             self._typing_streak = False
             self._armed_removal = None
             self._completion = None
-            self._announce("writing on" if self.writing_enabled else "writing off")
+            self._inside_leaf = None
+            self._built_caret = None
+            self.apply_settings()  # The navigation kind follows the mode.
+            self._announce("writing mode" if self.writing_enabled else "exploration mode")
 
         def _announce_writing_off(self) -> None:
-            self._announce("writing off, F10 turns it on")
+            self._announce("exploration mode, F10 to write")
 
         def _writing_off(self) -> bool:
             """For menu edits: True (and say so) when writing is off."""
@@ -929,6 +961,7 @@ if wx is not None:
                     and not _cell_navigation_down(event)
                     and self.mathcat is not None
                     and not self.mathcat.linear_position_known
+                    and self._current_inside() is None
                 ):
                     self._preparing_announced = True
                     self._announce("still preparing the equation, please wait")
@@ -971,10 +1004,14 @@ if wx is not None:
                         # Right after typing, Space types too (as in Word); it reads once you navigate.
                         self._edit_built_equation(event)
                         return
+                    if not cell_navigation and self._mode_arrow(event, key):
+                        return
                     command = commands.get(key)
                     if command is not None:
                         self._typing_streak = False
-                    if command in ("ZoomIn", "ZoomOut") and self.settings.linear_navigation:
+                        self._inside_leaf = None
+                        self._built_caret = None
+                    if command in ("ZoomIn", "ZoomOut") and self._linear_now:
                         # Flat reading has no levels: a stray Up/Down only
                         # threw MathCAT off the linear stops. Ignored, silently.
                         return
@@ -987,7 +1024,7 @@ if wx is not None:
                                 speech = self.mathcat.move_to_column_boundary(True)
                             elif cell_navigation:
                                 speech = self.mathcat.cell_command(command)
-                            elif self.settings.linear_navigation:
+                            elif self._linear_now:
                                 speech = self.mathcat.linear_command(command)
                             elif self.mathcat.structural_stops:
                                 speech = self.mathcat.structural_command(command)
@@ -1161,8 +1198,124 @@ if wx is not None:
             assert self.mathcat is not None
             if self.mathcat.structure is None:
                 return "equation"
+            inside = self._current_inside()
+            if inside is not None:
+                _leaf, count, characters, _mathml = inside
+                return f"inside {characters}, after {characters[:count]}, before {characters[count:]}"
             node_id, side, outside = self.mathcat.edit_anchor()
             return describe_insertion_point(self.mathcat.structure, node_id, side, outside, self.symbols)
+
+        def _remembered_caret(self) -> int | None:
+            """The caret left by the last professional-view edit, if nothing has moved since."""
+            remembered = self._built_caret
+            if remembered is None or self.mathcat is None:
+                return None
+            source, caret, mathml = remembered
+            if source != self.document.source or mathml != self.mathcat.mathml:
+                self._built_caret = None
+                return None
+            return caret
+
+        def _current_inside(self) -> tuple[str, int, str, str] | None:
+            """The caret between a leaf's characters, if MathCAT is still on that leaf of this equation."""
+            inside = self._inside_leaf
+            if inside is None or self.mathcat is None:
+                return None
+            if self.mathcat.mathml != inside[3] or self.mathcat.current_id != inside[0]:
+                self._inside_leaf = None
+                return None
+            return inside
+
+        def _leaf_characters(self, leaf: str | None) -> str | None:
+            if leaf is None or self.mathcat is None or self.mathcat.structure is None:
+                return None
+            repair = self._built_repair()
+            spans = map_leaves(repair.text, self.mathcat.structure)
+            return leaf_characters(repair.text, spans, self.mathcat.structure, leaf)
+
+        def _mode_arrow(self, event: wx.KeyEvent, key: int) -> bool:
+            """The arrows that depend on the mode, in professional view; False for the usual handling.
+
+            Up/Down (writing, or linear exploration) go to the previous/next
+            row and read it, as in a text field. In writing mode Left/Right
+            move by character, inside "12" too, and Option+Left/Right
+            (Ctrl elsewhere) by node.
+            """
+            assert self.mathcat is not None
+            if event.CmdDown() or event.ShiftDown():
+                return False
+            if key in (wx.WXK_UP, wx.WXK_DOWN, wx.WXK_LEFT, wx.WXK_RIGHT):
+                self._built_caret = None  # Navigating: MathCAT says where typing goes again.
+            if key in (wx.WXK_UP, wx.WXK_DOWN):
+                if not self._linear_now:
+                    return False  # Structural exploration: Up/Down change level.
+                self._typing_streak = False
+                self._inside_leaf = None
+                speech = self.mathcat.read_line(-1 if key == wx.WXK_UP else 1)
+            elif key in (wx.WXK_LEFT, wx.WXK_RIGHT) and self.writing_enabled:
+                self._typing_streak = False
+                step = 1 if key == wx.WXK_RIGHT else -1
+                speech = self._node_step(step) if _word_navigation_down(event) else self._character_step(step)
+            else:
+                return False
+            self._highlight_matrix_cell = False
+            inside = self._inside_leaf
+            self._sync_mathcat_cursor()
+            self._inside_leaf = inside
+            if speech:
+                self._announce(speech)
+            self.Refresh()
+            return True
+
+        def _node_step(self, step: int) -> str:
+            """Option/Ctrl+Left/Right in writing mode: a whole node, from inside one too."""
+            assert self.mathcat is not None
+            inside = self._current_inside()
+            self._inside_leaf = None
+            if inside is not None and step > 0:
+                return self.mathcat.command("ReadCurrent")  # To the end of the leaf: its own stop.
+            return self.mathcat.linear_command("MoveNext" if step > 0 else "MovePrevious")
+
+        def _step_back(self) -> str:
+            """The stop before; landing after "12" reads its last character, as the caret is right after it."""
+            assert self.mathcat is not None
+            speech = self.mathcat.linear_command("MovePrevious")
+            characters = self._leaf_characters(self.mathcat.plain_leaf_stop())
+            return character_name(characters[-1], self.symbols) if characters else speech
+
+        def _character_step(self, step: int) -> str:
+            """Left/Right in writing mode: one character, reading the one before the caret.
+
+            A one-character leaf is a stop as before; through a longer one
+            ("4345", "sin") the caret goes character by character, MathCAT
+            staying on the leaf's own stop (after it).
+            """
+            assert self.mathcat is not None
+            inside = self._current_inside()
+            self._inside_leaf = None
+            if inside is not None:
+                leaf, count, characters, mathml = inside
+                count += step
+                if 0 < count < len(characters):
+                    self._inside_leaf = (leaf, count, characters, mathml)
+                    return character_name(characters[count - 1], self.symbols)
+                if count == len(characters):
+                    return character_name(characters[-1], self.symbols)
+                return self._step_back()  # Before the leaf: the stop before it.
+            if step < 0:
+                leaf = self.mathcat.plain_leaf_stop()
+                characters = self._leaf_characters(leaf)
+                if leaf is not None and characters:
+                    self._inside_leaf = (leaf, len(characters) - 1, characters, self.mathcat.mathml)
+                    return character_name(characters[-2], self.symbols)
+                return self._step_back()
+            speech = self.mathcat.linear_command("MoveNext")
+            leaf = self.mathcat.plain_leaf_stop()
+            characters = self._leaf_characters(leaf)
+            if leaf is not None and characters:
+                self._inside_leaf = (leaf, 1, characters, self.mathcat.mathml)
+                return character_name(characters[0], self.symbols)
+            return speech
 
         def _after_typed(self, value: str, builds: bool) -> None:
             """After a character typed in linear handling (whichever way it was inserted).
@@ -1223,10 +1376,19 @@ if wx is not None:
             into the numerator, while `(1)/(2) x` and `x (1)/(2)` stay apart.
             """
             assert self.mathcat is not None and self.mathcat.structure is not None
-            node_id, side, outside = self.mathcat.edit_anchor()
             source = self.document.source
             repair = self._built_repair()
+            inside = self._current_inside()
+            if inside is not None:
+                # Between a leaf's characters ("4|2"): never at a structure's edge.
+                span = map_leaves(repair.text, self.mathcat.structure).get(inside[0])
+                if span is not None:
+                    return repair.to_real(span.start + inside[1])
+            node_id, side, outside = self.mathcat.edit_anchor()
             offset = repair.to_real(anchor_offset(repair.text, self.mathcat.structure, node_id, side, outside))
+            remembered = self._remembered_caret()
+            if remembered is not None and remembered != offset:
+                return remembered  # Right after "x ": past the space MathCAT has no node for.
             if not (glue and outside and self._joins_structure(node_id, side)):
                 return offset
             if side == "after" and 0 < offset and source[offset - 1] != " ":
@@ -1334,11 +1496,19 @@ if wx is not None:
             self._highlight_matrix_cell = False
             repair = self._built_repair()
             spans = map_leaves(repair.text, self.mathcat.structure)
-            leaf = leaf_before(spans, repair.to_repaired(self.caret), self.mathcat.structure)
+            caret = repair.to_repaired(self.caret)
+            leaf = leaf_before(spans, caret, self.mathcat.structure)
+            self._inside_leaf = None
+            self._built_caret = (self.document.source, self.caret, self.mathcat.mathml)
             if leaf is None:
                 self.mathcat.command("ZoomIn")
-            else:
-                self.mathcat.move_to(leaf)
+                return
+            self.mathcat.move_to(leaf)
+            found = inside_leaf(spans, caret)
+            characters = leaf_characters(repair.text, spans, self.mathcat.structure, leaf)
+            if found is not None and found[0] == leaf and characters:
+                # Typed into the middle of "12": the caret stays between its characters.
+                self._inside_leaf = (leaf, found[1], characters, self.mathcat.mathml)
 
         def _step_caret(self, delta: int, extend: bool) -> None:
             if not extend:

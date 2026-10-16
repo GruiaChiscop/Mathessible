@@ -232,3 +232,27 @@ def leaf_before(spans: dict[str, SourceSpan], caret: int, document: MathMLDocume
         if span.start == span.end == caret and node is not None and node.text not in _INVISIBLE:
             return identifier
     return leaf_at(spans, caret) if caret > 0 else None
+
+
+def leaf_characters(source: str, spans: dict[str, SourceSpan], document: MathMLDocument, leaf_id: str) -> str | None:
+    """A leaf's characters, when the caret can step through them one by one (`12`, `sin`).
+
+    Only for a leaf written as itself in the source: not one character, not
+    a control word (`\\alpha` is one "α"), not a respelled symbol (`<=`).
+    """
+    span = spans.get(leaf_id)
+    node = document.node(leaf_id)
+    if span is None or node is None or node.children:
+        return None
+    text = source[span.start : span.end]
+    if len(text) < 2 or "\\" in text or len(text) != len(node.text):
+        return None
+    return text
+
+
+def inside_leaf(spans: dict[str, SourceSpan], caret: int) -> tuple[str, int] | None:
+    """(leaf id, characters before the caret) when `caret` is strictly inside a leaf's span."""
+    for identifier, span in spans.items():
+        if span.start < caret < span.end:
+            return identifier, caret - span.start
+    return None

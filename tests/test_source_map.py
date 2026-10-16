@@ -1,7 +1,7 @@
 import unittest
 
 from matex.mathcat import MathCatNavigator
-from matex.source_map import leaf_at, leaf_nodes, map_leaves
+from matex.source_map import inside_leaf, leaf_at, leaf_characters, leaf_nodes, map_leaves
 
 # Converter output for each source (UnicodeMathML with MateX's options).
 CONVERTED = {
@@ -21,6 +21,10 @@ CONVERTED = {
     ),
     "()/()": '<math><mfrac><mspace width="0" /><mspace width="0" /></mfrac></math>',
     "a<=b": "<math><mi>𝑎</mi><mo>≤</mo><mi>𝑏</mi></math>",
+    "x+4345": "<math><mi>𝑥</mi><mo>+</mo><mn>4345</mn></math>",
+    "\\alpha+sin x": (
+        "<math><mi>𝛼</mi><mo>+</mo><mi>sin</mi><mo>&#x2061;</mo><mi>𝑥</mi></math>"
+    ),
     "√(3&x)": "<math><mroot><mi>𝑥</mi><mn>3</mn></mroot></math>",
     "∛x": "<math><mroot><mi>𝑥</mi><mn>3</mn></mroot></math>",
     "x\\hat": '<math><mover accent="true"><mi>𝑥</mi><mo>&#x302;</mo></mover></math>',
@@ -80,6 +84,36 @@ class SourceMapTests(unittest.TestCase):
         self.assertEqual(texts[leaf_at(spans, 4)], "1")
         self.assertEqual(texts[leaf_at(spans, 0)], "2")
         self.assertIsNone(leaf_at({}, 0))
+
+
+class LeafCharacterTests(unittest.TestCase):
+    def characters(self, source: str) -> dict[str, str | None]:
+        navigator = MathCatNavigator(language="en")
+        navigator.load(CONVERTED[source])
+        spans = map_leaves(source, navigator.structure)
+        return {
+            leaf.text: leaf_characters(source, spans, navigator.structure, leaf.identifier)
+            for leaf in leaf_nodes(navigator.structure)
+        }
+
+    def test_numbers_and_names_can_be_stepped_through(self) -> None:
+        self.assertEqual(self.characters("x+4345")["4345"], "4345")
+        self.assertEqual(self.characters("\\alpha+sin x")["sin"], "sin")
+
+    def test_single_characters_control_words_and_respellings_cannot(self) -> None:
+        self.assertIsNone(self.characters("x+4345")["𝑥"])
+        self.assertIsNone(self.characters("\\alpha+sin x")["𝛼"])
+        self.assertIsNone(self.characters("a<=b")["≤"])
+
+    def test_inside_leaf_only_strictly_inside(self) -> None:
+        navigator = MathCatNavigator(language="en")
+        navigator.load(CONVERTED["x+4345"])
+        spans = map_leaves("x+4345", navigator.structure)
+        found = inside_leaf(spans, 4)
+        self.assertIsNotNone(found)
+        self.assertEqual(found[1], 2)
+        self.assertIsNone(inside_leaf(spans, 2))
+        self.assertIsNone(inside_leaf(spans, 6))
 
 
 if __name__ == "__main__":

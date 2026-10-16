@@ -67,7 +67,11 @@ class EditorDrawingMixin:
             if not self.document.source:
                 return "UnicodeMath source — empty equation"
             return f"UnicodeMath source — character {self.caret + 1} of {len(self.document.source) + 1}"
-        navigation = "linear navigation" if self.settings.linear_navigation else "structural navigation"
+        if self.writing_enabled:
+            navigation = "writing mode (F10 explores)"
+        else:
+            kind = "linear" if self.settings.linear_navigation else "structural"
+            navigation = f"exploration mode, {kind} navigation (F10 writes)"
         return (
             f"Professional mode — {navigation}; Space reads; "
             "Shift+Space context; Alt+Space zone; F2 source"

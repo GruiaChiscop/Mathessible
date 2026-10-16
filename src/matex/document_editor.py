@@ -115,7 +115,7 @@ if wx is not None:
             menu_bar.Append(insert_menu, "&Insert")
             view_menu = wx.Menu()
             professional_item = view_menu.AppendCheckItem(wx.ID_ANY, "&Professional View\tF2")
-            writing_item = view_menu.AppendCheckItem(wx.ID_ANY, "Allow &Writing\tF10")
+            writing_item = view_menu.AppendCheckItem(wx.ID_ANY, "&Writing Mode\tF10")
             self.Bind(wx.EVT_MENU, lambda _event: self.equation.toggle_writing(), writing_item)
             self.Bind(wx.EVT_UPDATE_UI, lambda event: event.Check(self.equation.writing_enabled), writing_item)
             self.Bind(wx.EVT_MENU, lambda _event: self.equation.toggle_mode(), professional_item)

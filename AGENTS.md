@@ -380,7 +380,18 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      (`_built_offset`, `_place_after_caret`) maps through it
      (`to_real`/`to_repaired`), and `source_map._empty_slot` takes a U+200B
      as an empty argument's place. Still linear: an extra `)` (nothing to
-     add makes it build). Needed MathCAT patch 0002: canonicalization
+     add makes it build). A backslash just typed right before the caret
+     and a non-letter (`1&x \@&`) is built as `\\` (`_escape_insertions`,
+     `repairs(source, caret)`): UnicodeMath's `\` escapes the next
+     character, so starting `\in` in a case's condition turned the `@`
+     into text and the cases fell apart until the first letter.
+     **Trap — typed spaces have no node:** after `x` + Space, MathCAT is
+     still on `x`, so the anchor put the next character *before* the
+     space (`x\ ` instead of `x \`; the user's "everything broke" in a
+     cases condition). `_place_after_caret` therefore records the real
+     caret (`_built_caret`: source, caret, MathML) and `_built_offset`
+     uses it while it differs from the anchor, until any navigation
+     (arrows, structural commands, a click) clears it. Needed MathCAT patch 0002: canonicalization
      removed the empty `arg="naryand"` whitespace, so the empty integrand
      was no node at all; the stop builder now speaks such an empty leaf as
      "empty" instead of skipping it like an invisible operator, and "index"
@@ -398,13 +409,37 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      *outside* it (`edit_anchor`'s `outside` for a composite node), and
      `move_to` clears a leftover structural edge, which otherwise kept
      anchoring edits at "start of math".
-     **F10 (View > Allow Writing) turns writing off**, the user's way to
-     re-read with Space without inserting anything: `writing_enabled`
-     false blocks every edit at key-down (`_is_edit_key`: typing,
-     Backspace/Delete, linear Space, Cmd+X/V/Z/Y, template shortcuts), again
-     on EVT_CHAR, and in the menu paths (`_writing_off`: Insert, Edit,
-     structure submenus); Space then always reads in professional view.
-     Shift+F10 stays the context menu.
+     **F10 (View > Writing Mode) switches writing and exploration
+     mode** (`writing_enabled`; every equation opens in writing mode,
+     `set_source`). Exploration is the user's way to re-read with Space
+     without inserting anything: every edit is blocked at key-down
+     (`_is_edit_key`: typing, Backspace/Delete, linear Space,
+     Cmd+X/V/Z/Y, template shortcuts), again on EVT_CHAR, and in the menu
+     paths (`_writing_off`: Insert, Edit, structure submenus); Space then
+     always reads. Shift+F10 stays the context menu. **The navigation kind
+     follows the mode** (`_linear_now`): exploration uses the
+     `linear_navigation` setting, writing is always linear, so
+     `toggle_writing` reruns `apply_settings` (the navigator's
+     boundary/structural stops change). In professional view, writing mode
+     (`_mode_arrow`): Left/Right go by *character*, Option+Left/Right
+     (Ctrl elsewhere, `_word_navigation_down`) by node (the linear stops).
+     A one-character leaf is just its stop; through a longer leaf written
+     as itself in the source (`12`, `sin`; `source_map.leaf_characters`:
+     not a control word, not `<=`) the caret is `_inside_leaf` (leaf id,
+     characters before it, the characters, MathML) while MathCAT stays on
+     the leaf's own stop; `_built_offset` then gives `span.start + k`, so
+     a digit typed there goes into the number, and `_place_after_caret`
+     puts the caret back inside after the rebuild (`inside_leaf`). Speech
+     is always the character before the caret (Right passes it, Left lands
+     after it: "4", "3" inside `4345`; Left landing after `12` says "2",
+     `_step_back`). The insertion point says "inside 4345, after 43,
+     before 45". Up/Down (writing, and linear exploration; structural
+     exploration keeps zoom) work as in a text field
+     (`MathCatNavigator.read_line`): the previous/next row of the
+     innermost table (matrix row, equation, case) read whole by MathCAT's
+     ReadCurrent on its `mtr` ("equation 2; 2 y is equal to 45"), caret at
+     the end of the same column; at the first/last row, or outside any
+     table, the current line/whole equation again.
      **Step 5:** the `open_built` setting (off by default) opens an
      equation straight in professional view (`read_expression` enters it
      instead of only reading). An empty equation still opens linear:
@@ -542,9 +577,9 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
     the next stop itself, and Left works over stops reached that way.
     Only Left/Right after a jump to an undiscovered spot (End, a click)
     says "still preparing", then "equation ready" when adopted. Up/Down
-    (ZoomIn/ZoomOut) are ignored in this mode: flat reading has no levels,
-    and a stray one threw speech off the stops (matrix-cell Up/Down with
-    Cmd+Option still works). Node ids match between the two instances
+    never ZoomIn/ZoomOut in this mode (flat reading has no levels, and a
+    stray one threw speech off the stops): they read rows, see F10 above
+    (matrix-cell Up/Down with Cmd+Option still works). Node ids match between the two instances
     because both load the same canonical MathML. (Building the list on
     the UI thread froze it for ~4 s; spreading it over idle timers still
     starved key presses.) Plain MathCAT MovePrevious did not: it

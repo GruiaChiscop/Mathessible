@@ -26,6 +26,18 @@ class RepairCandidatesTests(unittest.TestCase):
         self.assertEqual(text_of('"abc', 1), '"abc"')
         self.assertEqual(text_of("|x", 1), "|x|")
 
+    def test_a_backslash_just_typed_before_a_separator_is_built_literal(self) -> None:
+        # "1&x \\@&": the "\\" would escape the case's "@" until a letter follows.
+        source = "{■(1&x \\@&)┤"
+        caret = source.index("@")
+        candidate = next(repairs(source, caret))
+        self.assertEqual(candidate.text, "{■(1&x \\\\@&)┤")
+        self.assertEqual(candidate.to_real(caret + 1), caret)
+        # Not once a letter follows, not for an escaped backslash, not away from the caret.
+        self.assertEqual(next(repairs("x \\i@", 4)).text, "x \\i@")
+        self.assertEqual(next(repairs("x\\\\@", 3)).text, "x\\\\@")
+        self.assertEqual(next(repairs("\\(a)", 4)).text, "\\(a)")
+
     def test_the_first_candidate_that_builds_is_used(self) -> None:
         def builds(text: str) -> bool:
             return PLACEHOLDER in text or text == "a"

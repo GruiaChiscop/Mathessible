@@ -30,9 +30,9 @@ if wx is not None:
             heading = wx.StaticText(self, label="Equation editor")
             self.linear_navigation = wx.CheckBox(
                 self,
-                label="Use linear navigation in professional equation mode",
+                label="Use linear navigation in exploration mode (F10; writing mode is always linear)",
             )
-            self.linear_navigation.SetName("Linear navigation")
+            self.linear_navigation.SetName("Linear navigation in exploration mode")
             self.linear_navigation.SetValue(settings.linear_navigation)
             self.structure_stops = wx.CheckBox(
                 self,

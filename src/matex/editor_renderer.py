@@ -75,6 +75,8 @@ class EquationRendererMixin:
             return
         try:
             self.mathcat.move_to(identifier)
+            self._inside_leaf = None
+            self._built_caret = None
             self._highlight_matrix_cell = False
             self._sync_mathcat_cursor()
             self._announce(self.mathcat.command("ReadCurrent"))
@@ -212,6 +214,6 @@ class EquationRendererMixin:
             converted[text] = self.convert_unicode_math(text)
             return 'mathcolor="#F00"' not in converted[text]
 
-        repair = repair_for_build(source, builds)
+        repair = repair_for_build(source, builds, self.caret)
         self._repair = repair or BuildRepair(source, source)
         return ConversionResult(mathml=converted[self._repair.text])

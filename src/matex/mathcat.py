@@ -10,6 +10,7 @@ from .ast import Path, path_from_mathml_id
 from .math_templates import ARROWS
 from .mathml_model import MathMLDocument, MathMLNode, TablePosition
 from .settings import DEFAULT_RECOGNIZED_FUNCTIONS
+from .source_map import leaf_nodes
 
 
 # MathCAT starts some phrases with a separator meant to follow other speech,
@@ -994,6 +995,54 @@ class MathCatNavigator:
         self._linear_index = None
         self._native.set_navigation(target, 0)
         return True
+
+    def plain_leaf_stop(self) -> str | None:
+        """The leaf a linear stop stands on when it is a plain item (typing goes right after it).
+
+        None on a "start X"/"end X"/"start of math" stop, or off the stops.
+        """
+        if self.structure is None or self._boundary_stop is not None or self._structural_edge is not None:
+            return None
+        index = self._linear_position()
+        if index is None:
+            return None
+        stop = self._linear_stops[index]
+        node = self.structure.node(stop.node_id)
+        if stop.boundary is not None or node is None or node.children:
+            return None
+        return stop.node_id
+
+    def read_line(self, step: int) -> str:
+        """Up/Down as in a text field: the previous (-1) or next (1) row of the table the cursor is in, read whole.
+
+        A row is a matrix row, an equation of an equation array, a case.
+        The cursor goes to the end of the same column in it. At the first or
+        last row, and outside any table (one line), the current line is read
+        again without moving.
+        """
+        if self.structure is None:
+            return ""
+        position = self.current_table_position
+        table = self.structure.node(position.table_id) if position is not None and position.table_id else None
+        if position is None or table is None:
+            return _clean_speech(self._native.speak_expression())
+        rows = [child for child in table.children if child.tag == "mtr"]
+        target = position.row + step if 1 <= position.row + step <= len(rows) else position.row
+        row = rows[target - 1]
+        cells = [child for child in row.children if child.tag == "mtd"]
+        if row.identifier is None or not cells:
+            return _clean_speech(self._native.speak_expression())
+        self._native.set_navigation(row.identifier, 0)
+        speech = self._navigate("ReadCurrent")
+        cell = cells[min(position.column, len(cells)) - 1]
+        inside = [
+            leaf
+            for leaf in leaf_nodes(self.structure)
+            if any(ancestor is cell for ancestor in self.structure.ancestors(leaf.identifier or ""))
+        ]
+        target_id = inside[-1].identifier if inside else cell.identifier
+        self.move_to(target_id or row.identifier)
+        return speech
 
     @property
     def display_id(self) -> str:
