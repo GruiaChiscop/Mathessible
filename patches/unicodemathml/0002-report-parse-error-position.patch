@@ -1,0 +1,83 @@
+UnicodeMathML: report where parsing stopped (result.parseError)
+
+When nothing parses, the converter only returns the whole source in red
+(`mathcolor="#F00"`) and logs the PEG error's name; its location is lost.
+MateX lists an equation's errors with their positions (F8, see
+src/matex/equation_errors.py) and needs it for the failures its own scan
+cannot explain. `unicodemathml()` now keeps it as `parseError: {offset,
+found}`: `found` is the parser's (null at the end of the input), and
+`offset` is in the *input's* UTF-16 offsets, not the parser's, which
+sees the text after resolveCW and mapToPrivate: the shortest prefix of
+the input that prepares to a text reaching past the parser's offset ends
+on the character it stopped at (prefixes never cut a control word, which
+is reported whole; leading spaces trimmed by unicodemathml() are added
+back).
+
+Only dist/unicodemathml.js, the file MateX loads: src/unicodemathml.js is
+a newer upstream revision with different code around it. Applied by
+scripts/bootstrap.sh after 0001.
+
+--- a/dist/unicodemathml.js
++++ b/dist/unicodemathml.js
+@@ -5406,10 +5406,45 @@
+ //////////////
+ // PLUMBING //
+ //////////////
++
++// MateX: where parsing stopped when the input could not be parsed at all,
++// as {offset, found} in the input's own UTF-16 offsets (else null).
++var ummlParseError = null
+ 
++function matexParseErrorPosition(source, error, leading) {
++    // MateX: the parser's offset is in the text after resolveCW and
++    // mapToPrivate. The shortest prefix of the source that reaches past it
++    // ends at the character it stopped on; prefixes never cut a control
++    // word (a half "\al" is not resolved), and a word is reported whole.
++    if (!error || !error.location)
++        return null
++    let target = error.location.start.offset
++    let prepare = s => mapToPrivate(ummlConfig && ummlConfig.resolveControlWords ? resolveCW(s) : s)
++    let starts = new Array(source.length + 1).fill(-1)
++    for (let match of source.matchAll(/\\[A-Za-z0-9]+ ?/g)) {
++        for (let p = match.index + 1; p < match.index + match[0].length; p++)
++            starts[p] = -2                  // Inside a word: no cut here
++        starts[match.index + match[0].length] = match.index
++    }
++    for (let p = 1; p <= source.length; p++) {
++        let code = source.charCodeAt(p - 1)
++        if (starts[p] == -2 || (code >= 0xD800 && code <= 0xDBFF))
++            continue                        // Inside a word or a surrogate pair
++        if (prepare(source.slice(0, p)).length > target) {
++            let first = starts[p] >= 0 ? starts[p] : p - 1
++            if (code >= 0xDC00 && code <= 0xDFFF && first == p - 1)
++                first--
++            return {offset: leading + first, found: error.found}
++        }
++    }
++    return {offset: leading + source.length, found: error.found}
++}
++
+ function unicodemathml(unicodemath, displaystyle) {
+     debugGroup(unicodemath);
+     selanchor = selfocus = null
++    ummlParseError = null
++    let matexLeading = unicodemath.length - unicodemath.trimStart().length
+     let k = unicodemath.length
+     if (unicodemath[0] == ' ' || unicodemath[k - 1] == ' ') {
+         unicodemath = unicodemath.trim()
+@@ -5456,6 +5491,7 @@
+     try {
+         uast = parse(unicodemath);
+     } catch (error) {
++        ummlParseError = matexParseErrorPosition(unicodemath, error, matexLeading)
+         // Display unparsable string in red
+         uast = {unicodemath: {content: [{expr: [{colored: {color: '#F00', of: {text: unicodemath}}}]}], eqnumber: null}}
+         autoBuildUp = false                 // If called for autobuildup, return failure
+@@ -5499,6 +5535,7 @@
+         debugGroup();
+         return {
+             mathml: mathml,
++            parseError: ummlParseError,
+             details: {
+                 measurements: {
+                     parse:      t1e - t1s,

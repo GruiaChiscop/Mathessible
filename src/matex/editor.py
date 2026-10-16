@@ -5,6 +5,7 @@ from collections.abc import Callable
 
 from .clipboard import get_clipboard_text, set_clipboard_text
 from .build_repair import BuildRepair
+from .equation_errors import EquationError, find_errors
 from .completion import Completion, accept_completion, completion_at, symbol_insertion
 from .character_speech import character_name, deleted_character, inserted_character
 from .insertion_point import describe_insertion_point, node_name
@@ -29,7 +30,7 @@ from .space_conversion import (
     convert_shortcut_on_character,
 )
 from .theme import Palette, palette
-from .unicodemath import ConversionResult, UnicodeMathError, control_words, mathml_has_parse_error
+from .unicodemath import ConversionResult, UnicodeMathError, code_point_index, control_words, mathml_has_parse_error
 from .word_navigation import next_word_boundary, previous_word_boundary
 
 try:
@@ -168,6 +169,8 @@ if wx is not None:
             # `selection_anchor`..`caret` in real-source offsets, as in linear
             # view; these are its leaves, highlighted in the renderer.
             self._selected_ids: tuple[str, ...] = ()
+            # The last conversion (source, result), for the parser's error position.
+            self._last_conversion: tuple[str, ConversionResult] | None = None
             self.braille_label = wx.StaticText(self, label="Braille")
             self.braille_label.SetForegroundColour(self._colour(self._palette().subtle_text))
             self.braille_display = wx.TextCtrl(self, style=wx.TE_READONLY)
@@ -467,6 +470,10 @@ if wx is not None:
                 except (UnicodeMathError, RuntimeError, ValueError) as error:
                     self._announce(f"Professional mode could not be built. {error}")
                     return
+                if 'mathcolor="#F00"' in conversion.mathml:
+                    # Nothing parses: building would only show the source in red.
+                    self._announce(f"cannot be built, {self._errors_summary(total_failure=True)}")
+                    return
                 self._enter_professional_mode(conversion, error_prefix="Professional mode could not be built")
             else:
                 self.mode = "linear"
@@ -514,6 +521,9 @@ if wx is not None:
             if key not in (wx.WXK_BACK, wx.WXK_DELETE):
                 self._armed_removal = None
             if self._completion_key(event, key):
+                return
+            if key == wx.WXK_F8 and not command_modifier:
+                self.show_errors()
                 return
             if command_modifier and key in (ord("C"), ord("c")):
                 self._copy_equation()
@@ -700,6 +710,77 @@ if wx is not None:
             edit = symbol_insertion(self.document.source, self.caret, suggestion, self.settings.template_control_words)
             self._replace_linear(edit.source, edit.caret)
             return suggestion.speech(self.symbols.name)
+
+        def current_errors(self, total_failure: bool | None = None) -> list[EquationError]:
+            """The source's errors (equation_errors); `total_failure` None asks the converter."""
+            source = self.document.source
+            if total_failure is None:
+                try:
+                    total_failure = 'mathcolor="#F00"' in self.convert_unicode_math(source) if source.strip() else False
+                except (UnicodeMathError, RuntimeError):
+                    total_failure = False
+            caret = self.caret if self.mode == "linear" else None
+            table = _converter_control_words() or FALLBACK_CONTROL_WORDS
+            stopped: tuple[int, str | None] | None = None
+            if total_failure and (self._last_conversion is None or self._last_conversion[0] != source):
+                try:
+                    self.convert_unicode_math(source)
+                except (UnicodeMathError, RuntimeError):
+                    pass
+            if total_failure and self._last_conversion is not None and self._last_conversion[0] == source:
+                conversion = self._last_conversion[1]
+                if conversion.parse_offset is not None:
+                    stopped = (code_point_index(source, conversion.parse_offset), conversion.parse_found)
+            return find_errors(source, total_failure=total_failure, control_words=table, caret=caret, stopped=stopped)
+
+        def _errors_summary(self, total_failure: bool) -> str:
+            """"1 error: unclosed parenthesis, F8 lists errors" for a build that failed."""
+            errors = self.current_errors(total_failure)
+            if not errors:
+                return "no errors found"
+            count = len(errors)
+            return f"{count} error{'' if count == 1 else 's'}: {errors[0].message}, F8 lists errors"
+
+        def show_errors(self) -> None:
+            """F8 (Equation > Errors): the error list; Enter goes to the error and selects it."""
+            from .error_dialog import ErrorListDialog
+
+            errors = self.current_errors()
+            if not errors:
+                self._announce("no errors")
+                return
+            source = self.document.source
+            dialog = ErrorListDialog(self, [error.describe(source) for error in errors])
+            try:
+                chosen = dialog.selected if dialog.ShowModal() == wx.ID_OK else -1
+            finally:
+                dialog.Destroy()
+            self.SetFocus()
+            if 0 <= chosen < len(errors):
+                self._go_to_error(errors[chosen])
+
+        def _go_to_error(self, error: EquationError) -> None:
+            """Select the error's span: in the built equation if it has nodes there, else in the source."""
+            start, end = error.start, max(error.end, error.start + 1)
+            end = min(end, len(self.document.source))
+            if self.mode == "professional" and self.mathcat is not None and self._leaves_in(start, end):
+                self._clear_selection()
+                self.caret = end
+                self._place_after_caret()
+                self._sync_mathcat_cursor()
+                self.selection_anchor = start
+                self._selected_ids = self._leaves_in(start, end)
+                self._announce(f"{error.message}, selected {self._span_speech(start, end)}")
+                self.Refresh()
+                return
+            spoken = " ".join(character_name(c, self.symbols) for c in self.document.source[start:end])
+            if self.mode != "linear":
+                self.mode = "linear"
+                self._update_braille_display()
+                spoken = f"linear mode, {spoken}"
+            self.selection_anchor, self.caret = start, end
+            self._announce(f"{error.message}, selected {spoken}")
+            self.Refresh()
 
         def toggle_writing(self) -> None:
             """F10: writing mode <-> exploration mode.
@@ -1621,7 +1702,8 @@ if wx is not None:
                 # Not even a repair builds (an extra ")"): keep typing in linear view.
                 self.mode = "linear"
                 self._update_braille_display()
-                self._announce(f"{announcement}, linear mode" if announcement else "linear mode")
+                summary = self._errors_summary(total_failure=True)
+                self._announce(f"{announcement}, linear mode, {summary}" if announcement else f"linear mode, {summary}")
                 self.Refresh()
                 return
             self.mode = "professional"

@@ -200,6 +200,7 @@ class EquationRendererMixin:
                 raise UnicodeMathError("the UnicodeMathML converter could not run")
         finally:
             self._converting = False
+        self._last_conversion = (source, conversion)  # Its parse error position, for the error list.
         if conversion.error:
             raise UnicodeMathError(conversion.error)
         return conversion.mathml

@@ -5,6 +5,7 @@ import unittest
 
 from matex.unicodemath import (
     StrayScriptResult,
+    code_point_index,
     conversion_script,
     decode_conversion,
     distribution_directory,
@@ -41,6 +42,10 @@ class UnicodeMathMLTests(unittest.TestCase):
                 decode_conversion(stray, 7)
         self.assertIn('{token: 7}', conversion_script("x", 7))
         self.assertIn('window.matexConvert("x", false)', conversion_script("x", decimal_comma=False))
+        stopped = decode_conversion(json.dumps({"mathml": "<math/>", "error": None, "parseOffset": 3, "parseFound": ")"}))
+        self.assertEqual((stopped.parse_offset, stopped.parse_found), (3, ")"))
+        # 𝑥 is two UTF-16 units.
+        self.assertEqual(code_point_index("𝑥+)", 3), 2)
 
     def test_parse_error_markers_are_detected(self) -> None:
         self.assertTrue(mathml_has_parse_error('<math><mo mathcolor="#F01">/</mo></math>'))
@@ -60,6 +65,10 @@ const out = {};
 for (const comma of [true, false]) {
   out[comma] = context.convertUnicodeMathToMathML('{1,2,3}', {resolveControlWords: true, decimalComma: comma}).mathml;
 }
+// patches/unicodemathml/0002: where parsing stopped, in the source's own offsets.
+context.console = {log() {}};
+out.stopped = ['\\\\alpha+b)', 'a&b', 'x+1'].map(
+  source => context.convertUnicodeMathToMathML(source, {resolveControlWords: true}).parseError || null);
 process.stdout.write(JSON.stringify(out));
 """
         completed = subprocess.run(
@@ -70,6 +79,7 @@ process.stdout.write(JSON.stringify(out));
         )
         results = json.loads(completed.stdout)
         self.assertIn("<mn>1,2</mn>", results["true"])
+        self.assertEqual(results["stopped"], [{"offset": 8, "found": ")"}, {"offset": 1, "found": "&"}, None])
         self.assertIn("<mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn>", results["false"])
 
     @unittest.skipUnless(shutil.which("node"), "Node este folosit numai pentru testul parserului oficial")

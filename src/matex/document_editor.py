@@ -83,6 +83,9 @@ if wx is not None:
             cancel_item = equation_menu.Append(wx.ID_ANY, "&Cancel (Escape)")
             self.Bind(wx.EVT_MENU, lambda _event: self.finish(True), save_item)
             self.Bind(wx.EVT_MENU, lambda _event: self.finish(False), cancel_item)
+            equation_menu.AppendSeparator()
+            errors_item = equation_menu.Append(wx.ID_ANY, "&Errors…\tF8")
+            self.Bind(wx.EVT_MENU, lambda _event: self.equation.show_errors(), errors_item)
             menu_bar.Append(equation_menu, "E&quation")
             edit_menu = wx.Menu()
             edit_items = (

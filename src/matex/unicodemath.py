@@ -24,6 +24,21 @@ class StrayScriptResult(UnicodeMathError):
 class ConversionResult:
     mathml: str
     error: str | None = None
+    # Where the parser stopped when nothing parsed (`#F00`), in the source's
+    # UTF-16 units (patches/unicodemathml/0002), and what it found there
+    # (None: the source ended too early).
+    parse_offset: int | None = None
+    parse_found: str | None = None
+
+
+def code_point_index(text: str, utf16_offset: int) -> int:
+    """The `text` index of a JavaScript (UTF-16) offset: 𝑥 and friends are two units there."""
+    units = 0
+    for index, character in enumerate(text):
+        if units >= utf16_offset:
+            return index
+        units += 2 if ord(character) > 0xFFFF else 1
+    return len(text)
 
 
 def mathml_has_parse_error(mathml: str) -> bool:
@@ -125,7 +140,13 @@ def renderer_page() -> tuple[str, str]:
       const holder = document.createElement("div");
       holder.innerHTML = result.mathml;
       const errorNode = holder.querySelector(".unicodemathml-error-message");
-      return { mathml: result.mathml, error: errorNode ? errorNode.textContent : null };
+      const parseError = result.parseError || null;
+      return {
+        mathml: result.mathml,
+        error: errorNode ? errorNode.textContent : null,
+        parseOffset: parseError ? parseError.offset : null,
+        parseFound: parseError ? parseError.found : null
+      };
     };
     window.matexRender = function(mathml, preview) {
       document.body.classList.toggle("preview", !!preview);
@@ -203,4 +224,11 @@ def decode_conversion(value: str, token: int | None = None) -> ConversionResult:
         raise UnicodeMathError("The UnicodeMathML converter did not return MathML")
     if error is not None and not isinstance(error, str):
         error = str(error)
-    return ConversionResult(mathml=mathml, error=error)
+    offset = decoded.get("parseOffset")
+    found = decoded.get("parseFound")
+    return ConversionResult(
+        mathml=mathml,
+        error=error,
+        parse_offset=offset if isinstance(offset, int) else None,
+        parse_found=found if isinstance(found, str) else None,
+    )

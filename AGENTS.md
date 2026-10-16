@@ -452,6 +452,27 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      Left/Right collapse it to its start/end; any other navigation drops
      it. The renderer highlights its leaves (`_selected_ids`;
      `matexHighlight` takes space-separated ids).
+     **Errors, like a code editor's problem list** (F8, Equation >
+     Errors…): [equation_errors.py](src/matex/equation_errors.py)
+     `find_errors` scans the source itself, on the control-word view, since
+     the converter gives no position (`#F01` on a dangling token, `#F00`
+     around everything): unbalanced brackets (any opener pairs with any
+     closer, as in UnicodeMath: `[0,1)`, `{■(...)┤`), an unclosed quote,
+     `/ ^ _ ┴ ┬ ▒` with nothing after (and `/` before), `√(&` with no index,
+     unknown commands (not the one ending at the caret), an odd `|` only
+     when nothing parses (alone it may be a "given" bar), and where the
+     converter's parser stopped (`stopped`; "& outside a matrix or
+     equation array", "the equation ends too early", "cannot continue
+     with X"), unless an error there already explains it. `ErrorListDialog` lists them; Enter
+     (`_go_to_error`) selects the error's span: in the built equation when
+     it has leaves there, else in the source (dropping to linear view).
+     F2 on a source that does not parse at all now refuses ("cannot be
+     built, 2 errors: ..., F8 lists errors") instead of building red text,
+     and a professional edit that falls back to linear says the same.
+     The parser's position comes from UnicodeMathML patch 0002
+     (`result.parseError`, in the source's UTF-16 offsets:
+     `ConversionResult.parse_offset`, `code_point_index`); the editor
+     keeps the last conversion (`_last_conversion`) to read it.
      **F10 (View > Writing Mode) switches writing and exploration
      mode** (`writing_enabled`; every equation opens in writing mode,
      `set_source`). Exploration is the user's way to re-read with Space
@@ -687,7 +708,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
 
 - `src/matex/` — the app. Pure-logic modules (parser, model, mathml_model,
   mathml_sanitize, symbol_dictionary, layout*, notebook, portable_notebook, settings,
-  space_conversion, completion, template_source, math_templates, matrix_templates,
+  space_conversion, completion, equation_errors, template_source, math_templates, matrix_templates,
   fraction_styles, structure_edits, source_view, source_map, insert_catalog, character_speech, edit_history,
   html_export, markdown_math, document_io, unicodemath) import `wx`
   nowhere and are unit tested. Templates: `template_source` holds
@@ -823,7 +844,13 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   option (`decimalComma`, default on as upstream). The dist parser is
   generated from `src/unicodemathml-parser.pegjs`; the patch edits both
   by hand (the dist one is what MateX loads), and passes the option from
-  `parse` in both `unicodemathml.js` copies.
+  `parse` in both `unicodemathml.js` copies. 0002 returns where parsing
+  stopped (`parseError: {offset, found}`) when nothing parses: the PEG
+  offset is in the text after `resolveCW`/`mapToPrivate`, so it is mapped
+  back by the shortest input prefix whose prepared text reaches past it
+  (cuts never split a control word). Only in `dist/unicodemathml.js`:
+  `src/unicodemathml.js` is a newer upstream revision, not what MateX
+  loads.
 - **License: GPL-2.0-or-later** (was MIT; changed so NVDA's GPL-2.0
   symbol dictionaries can be used). NVDA's `symbols.dic` files are never
   committed: Settings > "Download NVDA dictionaries…" (for users of a
