@@ -102,7 +102,8 @@ class EquationRendererMixin:
         mathml = self.mathcat.mathml if self.mathcat is not None else self._professional_mathml
         if not mathml:
             return None, None
-        return ("professional", mathml), self.mathml_current_id
+        # A selection highlights its leaves (space-separated ids), else MathCAT's node.
+        return ("professional", mathml), " ".join(self._selected_ids) or self.mathml_current_id
 
     def _sync_renderer(self) -> None:
         """Show, place and fill the visible renderer for the current mode.

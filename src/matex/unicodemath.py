@@ -134,13 +134,14 @@ def renderer_page() -> tuple[str, str]:
       equation.querySelectorAll("*").forEach(node => node.setAttribute("aria-hidden", "true"));
       return true;
     };
+    // One id, or several separated by spaces (a selection's leaves).
     window.matexHighlight = function(identifier) {
       document.querySelectorAll(".matex-current").forEach(node => node.classList.remove("matex-current"));
       if (!identifier) return false;
-      const node = document.getElementById(identifier);
-      if (!node) return false;
-      node.classList.add("matex-current");
-      node.scrollIntoView({block: "nearest", inline: "nearest"});
+      const nodes = identifier.split(" ").map(id => document.getElementById(id)).filter(node => node);
+      if (!nodes.length) return false;
+      nodes.forEach(node => node.classList.add("matex-current"));
+      nodes[0].scrollIntoView({block: "nearest", inline: "nearest"});
       return true;
     };
     // A click on part of the equation tells the editor which node it was,

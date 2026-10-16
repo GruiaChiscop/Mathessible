@@ -1042,6 +1042,13 @@ class MathCatNavigator:
         self._native.set_navigation(target, 0)
         return True
 
+    def leaf_speech(self, leaf_id: str) -> str | None:
+        """How the linear stops read a leaf by itself, if they have it."""
+        for stop in self._linear_stops:
+            if stop.node_id == leaf_id and stop.boundary is None:
+                return stop.speech
+        return None
+
     def plain_leaf_stop(self) -> str | None:
         """The leaf a linear stop stands on when it is a plain item (typing goes right after it).
 

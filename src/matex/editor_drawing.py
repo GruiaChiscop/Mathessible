@@ -143,7 +143,13 @@ class EditorDrawingMixin:
         colors = self._palette()
         self._draw_editor_chrome(dc, colors)
         if self._webview is not None:
-            target = (self.mode, self.document.source, self.mathml_current_id, self._professional_mathml)
+            target = (
+                self.mode,
+                self.document.source,
+                self.mathml_current_id,
+                self._professional_mathml,
+                self._selected_ids,
+            )
             if target != self._drawn_target:
                 self._drawn_target = target
                 self._schedule_renderer_sync()

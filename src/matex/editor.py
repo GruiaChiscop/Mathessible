@@ -164,6 +164,10 @@ if wx is not None:
             # navigation command moves MathCAT. A typed space has no node, so
             # MathCAT's position alone put the next character before it.
             self._built_caret: tuple[str, int, str] | None = None
+            # Professional view's selection (Shift+arrows in writing mode) is
+            # `selection_anchor`..`caret` in real-source offsets, as in linear
+            # view; these are its leaves, highlighted in the renderer.
+            self._selected_ids: tuple[str, ...] = ()
             self.braille_label = wx.StaticText(self, label="Braille")
             self.braille_label.SetForegroundColour(self._colour(self._palette().subtle_text))
             self.braille_display = wx.TextCtrl(self, style=wx.TE_READONLY)
@@ -275,6 +279,7 @@ if wx is not None:
             self.document = EquationDocument(source)
             self.caret = len(source)
             self.selection_anchor = None
+            self._selected_ids = ()
             self.mode = "linear"
             self.mathml_document = None
             self.mathml_current_id = None
@@ -475,6 +480,7 @@ if wx is not None:
 
         def _enter_professional_mode(self, conversion: ConversionResult, error_prefix: str) -> bool:
             self._typing_streak = False
+            self._clear_selection()  # A linear view selection is not kept: MathCAT starts over.
             self._professional_mathml = conversion.mathml
             try:
                 self.mode = "professional"
@@ -540,6 +546,9 @@ if wx is not None:
                     return
                 if key in (ord("Y"), ord("y")):
                     self._built_history("redo")
+                    return
+                if key in (ord("A"), ord("a")) and self.writing_enabled:
+                    self._select_all_built()
                     return
                 if self._insert_for_key(event, "command"):
                     return
@@ -779,6 +788,10 @@ if wx is not None:
             if self.mode == "professional" and command == "paste" and self.mathcat is not None:
                 self._edit_in_built(self._paste_equation, glue=True)
                 return
+            if self.mode == "professional" and command == "select_all" and self.mathcat is not None:
+                if self.writing_enabled:
+                    self._select_all_built()
+                return
             if self.mode != "linear":
                 return
             if command == "undo":
@@ -812,6 +825,7 @@ if wx is not None:
 
         def _clear_selection(self) -> None:
             self.selection_anchor = None
+            self._selected_ids = ()
 
         def _replace_selection(self, text: str) -> bool:
             """Replace the active selection with text in a single history entry."""
@@ -886,6 +900,9 @@ if wx is not None:
             self._finish_built_edit(announcement)
 
         def _cut_node(self) -> None:
+            if self._built_selection() is not None:
+                self._edit_in_built(self._cut_equation)
+                return
             node = self._current_node()
             if node is None:
                 self._cut_equation()
@@ -897,7 +914,7 @@ if wx is not None:
             self._remove_node(node.identifier, f"cut {self._node_label(node)}")
 
         def _copy_equation(self) -> None:
-            node = self._current_node()
+            node = self._current_node() if self._built_selection() is None else None
             if node is not None:
                 # Professional view: the current node (a whole fraction, a numerator, a symbol).
                 start, end, _replacement = self._node_removal(node.identifier)
@@ -1018,6 +1035,7 @@ if wx is not None:
                         self._typing_streak = False
                         self._inside_leaf = None
                         self._built_caret = None
+                        self._clear_built_selection()
                     if command in ("ZoomIn", "ZoomOut") and self._linear_now:
                         # Flat reading has no levels: a stray Up/Down only
                         # threw MathCAT off the linear stops. Ignored, silently.
@@ -1044,7 +1062,11 @@ if wx is not None:
                     if key == wx.WXK_TAB:
                         self._built_slot(reverse=event.ShiftDown())
                         return
-                    if key in (wx.WXK_BACK, wx.WXK_DELETE) and self._removes_whole_structure():
+                    if (
+                        key in (wx.WXK_BACK, wx.WXK_DELETE)
+                        and self._built_selection() is None
+                        and self._removes_whole_structure()
+                    ):
                         return
                     if key in (wx.WXK_BACK, wx.WXK_DELETE) or self._is_typed_character(event):
                         self._edit_built_equation(event)
@@ -1201,6 +1223,8 @@ if wx is not None:
             assert self.mathcat is not None
             if self.mathcat.structure is None:
                 return "equation"
+            if self._built_selection() is not None:
+                return self._selection_speech()
             inside = self._current_inside()
             if inside is not None:
                 _leaf, count, characters, _mathml = inside
@@ -1249,10 +1273,21 @@ if wx is not None:
             (Ctrl elsewhere) by node.
             """
             assert self.mathcat is not None
+            if self.writing_enabled and event.ShiftDown() and not event.CmdDown():
+                if key in (wx.WXK_LEFT, wx.WXK_RIGHT):
+                    self._extend_built_selection(1 if key == wx.WXK_RIGHT else -1, _word_navigation_down(event))
+                    return True
+                if key in (wx.WXK_HOME, wx.WXK_END):
+                    self._extend_built_selection_to(0 if key == wx.WXK_HOME else len(self.document.source))
+                    return True
             if event.CmdDown() or event.ShiftDown():
                 return False
+            if key in (wx.WXK_LEFT, wx.WXK_RIGHT) and self._built_selection() is not None:
+                self._collapse_built_selection(at_end=key == wx.WXK_RIGHT)
+                return True
             if key in (wx.WXK_UP, wx.WXK_DOWN, wx.WXK_LEFT, wx.WXK_RIGHT):
                 self._built_caret = None  # Navigating: MathCAT says where typing goes again.
+                self._clear_built_selection()
             if key in (wx.WXK_UP, wx.WXK_DOWN):
                 if not self._linear_now:
                     return False  # Structural exploration: Up/Down change level.
@@ -1273,6 +1308,122 @@ if wx is not None:
                 self._announce(speech)
             self.Refresh()
             return True
+
+        def _built_selection(self) -> tuple[int, int] | None:
+            """The selection in professional view, as real-source offsets."""
+            if self.mode != "professional":
+                return None
+            return self._selection_range()
+
+        def _clear_built_selection(self) -> None:
+            if self.mode == "professional" and (self.selection_anchor is not None or self._selected_ids):
+                self.selection_anchor = None
+                self._selected_ids = ()
+
+        def _extend_built_selection(self, step: int, by_node: bool) -> None:
+            """Shift+Left/Right (Option too: by node) in writing mode: select as in a text field.
+
+            Says what was passed and whether it is now selected or not.
+            """
+            assert self.mathcat is not None
+            before = self.caret if self._built_selection() is not None else self._built_offset()
+            anchor = self.selection_anchor if self._built_selection() is not None else before
+            self._built_caret = None
+            if by_node:
+                self._node_step(step)
+            else:
+                self._character_step(step)
+            inside = self._inside_leaf
+            self._sync_mathcat_cursor()
+            self._inside_leaf = inside
+            self._set_built_selection(anchor, self._built_offset(), before)
+
+        def _extend_built_selection_to(self, offset: int) -> None:
+            """Shift+Home/End: select to the start/end of the equation."""
+            assert self.mathcat is not None
+            before = self.caret if self._built_selection() is not None else self._built_offset()
+            anchor = self.selection_anchor if self._built_selection() is not None else before
+            self.caret = offset
+            self._place_after_caret()
+            self._sync_mathcat_cursor()
+            self._set_built_selection(anchor, offset, before)
+
+        def _set_built_selection(self, anchor: int, caret: int, before: int) -> None:
+            self.selection_anchor, self.caret = anchor, caret
+            passed = self._span_speech(min(before, caret), max(before, caret))
+            grew = abs(caret - anchor) > abs(before - anchor)
+            self._selected_ids = self._leaves_in(*sorted((anchor, caret)))
+            if anchor == caret:
+                self.selection_anchor = None
+                self._announce(f"{passed}, unselected" if passed else "selection cleared")
+            elif passed:
+                self._announce(f"{passed}, {'selected' if grew else 'unselected'}")
+            else:
+                self._announce(self._selection_speech())
+            self.Refresh()
+
+        def _collapse_built_selection(self, at_end: bool) -> None:
+            """Left/Right with a selection: to its start/end, as in a text field."""
+            selection = self._built_selection()
+            assert selection is not None
+            self.caret = selection[1] if at_end else selection[0]
+            self._clear_built_selection()
+            self._place_after_caret()
+            self._sync_mathcat_cursor()
+            self._announce(self._insertion_point())
+            self.Refresh()
+
+        def _select_all_built(self) -> None:
+            """Cmd+A in professional view's writing mode: the whole equation."""
+            source = self.document.source
+            if not source:
+                self._announce("nothing to select")
+                return
+            self.selection_anchor, self.caret = 0, len(source)
+            self._selected_ids = self._leaves_in(0, len(source))
+            self._announce(f"selected {self._span_speech(0, len(source))}")
+            self.Refresh()
+
+        def _selection_speech(self) -> str:
+            selection = self._built_selection()
+            return f"selected {self._span_speech(*selection)}" if selection else "nothing selected"
+
+        def _leaves_in(self, start: int, end: int) -> tuple[str, ...]:
+            """The leaves with characters between two real-source offsets."""
+            if self.mathcat is None or self.mathcat.structure is None or start >= end:
+                return ()
+            repair = self._built_repair()
+            spans = map_leaves(repair.text, self.mathcat.structure)
+            low, high = repair.to_repaired(start), repair.to_repaired(end)
+            return tuple(
+                leaf.identifier
+                for leaf in leaf_nodes(self.mathcat.structure)
+                if leaf.identifier in spans
+                and spans[leaf.identifier].start < high
+                and spans[leaf.identifier].end > low
+            )
+
+        def _span_speech(self, start: int, end: int) -> str:
+            """A source span read leaf by leaf ("x plus 1"); part of a leaf ("12" of "4123") by its characters."""
+            if self.mathcat is None or self.mathcat.structure is None or start >= end:
+                return ""
+            repair = self._built_repair()
+            spans = map_leaves(repair.text, self.mathcat.structure)
+            low, high = repair.to_repaired(start), repair.to_repaired(end)
+            words: list[str] = []
+            for leaf in leaf_nodes(self.mathcat.structure):
+                span = spans.get(leaf.identifier or "")
+                if span is None or span.start >= span.end or span.start >= high or span.end <= low:
+                    continue
+                if span.start >= low and span.end <= high:
+                    words.append(self.mathcat.leaf_speech(leaf.identifier) or character_name(leaf.text, self.symbols))
+                else:
+                    part = repair.text[max(span.start, low) : min(span.end, high)]
+                    words.extend(character_name(character, self.symbols) for character in part)
+            if not words:
+                # Only what has no node of its own: spaces, a fraction's parens.
+                words = [character_name(character, self.symbols) for character in self.document.source[start:end]]
+            return " ".join(word for word in words if word)
 
         def _node_step(self, step: int) -> str:
             """Option/Ctrl+Left/Right in writing mode: a whole node, from inside one too."""
@@ -1431,8 +1582,11 @@ if wx is not None:
             announce on its own or return what to announce after rebuilding.
             """
             source = self.document.source
-            self._clear_selection()
-            self.caret = self._built_offset(glue)
+            if self._built_selection() is None:
+                self._clear_selection()
+                self.caret = self._built_offset(glue)
+            # Else the linear handling replaces the selection (typing, Backspace, paste, cut).
+            self._selected_ids = ()
             self.mode = "linear"
             self._editing_built = True
             try:

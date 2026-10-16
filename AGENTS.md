@@ -437,6 +437,21 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      *outside* it (`edit_anchor`'s `outside` for a composite node), and
      `move_to` clears a leftover structural edge, which otherwise kept
      anchoring edits at "start of math".
+     **Selection in professional view** (writing mode only): Shift+Left/
+     Right select by character, Shift+Option+Left/Right (Ctrl elsewhere)
+     by node, Shift+Home/End to the edges, Cmd+A all
+     (`_extend_built_selection`, `_select_all_built`). It is the linear
+     view's own `selection_anchor`..`caret`, in real-source offsets, so
+     `_edit_in_built` keeps it (no caret reset) and the linear handlers
+     replace it: typing, Space, Backspace/Delete (no "press again" for a
+     whole structure then), Cmd+V, Cmd+X (`_cut_node` defers to
+     `_cut_equation`), Cmd+C copies its text. Speech says what was passed,
+     "4, selected" / "3, unselected" (`_span_speech`: whole leaves by
+     their linear stop's speech, `MathCatNavigator.leaf_speech`, part of a
+     leaf by characters); Shift+Option+Space reads "selected x plus 1".
+     Left/Right collapse it to its start/end; any other navigation drops
+     it. The renderer highlights its leaves (`_selected_ids`;
+     `matexHighlight` takes space-separated ids).
      **F10 (View > Writing Mode) switches writing and exploration
      mode** (`writing_enabled`; every equation opens in writing mode,
      `set_source`). Exploration is the user's way to re-read with Space

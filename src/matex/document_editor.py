@@ -102,7 +102,7 @@ if wx is not None:
                 command, label = entry
                 item = edit_menu.Append(wx.ID_ANY, label)
                 self.Bind(wx.EVT_MENU, lambda _event, command=command: self.equation.edit_command(command), item)
-                if command in ("undo", "redo", "cut", "paste"):
+                if command in ("undo", "redo", "cut", "paste", "select_all"):
                     # Undo works on the built equation too (it is rebuilt).
                     self.Bind(wx.EVT_UPDATE_UI, self._enable_when_editable, item)
                 elif command != "copy":
