@@ -17,7 +17,7 @@ from .mathcat_structural import StructuralNavigationMixin
 from .mathcat_tables import TableNavigationMixin
 from .mathml_model import MathMLDocument, TablePosition
 from .settings import DEFAULT_RECOGNIZED_FUNCTIONS
-from .symbol_dictionary import SymbolDictionary
+from .mathcat_lone import lone_speech, warm_up
 
 
 @dataclass(slots=True)
@@ -44,8 +44,6 @@ class MathCatNavigator(LinearStopsMixin, StructuralNavigationMixin, TableNavigat
     # Invisible times/separator/plus get a stop of their own in both
     # navigation modes, read by name ("invisible times").
     invisible_operator_stops: bool = False
-    # Names for leaves read by themselves (`_leaf_only`); the built-in dictionary if None.
-    symbols: SymbolDictionary | None = None
     # MathCAT's DecimalSeparator: with "," it reads `1,5` as one number
     # ("1,5"); with "." it took the comma for a thousands separator ("15").
     decimal_separator: str = ","
@@ -74,6 +72,12 @@ class MathCatNavigator(LinearStopsMixin, StructuralNavigationMixin, TableNavigat
 
         self._native = matex_mathcat
         self._native.initialize(self.language, self.speech_style, self.verbosity)
+        # MathCAT's start on the lone-character thread, paid now in the background.
+        warm_up(self.language, self.speech_style, self.verbosity)
+
+    def character_speech(self, character: str) -> str:
+        """MathCAT's reading of one character alone (`mathcat_lone`), in this navigator's language."""
+        return lone_speech(character, self.language, self.speech_style, self.verbosity)
 
     def load(self, mathml: str, keep_position: bool = False, speak: bool = True) -> str:
         """Load an expression; `keep_position` puts the cursor back on the

@@ -84,7 +84,6 @@ if wx is not None:
                 invisible_operator_stops=self.settings.invisible_operator_stops,
             )
             if self.mathcat is not None:
-                self.mathcat.symbols = self.symbols
                 self.mathcat.decimal_separator = self.settings.decimal_separator
                 self.mathcat.braille_code = self.settings.braille_code
             self.mode = "linear"
@@ -297,7 +296,6 @@ if wx is not None:
                 self.mathcat.boundary_stops = self._boundary_stops
                 self.mathcat.structural_stops = self._structural_stops
                 self.mathcat.invisible_operator_stops = self.settings.invisible_operator_stops
-                self.mathcat.symbols = self.symbols
                 self.mathcat.decimal_separator = self.settings.decimal_separator
                 self.mathcat.braille_code = self.settings.braille_code
                 if self.mathcat.mathml:

@@ -11,12 +11,13 @@ other the denominator.
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 import unicodedata
 
-from .character_speech import character_name
+from .mathcat_lone import lone_speech
 from .mathml_model import MathMLDocument, MathMLNode
 from .source_map import leaf_nodes
-from .symbol_dictionary import SymbolDictionary
 
 _INVISIBLE = frozenset("⁡⁢⁣⁤")
 _STRUCTURE_NAMES = {
@@ -34,7 +35,11 @@ _STRUCTURE_NAMES = {
 
 
 def describe_insertion_point(
-    document: MathMLDocument, node_id: str, side: str, outside: bool = False, symbols: SymbolDictionary | None = None
+    document: MathMLDocument,
+    node_id: str,
+    side: str,
+    outside: bool = False,
+    read: Callable[[str], str] | None = None,
 ) -> str:
     """Where typing goes, for an edit anchor (`MathCatNavigator.edit_anchor`)."""
     leaves = [leaf for leaf in leaf_nodes(document) if leaf.text not in _INVISIBLE]
@@ -54,16 +59,16 @@ def describe_insertion_point(
         edge = inside[-1]
         index = leaves.index(edge)
         neighbor = leaves[index + 1] if index + 1 < len(leaves) else None
-        pieces = [f"after {node_name(node if outside or not node.children else edge, symbols)}"]
+        pieces = [f"after {node_name(node if outside or not node.children else edge, read)}"]
         pieces += [f"end of {label}" for label in _left(document, node if outside else edge, neighbor, node)]
-        pieces.append(f"before {node_name(neighbor, symbols)}" if neighbor is not None else "end of math")
+        pieces.append(f"before {node_name(neighbor, read)}" if neighbor is not None else "end of math")
         return ", ".join(pieces)
     edge = inside[0]
     index = leaves.index(edge)
     neighbor = leaves[index - 1] if index > 0 else None
-    pieces = [f"after {node_name(neighbor, symbols)}" if neighbor is not None else "start of math"]
+    pieces = [f"after {node_name(neighbor, read)}" if neighbor is not None else "start of math"]
     pieces += [f"start of {label}" for label in reversed(_left(document, node if outside else edge, neighbor, node))]
-    pieces.append(f"before {node_name(node if outside or not node.children else edge, symbols)}")
+    pieces.append(f"before {node_name(node if outside or not node.children else edge, read)}")
     return ", ".join(pieces)
 
 
@@ -133,8 +138,13 @@ def _is_empty(leaf: MathMLNode) -> bool:
     return leaf.text.strip("  ") == ""
 
 
-def node_name(node: MathMLNode, symbols: SymbolDictionary | None) -> str:
-    """A node as spoken: a plain letter for 𝑥, a symbol's dictionary name, a structure by its kind."""
+def node_name(node: MathMLNode, read: Callable[[str], str] | None = None) -> str:
+    """A node as spoken: a plain letter for 𝑥, a symbol as MathCAT reads it alone, a structure by its kind.
+
+    `read` reads one character (`MathCatNavigator.character_speech`);
+    without it, `mathcat_lone` in English. Never the symbol dictionary: that
+    only echoes typing.
+    """
     if node.children:
         return f"the {_STRUCTURE_NAMES.get(node.tag, 'group')}"
     if _is_empty(node):
@@ -143,4 +153,6 @@ def node_name(node: MathMLNode, symbols: SymbolDictionary | None) -> str:
         unicodedata.normalize("NFKC", character) if unicodedata.category(character)[0] in "LN" else character
         for character in node.text
     )
-    return character_name(text, symbols) if len(text) == 1 else text
+    if len(text) != 1:
+        return text
+    return read(text) if read is not None else lone_speech(text)

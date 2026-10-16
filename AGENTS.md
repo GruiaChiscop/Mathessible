@@ -187,11 +187,25 @@ equation language; the gap is entirely in the editing UX layered on top.
    leaves (which MathCAT reads as the whole structure), and a lone "−"
    says "negative" (`_leaf_only`). An interval's or a set's parens,
    brackets, braces and commas, which MathCAT reads as the whole ("the
-   open interval from a to b"), say their own name from the symbol
-   dictionary (`_leaf_only`, `MathCatNavigator.symbols`, set by the
-   editor and passed to the stops worker; only when MathCAT's reading is
-   longer than three words, so `f(x,y)` keeps "open paren"), in flat
-   stops and structural items alike. `[0,1)`/`(a,b]` come with a literal
+   open interval from a to b"), say their own name as MathCAT reads the
+   character alone ("open paren", `_leaf_only` → `character_speech`;
+   only when MathCAT's reading is longer than three words), in flat stops
+   and structural items alike. **Reading the built equation is always
+   MathCAT's, never the symbol dictionary's** (the user's rule: the
+   dictionary only echoes typing, and the linear view's source): where a
+   character, not a node, is read (an interval's fence, inside "4345", a
+   selection, the insertion point, a node's name on copy/delete),
+   [mathcat_lone.py](src/matex/mathcat_lone.py) has MathCAT read it alone
+   as `<math><mo>(</mo></math>`, on one long-lived worker thread
+   (MathCAT's state is per thread, so the equation being read is
+   untouched), cached per language/style. Starting MathCAT there costs
+   ~40 ms (init, then the first speech loads the rules), so `warm_up`
+   (called by every `MathCatNavigator`) pays it in the background with
+   the common characters (`COMMON`); a cached character then reads in
+   ~0.03 ms, a new one ~0.3 ms (a spawn-per-request thread cost ~50 ms
+   each time).
+   `insertion_point.node_name` takes that reader (`read`);
+   `EquationEditor._read_character` is the editor's. `[0,1)`/`(a,b]` come with a literal
    `intent="closed-open-interval(0,1)"`, which made every stop read the
    whole; `prepare_for_mathcat` drops it (`_INTERVAL_INTENT`) and MathCAT
    still infers the interval. Not fixed: the converter turns `(1,2,3)`
@@ -879,8 +893,9 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   into `~/.matex/symbols/nvda-<lang>.dic`. In Settings the network calls
   run on a worker thread behind a pulsing `wx.ProgressDialog`
   (`_in_background`); the thread only writes files, results go back
-  through a `wx.CallLater` poll. Spoken symbol
-  names come only from dictionaries ([symbol_dictionary.py](src/matex/symbol_dictionary.py),
+  through a `wx.CallLater` poll. Typed-character echo and the
+  linear view's source reading (never the built equation, see
+  `mathcat_lone`) name symbols only from dictionaries ([symbol_dictionary.py](src/matex/symbol_dictionary.py),
   the `symbol_dictionary` setting, built-in `src/matex/symbols/matex-en.dic`);
   do not add hardcoded name tables. Only the `symbols:` section is parsed;
   layers: chosen → the downloaded NVDA English one (for another NVDA

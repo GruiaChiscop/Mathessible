@@ -67,14 +67,15 @@ class MathReadingTests(unittest.TestCase):
             self.assertIn(f"the set {number} comma", navigator.command("ReadCurrent"))
 
     def test_interval_and_set_fences_and_commas_read_by_themselves(self) -> None:
+        # As MathCAT reads the character alone (mathcat_lone), not the symbol dictionary.
         whole, stops = read("x∈(a,b)")
         self.assertIn("open interval from", whole)
-        self.assertEqual(stops[2:7], ["left parenthesis", "eigh", "comma", "b", "right parenthesis"])
+        self.assertEqual(stops[2:7], ["open paren", "eigh", "comma", "b", "close paren"])
         whole, stops = read("[0,1)")
         self.assertIn("closed open interval from 0 to 1", whole)
-        self.assertEqual(stops[:5], ["left bracket", "0", "comma", "1", "right parenthesis"])
+        self.assertEqual(stops[:5], ["open bracket", "0", "comma", "1", "close paren"])
         _whole, stops = read("{a,b}")
-        self.assertEqual(stops[:5], ["left brace", "eigh", "comma", "b", "right brace"])
+        self.assertEqual(stops[:5], ["open brace", "eigh", "comma", "b", "close brace"])
 
     def test_cases_read_as_cases(self) -> None:
         whole, stops = read("f={■(x&x≥0@-x&x<0)┤")

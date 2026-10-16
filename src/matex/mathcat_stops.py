@@ -8,7 +8,6 @@ import re
 import time
 from collections.abc import Callable
 
-from .character_speech import character_name
 from .mathcat_common import (
     _CONTAINER_REGIONS,
     _FENCES_AND_SEPARATORS,
@@ -110,7 +109,6 @@ class LinearStopsMixin:
             self.auto_zoom_out,
             self.boundary_stops,
             self.invisible_operator_stops,
-            self.symbols,
             self.decimal_separator,
         )
 
@@ -123,7 +121,6 @@ class LinearStopsMixin:
                 auto_zoom_out,
                 boundary_stops,
                 invisible_operator_stops,
-                symbols,
                 decimal_separator,
             ) = settings
             worker = navigator_class(
@@ -134,7 +131,6 @@ class LinearStopsMixin:
                 auto_zoom_out=auto_zoom_out,
                 boundary_stops=boundary_stops,
                 invisible_operator_stops=invisible_operator_stops,
-                symbols=symbols,
                 decimal_separator=decimal_separator,
             )
             worker.load(mathml, speak=False)
@@ -346,7 +342,7 @@ class LinearStopsMixin:
 
         An interval's or a set's parens, brackets, braces and commas read as
         the whole ("the open interval from a to b"); they say their own name,
-        from the symbol dictionary, as anywhere else in the source.
+        as MathCAT reads the character alone (`mathcat_lone`).
         """
         intent = leaf.attributes.get("intent", "")
         if re.fullmatch(r"[A-Za-z][A-Za-z-]*", intent):
@@ -355,7 +351,7 @@ class LinearStopsMixin:
         if text in ("−", "-") and speech.startswith("negative "):
             return "negative"
         if leaf.tag == "mo" and text in _FENCES_AND_SEPARATORS and len(speech.split()) > 3:
-            return character_name(text, self.symbols)
+            return self.character_speech(text)
         return speech
 
     def _table_part_label(self, part: MathMLNode, index: int | None) -> str | None:

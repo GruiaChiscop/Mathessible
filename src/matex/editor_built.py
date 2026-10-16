@@ -25,6 +25,12 @@ except ImportError:  # The interface is an optional dependency.
 class BuiltEditingMixin:
     """Methods of `EquationEditor` (editor.py); relies on its state."""
 
+    def _read_character(self, character: str) -> str:
+        """One character as MathCAT reads it alone: reading the built equation is MathCAT's, not the dictionary's."""
+        if self.mathcat is None:
+            return character_name(character, self.symbols)
+        return self.mathcat.character_speech(character)
+
     def _current_node(self):
         """MathCAT's node in professional view, unless it is the math itself."""
         structure = self.mathcat.structure if self.mathcat is not None else None
@@ -36,7 +42,7 @@ class BuiltEditingMixin:
     def _node_label(self, node) -> str:
         """How a node is named when copied, cut or deleted: by its role if it fills one ("the numerator")."""
         role = self.mathcat.structure.semantic_role(node.identifier) if node.children else None
-        return f"the {role}" if role else node_name(node, self.symbols)
+        return f"the {role}" if role else node_name(node, self._read_character)
 
     def _node_removal(self, node_id: str) -> tuple[int, int, str]:
         """(start, end, replacement) in real-source terms for removing a built node."""
@@ -115,7 +121,7 @@ class BuiltEditingMixin:
             _leaf, count, characters, _mathml = inside
             return f"inside {characters}, after {characters[:count]}, before {characters[count:]}"
         node_id, side, outside = self.mathcat.edit_anchor()
-        described = describe_insertion_point(self.mathcat.structure, node_id, side, outside, self.symbols)
+        described = describe_insertion_point(self.mathcat.structure, node_id, side, outside, self._read_character)
         remembered = self._remembered_caret()
         if remembered is not None and self.document.source[remembered - 1 : remembered] == " ":
             return f"after space, {described}"  # A space has no node of its own.
@@ -301,13 +307,13 @@ class BuiltEditingMixin:
             if span is None or span.start >= span.end or span.start >= high or span.end <= low:
                 continue
             if span.start >= low and span.end <= high:
-                words.append(self.mathcat.leaf_speech(leaf.identifier) or character_name(leaf.text, self.symbols))
+                words.append(self.mathcat.leaf_speech(leaf.identifier) or self._read_character(leaf.text))
             else:
                 part = repair.text[max(span.start, low) : min(span.end, high)]
-                words.extend(character_name(character, self.symbols) for character in part)
+                words.extend(self._read_character(character) for character in part)
         if not words:
             # Only what has no node of its own: spaces, a fraction's parens.
-            words = [character_name(character, self.symbols) for character in self.document.source[start:end]]
+            words = [self._read_character(character) for character in self.document.source[start:end]]
         return " ".join(word for word in words if word)
 
     def _node_step(self, step: int) -> str:
@@ -324,7 +330,7 @@ class BuiltEditingMixin:
         assert self.mathcat is not None
         speech = self.mathcat.linear_command("MovePrevious")
         characters = self._leaf_characters(self.mathcat.plain_leaf_stop())
-        return character_name(characters[-1], self.symbols) if characters else speech
+        return self._read_character(characters[-1]) if characters else speech
 
     def _character_step(self, step: int) -> str:
         """Left/Right in writing mode: one character, reading the one before the caret.
@@ -341,23 +347,23 @@ class BuiltEditingMixin:
             count += step
             if 0 < count < len(characters):
                 self._inside_leaf = (leaf, count, characters, mathml)
-                return character_name(characters[count - 1], self.symbols)
+                return self._read_character(characters[count - 1])
             if count == len(characters):
-                return character_name(characters[-1], self.symbols)
+                return self._read_character(characters[-1])
             return self._step_back()  # Before the leaf: the stop before it.
         if step < 0:
             leaf = self.mathcat.plain_leaf_stop()
             characters = self._leaf_characters(leaf)
             if leaf is not None and characters:
                 self._inside_leaf = (leaf, len(characters) - 1, characters, self.mathcat.mathml)
-                return character_name(characters[-2], self.symbols)
+                return self._read_character(characters[-2])
             return self._step_back()
         speech = self.mathcat.linear_command("MoveNext")
         leaf = self.mathcat.plain_leaf_stop()
         characters = self._leaf_characters(leaf)
         if leaf is not None and characters:
             self._inside_leaf = (leaf, 1, characters, self.mathcat.mathml)
-            return character_name(characters[0], self.symbols)
+            return self._read_character(characters[0])
         return speech
 
     def _build_as_you_type(self, announcement: str = "built") -> None:
