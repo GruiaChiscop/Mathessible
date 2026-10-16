@@ -32,6 +32,10 @@ equation language; the gap is entirely in the editing UX layered on top.
   editing — same as Word on each platform. Not `Option+=` on macOS: that
   types "≠", which the shortcut swallowed. Command+= stays the subscript
   template inside the equation editor.
+- Enter saves the equation and starts a new line after it in the
+  Markdown, as Enter at an equation's end does in Word
+  (`EquationWindow.finish(saved, new_line=True)`, `_finish_equation`);
+  Equation > Save and the equation shortcut save without one.
 - `F2` toggling linear/professional view (Word literally calls this
   "Linear"/"Professional" in its own equation right-click menu).
 - Tab-to-empty-slot template navigation

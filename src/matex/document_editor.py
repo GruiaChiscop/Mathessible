@@ -148,8 +148,8 @@ if wx is not None:
             )
             self.equation.set_source(source)
 
-        def begin(self, on_done: Callable[[bool], None]) -> None:
-            """Show the editor, the other windows disabled until `finish` calls `on_done(saved)`."""
+        def begin(self, on_done: Callable[[bool, bool], None]) -> None:
+            """Show the editor, the other windows disabled until `finish` calls `on_done(saved, new_line)`."""
             self._on_done = on_done
             self.CentreOnParent()
             # Not wx.WindowDisabler: on macOS it begins a modal session too,
@@ -160,13 +160,14 @@ if wx is not None:
             self.Show()
             self.Raise()
 
-        def finish(self, saved: bool) -> None:
+        def finish(self, saved: bool, new_line: bool = False) -> None:
+            """Close the editor; `new_line` (Enter) also starts a new line after the equation, as in Word."""
             on_done, self._on_done = self._on_done, None
             if on_done is None:
                 return
             self._enable_others()
             self.Hide()
-            on_done(saved)
+            on_done(saved, new_line)
 
         def _on_char_hook(self, event: wx.KeyEvent) -> None:
             key = event.GetKeyCode()
@@ -175,9 +176,10 @@ if wx is not None:
                     return
                 self.finish(False)
                 return
-            # The equation editor has no use for Enter itself, so it saves.
+            # The equation editor has no use for Enter itself, so it saves, and
+            # goes on on a new line after the equation, as Enter does in Word.
             if key in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
-                self.finish(True)
+                self.finish(True, new_line=True)
                 return
             if _is_equation_shortcut(event):
                 self.finish(True)
@@ -300,7 +302,7 @@ if wx is not None:
                 wx.CallAfter(self.equation_window.equation.read_expression)
             self.equation_window.begin(self._finish_equation)
 
-        def _finish_equation(self, saved: bool) -> None:
+        def _finish_equation(self, saved: bool, new_line: bool = False) -> None:
             session = self._session
             self._session = None
             if session is None:
@@ -314,7 +316,9 @@ if wx is not None:
                 self.markdown.WriteText(replacement)
                 caret = session.zone.start + len(replacement)
                 self.markdown.SetSelection(caret, caret)
-                self._announce("equation saved")
+                if new_line:
+                    self.markdown.WriteText("\n")
+                self._announce("equation saved, new line" if new_line else "equation saved")
             else:
                 self.markdown.SetSelection(session.selection_start, session.selection_end)
                 self._announce("equation editing canceled")
