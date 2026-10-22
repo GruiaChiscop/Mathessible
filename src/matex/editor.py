@@ -27,6 +27,7 @@ from .mathml_model import MathMLDocument
 from .model import EquationDocument
 from .settings import AppSettings
 from .speech import AssistiveOutput, create_output
+from .source_view import view_of
 from .space_conversion import (
     convert_before_character,
     convert_on_space,
@@ -521,7 +522,7 @@ if wx is not None:
                     self._cut_node()
                     return
                 if key in (ord("V"), ord("v")):
-                    self._edit_in_built(self._paste_equation, glue=True)
+                    self._edit_in_built(self._paste_equation)
                     return
                 if key in (ord("Z"), ord("z")):
                     self._built_history("redo" if event.ShiftDown() else "undo")
@@ -645,7 +646,7 @@ if wx is not None:
             if self._writing_off():
                 return
             if self.mode == "professional" and self.mathcat is not None and self.mathcat.structure is not None:
-                self._edit_in_built(lambda: self._insert_linear(item), glue=True)
+                self._edit_in_built(lambda: self._insert_linear(item))
                 return
             if self.mode != "linear":
                 return
@@ -679,7 +680,7 @@ if wx is not None:
                 self._cut_node()
                 return
             if self.mode == "professional" and command == "paste" and self.mathcat is not None:
-                self._edit_in_built(self._paste_equation, glue=True)
+                self._edit_in_built(self._paste_equation)
                 return
             if self.mode == "professional" and command == "select_all" and self.mathcat is not None:
                 if self.writing_enabled:
@@ -881,17 +882,16 @@ if wx is not None:
                                 speech = self.mathcat.table_command(command)
                             elif self._linear_now:
                                 speech = self.mathcat.linear_command(command)
-                            elif self.mathcat.structural_stops:
-                                speech = self.mathcat.structural_command(command)
                             else:
-                                speech = self.mathcat.command_with_boundaries(command)
+                                # MateX's own levels with structure stops or without
+                                # (MathCAT's own Left/Right failed in sums and integrals).
+                                speech = self.mathcat.structural_command(command)
                             self._sync_mathcat_cursor()
                             if speech:
                                 self._announce(speech)
                             self.Refresh()
                         except (OSError, RuntimeError, ValueError):
-                            self.mathcat = None
-                            self._announce("MathCAT is no longer available; fallback navigation is active")
+                            self._recover_navigation()
                         return
                     if key == wx.WXK_TAB:
                         self._built_slot(reverse=event.ShiftDown())
@@ -938,6 +938,24 @@ if wx is not None:
                 # Space after lim_(...)/log_(...) opens the argument box, as in Word.
                 functions = self.settings.recognized_functions
                 group = self._edit(lambda source, caret: group_function_argument(source, caret, functions))
+                if group is None and self._editing_built and self._at_condition_end():
+                    # In the built equation, the end of the condition ("end limit
+                    # condition", after ∞) is still inside its ")": Space opens the
+                    # argument there too, or goes into the one already open.
+                    after = self.caret + 1
+                    group = self._edit(lambda source, caret: group_function_argument(source, caret, functions), after)
+                    if group is None:
+                        inside = self._existing_argument(after)
+                        if inside is not None:
+                            # Into the argument already there, at its end; the source is unchanged,
+                            # so MathCAT is moved here (no rebuild follows).
+                            self.caret = inside
+                            self.mode = "professional"
+                            self._place_after_caret()
+                            self._sync_mathcat_cursor()
+                            self.mode = "linear"
+                            self._announce(f"argument, {self._insertion_point_here()}")
+                            return
                 if group is not None:
                     self._replace_linear(group.source, group.caret)
                     self._announce(group.announcement)
@@ -1033,6 +1051,39 @@ if wx is not None:
                 event.GetUnicodeKey() > 32
             )
 
+        def _insertion_point_here(self) -> str:
+            mode, self.mode = self.mode, "professional"
+            try:
+                return self._insertion_point()
+            finally:
+                self.mode = mode
+
+        def _at_condition_end(self) -> bool:
+            """The caret is right before the ")" closing a `lim_(...)`/`log_(...)` condition."""
+            view = view_of(self.document.source)
+            index = view.to_view(self.caret)
+            if view.text[index : index + 1] != ")":
+                return False
+            closing = view.to_source(index) + 1
+            probe = group_function_argument(view.text[: index + 1], index + 1, self.settings.recognized_functions)
+            return probe is not None or self._existing_argument(closing) is not None
+
+        def _existing_argument(self, after: int) -> int | None:
+            """Inside the argument box `〖...〗` right after this offset (` \\begin ...`), at its end; else None."""
+            view = view_of(self.document.source)
+            index = view.to_view(after)
+            if view.text[index : index + 2] != " 〖":
+                return None
+            depth = 0
+            for position in range(index + 1, len(view.text)):
+                if view.text[position] == "〖":
+                    depth += 1
+                elif view.text[position] == "〗":
+                    depth -= 1
+                    if depth == 0:
+                        return view.to_source(position)
+            return None
+
         def _after_typed(self, value: str, builds: bool) -> None:
             """After a character typed in linear handling (whichever way it was inserted).
 
@@ -1098,6 +1149,25 @@ if wx is not None:
                 self.selection_anchor = self.caret
             self.caret = target
             self._announce_selection()
+            self.Refresh()
+
+        def _recover_navigation(self) -> None:
+            """A navigation command MathCAT failed on: reload it where it was, rather than drop it.
+
+            MathCAT can fail on an intent-only node ("... not found", "no
+            speech generated"); that used to switch MathCAT off for good.
+            """
+            assert self.mathcat is not None
+            try:
+                self.mathcat.load(self.mathcat.mathml, keep_position=True, speak=False)
+                if self.mathcat.structure is None or self.mathcat.structure.node(self.mathcat.current_id) is None:
+                    self.mathcat.command("ZoomIn")
+                self._sync_mathcat_cursor()
+                self._start_linear_preparation()
+                self._announce("cannot move there")
+            except (OSError, RuntimeError, ValueError):
+                self.mathcat = None
+                self._announce("MathCAT is no longer available; fallback navigation is active")
             self.Refresh()
 
         def _sync_mathcat_cursor(self) -> None:

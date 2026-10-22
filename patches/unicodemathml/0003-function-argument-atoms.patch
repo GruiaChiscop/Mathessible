@@ -1,0 +1,35 @@
+UnicodeMathML: a function argument whose atoms are not a list no longer throws
+
+`sin qa_n`, `lim_(n→∞) qa_n` (a function applied to two letters, the
+second subscripted) threw "Cannot read properties of undefined (reading
+'chars')" in preprocess, and the whole equation came back as an error
+span: the check for the "⒡" (parenthesize argument) dictation option read
+`x.atoms[0].chars`, but `atoms` is a single object there, not an array.
+Found by MateX's navigation audit: typing a letter at the start of a
+limit's argument dropped the built equation.
+
+Only dist/unicodemathml.js, the file MateX loads. Applied by
+scripts/bootstrap.sh after 0001 and 0002.
+
+--- a/dist/unicodemathml.js
++++ b/dist/unicodemathml.js
+@@ -3450,13 +3450,16 @@
+                 if (Array.isArray(x))
+                     x = x[0];                  // '⒡' as separate array element
+                 if (x != undefined && x.hasOwnProperty('atoms')) {
+-                    let ch = x.atoms[0].chars;
+-                    if (ch[0] == '⒡') {
++                    // MateX: atoms is not always an array ("sin qa_n"): x.atoms[0]
++                    // was undefined there and the whole conversion threw.
++                    let first = Array.isArray(x.atoms) ? x.atoms[0] : x.atoms;
++                    let ch = first && first.chars;
++                    if (typeof ch == 'string' && ch[0] == '⒡') {
+                         // Remove '⒡' and enclose function arg in parens
+                         if (ch.length == 1)
+                             ofFunc[0].shift();
+                         else
+-                            ofFunc[0].atoms[0].chars = ch.substring(1);
++                            first.chars = ch.substring(1);
+                         ofFunc = {bracketed: {open: '(', close: ')', content: ofFunc}}
+                     }
+                 }

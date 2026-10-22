@@ -13,13 +13,23 @@ from .editor_keys import word_navigation_down
 from .insertion_point import describe_insertion_point, node_name
 from .math_templates import move_to_slot
 from .node_edits import removal
-from .source_map import anchor_offset, inside_leaf, leaf_before, leaf_characters, leaf_nodes, map_leaves
+from .source_map import (
+    anchor_offset,
+    inside_leaf,
+    leaf_before,
+    leaf_characters,
+    leaf_nodes,
+    map_leaves,
+)
+from .source_view import view_of
 from .unicodemath import UnicodeMathError, mathml_has_parse_error
 
 try:
     import wx
 except ImportError:  # The interface is an optional dependency.
     wx = None
+
+
 
 
 class BuiltEditingMixin:
@@ -105,9 +115,7 @@ class BuiltEditingMixin:
         def handle_key() -> None:
             self._on_char(event)  # Announces the character itself.
 
-        typed = chr(event.GetUnicodeKey()) if self._is_typed_character(event) else ""
-        # A letter, digit, group or control word glued to a structure joins it.
-        self._edit_in_built(handle_key, glue=bool(typed) and (typed.isalnum() or typed in '(\\"'))
+        self._edit_in_built(handle_key)
         self._typing_streak = True
 
     def _insertion_point(self) -> str:
@@ -123,9 +131,27 @@ class BuiltEditingMixin:
         node_id, side, outside = self.mathcat.edit_anchor()
         described = describe_insertion_point(self.mathcat.structure, node_id, side, outside, self._read_character)
         remembered = self._remembered_caret()
-        if remembered is not None and self.document.source[remembered - 1 : remembered] == " ":
-            return f"after space, {described}"  # A space has no node of its own.
+        view = view_of(self.document.source)
+        if remembered is not None and view.text[view.to_view(remembered) - 1 : view.to_view(remembered)] == " ":
+            # A typed space has no node: say what comes next in the source instead.
+            return f"after space, {self._next_in_source(remembered)}"
         return described
+
+    def _next_in_source(self, offset: int) -> str:
+        """"before lim" / "end of math": the first leaf at or after a source offset."""
+        assert self.mathcat is not None and self.mathcat.structure is not None
+        repair = self._built_repair()
+        spans = map_leaves(repair.text, self.mathcat.structure)
+        at = repair.to_repaired(offset)
+        following = [
+            (spans[leaf.identifier].start, leaf)
+            for leaf in leaf_nodes(self.mathcat.structure)
+            if leaf.identifier in spans and spans[leaf.identifier].start >= at
+            and spans[leaf.identifier].end > spans[leaf.identifier].start
+        ]
+        if not following:
+            return "end of math"
+        return f"before {node_name(min(following, key=lambda pair: pair[0])[1], self._read_character)}"
 
     def _remembered_caret(self) -> int | None:
         """The caret left by the last professional-view edit, if nothing has moved since."""
@@ -394,20 +420,18 @@ class BuiltEditingMixin:
         self._update_braille_display()
         self._rebuild_professional_at_caret(announcement, place=self._place_after_caret)
 
-    def _built_offset(self, glue: bool = False) -> int:
+    def _built_offset(self) -> int:
         """The source offset of MathCAT's position (`edit_anchor`, `source_map`).
 
-        With `glue` (something that would join an operand is about to be
-        typed) at the outer edge of a structure, a space is put between:
-        UnicodeMath joins `(1)/(2)x` into the denominator and `x(1)/(2)`
-        into the numerator, while `(1)/(2) x` and `x (1)/(2)` stay apart.
+        No space is ever added here: the user decides where spaces go, even
+        where UnicodeMath joins neighbors (`(1)/(2)x` puts x in the
+        denominator, `qlim` is one word).
         """
         assert self.mathcat is not None and self.mathcat.structure is not None
-        source = self.document.source
         repair = self._built_repair()
         inside = self._current_inside()
         if inside is not None:
-            # Between a leaf's characters ("4|2"): never at a structure's edge.
+            # Between a leaf's characters ("4|2").
             span = map_leaves(repair.text, self.mathcat.structure).get(inside[0])
             if span is not None:
                 return repair.to_real(span.start + inside[1])
@@ -415,14 +439,8 @@ class BuiltEditingMixin:
         offset = repair.to_real(anchor_offset(repair.text, self.mathcat.structure, node_id, side, outside))
         remembered = self._remembered_caret()
         if remembered is not None and remembered != offset:
-            return remembered  # Right after "x ": past the space MathCAT has no node for.
-        if not (glue and outside and self._joins_structure(node_id, side)):
-            return offset
-        if side == "after" and 0 < offset and source[offset - 1] != " ":
-            self.document.replace_source(source[:offset] + " " + source[offset:], offset + 1)
-            return offset + 1
-        if side == "before" and offset < len(source) and source[offset] != " ":
-            self.document.replace_source(source[:offset] + " " + source[offset:], offset)
+            # Right after "x ": past the space MathCAT has no node for.
+            return remembered
         return offset
 
     def _built_repair(self) -> BuildRepair:
@@ -430,21 +448,7 @@ class BuiltEditingMixin:
         source = self.document.source
         return self._repair if self._repair.source == source else BuildRepair(source, source)
 
-    def _joins_structure(self, node_id: str, side: str) -> bool:
-        """Whether typing next to this edge would run into a structure (a whole one, or the math's first/last)."""
-        structure = self.mathcat.structure if self.mathcat is not None else None
-        if structure is None:
-            return False
-        node = structure.node(node_id)
-        if node is not structure.root:
-            return True
-        leaves = [leaf for leaf in leaf_nodes(structure) if leaf.text not in "\u2061\u2062\u2063\u2064"]
-        if not leaves:
-            return False
-        edge = leaves[-1] if side == "after" else leaves[0]
-        return bool(structure.region_entries(edge.identifier or ""))
-
-    def _edit_in_built(self, action: Callable[[], str | None], glue: bool = False) -> None:
+    def _edit_in_built(self, action: Callable[[], str | None]) -> None:
         """Run a linear-mode edit at MathCAT's position, then rebuild the equation.
 
         `action` runs in linear mode with the caret on that offset and may
@@ -453,7 +457,7 @@ class BuiltEditingMixin:
         source = self.document.source
         if self._built_selection() is None:
             self._clear_selection()
-            self.caret = self._built_offset(glue)
+            self.caret = self._built_offset()
         # Else the linear handling replaces the selection (typing, Backspace, paste, cut).
         self._selected_ids = ()
         self.mode = "linear"
@@ -470,11 +474,14 @@ class BuiltEditingMixin:
             return
         self._finish_built_edit(announcement)
 
-    def _finish_built_edit(self, announcement: str) -> None:
+    def _finish_built_edit(self, announcement: str, attempts: int = 30) -> None:
         """Rebuild after an edit made from professional mode, MathCAT on the caret's node.
 
         A source that converts only to a total failure (a bare "∫▒") stays
-        in linear view; partial errors ("a/") stay built.
+        in linear view; partial errors ("a/") stay built. A converter busy
+        with another script (the key arrived inside its nested event loop) is
+        waited for: that once counted as a failure and dropped a correct
+        equation to linear view.
         """
         if not self.document.source.strip():
             self.mode = "linear"
@@ -484,7 +491,12 @@ class BuiltEditingMixin:
             return
         try:
             mathml = self._convert_source().mathml
-        except (UnicodeMathError, RuntimeError):
+        except UnicodeMathError as error:
+            if self.converter_busy and attempts > 0:
+                wx.CallLater(30, self._finish_built_edit, announcement, attempts - 1)
+                return
+            mathml = f'mathcolor="#F00" {error}'
+        except RuntimeError:
             mathml = 'mathcolor="#F00"'
         if 'mathcolor="#F00"' in mathml:
             # Not even a repair builds (an extra ")"): keep typing in linear view.

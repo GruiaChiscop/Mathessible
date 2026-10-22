@@ -8,6 +8,8 @@ from dataclasses import dataclass
 
 # MathCAT starts some phrases with a separator meant to follow other speech,
 # e.g. a matrix row read on its own comes back as "; row 1; a, b".
+# MathCAT's ids for the nodes its intents add: "<real node id>-<intent part>[-n]".
+_INTENT_NODE = re.compile(r"^(.+?-\d+)-[A-Za-z]")
 _LEADING_SEPARATORS = re.compile(r"^[\s;,]+")
 # Commands that step forward onto the node after a boundary stop. A stop
 # raised by one of them is resumed (the current node read) by either one,

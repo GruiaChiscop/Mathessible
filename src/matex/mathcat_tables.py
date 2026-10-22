@@ -21,7 +21,7 @@ class TableNavigationMixin:
                 # cell rather than trying to reach it by zooming, which only
                 # ever descends into the node the cursor is already on.
                 self._boundary_stop = None
-                self._native.set_navigation(cell_id, 0)
+                self._go_to(cell_id)
                 return self._navigate("ReadCellCurrent")
         return self.command(command)
 
@@ -57,7 +57,7 @@ class TableNavigationMixin:
             return False
         self._boundary_stop = None
         self._linear_index = None
-        self._native.set_navigation(target, 0)
+        self._go_to(target)
         return True
 
     def read_line(self, step: int) -> str:
@@ -80,7 +80,7 @@ class TableNavigationMixin:
         cells = [child for child in row.children if child.tag == "mtd"]
         if row.identifier is None or not cells:
             return _clean_speech(self._native.speak_expression())
-        self._native.set_navigation(row.identifier, 0)
+        self._go_to(row.identifier)
         speech = self._navigate("ReadCurrent")
         self._move_to_cell_end(cells[min(position.column, len(cells)) - 1])
         return speech
@@ -168,12 +168,12 @@ class TableNavigationMixin:
         content = ""
         if content_node is not None and (content_node.children or content_node.text.strip("\u00a0 ")):
             # Never on an empty cell: in cases MathCAT fails on one ("no speech generated").
-            self._native.set_navigation(content_id, 0)
+            self._go_to(content_id)
             content = self._navigate("ReadCurrent").strip()
         if move:
             self._move_to_cell_end(cell)
         else:
-            self._native.set_navigation(previous, 0)
+            self._go_to(previous)
         content = content or "empty"
         if not vertical:
             return f"{column_label}; {content}"

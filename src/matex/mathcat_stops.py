@@ -13,10 +13,11 @@ from .mathcat_common import (
     _FENCES_AND_SEPARATORS,
     _INVISIBLE_OPERATOR_NAMES,
     _LINEAR_SEARCH_BUDGET,
-    _MAX_LINEAR_STOPS,
     BoundaryStop,
     _LinearStop,
 )
+from .math_templates import FUNCTION_SCRIPTS
+from .mathcat_common import _INTENT_NODE
 from .mathml_model import MathMLNode
 
 
@@ -40,6 +41,8 @@ class LinearStopsMixin:
         once: `extend_linear_stops` fills it in the background, and a Right
         past what is known so far discovers just the one next stop.
         """
+        if command in ("MoveStart", "MoveEnd"):
+            return self._linear_edge(command == "MoveEnd")
         if command not in {"MoveNext", "MovePrevious"}:
             self._linear_index = None
             return self.command_with_boundaries(command)
@@ -69,9 +72,42 @@ class LinearStopsMixin:
         if target >= len(self._linear_stops):
             target = len(self._linear_stops) - 1
         stop = self._linear_stops[target]
-        self._native.set_navigation(stop.node_id, 0)
+        try:
+            self._go_to(stop.node_id)
+        except RuntimeError:
+            # A stop of another load of this expression: rebuild them here, once.
+            self._linear_stops, self._linear_done, self._linear_index = [], False, None
+            self._build_bounded_stops()
+            return self.linear_command(command) if self._linear_stops else ""
         self._boundary_stop = stop.boundary
         self._linear_index = target
+        return stop.speech
+
+    def _linear_edge(self, end: bool) -> str:
+        """Home/End: "start of math" / the last stop ("end of math" with structure stops).
+
+        On the stops, as Left/Right are: MathCAT's own MoveStart/MoveEnd
+        landed on intent-only nodes of a sum or an integral (no speech, or
+        an error that dropped MathCAT).
+        """
+        if not self._linear_stops:
+            self.extend_linear_stops(1)
+        if end:
+            while self.extend_linear_stops(64):
+                pass
+        if not self._linear_stops:
+            return self.command_with_boundaries("MoveEnd" if end else "MoveStart")
+        if not end:
+            first = self._linear_stops[0]
+            self._go_to(first.node_id)
+            self._linear_index = 0
+            self._edge_stop("MovePrevious", first.node_id, "start of math")
+            return "start of math"
+        index = len(self._linear_stops) - 1
+        stop = self._linear_stops[index]
+        self._go_to(stop.node_id)
+        self._boundary_stop = stop.boundary
+        self._linear_index = index
         return stop.speech
 
     @property
@@ -148,6 +184,11 @@ class LinearStopsMixin:
         """
         if mathml != self.mathml or not stops:
             return False
+        if self.structure is None or any(self.structure.node(stop.node_id) is None for stop in stops):
+            # The worker's MathCAT canonicalized the same MathML once more and
+            # gave the nodes it adds (`f'(x)`'s function application) new ids:
+            # those stops point at nothing here. They are built here instead.
+            return False
         self._linear_stops = list(stops)
         self._linear_done = True
         self._linear_frontier = None
@@ -173,8 +214,52 @@ class LinearStopsMixin:
                 return next((index for index in matches if stops[index].boundary is None), matches[0])
             searched = len(stops)
             if self._linear_done or (not self.extend_linear_stops(1) and len(stops) == searched):
-                return None
+                return self._first_stop_inside(current_id)
         return None
+
+    def _first_stop_inside(self, identifier: str) -> int | None:
+        """On a node no stop stands on (a whole structure, an intent-only node of a sum): its first leaf's stop."""
+        if self.structure is None:
+            return None
+        base = _INTENT_NODE.match(identifier)
+        node = self.structure.node(base.group(1) if base else identifier)
+        if node is None:
+            return None
+        inside = {
+            leaf.identifier
+            for leaf in self.structure.find_all(lambda candidate: not candidate.children)
+            if leaf is node or any(ancestor is node for ancestor in self.structure.ancestors(leaf.identifier or ""))
+        }
+        stops = self._linear_stops
+        # On a whole structure is at its start: its own "start X" stop, so
+        # Right goes on to the first thing inside it.
+        own = next(
+            (
+                index
+                for index, stop in enumerate(stops)
+                if stop.edge is not None and stop.edge[0] == node.identifier and stop.speech.startswith("start")
+            ),
+            None,
+        )
+        first = own if own is not None else next(
+            (index for index, stop in enumerate(stops) if stop.node_id in inside), None
+        )
+        if first is None:
+            return None
+        stop = stops[first]
+        if own is not None:
+            position = own
+        elif first > 0:
+            position = first - 1
+        else:
+            # Nothing before it: "start of math", so Right reads the first stop.
+            self._go_to(stop.node_id)
+            self._edge_stop("MovePrevious", stop.node_id, "start of math")
+            self._linear_index = 0
+            return 0
+        self._go_to(stops[position].node_id)
+        self._boundary_stop = stops[position].boundary
+        return position
 
     def extend_linear_stops(self, steps: int) -> bool:
         """Discover up to `steps` more linear stops; False once all are known.
@@ -186,37 +271,13 @@ class LinearStopsMixin:
         if self._linear_done or self.structure is None or not self.structure.root.identifier:
             self._linear_done = True
             return False
-        if self.boundary_stops:
-            self._build_bounded_stops()
-            return False
-        saved = (self.current_id, self._boundary_stop, self._ends_announced_at, self._linear_index)
-        stops = self._linear_stops
-        try:
-            if not stops:
-                self._boundary_stop = None
-                self._ends_announced_at = None
-                self._native.set_navigation(self.structure.root.identifier, 0)
-                speech = self._navigate("ZoomIn")
-                stops.append(_LinearStop(self.current_id, speech, None, self.current_id))
-                self._linear_frontier = (self.current_id, None, None)
-                steps -= 1
-            for _ in range(max(0, steps)):
-                frontier_id, self._boundary_stop, self._ends_announced_at = self._linear_frontier
-                self._native.set_navigation(frontier_id, 0)
-                speech = self._linear_step("MoveNext")
-                display_id = stops[-1].display_id if speech.startswith("end ") else self.current_id
-                stop = _LinearStop(self.current_id, speech, self._boundary_stop, display_id)
-                if (stop.node_id == stops[-1].node_id and stop.speech == stops[-1].speech) or len(
-                    stops
-                ) >= _MAX_LINEAR_STOPS:
-                    self._linear_done = True  # Right at the very end only repeats itself.
-                    break
-                stops.append(stop)
-                self._linear_frontier = (self.current_id, self._boundary_stop, self._ends_announced_at)
-        finally:
-            current_id, self._boundary_stop, self._ends_announced_at, self._linear_index = saved
-            self._native.set_navigation(current_id, 0)
-        return not self._linear_done
+        # Always from the structure. A Right-arrow simulation used to follow
+        # MathCAT's own navigation here when structure stops were off, which
+        # is wrong in sums and integrals ("in part 1", an "empty" naryand,
+        # intent-only nodes it then failed on); the stops are the same, only
+        # entering on "start of math" stays the structure-stops setting's.
+        self._build_bounded_stops()
+        return False
 
     def _build_bounded_stops(self) -> None:
         """All linear stops at once, from the structure rather than simulated Right.
@@ -270,7 +331,7 @@ class LinearStopsMixin:
                 leaf_id = leaf.identifier
                 assert leaf_id is not None
                 try:
-                    self._native.set_navigation(leaf_id, 0)
+                    self._go_to(leaf_id)
                     speech = self._navigate("ReadCurrent")
                 except RuntimeError:
                     speech = " ".join(leaf.content.split())
@@ -306,7 +367,7 @@ class LinearStopsMixin:
         finally:
             current_id, self._boundary_stop, self._ends_announced_at, self._linear_index = saved
             try:
-                self._native.set_navigation(current_id, 0)
+                self._go_to(current_id)
             except RuntimeError:
                 pass  # An intent-only node (e.g. "...-fixity-1" after ZoomIn into a sum).
         self._linear_stops = stops
@@ -351,6 +412,10 @@ class LinearStopsMixin:
         if text in ("−", "-") and speech.startswith("negative "):
             return "negative"
         if leaf.tag == "mo" and text in _FENCES_AND_SEPARATORS and len(speech.split()) > 3:
+            return self.character_speech(text)
+        if text in FUNCTION_SCRIPTS and len(speech.split()) > 2:
+            # `log`/`lim` read the whole "the log base 2" / "the limit as x
+            # approaches 0", then the base or condition again: just the name.
             return self.character_speech(text)
         return speech
 

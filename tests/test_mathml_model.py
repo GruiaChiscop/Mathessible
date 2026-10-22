@@ -512,8 +512,9 @@ class MathMLDocumentTableTests(unittest.TestCase):
         speech = ""
         while speech != "end numerator":
             speech = navigator.linear_command("MoveNext")
-        # MathCAT is already on the denominator; the numerator's "1" stays lit.
-        self.assertEqual(navigator.current_id, "den")
+        # MathCAT is already in the denominator (on its first leaf, as with
+        # structure stops); the numerator's "1" stays lit.
+        self.assertEqual(navigator.current_id, "b")
         self.assertEqual(navigator.display_id, "one")
 
     def test_reloading_for_new_settings_keeps_the_cursor(self) -> None:

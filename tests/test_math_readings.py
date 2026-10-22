@@ -56,6 +56,26 @@ def read(source: str) -> tuple[str, list[str]]:
 
 
 class MathReadingTests(unittest.TestCase):
+    def test_a_log_has_a_base_not_a_subscript(self) -> None:
+        # Converter output for "log_2 〖8〗" (user report: "log subscript 2").
+        mathml = (
+            '<math><mrow intent=":function"><msub><mi>log</mi><mn>2</mn></msub><mo>⁡</mo><mrow intent=":fenced">'
+            "<mo></mo><mn>8</mn><mo></mo></mrow></mrow></math>"
+        )
+        navigator = MathCatNavigator(language="en", auto_zoom_out=True, boundary_stops=True)
+        navigator.load(mathml)
+        navigator.command("ZoomIn")
+        stops = [navigator.linear_command("MoveNext") for _ in range(4)]
+        self.assertEqual(stops[1:4], ["start base", "2", "end base"])
+        self.assertNotIn("the log base 2", stops[0])  # The name alone; the base follows.
+        structural = MathCatNavigator(language="en", auto_zoom_out=False, structural_stops=True)
+        structural.load(mathml)
+        structural.command("ZoomIn")
+        structural.structural_command("MoveNext")
+        self.assertEqual(structural.structural_command("ZoomIn"), "start logarithm")
+        structural.structural_command("MoveNext")
+        self.assertEqual(structural.structural_command("MoveNext"), "base, 2")
+
     def test_a_decimal_comma_is_read_as_one_number(self) -> None:
         mathml = (
             '<math><mrow intent=":fenced"><mo>{</mo><mrow><mn>1,5</mn><mo>,</mo><mn>2</mn></mrow>'

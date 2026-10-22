@@ -141,6 +141,15 @@ equation language; the gap is entirely in the editing UX layered on top.
    all on the `)` instead. Every insertion path ends in `_after_typed`:
    `\infty)` goes through control-word conversion first, and was missed
    when only the plain path handled this.
+   An unparenthesized script counts too (`_unparenthesized_script`):
+   Space after `log_2`, `log_10`, `log_a`, `lim_x`, `sin^2` opens the
+   argument, and that group is a Tab slot; not after a variable (`x_2`)
+   or a glued argument (`log_2x`). A log's subscript reads as its
+   **base** ("start base, 2, end base"; `_special_script_role`, region
+   only through `is_log_base`, since "base" is also every script's base),
+   structural navigation names the structure "logarithm"/"limit", and the
+   `log`/`lim` leaf says just its name (MathCAT read "the log base 2" /
+   "the limit as x approaches 0" there, then the base again).
    Not visible parens: the user wants `\begin`/`\end`, as Word (an
    earlier attempt with `ln(...)` was a misunderstanding). Radicals too:
    the square root template is `√〖〗`, and Space right after `√`/`∛`/`∜`
@@ -419,9 +428,11 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      2"); it describes the anchor, not an offset, since one offset can be
      either side of an edge. **Trap:** UnicodeMath juxtaposition joins a
      letter typed right after/before a structure into it (`(1)/(2)x` puts x
-     in the denominator, `x(1)/(2)` in the numerator); `_built_offset(glue)`
-     adds a space at an outer edge when the neighbor is in a structure
-     (`_joins_structure`), which the converter swallows.
+     in the denominator, `x(1)/(2)` in the numerator). **No space is ever
+     added automatically** (the user's rule, 2026-10-22: "let me decide
+     when a space goes in"): `_built_offset` once added one at a
+     structure's outer edge, before `lim`/`∑`, and after a control word
+     reached by navigation; all removed. Do not bring any of it back.
      **Step 4, [build_repair.py](src/matex/build_repair.py):** sources the
      converter cannot build at all while half-typed (a bare `▒`, `√(&x)`,
      `√(&)`, an open quote, `|` or `■(`) are built from a *repaired* text
@@ -572,8 +583,13 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   pending `RunScriptAsync` render/highlight ("true"), which showed up as
   "converter returned an unknown result". `convert_unicode_math` therefore
   tags each conversion with a token and, on a `StrayScriptResult`, waits
-  for its own (in-order) result with no-op `RunScript("null")` calls;
-  re-sending the conversion instead only stays one result behind. Key
+  for its own (in-order) result with no-op `RunScript("null")` calls.
+  **And wx can hand the conversion's own result to a pending
+  `RunScriptAsync`** (found by the audit, after quick keys): then only
+  our own "null"s come back, forever, and the old "8 tries then fail"
+  dropped correct equations to linear view ("the equation cannot be
+  read"). So after three own "null"s in a row the conversion is sent
+  again (up to three times, each waited for up to 2 s). Key
   handlers can run inside that nested loop too: F2 (`_toggle_mode`) and
   `read_expression` retry for ~1 s instead of reporting "busy"; build-on-Space
   (`_try_build_on_trigger`) still just skips the build then.
@@ -687,8 +703,14 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
     says "still preparing", then "equation ready" when adopted. Up/Down
     never ZoomIn/ZoomOut in this mode (flat reading has no levels, and a
     stray one threw speech off the stops): they read rows, see F10 above
-    (matrix-cell Up/Down with Cmd+Option still works). Node ids match between the two instances
-    because both load the same canonical MathML. (Building the list on
+    (matrix-cell Up/Down with Cmd+Option still works). Node ids mostly match between the two instances
+    because both load the same canonical MathML, but **not always**: the
+    worker's MathCAT canonicalizes it once more and gives nodes it adds
+    again (`f'(x)`'s function application) new ids, so
+    `adopt_linear_stops` refuses stops pointing at a node this navigator
+    does not have (they are built here then), and `linear_command`
+    rebuilds them if a stop's node is missing anyway. That was an
+    uncaught "Id ... not found" on Right after an edit. (Building the list on
     the UI thread froze it for ~4 s; spreading it over idle timers still
     starved key presses.) Plain MathCAT MovePrevious did not: it
     skipped whole structures and said "end ..." while moving backwards.
@@ -707,6 +729,48 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
     nothing), and "function name" gets no start/end of its own.
     Math edges are stops in both navigation modes (`_edge_stop`): the
     opposite arrow comes back to the node next to the edge, not past it.
+  - **Navigation audit (2026-10-16)**, 95 equations of every structure,
+    every mode: findings that are now rules.
+    - **MathCAT's own moves fail in sums and integrals.** Its ZoomIn/
+      MoveEnd land on nodes of the `:nary` intent (`<id>-fixity-1`,
+      `<id>-indexed-by`) that `set_navigation` cannot find again, read
+      "in part 1" or an "empty" summand, or raise "no speech generated"
+      (which used to drop MathCAT for good). So: every cursor move goes
+      through `MathCatNavigator._go_to` (an intent-only id goes to its base
+      node, `_INTENT_NODE`); Home/End are the math edges on the linear
+      stops (`_linear_edge`) and the level's ends in structural navigation;
+      linear stops are *always* built from the structure
+      (`_build_bounded_stops`; the Right-arrow simulation is gone), the
+      `structure_stops` setting only adds entering on "start of math"; and
+      structural navigation is always MateX's levels
+      (`structural_command`), without structure stops just with no edge
+      stops ("end fraction" said, the cursor stays). A node no stop stands
+      on (a whole structure) counts as its own "start X" stop
+      (`_first_stop_inside`). A move MathCAT still fails on says "cannot
+      move there" and reloads it (`EquationEditor._recover_navigation`);
+      an empty reading becomes the node read again (`_current_reading`).
+    - **Where typing goes** (`source_map.anchor_offset`): a structure that
+      fills a slot (numerator, radicand, argument, a cell) does not own the
+      slot's parens (`_fills_a_slot`, `_without_slot_parens`: "after 1/2" in
+      `(1/2)/(3/4)` stays inside the numerator); visible parens (leaves) are
+      never stepped over (`((a+b)/c)^2`); right after ∑/∫/lim/log, before
+      their limits, typing goes on at the next leaf (`_scripted_operator`:
+      `∑q_` does not parse).
+    - **A busy converter is waited for**: a key handled inside another
+      script's nested RunScript loop made `_finish_built_edit`'s
+      conversion raise "busy", which counted as a failure and dropped a
+      correct equation to linear view; it now retries every 30 ms (~1 s).
+    - **Space at the end of a lim/log condition** in the built equation
+      (the "end limit condition" stop, or after its last item) is still
+      inside the `)`: it now opens the argument there too, or goes into
+      the one already open (`_at_condition_end`, `_existing_argument` in
+      editor.py; only while `_editing_built`, the linear view keeps plain
+      text editing). The user's report: after fixing `llim` to `lim`,
+      Space never opened the argument. The insertion point after a typed space names the next
+      leaf in the source ("after space, before lim", `_next_in_source`).
+    - Left as they are: two nested structures ending together read the
+      same edge twice ("end superscript, end superscript" in `e^(-x^2)`),
+      and a root's radicand reads before its index (MathML order).
   - **Structural navigation with `structure_stops`** (`structural_stops` on
     the navigator, `structural_command`) no longer uses MathCAT's own
     Left/Right/Down/Up: a level is `_level_items(parent)` from the
@@ -888,7 +952,10 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   back by the shortest input prefix whose prepared text reaches past it
   (cuts never split a control word). Only in `dist/unicodemathml.js`:
   `src/unicodemathml.js` is a newer upstream revision, not what MateX
-  loads.
+  loads. 0003: `sin qa_n` / `lim_(n→∞) qa_n` (a function applied to
+  two letters, the second subscripted) threw in `preprocess` (the "⒡"
+  dictation check read `x.atoms[0]`, `atoms` being one object there) and
+  the whole equation came back as an error span; found by the audit.
 - **License: GPL-2.0-or-later** (was MIT; changed so NVDA's GPL-2.0
   symbol dictionaries can be used). NVDA's `symbols.dic` files are never
   committed: Settings > "Download NVDA dictionaries…" (for users of a

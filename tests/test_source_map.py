@@ -1,7 +1,7 @@
 import unittest
 
 from matex.mathcat import MathCatNavigator
-from matex.source_map import inside_leaf, leaf_at, leaf_characters, leaf_nodes, map_leaves
+from matex.source_map import anchor_offset, inside_leaf, leaf_at, leaf_characters, leaf_nodes, map_leaves
 
 # Converter output for each source (UnicodeMathML with MateX's options).
 CONVERTED = {
@@ -84,6 +84,46 @@ class SourceMapTests(unittest.TestCase):
         self.assertEqual(texts[leaf_at(spans, 4)], "1")
         self.assertEqual(texts[leaf_at(spans, 0)], "2")
         self.assertIsNone(leaf_at({}, 0))
+
+
+class AnchorTests(unittest.TestCase):
+    """Where typing goes next to a node (`anchor_offset`), on real converter output."""
+
+    def anchor(self, source: str, mathml: str, pick, side: str, outside: bool = True) -> int:
+        navigator = MathCatNavigator(language="en")
+        navigator.load(mathml)
+        node = pick(navigator.structure)
+        return anchor_offset(source, navigator.structure, node.identifier, side, outside)
+
+    def test_a_structure_filling_a_slot_leaves_the_slot_parens_alone(self) -> None:
+        # "After the fraction 1/2" stays inside the numerator's parens.
+        source = "(1/2)/(3/4)"
+        mathml = "<math><mfrac><mfrac><mn>1</mn><mn>2</mn></mfrac><mfrac><mn>3</mn><mn>4</mn></mfrac></mfrac></math>"
+        inner = lambda document: document.root.children[0].children[0]
+        self.assertEqual(self.anchor(source, mathml, inner, "before"), 1)
+        self.assertEqual(self.anchor(source, mathml, inner, "after"), 4)
+        outer = lambda document: document.root.children[0]
+        self.assertEqual(self.anchor(source, mathml, outer, "after"), len(source))
+
+    def test_visible_parens_are_not_the_structure_s_own(self) -> None:
+        source = "((a+b)/c)^2"
+        mathml = (
+            '<math><msup><mrow intent=":fenced"><mo>(</mo><mfrac><mrow><mi>𝑎</mi><mo>+</mo><mi>𝑏</mi></mrow>'
+            "<mi>𝑐</mi></mfrac><mo>)</mo></mrow><mn>2</mn></msup></math>"
+        )
+        fraction = lambda document: document.find_all(lambda node: node.tag == "mfrac")[0]
+        self.assertEqual(self.anchor(source, mathml, fraction, "before"), 1)
+        self.assertEqual(self.anchor(source, mathml, fraction, "after"), 8)
+
+    def test_after_an_integral_sign_typing_goes_into_its_argument(self) -> None:
+        # Right after ∫ comes ▒: "∫q▒" does not parse.
+        source = "∫▒f(x)dx"
+        mathml = (
+            '<math><mrow intent=":nary(,,$naryand)"><mo>∫</mo><mrow arg="naryand"><mi>𝑓</mi>'
+            '<mrow intent=":fenced"><mo>(</mo><mi>𝑥</mi><mo>)</mo></mrow><mi>𝑑</mi><mi>𝑥</mi></mrow></mrow></math>'
+        )
+        sign = lambda document: document.find_all(lambda node: node.text == "∫")[0]
+        self.assertEqual(self.anchor(source, mathml, sign, "after", outside=False), 2)
 
 
 class LeafCharacterTests(unittest.TestCase):

@@ -67,6 +67,8 @@ for (const comma of [true, false]) {
 }
 // patches/unicodemathml/0002: where parsing stopped, in the source's own offsets.
 context.console = {log() {}};
+// patches/unicodemathml/0003: a function applied to "qa_n" threw in preprocess.
+out.functionArgument = context.convertUnicodeMathToMathML('sin qa_n', {resolveControlWords: true}).mathml;
 out.stopped = ['\\\\alpha+b)', 'a&b', 'x+1'].map(
   source => context.convertUnicodeMathToMathML(source, {resolveControlWords: true}).parseError || null);
 process.stdout.write(JSON.stringify(out));
@@ -79,6 +81,7 @@ process.stdout.write(JSON.stringify(out));
         )
         results = json.loads(completed.stdout)
         self.assertIn("<mn>1,2</mn>", results["true"])
+        self.assertIn("<msub>", results["functionArgument"])
         self.assertEqual(results["stopped"], [{"offset": 8, "found": ")"}, {"offset": 1, "found": "&"}, None])
         self.assertIn("<mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn>", results["false"])
 

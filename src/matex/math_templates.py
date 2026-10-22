@@ -97,9 +97,38 @@ def group_function_argument(source: str, caret: int, functions: tuple[str, ...] 
     while start > 0 and source[start - 1].isalpha():
         start -= 1
     name = source[start:caret]
-    if not name or name not in functions or (start > 0 and source[start - 1] == "\\"):
+    if name and name in functions and not (start > 0 and source[start - 1] == "\\"):
+        return TemplateEdit(source[:caret] + " 〖〗" + source[caret:], caret + 2, f"{name}, empty argument")
+    scripted = _unparenthesized_script(source, caret, functions)
+    if scripted is not None:
+        return TemplateEdit(source[:caret] + " 〖〗" + source[caret:], caret + 2, f"{scripted}, empty argument")
+    return None
+
+
+def _unparenthesized_script(source: str, caret: int, functions: tuple[str, ...]) -> str | None:
+    """`log_2`, `log_10`, `lim_x`, `sin^2` right before the caret: the function's name, else None.
+
+    A script written without parens is one token (a number, a letter, ∞),
+    as UnicodeMath reads it; the argument comes after it, as after `log_(2)`.
+    """
+    start = caret
+    if start > 0 and source[start - 1].isdigit():
+        while start > 0 and source[start - 1].isdigit():
+            start -= 1
+    elif start > 0 and (source[start - 1].isalpha() or source[start - 1] == "∞"):
+        start -= 1
+    if start == caret or start < 2 or source[start - 1] not in "_^":
         return None
-    return TemplateEdit(source[:caret] + " 〖〗" + source[caret:], caret + 2, f"{name}, empty argument")
+    name_end = start - 1
+    name_start = name_end
+    while name_start > 0 and source[name_start - 1].isalpha():
+        name_start -= 1
+    name = source[name_start:name_end]
+    if name_start > 0 and source[name_start - 1] == "\\":
+        return None
+    if name in FUNCTION_SCRIPTS or name in functions:
+        return name
+    return None
 
 
 def insert_logarithm_template(source: str, caret: int) -> TemplateEdit:
@@ -371,7 +400,10 @@ def _naryand_slots(source: str, pairs: dict[int, int], slots: list[_Slot], funct
         while name_start > 0 and source[name_start - 1].isalpha():
             name_start -= 1
         name = source[name_start:name_end]
-        if name in functions and (name_start == 0 or source[name_start - 1] != "\\") and index + 1 not in starts:
+        if not (name in functions and (name_start == 0 or source[name_start - 1] != "\\")):
+            # `log_2 〖...〗`, `sin^2 〖...〗`: a function with an unparenthesized script.
+            name = (_unparenthesized_script(source, name_end, functions) or "") if character == "〖" else ""
+        if name and index + 1 not in starts:
             found.append(_Slot(index + 1, closing, name, "argument", closing + 1))
             starts.add(index + 1)
     return found

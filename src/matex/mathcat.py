@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 
 from .ast import Path, path_from_mathml_id
 from .mathcat_common import (
+    _INTENT_NODE,
     _FORWARD_STEPS,
     _INVISIBLE_OPERATOR_NAMES,
     _INVISIBLE_OPERATORS,
@@ -17,6 +18,7 @@ from .mathcat_structural import StructuralNavigationMixin
 from .mathcat_tables import TableNavigationMixin
 from .mathml_model import MathMLDocument, TablePosition
 from .settings import DEFAULT_RECOGNIZED_FUNCTIONS
+from .source_map import leaf_nodes
 from .mathcat_lone import lone_speech, warm_up
 
 
@@ -104,7 +106,7 @@ class MathCatNavigator(LinearStopsMixin, StructuralNavigationMixin, TableNavigat
         )
         speech = _clean_speech(self._native.speak_expression()) if speak else ""
         if previous_id is not None and self.structure.node(previous_id) is not None:
-            self._native.set_navigation(previous_id, 0)
+            self._go_to(previous_id)
         return speech
 
     def command(self, command: str) -> str:
@@ -129,16 +131,17 @@ class MathCatNavigator(LinearStopsMixin, StructuralNavigationMixin, TableNavigat
             if self._linear_stops:
                 speech = _clean_speech(self._native.speak_expression()) or speech
                 first = self._linear_stops[0]
-                self._native.set_navigation(first.node_id, 0)
+                self._go_to(first.node_id)
                 self._linear_index = 0
                 self._edge_stop("MovePrevious", first.node_id, "start of math")
             return speech
-        if entering:
-            # Zooming in from the whole math is exactly the first linear stop;
-            # record it rather than paying a MathCAT call for it again later.
-            self._linear_stops.append(_LinearStop(self.current_id, speech, None, self.current_id))
-            self._linear_frontier = (self.current_id, None, None)
-            self._linear_index = 0
+        if entering and self.structure is not None and self.structure.node(self.current_id) is None:
+            # MathCAT entered a sum or an integral on a node of its intent
+            # ("...-fixity-1"), which nothing can go back to: its first item.
+            items = self._level_items(self.structure.root)
+            if items and items[0].identifier:
+                self._go_to(items[0].identifier)
+                speech = self._current_reading()
         return speech
 
     def _at_root(self) -> bool:
@@ -155,7 +158,17 @@ class MathCatNavigator(LinearStopsMixin, StructuralNavigationMixin, TableNavigat
                 return speech
 
         previous_id = self.current_id
-        speech = self._navigate(command)
+        try:
+            speech = self._navigate(command)
+        except RuntimeError:
+            if command not in ("MoveStart", "MoveEnd") or self.structure is None:
+                raise
+            # MathCAT failed on an intent-only node: the first/last leaf instead.
+            leaves = [leaf for leaf in leaf_nodes(self.structure) if leaf.identifier and leaf.text.strip()]
+            if not leaves:
+                raise
+            self._go_to((leaves[-1] if command == "MoveEnd" else leaves[0]).identifier)
+            speech = self._current_reading()
         held = self._hold_inside_zoomed_group(command, previous_id)
         if held is not None:
             return held
@@ -178,6 +191,10 @@ class MathCatNavigator(LinearStopsMixin, StructuralNavigationMixin, TableNavigat
             if self._boundary_stop is None:
                 self._edge_stop(command, current_id, speech)
             return speech
+        if not speech.strip():
+            # MathCAT moved onto a node it says nothing for (inside a sum's or
+            # an integral's intent): read where it is instead of silence.
+            speech = self._current_reading()
         # Zooming into a structure or out onto it: the user is already on
         # (or was just on) that structure, so its own region is not news.
         ignore_id = previous_id if command == "ZoomIn" else current_id if command == "ZoomOut" else None
@@ -204,6 +221,34 @@ class MathCatNavigator(LinearStopsMixin, StructuralNavigationMixin, TableNavigat
         boundary = "; ".join(boundaries)
         return f"{boundary}; {speech}" if speech else boundary
 
+    def _go_to(self, identifier: str) -> None:
+        """Put MathCAT's cursor on a node; an intent-only id goes to the node it came from.
+
+        Zooming into a sum or an integral lands MathCAT on a node of its own
+        intent ("<id>-fixity-1", "<id>-indexed-by"), which `set_navigation`
+        cannot find again ("not found in MathML"): the stops recorded it,
+        and going back to it failed.
+        """
+        try:
+            self._native.set_navigation(identifier, 0)
+        except RuntimeError:
+            base = _INTENT_NODE.match(identifier)
+            if base is None:
+                raise
+            self._native.set_navigation(base.group(1), 0)
+
+    def _current_reading(self) -> str:
+        """The current node read again, else its text: never an empty announcement."""
+        try:
+            speech = self._navigate("ReadCurrent")
+        except RuntimeError:
+            speech = ""
+        if speech.strip():
+            return speech
+        node = self.structure.node(self.current_id) if self.structure is not None else None
+        text = " ".join(node.content.split()) if node is not None else ""
+        return text or "empty"
+
     def _hold_inside_zoomed_group(self, command: str, previous_id: str) -> str | None:
         """With auto zoom out off, undo a Left/Right that left a zoomed-into group.
 
@@ -217,7 +262,7 @@ class MathCatNavigator(LinearStopsMixin, StructuralNavigationMixin, TableNavigat
         left = self.structure.left_zoomed_regions(previous_id, self.current_id)
         if not left:
             return None
-        self._native.set_navigation(previous_id, 0)
+        self._go_to(previous_id)
         edge = "end" if command == "MoveNext" else "start"
         speech = f"{edge} of {left[0]}"
         self._edge_stop(command, previous_id, speech)
@@ -410,7 +455,7 @@ class MathCatNavigator(LinearStopsMixin, StructuralNavigationMixin, TableNavigat
         self._boundary_stop = None
         self._linear_index = None
         self._structural_edge = None  # Else a level edge left from before still anchors edits.
-        self._native.set_navigation(identifier, 0)
+        self._go_to(identifier)
 
     @property
     def display_id(self) -> str:

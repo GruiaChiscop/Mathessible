@@ -167,7 +167,7 @@ class MathMLDocument:
                 "condition",
                 "text above",
                 "text below",
-            }:
+            } or (role == "base" and self.is_log_base(candidate)):
                 entries.append((key, role))
             if self._is_function_argument(candidate):
                 entries.append((key, "argument"))
@@ -238,7 +238,7 @@ class MathMLDocument:
                 "lower limit",
                 "upper limit",
                 "limit condition",
-            }:
+            } or (role == "base" and self.is_log_base(candidate)):
                 return f"{role}, {self._readable_content(candidate)}"
             if self._is_function_name(candidate):
                 return f"function name, {self._readable_content(candidate)}"
@@ -296,6 +296,8 @@ class MathMLDocument:
             base = parent.children[0] if parent.children else None
             if base is not None and self._is_limit_operator(base):
                 return "limit condition"
+            if base is not None and self._normalized_text(base) == "log":
+                return "base"  # `log_2 x`: "start base, 2, end base", not a subscript.
             if base is not None and self._normalized_text(base) in {"max", "min", "sup", "inf", "argmax", "argmin"}:
                 return "condition"  # "the max over x in A of ...": not a subscript.
             if base is not None and self._is_large_operator(base):
@@ -327,6 +329,13 @@ class MathMLDocument:
                 above = parent.tag == "mover" or index == 2
                 return "text above" if above else "text below"
         return None
+
+    def is_log_base(self, node: MathMLNode) -> bool:
+        """The subscript of `log` (its base), not the base of a script."""
+        parent = self.parent_by_id.get(node.identifier or "")
+        if parent is None or parent.tag not in {"msub", "munder"} or len(parent.children) < 2:
+            return False
+        return parent.children[1] is node and self._normalized_text(parent.children[0]) == "log"
 
     def is_function_argument(self, node: MathMLNode) -> bool:
         return self._is_function_argument(node)

@@ -205,6 +205,79 @@ class MathCatTests(unittest.TestCase):
             speech.read_text(encoding="utf-8"),
         )
 
+class NavigationRobustnessTests(unittest.TestCase):
+    """Found by the navigation audit: MathCAT's own moves fail inside sums and integrals."""
+
+    SUM = (
+        '<math><mrow intent=":nary($l,𝑛,$naryand)"><munderover><mo>∑</mo><mrow arg="l"><mi>𝑖</mi><mo>=</mo>'
+        '<mn>1</mn></mrow><mi>𝑛</mi></munderover><mrow arg="naryand"><mi>𝑖</mi></mrow></mrow></math>'
+    )
+    INTEGRAL = (
+        '<math><mrow intent=":nary(,,$naryand)"><mo>∫</mo><mrow arg="naryand"><mi>𝑓</mi>'
+        '<mrow intent=":fenced"><mo>(</mo><mi>𝑥</mi><mo>)</mo></mrow><mi>𝑑</mi><mi>𝑥</mi></mrow></mrow></math>'
+    )
+
+    def every_mode(self):
+        for options in (
+            dict(auto_zoom_out=True, boundary_stops=True),
+            dict(auto_zoom_out=True),
+            dict(auto_zoom_out=False, structural_stops=True),
+            dict(auto_zoom_out=False),
+        ):
+            yield options, ("structural" if not options["auto_zoom_out"] else "linear")
+
+    def test_home_end_and_arrows_never_fail_or_go_silent(self) -> None:
+        for mathml in (self.SUM, self.INTEGRAL):
+            for options, kind in self.every_mode():
+                with self.subTest(options=options, mathml=mathml[:40]):
+                    navigator = MathCatNavigator(language="en", **options)
+                    navigator.load(mathml)
+                    navigator.command("ZoomIn")
+                    step = navigator.linear_command if kind == "linear" else navigator.structural_command
+                    for command in ("MoveEnd", "MoveStart", "MoveNext", "MoveNext", "MoveEnd", "MovePrevious", "MoveNext"):
+                        self.assertTrue(step(command).strip(), command)
+
+    def test_stops_from_the_worker_never_point_at_missing_nodes(self) -> None:
+        # The worker's MathCAT re-canonicalizes the MathML: for f'(x) it gave the
+        # function application it adds new ids, and Right then failed ("not found").
+        import threading
+
+        mathml = (
+            "<math><msup><mi>𝑓</mi><mo>′</mo></msup><mrow intent=\":fenced\"><mo>(</mo><mi>𝑥</mi>"
+            "<mo>)</mo></mrow></math>"
+        )
+        navigator = MathCatNavigator(language="en", auto_zoom_out=True, boundary_stops=True)
+        navigator.load(mathml)
+        navigator.command("ZoomIn")
+        job, found = navigator.linear_stops_job(), {}
+        worker = threading.Thread(target=lambda: found.setdefault("stops", job()))
+        worker.start()
+        worker.join()
+        navigator.adopt_linear_stops(navigator.mathml, found["stops"])
+        for _ in range(8):
+            navigator.linear_command("MoveNext")
+        self.assertTrue(all(navigator.structure.node(stop.node_id) for stop in navigator._linear_stops))
+
+    def test_home_and_end_in_linear_navigation_are_the_math_edges(self) -> None:
+        navigator = MathCatNavigator(language="en", auto_zoom_out=True, boundary_stops=True)
+        navigator.load(self.SUM)
+        navigator.command("ZoomIn")
+        self.assertEqual(navigator.linear_command("MoveEnd"), "end of math")
+        self.assertEqual(navigator.linear_command("MoveStart"), "start of math")
+        self.assertEqual(navigator.linear_command("MoveNext"), "sum")
+
+    def test_without_structure_stops_a_sum_is_walked_from_the_structure(self) -> None:
+        # MathCAT's own Right said "in part 1" and an "empty" summand here.
+        navigator = MathCatNavigator(language="en", auto_zoom_out=True)
+        navigator.load(self.SUM)
+        navigator.command("ZoomIn")
+        forward = [navigator.linear_command("MoveNext") for _ in range(13)]
+        self.assertNotIn("empty", forward)
+        self.assertNotIn("in part 1", forward)
+        self.assertEqual(forward[:3], ["sum", "start lower limit", "i"])
+        self.assertEqual(forward[-1], "end of math")
+
+
 if __name__ == "__main__":
     unittest.main()
 

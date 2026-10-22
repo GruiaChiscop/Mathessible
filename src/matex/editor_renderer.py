@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import time
+
 from .build_repair import BuildRepair, repair_for_build
 from .macos_webview import guard_webview_key_equivalents
 from .mathml_sanitize import MathMLModelError, sanitize_mathml
@@ -180,23 +182,32 @@ class EquationRendererMixin:
         try:
             # RunScript takes whichever script result arrives first, e.g.
             # an earlier RunScriptAsync's (matexRender/matexHighlight).
-            # Results arrive in order, so the conversion's own one is
-            # queued behind those strays: wait for it with no-op scripts
-            # (a new conversion would only fall behind the same way).
-            self._conversion_token += 1
-            token = self._conversion_token
-            success, value = self._webview.RunScript(
-                conversion_script(source, token, decimal_comma=self.settings.decimal_separator == ",")
-            )
-            for _attempt in range(8):
-                if success:
-                    try:
-                        conversion = decode_conversion(value, token)
+            # Results arrive in order, so the conversion's own one is queued
+            # behind those strays: wait for it with no-op scripts. But wx 3.2
+            # can also hand this conversion's own result to a pending
+            # RunScriptAsync: once only our own "null"s come back, it is lost
+            # (that dropped correct equations to linear view), so send it again.
+            decimal_comma = self.settings.decimal_separator == ","
+            conversion = None
+            for _send in range(3):
+                self._conversion_token += 1
+                token = self._conversion_token
+                success, value = self._webview.RunScript(conversion_script(source, token, decimal_comma=decimal_comma))
+                own_nulls = 0
+                deadline = time.monotonic() + 2.0
+                while time.monotonic() < deadline:
+                    if success:
+                        try:
+                            conversion = decode_conversion(value, token)
+                            break
+                        except StrayScriptResult:
+                            own_nulls = own_nulls + 1 if value.strip() == "null" else 0
+                    if own_nulls >= 3:
                         break
-                    except StrayScriptResult:
-                        pass
-                success, value = self._webview.RunScript("null")
-            else:
+                    success, value = self._webview.RunScript("null")
+                if conversion is not None:
+                    break
+            if conversion is None:
                 raise UnicodeMathError("the UnicodeMathML converter could not run")
         finally:
             self._converting = False

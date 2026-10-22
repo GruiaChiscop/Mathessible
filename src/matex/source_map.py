@@ -180,13 +180,78 @@ def anchor_offset(source: str, document: MathMLDocument, node_id: str, side: str
     if not found:
         return 0 if side == "before" else len(source)
     start, end = min(span.start for span in found), max(span.end for span in found)
-    if outside:
-        start, end = _with_own_parens(source, start, end)
+    if side == "after" and not node.children and scripted_operator(document, node):
+        # Right after ∑, ∫ or lim, before its limits: nothing can be typed
+        # there (`∑q_(i=1)` does not parse), so typing goes on at the next leaf.
+        later = [spans[leaf.identifier].start for leaf in leaf_nodes(document)
+                 if leaf.identifier in spans and spans[leaf.identifier].start >= end
+                 and spans[leaf.identifier].end > spans[leaf.identifier].start]
+        if later:
+            return min(later)
+    if outside or node.children:
+        visible = {spans[leaf.identifier].start for leaf in leaf_nodes(document)
+                   if leaf.identifier in spans and leaf.text.strip() in ("(", ")", "[", "]", "{", "}")}
+        start, end = _with_own_parens(source, start, end, visible)
+        if _fills_a_slot(document, node):
+            # A numerator's, a radicand's, an argument's parens are the slot's,
+            # not the structure filling it: "after the fraction" in
+            # `(1/2)/(3/4)` stays inside the numerator.
+            start, end = _without_slot_parens(source, start, end)
     return start if side == "before" else end
 
 
-def _with_own_parens(source: str, start: int, end: int) -> tuple[int, int]:
-    """Widen `start`..`end` over the "(" / ")" whose partner is already inside it, and a structure's sign (√, ■)."""
+_SLOT_PARENTS = frozenset({"mfrac", "msqrt", "mroot", "msub", "msup", "msubsup", "munder", "mover", "munderover", "mtd"})
+_SCRIPTED = frozenset({"msub", "msup", "msubsup", "munder", "mover", "munderover"})
+
+
+def _fills_a_slot(document: MathMLDocument, node: MathMLNode) -> bool:
+    """Whether the node is the whole content of a structure's argument (or a role such as "argument")."""
+    current = node
+    while current.identifier:
+        parent = document.parent_by_id.get(current.identifier)
+        if parent is None:
+            return False
+        if parent.tag in _SLOT_PARENTS:
+            return True
+        if parent.tag != "mrow" or len(parent.children) != 1:
+            break
+        current = parent  # A lone wrapper mrow: the slot is around it.
+    return bool(node.identifier and document.semantic_role(node.identifier))
+
+
+def _without_slot_parens(source: str, start: int, end: int) -> tuple[int, int]:
+    view = view_of(source)
+    text = view.text
+    low, high = view.to_view(start), view.to_view(end)
+    if high - low >= 2 and text[low] in "(〖" and text[high - 1] in ")〗":
+        depth = 0
+        for index in range(low, high):
+            if text[index] in "(〖":
+                depth += 1
+            elif text[index] in ")〗":
+                depth -= 1
+                if depth == 0 and index != high - 1:
+                    return start, end  # The first "(" closes before the end: not one pair.
+        return view.to_source(low + 1), view.to_source(high - 1)
+    return start, end
+
+
+def scripted_operator(document: MathMLDocument, node: MathMLNode) -> bool:
+    """∑, ∫, lim, log...: an operator or function name that is the base of its limits/scripts."""
+    if document.is_large_operator(node):
+        return True  # `∫▒f`: right after it comes ▒, nothing can be typed there either.
+    parent = document.parent_by_id.get(node.identifier or "")
+    if parent is None or parent.tag not in _SCRIPTED or not parent.children or parent.children[0] is not node:
+        return False
+    return node.tag == "mo" or len(node.text.strip()) > 1
+
+
+def _with_own_parens(source: str, start: int, end: int, visible: set[int] = frozenset()) -> tuple[int, int]:
+    """Widen `start`..`end` over the "(" / ")" whose partner is already inside it, and a structure's sign (√, ■).
+
+    Not over parens that are leaves of their own (`visible`, source
+    offsets): `((a+b)/c)^2` keeps its outer parens, they are not the fraction's.
+    """
     view = view_of(source)
     text = view.text
     pairs = {}
@@ -201,13 +266,25 @@ def _with_own_parens(source: str, start: int, end: int) -> tuple[int, int]:
     changed = True
     while changed:
         changed = False
-        if low > 0 and text[low - 1] in "(〖" and low - 1 in pairs and pairs[low - 1] <= high:
+        if (
+            low > 0
+            and text[low - 1] in "(〖"
+            and low - 1 in pairs
+            and pairs[low - 1] <= high
+            and view.to_source(low - 1) not in visible
+        ):
             low -= 1
             changed = True
         if low > 0 and text[low - 1] in _STRUCTURE_SIGNS and low < len(text) and text[low] in "(〖":
             low -= 1
             changed = True
-        if high < len(text) and text[high] in ")〗" and high in pairs and pairs[high] >= low:
+        if (
+            high < len(text)
+            and text[high] in ")〗"
+            and high in pairs
+            and pairs[high] >= low
+            and view.to_source(high) not in visible
+        ):
             high += 1
             changed = True
     return view.to_source(low), view.to_source(high)

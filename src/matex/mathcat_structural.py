@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from .math_templates import ARROWS
+from .math_templates import ARROWS, FUNCTION_SCRIPTS
 from .mathcat_common import _INVISIBLE_OPERATOR_NAMES, BoundaryStop, _table_names
 from .mathml_model import MathMLNode
 
@@ -25,7 +25,8 @@ class StructuralNavigationMixin:
         """
         structure = self.structure
         node = structure.node(self.current_id) if structure is not None else None
-        if structure is None or node is None or command not in {"MoveNext", "MovePrevious", "ZoomIn", "ZoomOut"}:
+        level_commands = {"MoveNext", "MovePrevious", "ZoomIn", "ZoomOut", "MoveStart", "MoveEnd"}
+        if structure is None or node is None or command not in level_commands:
             if command != "ReadCurrent":  # Space re-reads an edge stop without leaving it.
                 self._structural_edge = None
             return self.command_with_boundaries(command)
@@ -37,6 +38,10 @@ class StructuralNavigationMixin:
             return self.command_with_boundaries(command)
         index = next(position for position, item in enumerate(items) if item is node)
         edge = self._structural_edge
+        if command in ("MoveStart", "MoveEnd"):
+            # Home/End: the level's first/last item. MathCAT's own MoveEnd could
+            # land on an invisible operator and fail ("no speech generated").
+            return self._structural_go(items[0] if command == "MoveStart" else items[-1])
         if command == "ZoomIn":
             children = self._level_items(node)
             if not children:
@@ -56,6 +61,9 @@ class StructuralNavigationMixin:
         if 0 <= target < len(items) and edge is None:
             return self._structural_go(items[target])
         side = "end" if forward else "start"
+        if not self.structural_stops:
+            # No standalone edge stops: stay on the item and say the edge.
+            return self._structural_edge_speech(side, parent)
         if edge == side and self.auto_zoom_out:
             outer = self._level_parent(parent)
             if outer is not None:
@@ -75,7 +83,11 @@ class StructuralNavigationMixin:
     def _structural_enter(self, node: MathMLNode, children: list[MathMLNode]) -> str:
         first = children[0]
         assert first.identifier is not None
-        self._native.set_navigation(first.identifier, 0)
+        if not self.structural_stops:
+            # No "start X" stop: Down goes straight onto the first item, saying where.
+            speech = self._structural_go(first)
+            return f"{self._structural_edge_speech('start', node)}; {speech}"
+        self._go_to(first.identifier)
         self._structural_edge = "start"
         self._boundary_stop = BoundaryStop(
             speech=self._structural_edge_speech("start", node),
@@ -90,7 +102,7 @@ class StructuralNavigationMixin:
         assert node.identifier is not None and self.structure is not None
         self._structural_edge = None
         self._boundary_stop = None
-        self._native.set_navigation(node.identifier, 0)
+        self._go_to(node.identifier)
         position = self.structure.table_position(node.identifier) if node.tag == "mtd" else None
         table = self.structure.node(position.table_id) if position is not None and position.table_id else None
         if position is not None and table is not None:
@@ -105,6 +117,8 @@ class StructuralNavigationMixin:
         if not node.children:
             speech = self._leaf_only(node, speech)
         role = self.structure.semantic_role(node.identifier)
+        if role == "base" and node.text.strip() in FUNCTION_SCRIPTS:
+            role = None  # `log`/`lim` itself is the name, not a "base" (log's base is its subscript).
         if not role and self.structure.is_function_argument(node):
             role = "argument"
         return f"{role}, {speech}" if role else speech
@@ -141,6 +155,8 @@ class StructuralNavigationMixin:
                 return f"{_table_names(structure.table_kind(table))[0]} {number}"
         if named == "script" and node.children and structure.is_large_operator(node.children[0]):
             return "limits"
+        if named == "script" and node.children and node.children[0].text.strip() in FUNCTION_SCRIPTS:
+            return FUNCTION_SCRIPTS[node.children[0].text.strip()][0]  # "limit", "logarithm": not a script.
         if named == "script" and node.tag in {"mover", "munder", "munderover"} and node.children:
             # An operator with text over/under it (`→┴(x)`): named like its template.
             base = node.children[0]

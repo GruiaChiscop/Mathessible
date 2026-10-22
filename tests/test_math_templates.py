@@ -481,5 +481,26 @@ class MathTemplateTests(unittest.TestCase):
         self.assertEqual(outer.announcement, "empty cell, row 1, column 2")
 
 
+
+class UnparenthesizedScriptArgumentTests(unittest.TestCase):
+    """Space after `log_2`, `sin^2`: the argument box, as after `log_(2)` or `ln` (user report)."""
+
+    FUNCTIONS = ("sin", "cos", "log", "ln")
+
+    def test_space_after_a_script_without_parens_opens_the_argument(self) -> None:
+        for source, name in (("log_2", "log"), ("log_10", "log"), ("log_a", "log"), ("lim_x", "lim"), ("sin^2", "sin")):
+            edit = group_function_argument(source, len(source), self.FUNCTIONS)
+            self.assertIsNotNone(edit, source)
+            self.assertEqual((edit.source, edit.caret, edit.announcement), (source + " 〖〗", len(source) + 2, f"{name}, empty argument"))
+
+    def test_not_after_a_variable_or_a_glued_argument(self) -> None:
+        for source in ("x_2", "a_n", "log_2x"):
+            self.assertIsNone(group_function_argument(source, len(source), self.FUNCTIONS), source)
+
+    def test_its_argument_is_a_tab_slot(self) -> None:
+        edit = move_to_slot("log_2 〖x〗", 0, False, self.FUNCTIONS)
+        self.assertEqual((edit.caret, edit.announcement), (8, "argument, x"))
+
+
 if __name__ == "__main__":
     unittest.main()
