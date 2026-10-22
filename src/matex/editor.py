@@ -33,6 +33,7 @@ from .source_view import view_of
 from .space_conversion import (
     convert_before_character,
     convert_on_space,
+    convert_word_before,
     convert_shortcut_on_character,
 )
 from .theme import Palette, palette
@@ -946,12 +947,14 @@ if wx is not None:
 
             if key == wx.WXK_TAB:
                 self._clear_selection()
+                converted = self._convert_word_before_caret()
                 edit = self._edit(lambda source, caret: move_to_slot(source, caret, event.ShiftDown(), self.settings.recognized_functions))
                 if edit is None:
-                    self._announce("no slot")
+                    self._announce(f"{converted}, no slot" if converted else "no slot")
+                    self.Refresh()
                     return
                 self.caret = edit.caret
-                self._announce(edit.announcement)
+                self._announce(f"{converted}, {edit.announcement}" if converted else edit.announcement)
                 self.Refresh()
                 return
             if key == wx.WXK_SPACE and self.settings.convert_on_space and self._selection_range() is None:
@@ -1224,6 +1227,16 @@ if wx is not None:
                 return
             self.document.cursor.path = path
 
+
+        def _convert_word_before_caret(self) -> str:
+            """Tab after a typed control word (`\\infty`) converts it first, as Space would; returns the symbol or ""."""
+            edit = convert_word_before(
+                self.document.source, self.caret, self.settings.convert_on_space, converter_control_words()
+            )
+            if edit is None:
+                return ""
+            self._replace_linear(edit.source, edit.caret)
+            return edit.announcement
 
         def _deletion_span(self, caret: int, backward: bool) -> tuple[int, int]:
             """What one Backspace/Delete removes: a character, or in the built equation a whole control word.

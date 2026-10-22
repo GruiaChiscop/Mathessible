@@ -298,6 +298,14 @@ equation language; the gap is entirely in the editing UX layered on top.
    user's spaces stay after it (`lim_ `). Space after the condition then
    opens the argument even with only those spaces after the `)`
    (`group_function_argument`), the group going before them.
+   **Tab after a typed control word converts it first** (`\infty|` +
+   Tab: "∞, empty argument"; `convert_word_before`,
+   `_convert_word_before_caret`), as Space would, then moves to the slot;
+   in the built equation that changes the source, so `_built_slot` goes
+   through `_edit_in_built`. Seen in a session log: `\infty` stayed a word
+   when the user left the condition with Tab. An empty item in structural
+   navigation says "argument, empty" (MathCAT reads an empty group as
+   nothing; `_structural_go`).
    **Backspace/Delete in the built equation remove a whole control word**
    (`_deletion_span`): `\end ` is one invisible bracket there, and was
    deleted letter by letter with completion offers at each step. The

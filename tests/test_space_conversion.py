@@ -1,6 +1,11 @@
 import unittest
 
-from matex.space_conversion import convert_before_character, convert_on_space, convert_shortcut_on_character
+from matex.space_conversion import (
+    convert_before_character,
+    convert_on_space,
+    convert_shortcut_on_character,
+    convert_word_before,
+)
 
 
 class SpaceConversionTests(unittest.TestCase):
@@ -97,6 +102,15 @@ class SpaceConversionTests(unittest.TestCase):
         self.assertEqual(convert_before_character("limsup", 6, "_").source, "lim\u00a0sup_")
         self.assertIsNone(convert_before_character("xliminf", 7, "_"))  # Part of a longer word.
         self.assertIsNone(convert_before_character("\\liminf", 7, "_"))
+
+
+    def test_a_control_word_before_the_caret_converts_with_nothing_typed(self) -> None:
+        # Tab leaving "lim_(x→\\infty|)" converts the word first, as Space would.
+        edit = convert_word_before("lim_(x→\\infty)", 13, control_words={"infty": "∞"})
+        self.assertEqual((edit.source, edit.caret, edit.announcement), ("lim_(x→∞)", 8, "∞"))
+        self.assertIsNone(convert_word_before("lim_(x→\\inf)", 11, control_words={"infty": "∞"}))
+        self.assertIsNone(convert_word_before("x+1", 3, control_words={"infty": "∞"}))
+        self.assertIsNone(convert_word_before("\\infty", 6, enabled=False, control_words={"infty": "∞"}))
 
 
 if __name__ == "__main__":

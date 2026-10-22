@@ -121,6 +121,8 @@ class StructuralNavigationMixin:
             role = None  # `log`/`lim` itself is the name, not a "base" (log's base is its subscript).
         if not role and self.structure.is_function_argument(node):
             role = "argument"
+        if not speech.strip():
+            speech = "empty"  # An empty argument or slot: MathCAT reads nothing ("argument, ").
         return f"{role}, {speech}" if role else speech
 
     def _structural_edge_speech(self, side: str, parent: MathMLNode) -> str:

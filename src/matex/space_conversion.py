@@ -105,6 +105,21 @@ def convert_before_character(
     return SpaceConversion(updated, token_start + len(replacement) + len(character), replacement, True)
 
 
+def convert_word_before(
+    source: str, caret: int, enabled: bool = True, control_words: Mapping[str, str] | None = None
+) -> SpaceConversion | None:
+    """A control word right before the caret, converted with nothing typed after it (Tab leaving a slot)."""
+    caret = max(0, min(caret, len(source)))
+    if not enabled:
+        return None
+    match = _control_word_match(source, caret, control_words)
+    if match is None:
+        return None
+    token_start, replacement = match
+    updated = source[:token_start] + replacement + source[caret:]
+    return SpaceConversion(updated, token_start + len(replacement), replacement, True)
+
+
 def convert_shortcut_on_character(source: str, caret: int, character: str) -> SpaceConversion | None:
     """The typed character completes a shortcut: convert it at once (`<` + `<` is `≪`).
 

@@ -10,7 +10,7 @@ from collections.abc import Callable
 from .build_repair import BuildRepair
 from .character_speech import character_name
 from .clipboard import set_clipboard_text
-from .editor_keys import word_navigation_down
+from .editor_keys import converter_control_words, word_navigation_down
 from .insertion_point import describe_insertion_point, node_name
 from .math_templates import move_to_slot
 from .node_edits import removal
@@ -24,6 +24,7 @@ from .source_map import (
     scripted_operator,
 )
 from .source_view import view_of
+from .space_conversion import convert_word_before
 from .unicodemath import UnicodeMathError, mathml_has_parse_error
 
 try:
@@ -575,8 +576,27 @@ class BuiltEditingMixin:
         self._rebuild_professional_at_caret(announcement, place=self._place_after_caret)
 
     def _built_slot(self, reverse: bool) -> None:
-        """Tab/Shift+Tab in professional mode: the next template slot, no rebuild needed."""
+        """Tab/Shift+Tab in professional mode: the next template slot, no rebuild needed.
+
+        After a typed control word (`\\infty`) the word is converted first,
+        which changes the source: then it goes through `_edit_in_built`.
+        """
         self.caret = self._built_offset()
+        source = self.document.source
+        if convert_word_before(source, self.caret, self.settings.convert_on_space, converter_control_words()):
+
+            def convert_and_move() -> str:
+                converted = self._convert_word_before_caret()
+                edit = self._edit(
+                    lambda source, caret: move_to_slot(source, caret, reverse, self.settings.recognized_functions)
+                )
+                if edit is None:
+                    return f"{converted}, no slot"
+                self.caret = edit.caret
+                return f"{converted}, {edit.announcement}"
+
+            self._edit_in_built(convert_and_move)
+            return
         edit = self._edit(lambda source, caret: move_to_slot(source, caret, reverse, self.settings.recognized_functions))
         if edit is None:
             self._announce("no slot")

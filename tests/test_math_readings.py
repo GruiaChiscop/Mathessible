@@ -104,6 +104,15 @@ class MathReadingTests(unittest.TestCase):
         navigator.command("ZoomIn")
         self.assertEqual([navigator.linear_command("MoveNext") for _ in range(3)], ["limit superior", "of", "start argument"])
 
+    def test_an_empty_argument_is_said_empty_in_structural_navigation(self) -> None:
+        # Converter output for "lim_(n→∞) 〖〗": MathCAT reads the empty group as nothing.
+        mathml = '<math display="inline"><mrow intent=":function"><msub><mi>lim</mi><mrow><mi>𝑛</mi><mo stretchy="true">→</mo><mi>∞</mi></mrow></msub><mo>\u2061</mo><mrow intent=":fenced"><mo></mo><mspace width="0" /><mo></mo></mrow></mrow></math>'
+        navigator = MathCatNavigator(language="en", auto_zoom_out=False, structural_stops=True)
+        navigator.load(mathml)
+        navigator.command("ZoomIn")
+        navigator.structural_command("MoveNext")
+        self.assertEqual(navigator.structural_command("MoveNext"), "argument, empty")
+
     def test_a_decimal_comma_is_read_as_one_number(self) -> None:
         mathml = (
             '<math><mrow intent=":fenced"><mo>{</mo><mrow><mn>1,5</mn><mo>,</mo><mn>2</mn></mrow>'
