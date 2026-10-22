@@ -1,85 +1,81 @@
 # MateX
 
-Prototip pentru un editor matematic accesibil, cu sursă UnicodeMath și o
-vizualizare profesională explorabilă structural.
+A prototype accessible maths editor: documents are Markdown, equations are
+written in UnicodeMath (the linear format of Microsoft Word's equation
+editor), and every equation can be read, navigated and edited with a
+screen reader and a braille display, through
+[MathCAT](https://github.com/daisy/MathCAT).
 
-În această etapă sunt implementate:
+What it does so far:
 
-- sintaxa UnicodeMath oferită de implementarea oficială
-  `MurrayIII/UnicodeMathML`, inclusă ca submodul;
-- conversie UnicodeMath către MathML 4 pentru fracții, radicali, indici,
-  accente, delimitatori, funcții, operatori n-ari, matrice, ecuații și
-  control words;
-- un arbore matematic independent de interfață;
-- un cursor semantic care navighează arborele;
-- un editor `wx.Window` desenat de aplicație, fără `wx.TextCtrl`;
-- formulare și navigare semantică prin MathCAT;
-- anunțuri prin Prism, cu fallback în consolă;
-- comutare între modul liniar și cel profesional cu `F2`.
+- UnicodeMath, converted to MathML by the official converter,
+  `MurrayIII/UnicodeMathML` (a submodule): fractions, radicals, scripts,
+  accents, brackets, functions, n-ary operators, matrices, cases, equation
+  arrays and control words (`\alpha`, `\sum`, …).
+- An equation editor with two views, as in Word: **linear** (the
+  UnicodeMath source) and **professional** (the built equation), switched
+  with `F2`.
+- Speech, navigation and braille from MathCAT, announced through Prism
+  (with a console fallback when no screen reader is available).
+- Word's editing aids: Math AutoCorrect for control words and shortcuts
+  (`\pi`, `->`), a completion list for control words, templates with
+  Tab-able slots, a structure gallery, matrix row and column editing,
+  fraction styles, and building the equation as you type.
+- Notebooks of Markdown pages, saved as a folder or a single `.mtex` file,
+  and export to accessible HTML with native MathML.
 
-WebView-ul sistemului rămâne permanent ascuns și este folosit numai pentru
-conversia UnicodeMath către MathML. Focalizarea și randarea vizibilă rămân în
-editorul personalizat, astfel încât VoiceOver să nu intre în modul de navigare
-web și ecuația să nu fie anunțată de două ori.
-Editorul trimite același MathML către binding-ul nativ MathCAT și folosește textul
-returnat de `GetSpokenText` și `DoNavigateCommand`. Implementarea minimală din
-`matex.ast.describe` rămâne doar fallback dacă extensia nativă nu poate fi
-încărcată; MateX nu menține intenționat un vocabular matematic paralel.
+The equation editor is drawn by MateX itself, not a native text field, so
+that VoiceOver does not enter web navigation or announce an equation
+twice. A system WebView converts UnicodeMath to MathML and shows the
+rendered equation, but never takes the focus. MathCAT receives the same
+MathML; what MateX says about the built equation is MathCAT's speech. A
+minimal reader in `matex.ast` is used only if the native extension cannot
+be loaded.
 
-Maparea curentă pentru modul profesional este:
-
-- stânga/dreapta: `MovePrevious`/`MoveNext`;
-- jos/sus: `ZoomIn`/`ZoomOut`;
-- Home/End (și `Command`+stânga/dreapta pe macOS): `MoveStart`/`MoveEnd`;
-- `Command+Option`+săgeți pe macOS sau `Ctrl+Alt`+săgeți pe Windows/Linux:
-  `MoveCellPrevious`/`MoveCellNext`/`MoveCellUp`/`MoveCellDown`;
-- Space: `ReadCurrent`;
-- `GetNavigationMathMLId`: sincronizarea evidențierii vizuale cu poziția
-  MathCAT.
-
-## Instalare rapidă cu UV
+## Quick installation with uv
 
 ```shell
 sh scripts/bootstrap.sh
 ```
 
-Scriptul inițializează submodulele, instalează local UV și toolchain-ul Rust dacă nu există, creează
-`.venv`, compilează binding-ul MathCAT, sincronizează versiunile din
-`uv.lock` și rulează testele. Pe Windows și Linux, UV poate
-instala automat Python 3.13. Pe macOS, wxPython necesită un Python de tip
-Framework; scriptul detectează automat unul instalat prin Homebrew sau
-python.org și explică ce lipsește dacă nu îl găsește. Versiunea de proiect
-este Python 3.14.
+The script initialises the submodules, applies MateX's patches to them
+(see below), installs uv and the Rust toolchain locally if they are
+missing, creates `.venv`, compiles the MathCAT binding, syncs the versions
+in `uv.lock` and runs the tests. On Windows and Linux uv can install
+Python by itself. On macOS wxPython needs a Framework build of Python: the
+script finds one installed through Homebrew or python.org, and explains
+what is missing if there is none. The project's Python version is 3.14.
 
-## Modificări locale ale MathCAT și UnicodeMathML
+## Local changes to MathCAT and UnicodeMathML
 
-Submodulele `MathCAT` și `UnicodeMathML` indică exact commit-urile
-originale (`daisy/MathCAT`, `MurrayIII/UnicodeMathML`). Corecturile MateX
-pentru ele stau separat, ca fișiere în `patches/mathcat/` și
-`patches/unicodemathml/`; antetul fiecărui fișier spune ce schimbă și de ce.
-`scripts/bootstrap.sh` le aplică după ce descarcă submodulele (le sare pe
-cele deja aplicate), deci după o clonare nouă rulați întâi:
+The `MathCAT` and `UnicodeMathML` submodules point at the original
+upstream commits (`daisy/MathCAT`, `MurrayIII/UnicodeMathML`). MateX's
+fixes to them are kept separately, as files in `patches/mathcat/` and
+`patches/unicodemathml/`; each file's header says what it changes and
+why. `scripts/bootstrap.sh` applies them after fetching the submodules
+(skipping those already applied), so after a fresh clone run:
 
 ```shell
-git clone --recursive <adresa depozitului>
+git clone --recursive <repository address>
 cd MateX
 sh scripts/bootstrap.sh
 ```
 
-Doar `uv sync`, fără bootstrap, construiește MathCAT **fără** corecturi:
-MateX pornește, dar citește sau construiește greșit unele ecuații. La
-pornire MateX verifică și, dacă lipsesc corecturi, spune care și cere
-rularea scriptului. După ce schimbați reguli MathCAT (`Rules/`), refaceți
-extensia nativă cu `uv sync --reinstall-package matex-mathcat`.
+Running `uv sync` alone, without the bootstrap script, builds MathCAT
+**without** the fixes: MateX starts, but reads or builds some equations
+wrongly. MateX checks this at startup and, if any fix is missing, says
+which and asks you to run the script. After changing MathCAT's rules
+(`Rules/`), rebuild the native extension with
+`uv sync --reinstall-package matex-mathcat`.
 
-Modificările din interiorul submodulelor nu intră în commit-urile MateX;
-o corectură nouă se salvează ca fișier în `patches/` (de exemplu cu
-`git -C MathCAT diff > patches/mathcat/0006-....patch`, plus un antet).
-Licențele MathCAT și UnicodeMathML (MIT) rămân în submodule.
+Changes made inside the submodules are not part of MateX's commits; a new
+fix is saved as a file in `patches/` (for example with
+`git -C MathCAT diff > patches/mathcat/0006-….patch`, plus a header). The
+MathCAT and UnicodeMathML licences (MIT) stay in the submodules.
 
-## Comenzi uzuale
+## Everyday commands
 
-După instalare, dacă UV se află în `PATH`:
+After installation, with uv on your `PATH`:
 
 ```shell
 uv sync
@@ -87,127 +83,154 @@ uv run matex
 uv run python -m unittest discover -s tests -v
 ```
 
-Dacă UV a fost instalat local de script, înlocuiți `uv` cu `.tools/uv`.
+If the script installed uv locally, use `.tools/uv` instead of `uv`.
 
-Pentru a înregistra o sesiune de test (taste, ce spune MateX, sursa și
-cursorul, comenzi, erori) în `~/.matex/logs/`:
+To record a test session (keys, what MateX says, the source and caret,
+commands and errors) in `~/.matex/logs/`:
 
 ```shell
 MATEX_LOG=1 uv run matex
 ```
 
-În modul liniar se poate introduce text și se pot folosi săgețile,
-Backspace, Delete, Home și End (pe macOS și `Command`+stânga/dreapta pentru
-început/sfârșit). Săgețile sus/jos citesc rândul curent, iar cu Shift
-selectează până la început/sfârșit. Meniul contextual (click dreapta,
-`Shift+F10` sau tasta Meniu) are, când cursorul e într-o matrice, submeniul
-Matrice: inserare de rânduri deasupra/dedesubt, de coloane la stânga/dreapta
-și ștergerea rândului sau a coloanei curente. Același meniu funcționează și
-în modul profesional, pe celula curentă, și permite comutarea între modul
-liniar și cel profesional. În modul profesional, săgețile stânga/dreapta
-parcurg nodurile, săgeata jos intră într-o structură, iar săgeata sus revine
-la părinte. În modul profesional se poate și scrie: textul intră după
-elementul curent (înaintea lui pe opririle „start …”), Backspace și Delete
-șterg, iar inserarea de șabloane, Undo/Redo și Tab funcționează ca în modul
-liniar. `Shift+Option+Space` (`Shift+Alt+Space` în afara macOS) spune unde
-ar ajunge textul, de exemplu „after 1, end of numerator, before 2”. În modul profesional, `Cmd+C`/`Cmd+X` copiază/taie elementul
-curent (o fracție întreagă, un numărător, un simbol), iar `Cmd+V` lipește
-acolo unde ar ajunge textul. Backspace și Delete șterg câte un caracter; pe
-o structură întreagă (în navigarea structurală) prima apăsare doar întreabă
-(„the fraction, press again to delete it”), iar a doua, imediat după, o
-șterge. `F10` (sau `View → Allow Writing`) oprește și repornește scrierea:
-cât e oprită, nimic nu modifică ecuația, iar Space doar recitește zona
-curentă. Cu
-setarea `Open equations built`, ecuațiile se deschid direct în modul
-profesional (o ecuație goală se deschide tot liniar). Cu `Build equations as you type`
-(activă implicit), ca în Word, o ecuație scrisă în modul liniar se
-construiește la Space sau la un operator ori semn de punctuație (aceeași
-regulă ca la conversia comenzilor), de îndată ce e completă, și scrierea continuă în modul profesional. Acolo Space citește
-elementul curent, dar imediat după ce ai scris ceva, Space scrie și el.
+## Editing equations
 
-## Markdown și ecuații
+In the **linear view** you type UnicodeMath and move with the arrow keys,
+Backspace, Delete, Home and End (on macOS also `Command`+Left/Right for
+the start and end). Up/Down read the source; with Shift they select to its
+start or end. A control word is converted when you type Space or a
+punctuation mark after it (`\alpha` becomes α), and while you type one the
+matching words are offered: Up/Down browse them, Tab takes one, Escape
+closes the list. Tab and Shift+Tab move between a template's slots.
 
-Din meniul View → Document Preview (`Ctrl+Shift+P`) se poate afișa, lângă
-editorul Markdown, documentul formatat, cu ecuațiile randate. Opțiunea e
-oprită implicit și e ținută minte între sesiuni. În editorul de ecuații,
-modul liniar arată sub sursă o previzualizare a ecuației, iar modul
-profesional afișează ecuația randată, cu elementul curent evidențiat; un
-click pe o parte a ecuației mută cursorul MathCAT acolo.
+With **Build equations as you type** (on by default), as in Word, the
+equation is built as soon as it is complete, on Space or an operator or
+punctuation mark, and typing goes on in the professional view. With
+**Open equations built**, equations open straight in the professional
+view (an empty one still opens linear).
 
-Fereastra principală este un editor Markdown nativ. Ecuațiile inline sunt
-delimitate de `$...$`, iar ecuațiile afișate separat de `$$...$$`. Cu cursorul
-într-o astfel de zonă, `Alt+=` pe Windows și Linux sau `Control+=` pe macOS
-deschide conținutul în editorul matematic. Aceeași comandă în text obișnuit
-creează o ecuație inline nouă, iar dacă există o selecție o încadrează între
-delimitatori.
+In the **professional view** you are on MathCAT's reading of the built
+equation:
 
-În editorul matematic, `Enter` sau încă o
-apăsare `Alt+=` (`Control+=` pe macOS) salvează ecuația și revine în Markdown. `Escape` anulează
-editarea fără a modifica documentul. Dolarii precedați de backslash și cei din
-blocuri ori fragmente de cod Markdown nu sunt interpretați ca ecuații.
+- Left/Right move by character, `Option`+Left/Right (`Ctrl` elsewhere) by
+  element, Home/End to the start and end.
+- Up/Down read the previous or next row of a matrix, cases or equation
+  array, or the whole equation.
+- `Command+Option`+arrows on macOS (`Ctrl+Alt`+arrows elsewhere) move
+  between matrix cells.
+- Typing, Backspace and Delete edit the equation where the caret is, and
+  it is rebuilt. Templates, Undo/Redo and Tab work as in the linear view.
+- `Shift+Option+Space` (`Shift+Alt+Space` elsewhere) says where typing
+  would go, for example "after 1, end of numerator, before 2".
+- `Cmd+C`/`Cmd+X` copy or cut the current element (a whole fraction, a
+  numerator, a symbol), and `Cmd+V` pastes where typing would go. On a
+  whole structure, the first Backspace or Delete only asks ("the
+  fraction, press again to delete it") and a second one, straight after,
+  deletes it.
+- Shift with the arrow keys selects, by character or by element.
+- `F10` (View → Writing Mode) switches between writing and exploring:
+  while exploring nothing changes the equation and Space reads the
+  current element.
+- `F8` lists the equation's errors; Enter on one selects it.
 
-Documentele se salvează ca fișiere Markdown UTF-8 din meniul Fișier. Sunt
-disponibile comenzile Nou, Deschide, Salvează și Salvează ca, împreună cu
-scurtăturile standard `Ctrl/Command+N`, `Ctrl/Command+O`, `Ctrl/Command+S` și
-`Ctrl/Command+Shift+S`. Extensia `.md` este adăugată automat dacă nu este
-specificată. MateX cere confirmare înainte de a abandona modificări nesalvate,
-inclusiv o ecuație care este încă deschisă în editorul matematic.
+The context menu (right click, `Shift+F10` or the Menu key) works in both
+views. It inserts templates, switches the view, and, when the caret is in
+one, edits a matrix (rows above or below, columns left or right, deleting
+the current row or column), cases or an equation array, a fraction's style
+(stacked, skewed, linear, small), a root's index and an integral's or a
+sum's limits.
 
-Fiecare document sau caiet este deschis în propria fereastră. `New Window`,
-`Open` și comenzile de creare ori deschidere a caietelor păstrează ferestrele
-existente. `Close Window` închide numai documentul curent, iar `Quit` verifică
-modificările nesalvate din toate ferestrele. Meniul `Window` permite trecerea
-la fereastra următoare sau precedentă și aducerea tuturor în prim-plan.
+The **Insert** menu has the templates, each with its shortcut where Word
+has one, the matrix and symbol dialogs, and the **Structure Gallery**
+(`Cmd+Shift+G`): Word's structure categories (Fraction, Script, Radical,
+Integral, Large Operator, Bracket, Function, Accent, Limit and Log,
+Operator, Matrix), each a list of variants. Left/Right in the list change
+the category, Enter inserts, and "Written as" shows how the structure is
+typed in the linear view.
 
-## Caiete și pagini
+## Markdown and equations
 
-Un caiet MateX este un folder obișnuit. Fișierul `matex.json` păstrează titlul
-și ordinea paginilor, iar subfolderul `pages` conține câte un fișier `.md`
-UTF-8 pentru fiecare pagină. Acest format rămâne ușor de citit fără MateX și
-prietenos cu sistemele de versionare.
+The main window is a native Markdown editor. Inline equations are written
+between `$...$` and display equations between `$$...$$`. With the caret
+in one, `Alt+=` on Windows and Linux or `Control+=` on macOS opens it in
+the equation editor. The same command in ordinary text creates a new
+inline equation, or wraps the selection in delimiters.
 
-Meniul Caiet permite crearea și deschiderea unui caiet, adăugarea, redenumirea
-și ștergerea paginilor, precum și mutarea lor în sus sau în jos. Lista accesibilă
-„Pagini caiet” apare lângă editor. La schimbarea paginii, MateX salvează automat
-pagina curentă, inclusiv ecuația care se editează în acel moment.
+In the equation editor, `Enter` saves the equation and starts a new line
+after it, as in Word; another `Alt+=` (`Control+=` on macOS) saves and
+returns to the Markdown. `Escape` cancels the edit without changing the
+document. Dollar signs preceded by a backslash, and those in Markdown code
+blocks or code spans, are not taken as equations.
 
-Pentru mutare sau distribuire, același caiet poate fi salvat ca un singur
-fișier `.mtex`. Formatul este o arhivă comprimată care păstrează manifestul și
-toate paginile Markdown. MateX poate crea, deschide și edita direct caiete
-`.mtex`; salvarea reîmpachetează arhiva în mod atomic. La deschidere sunt
-respinse căile nesigure, legăturile simbolice și arhivele cu dimensiuni
-decomprimate excesive.
+View → Document Preview (`Ctrl+Shift+P`) shows the formatted document,
+with rendered equations, beside the Markdown editor. It is off by default
+and remembered between sessions. In the equation editor, the linear view
+shows a preview of the equation under the source, and the professional
+view shows the rendered equation with the current element highlighted;
+clicking part of the equation moves MathCAT's cursor there.
 
-Comanda `File → Export as HTML…` exportă documentul curent sau toate paginile
-caietului într-un singur fișier HTML. Exportul include cuprinsul paginilor,
-formatarea Markdown, tabelele și ecuațiile UnicodeMath convertite în MathML
-nativ, astfel încât documentul rezultat să rămână accesibil și să nu depindă
-de JavaScript ori de o conexiune la internet.
+Documents are saved as UTF-8 Markdown files from the File menu, with New,
+Open, Save and Save As and the standard shortcuts `Ctrl/Command+N`,
+`Ctrl/Command+O`, `Ctrl/Command+S` and `Ctrl/Command+Shift+S`. The `.md`
+extension is added when none is given. MateX asks before discarding
+unsaved changes, including an equation still open in the equation editor.
 
-## Dicționare de simboluri
+Each document or notebook opens in its own window. `New Window`, `Open`
+and the notebook commands keep the existing windows. `Close Window` closes
+only the current document, and `Quit` checks every window for unsaved
+changes. The `Window` menu moves to the next or previous window and brings
+them all to the front.
 
-Numele rostite pentru simboluri (la scriere, ștergere și deplasarea
-cursorului în modul liniar) vin dintr-un dicționar în formatul `symbols.dic`
-al NVDA. MateX are unul propriu, în engleză. Dicționarele NVDA se descarcă
-din repository-ul NVDA din aplicație, cu `Settings → Download NVDA
-dictionaries…` (se aleg limbile dintr-o listă), sau din linia de comandă:
+## Notebooks and pages
+
+A MateX notebook is an ordinary folder. `matex.json` keeps the title and
+the order of the pages, and the `pages` folder holds one UTF-8 `.md` file
+per page, so a notebook stays readable without MateX and works well with
+version control.
+
+The Notebook menu creates and opens notebooks, adds, renames and deletes
+pages, and moves them up or down. The accessible "Notebook pages" list
+appears beside the editor. When you change page, MateX saves the current
+one, including an equation being edited.
+
+To move or share a notebook, it can be saved as a single `.mtex` file: a
+compressed archive with the manifest and every Markdown page. MateX
+creates, opens and edits `.mtex` notebooks directly, and saving repacks
+the archive atomically. Unsafe paths, symbolic links and archives that
+would unpack to an excessive size are refused on opening.
+
+`File → Export as HTML…` exports the current document, or every page of
+the notebook, as a single HTML file: a table of contents, Markdown
+formatting, tables, and the UnicodeMath equations converted to native
+MathML, so the result stays accessible and needs neither JavaScript nor
+an internet connection.
+
+## Symbol dictionaries
+
+The names spoken for symbols while typing, deleting and moving in the
+linear view come from a dictionary in NVDA's `symbols.dic` format. MateX
+has its own, in English. NVDA's dictionaries are downloaded from the NVDA
+repository, from within the app with `Settings → Download NVDA
+dictionaries…` (choosing the languages from a list), or from the command
+line:
 
 ```shell
-uv run matex-fetch-symbols          # toate limbile
-uv run matex-fetch-symbols ro en    # doar acestea
+uv run matex-fetch-symbols          # every language
+uv run matex-fetch-symbols ro en    # only these
 ```
 
-Ele ajung în `~/.matex/symbols/` și se aleg din `Settings → Symbol
-dictionary`. Scriptul notează în primele rânduri ale fiecărui fișier sursa
-(NVDA), limba, adresa și data descărcării; lista din Settings arată „NVDA”
-doar pentru fișierele care au această notă, nu după numele fișierului. Tot de acolo, `Import dictionary…` aduce orice fișier în același
-format (scris de mână sau copiat dintr-o instalare NVDA). Un dicționar NVDA
-într-o altă limbă folosește, pentru ce nu definește, dicționarul NVDA în
-engleză, dacă e descărcat, apoi pe cel al MateX. În modul profesional,
-vorbirea vine în continuare din MathCAT.
+They are saved in `~/.matex/symbols/` and chosen in `Settings → Symbol
+dictionary`. The download notes, in the first lines of each file, the
+source (NVDA), the language, the address and the date; the Settings list
+shows "NVDA" only for files with that note, never because of a file name.
+`Import dictionary…`, in the same place, brings in any file in the same
+format (written by hand or copied from an NVDA installation). An NVDA
+dictionary in another language falls back to NVDA's English one, if
+downloaded, and then to MateX's own for what it does not define. The
+built equation is always read by MathCAT, not by these dictionaries.
 
-## Licență
+## Licence
 
-MateX este distribuit sub GNU General Public License, versiunea 2 sau
-(la alegere) orice versiune ulterioară. Dicționarele NVDA nu fac parte din
-repository; sunt descărcate la cerere și au licența NVDA (GPL-2.0).
+MateX is distributed under the GNU General Public License, version 2 or
+(at your option) any later version. NVDA's dictionaries are not part of
+the repository; they are downloaded on request and are under NVDA's
+licence (GPL-2.0).

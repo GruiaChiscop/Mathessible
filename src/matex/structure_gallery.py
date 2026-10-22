@@ -4,8 +4,9 @@ Word shows a ribbon of pictures; here each category is a list of named
 variants, inserted through the same path as the Insert menu (`InsertItem`),
 so Tab slots, control-word spelling and building work the same. Only
 variants the converter builds are listed (checked against the real
-UnicodeMathML output, as AGENTS.md describes); `()⃗` does not parse, so
-accents go on the base already typed, as in Word's linear format.
+UnicodeMathML output, as docs/engineering-notes.md describes); `()⃗` does
+not parse, so accents go on the base already typed, as in Word's linear
+format.
 """
 
 from __future__ import annotations
