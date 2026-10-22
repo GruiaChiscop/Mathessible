@@ -22,6 +22,7 @@ from matex.math_templates import (
     insert_sum_template,
     insert_superscript_template,
     move_to_slot,
+    script_on_function,
 )
 
 
@@ -500,6 +501,44 @@ class UnparenthesizedScriptArgumentTests(unittest.TestCase):
     def test_its_argument_is_a_tab_slot(self) -> None:
         edit = move_to_slot("log_2 〖x〗", 0, False, self.FUNCTIONS)
         self.assertEqual((edit.caret, edit.announcement), (8, "argument, x"))
+
+
+
+class LimitInferiorTests(unittest.TestCase):
+    def test_space_after_liminf_spells_it_and_opens_the_argument(self) -> None:
+        edit = group_function_argument("x+liminf", 8, ("liminf",))
+        self.assertEqual((edit.source, edit.caret), ("x+lim\u00a0inf 〖〗", 11))
+
+    def test_a_lim_inf_condition_is_a_slot_and_space_after_it_opens_the_argument(self) -> None:
+        source = "lim\u00a0sup_() 〖〗"
+        self.assertEqual(move_to_slot(source, 0).announcement, "empty limit condition")
+        self.assertEqual(move_to_slot(source, 9).announcement, "empty argument")
+        typed = "lim\u00a0inf_(n→∞)"
+        self.assertEqual(group_function_argument(typed, len(typed)).source, typed + " 〖〗")
+
+
+
+class ScriptOnFunctionTests(unittest.TestCase):
+    def test_a_script_after_a_function_and_its_space_goes_on_the_name(self) -> None:
+        # UTN #28 sec. 3.5: a script right after a function applies to its name.
+        edit = script_on_function("lim ", 4, "_")
+        self.assertEqual((edit.source, edit.caret), ("lim_ ", 4))
+        self.assertEqual(script_on_function("lim  x", 5, "_").source, "lim_  x")
+        self.assertEqual(script_on_function("sin ", 4, "^", ("sin",)).source, "sin^ ")
+        self.assertEqual(script_on_function("lim\u00a0inf ", 8, "_").source, "lim\u00a0inf_ ")
+
+    def test_space_after_the_condition_opens_the_argument_before_trailing_spaces(self) -> None:
+        source = "lim_(x→∞)  "
+        edit = group_function_argument(source, 9)
+        self.assertEqual((edit.source, edit.caret), ("lim_(x→∞) 〖〗  ", 11))
+        self.assertIsNone(group_function_argument("lim_(x→∞)  x", 9))  # The argument is already there.
+
+    def test_anything_else_is_typed_as_it_is(self) -> None:
+        self.assertIsNone(script_on_function("lim", 3, "_"))  # No space: typed right there anyway.
+        self.assertIsNone(script_on_function("x ", 2, "_"))
+        self.assertIsNone(script_on_function("slim ", 5, "_"))  # Part of a longer word.
+        self.assertIsNone(script_on_function("\\sin ", 5, "_", ("sin",)))
+        self.assertIsNone(script_on_function("lim ", 4, "+"))
 
 
 if __name__ == "__main__":

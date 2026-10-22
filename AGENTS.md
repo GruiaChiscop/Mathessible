@@ -298,6 +298,57 @@ equation language; the gap is entirely in the editing UX layered on top.
    empty one; check the real MathML output (`EquationEditor.convert_unicode_math`)
    for stray `intent=":fenced"` wrappers whenever a new template is added,
    don't assume paren-wrapping a slot is always cosmetically free.
+   **A script after a function and its space** (`lim ` + `_`, `sin ` + `^`;
+   `script_on_function`, from the user's session log): `lim _` does not
+   parse, and UTN #28 sec. 3.5 applies a script right after a function to
+   the function's name, so the `_`/`^` is written glued to the name and the
+   user's spaces stay after it (`lim_ `). Space after the condition then
+   opens the argument even with only those spaces after the `)`
+   (`group_function_argument`), the group going before them.
+   **Backspace/Delete in the built equation remove a whole control word**
+   (`_deletion_span`): `\end ` is one invisible bracket there, and was
+   deleted letter by letter with completion offers at each step. The
+   linear view still edits a word a letter at a time.
+   **lim inf / lim sup:** the converter's grammar spells them `lim inf`
+   with a **no-break space** (U+00A0); `liminf` is l·i·m·i·n·f and a plain
+   space makes lim applied to inf. Typed `liminf`/`limsup` take that
+   spelling on Space (`group_function_argument`, which also opens the
+   argument) or on punctuation like `_` (`convert_before_character`,
+   `_function_spelling_match`; `FUNCTION_SPELLINGS`). `FUNCTION_SCRIPTS`
+   has both, so the condition and the argument are slots like lim's
+   (`function_script` looks a node's name up with spaces ignored).
+   The converter gives an mrow of lim, space, inf under the condition and
+   no function application; `prepare_for_mathcat` (`_join_limit_names`)
+   makes it one `<mi>lim inf</mi>` followed by U+2061: one stop, mapped to
+   the source's "lim inf", and "of" before the argument. MathCAT patch
+   0005 makes it read "the limit inferior as n approaches infinity, of a".
+   With no condition (`lim sup 〖a〗`) the converter applies lim to " sup"
+   and leaves the argument outside; `_join_unscripted_limit` rebuilds the
+   function application, the name with `intent="limit-superior"` (as a
+   bare `<mi>` MathCAT read "limsup").
+   **The gallery itself** (Insert > Structure Gallery…, Cmd+Shift+G;
+   [structure_gallery.py](src/matex/structure_gallery.py), dialog in
+   [gallery_dialog.py](src/matex/gallery_dialog.py)): Word's 11 categories
+   plus "Other", each a list of `InsertItem`s, so a gallery pick goes through
+   `insert_item` like a menu entry (`_insert_linear` → `_choose_from_gallery`,
+   then the chosen item; built view included). Menu entries are reused by
+   label (`_menu_item`), new variants are plain templates: skewed/linear/
+   small fractions, Word's "common" examples (`ⅆy/ⅆx`, quadratic formula,
+   identity matrix), `x_()^()`, `∛〖〗`/`∜〖〗`, ∯ ∰ ∐ (now in `NARY_LABELS`,
+   ∐ also a large operator in mathml_model), `()`/`[]`/`{}`, functions as
+   `sin 〖〗` (`DEFAULT_RECOGNIZED_FUNCTIONS` is now Word's own Recognized
+   Functions list plus tg/ctg/sqrt, minus lim, which has its template; a
+   saved settings file keeps its own list; names are lower-cased except
+   the defaults' own spelling, `_CANONICAL_FUNCTIONS`, so `Pr` stays `Pr`), overbar/underbar `¯()`/`▁()`
+   (`CONTENT_SIGNS`), quick matrices. `_detect_group` takes every fraction
+   sign (`FRACTION_SIGNS`) for numerator/denominator slots. Accents put the
+   combining mark on the base before the caret and refuse with none (`()⃗`
+   does not parse). Two native lists (category, structure), focus on the
+   structures; Left/Right there change category (announced), "Written as"
+   shows the linear form (`written_form`, control words per setting).
+   tests/test_structure_gallery.py builds every variant with the real
+   converter (after `build_repair`, as the editor does), so a variant that
+   stops building fails there.
 4. Do not grow local autocorrect dicts: `space_conversion.py` uses the
    converter's table, and its `FALLBACK_CONTROL_WORDS` (like `parser.py`'s)
    only matters without the submodule.
@@ -809,7 +860,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
 - `src/matex/` — the app. Pure-logic modules (parser, model, mathml_model,
   mathml_sanitize, symbol_dictionary, layout*, notebook, portable_notebook, settings,
   space_conversion, completion, equation_errors, template_source, math_templates, matrix_templates,
-  fraction_styles, structure_edits, source_view, source_map, insert_catalog, character_speech, edit_history,
+  fraction_styles, structure_edits, source_view, source_map, insert_catalog, structure_gallery, character_speech, edit_history,
   html_export, markdown_math, document_io, unicodemath) import `wx`
   nowhere and are unit tested. Templates: `template_source` holds
   `TemplateEdit` and the paren scan, `math_templates` the inserters and
@@ -903,6 +954,13 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   frozen/slotted dataclasses for value types, explicit exception tuples
   (never bare `except Exception` except in the two "assistive output must
   never crash the editor" try/excepts).
+- **Session log for the user's GUI tests** ([session_log.py](src/matex/session_log.py)):
+  start MateX with `MATEX_LOG=1 uv run matex` and every key (`describe_key`),
+  typed character, spoken text (`_announce`, with the mode, source and caret
+  then), menu command, gallery choice, equation open/close and uncaught
+  exception goes to `~/.matex/logs/session-<time>.log`. Read it after the
+  user's test instead of asking them to describe what happened. VoiceOver's
+  own speech (list rows, dialogs) is not in it, only MateX's.
 - GUI code has no automated tests. If you change key-handling/event logic in
   `editor.py` or `main_frame.py`, reason through it carefully by hand (or
   ask the user to smoke-test) since nothing will catch a regression there.
@@ -949,6 +1007,11 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
     reads MateX's `overbrace($content,$label)` intent. Rules are bundled
     with include-zip: rebuild (`uv sync --reinstall-package matex-mathcat`)
     after editing them.
+  - `Rules/Intent/general.yaml`, `Rules/Languages/en/unicode.yaml` (patch
+    0005): the limit rule named lim inf/sup `limit-inf`/`limit-sup`, which
+    no language defines (they have `lim-inf`/`lim-sup`), so MathCAT said
+    "limit inf n right arrow infinity"; and "→" says "approaches" under
+    those too.
   - `src/canonicalize.rs` `merge_number_blocks` (patch 0004): with a
     decimal comma, a "," right after an `mn` that already has a decimal
     separator starts no new number (`{1,5, 2}` read "the set 1,5,2").

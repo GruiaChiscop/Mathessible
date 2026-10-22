@@ -34,7 +34,7 @@ def prepare_for_mathcat(mathml: str) -> str:
     mathml = _INTERVAL_INTENT.sub("", mathml)
     # `ⅆ` (\dd) carries intent="ⅆ", read "double-struck italic d"; "d" is what is meant.
     mathml = mathml.replace('intent="ⅆ"', 'intent="d"')
-    if any(name in mathml for name in _LARGE_FUNCTIONS) or "⏞" in mathml or "⏟" in mathml:
+    if any(name in mathml for name in _LARGE_FUNCTIONS) or "⏞" in mathml or "⏟" in mathml or "\u00a0" in mathml:
         mathml = _intent_fixups(mathml)
     return mathml
 
@@ -52,7 +52,7 @@ def _intent_fixups(mathml: str) -> str:
         root = ElementTree.fromstring(mathml)
     except ElementTree.ParseError:
         return mathml
-    changed = False
+    changed = _join_limit_names(root)
     for element in root.iter():
         tag = element.tag.rsplit("}", 1)[-1]
         children = list(element)
@@ -71,3 +71,77 @@ def _intent_fixups(mathml: str) -> str:
                 children[1].set("arg", "label")
                 changed = True
     return ElementTree.tostring(root, encoding="unicode") if changed else mathml
+
+
+def _join_limit_names(root: ElementTree.Element) -> bool:
+    """`lim inf_(n→∞) a`: one name, applied to what follows.
+
+    The converter writes "lim inf" (no-break space, its own spelling) as an
+    mrow of lim, a space and inf under the condition, with no function
+    application after it. Every part was a stop reading the whole, and
+    MathCAT said no "of" before the argument; as one `<mi>` followed by
+    U+2061, it reads "the limit inferior as n approaches infinity, of a".
+    """
+    changed = False
+    for parent in list(root.iter()):
+        children = list(parent)
+        for index, element in enumerate(children):
+            if _join_unscripted_limit(parent, element, children[index + 1] if index + 1 < len(children) else None):
+                changed = True
+                continue
+            if _local(element) not in ("msub", "munder") or not len(element):
+                continue
+            base = element[0]
+            parts = list(base)
+            if not (
+                _local(base) == "mrow"
+                and len(parts) == 3
+                and [_local(part) for part in parts] == ["mi", "mo", "mi"]
+                and parts[0].text == "lim"
+                and parts[1].text == "\u00a0"
+                and parts[2].text in ("inf", "sup")
+            ):
+                continue
+            name = ElementTree.Element(parts[0].tag)
+            name.text = f"lim\u00a0{parts[2].text}"
+            element.remove(base)
+            element.insert(0, name)
+            following = children[index + 1] if index + 1 < len(children) else None
+            if following is not None and not (_local(following) == "mo" and following.text == "\u2061"):
+                apply = ElementTree.Element(parts[1].tag)
+                apply.text = "\u2061"
+                parent.insert(list(parent).index(element) + 1, apply)
+            changed = True
+    return changed
+
+
+def _join_unscripted_limit(
+    parent: ElementTree.Element, element: ElementTree.Element, following: ElementTree.Element | None
+) -> bool:
+    """`lim sup 〖a〗` with no condition: the converter applies lim to " sup" and leaves the argument outside."""
+    parts = list(element)
+    if not (
+        _local(element) == "mrow"
+        and element.get("intent") == ":function"
+        and len(parts) == 4
+        and [_local(part) for part in parts] == ["mi", "mo", "mo", "mi"]
+        and parts[0].text == "lim"
+        and parts[1].text == "\u2061"
+        and parts[2].text == "\u00a0"
+        and parts[3].text in ("inf", "sup")
+    ):
+        return False
+    word = parts[3].text
+    parts[0].text = f"lim\u00a0{word}"
+    # With no condition MathCAT's limit rule does not apply, and the name alone read "limsup".
+    parts[0].set("intent", "limit-inferior" if word == "inf" else "limit-superior")
+    element.remove(parts[2])
+    element.remove(parts[3])
+    if following is not None:
+        parent.remove(following)
+        element.append(following)
+    return True
+
+
+def _local(element: ElementTree.Element) -> str:
+    return element.tag.rsplit("}", 1)[-1]

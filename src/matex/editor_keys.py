@@ -49,3 +49,33 @@ def effective_key(event: wx.KeyEvent) -> int:
         if key == wx.WXK_RIGHT:
             return wx.WXK_END
     return key
+
+
+def describe_key(event: wx.KeyEvent) -> str:
+    """A key press as text for the session log: "Cmd+Shift+G", "Option+Left", "F2"."""
+    mac = wx.Platform == "__WXMAC__"
+    parts = []
+    if event.RawControlDown() and mac:
+        parts.append("Control")
+    if event.CmdDown():
+        parts.append("Cmd" if mac else "Ctrl")
+    if event.AltDown():
+        parts.append("Option" if mac else "Alt")
+    if event.ShiftDown():
+        parts.append("Shift")
+    code = event.GetKeyCode()
+    names = {
+        wx.WXK_LEFT: "Left", wx.WXK_RIGHT: "Right", wx.WXK_UP: "Up", wx.WXK_DOWN: "Down",
+        wx.WXK_HOME: "Home", wx.WXK_END: "End", wx.WXK_BACK: "Backspace", wx.WXK_DELETE: "Delete",
+        wx.WXK_RETURN: "Return", wx.WXK_NUMPAD_ENTER: "Enter", wx.WXK_TAB: "Tab", wx.WXK_ESCAPE: "Escape",
+        wx.WXK_SPACE: "Space", wx.WXK_PAGEUP: "PageUp", wx.WXK_PAGEDOWN: "PageDown", wx.WXK_MENU: "Menu",
+    }
+    if code in names:
+        name = names[code]
+    elif wx.WXK_F1 <= code <= wx.WXK_F24:
+        name = f"F{code - wx.WXK_F1 + 1}"
+    elif 32 < code < 127:
+        name = chr(code)
+    else:
+        name = f"key {code}"
+    return "+".join(parts + [name])

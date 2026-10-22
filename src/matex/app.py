@@ -7,14 +7,17 @@ def main() -> None:
     except ImportError as error:
         raise SystemExit("wxPython is not installed. Run: uv sync") from error
 
+    from . import session_log
     from .main_frame import MainFrame
 
+    session_log.start()
     app = wx.App(False)
     frame = MainFrame()
     frame.Centre()
     frame.Show()
     frame.editor.markdown.SetFocus()
     app.MainLoop()
+    session_log.stop()
 
 
 if __name__ == "__main__":

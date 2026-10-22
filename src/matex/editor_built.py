@@ -576,7 +576,7 @@ class BuiltEditingMixin:
 
     def _built_slot(self, reverse: bool) -> None:
         """Tab/Shift+Tab in professional mode: the next template slot, no rebuild needed."""
-        self.caret = self._built_offset(glue)
+        self.caret = self._built_offset()
         edit = self._edit(lambda source, caret: move_to_slot(source, caret, reverse, self.settings.recognized_functions))
         if edit is None:
             self._announce("no slot")

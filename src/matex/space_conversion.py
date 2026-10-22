@@ -97,7 +97,7 @@ def convert_before_character(
     caret = max(0, min(caret, len(source)))
     if not enabled or character.isspace() or (character.isascii() and character.isalnum()):
         return None
-    match = _control_word_match(source, caret, control_words)
+    match = _control_word_match(source, caret, control_words) or _function_spelling_match(source, caret)
     if match is None:
         return None
     token_start, replacement = match
@@ -152,6 +152,19 @@ def _control_word_match(
         while token_start > 0 and source[token_start - 1] == " ":
             token_start -= 1
     return token_start, symbol
+
+
+def _function_spelling_match(source: str, caret: int) -> tuple[int, str] | None:
+    """`liminf`/`limsup` as a whole word before the caret: the converter's `lim inf` (FUNCTION_SPELLINGS)."""
+    from .math_templates import FUNCTION_SPELLINGS
+
+    start = caret
+    while start > 0 and source[start - 1].isascii() and source[start - 1].isalpha():
+        start -= 1
+    spelled = FUNCTION_SPELLINGS.get(source[start:caret])
+    if spelled is None or (start > 0 and (source[start - 1].isalnum() or source[start - 1] == "\\")):
+        return None
+    return start, spelled
 
 
 def _shortcut_match(source: str, caret: int) -> tuple[int, str] | None:

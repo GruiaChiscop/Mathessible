@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from .math_templates import ARROWS, FUNCTION_SCRIPTS
+from .math_templates import ARROWS, function_script
 from .mathcat_common import _INVISIBLE_OPERATOR_NAMES, BoundaryStop, _table_names
 from .mathml_model import MathMLNode
 
@@ -117,7 +117,7 @@ class StructuralNavigationMixin:
         if not node.children:
             speech = self._leaf_only(node, speech)
         role = self.structure.semantic_role(node.identifier)
-        if role == "base" and node.text.strip() in FUNCTION_SCRIPTS:
+        if role == "base" and function_script(node.content):
             role = None  # `log`/`lim` itself is the name, not a "base" (log's base is its subscript).
         if not role and self.structure.is_function_argument(node):
             role = "argument"
@@ -155,8 +155,8 @@ class StructuralNavigationMixin:
                 return f"{_table_names(structure.table_kind(table))[0]} {number}"
         if named == "script" and node.children and structure.is_large_operator(node.children[0]):
             return "limits"
-        if named == "script" and node.children and node.children[0].text.strip() in FUNCTION_SCRIPTS:
-            return FUNCTION_SCRIPTS[node.children[0].text.strip()][0]  # "limit", "logarithm": not a script.
+        if named == "script" and node.children and (script := function_script(node.children[0].content)):
+            return script[0]  # "limit", "logarithm": not a script.
         if named == "script" and node.tag in {"mover", "munder", "munderover"} and node.children:
             # An operator with text over/under it (`→┴(x)`): named like its template.
             base = node.children[0]

@@ -13,19 +13,46 @@ NARY_LABELS = {
     "∬": "double integral",
     "∭": "triple integral",
     "∮": "contour integral",
+    "∯": "surface integral",
+    "∰": "volume integral",
     "∑": "sum",
     "∏": "product",
+    "∐": "coproduct",
     "⋃": "union",
     "⋂": "intersection",
 }
 # Paired brackets with a value between (no parens): opening -> (closing, name).
 BRACKET_PAIRS = {"‖": ("‖", "norm"), "⌊": ("⌋", "floor"), "⌈": ("⌉", "ceiling"), "⟨": ("⟩", "angle brackets")}
 # Signs whose "(...)" right after them is a structure's content: sign -> (structure, role).
-CONTENT_SIGNS = {"▭": ("box", "content"), "#": ("equation number", "number"), "⏞": ("overbrace", "content"), "⏟": ("underbrace", "content")}
+CONTENT_SIGNS = {
+    "▭": ("box", "content"),
+    "#": ("equation number", "number"),
+    "⏞": ("overbrace", "content"),
+    "⏟": ("underbrace", "content"),
+    "¯": ("overbar", "content"),
+    "▁": ("underbar", "content"),
+}
+# Every fraction operator: stacked, skewed, linear, small (fraction_styles.FRACTION_STYLES).
+FRACTION_SIGNS = "/⁄∕⊘"
 # Functions whose `_(...)` is part of the function: (template, slot role).
 # The argument follows a space ("lim_(n→∞) a_n"): with no separator the
 # converter folds it into the subscript, and "▒" is a parse error there.
-FUNCTION_SCRIPTS = {"lim": ("limit", "limit condition"), "log": ("logarithm", "base")}
+FUNCTION_SCRIPTS = {
+    "lim": ("limit", "limit condition"),
+    "log": ("logarithm", "base"),
+    "lim\u00a0inf": ("limit inferior", "limit condition"),
+    "lim\u00a0sup": ("limit superior", "limit condition"),
+}
+# Functions typed as one word but written as the converter's grammar wants:
+# "lim inf"/"lim sup" with a no-break space (UnicodeMathML's functionName).
+# `liminf` alone is l·i·m·i·n·f, and with a plain space lim applied to inf.
+FUNCTION_SPELLINGS = {"liminf": "lim\u00a0inf", "limsup": "lim\u00a0sup"}
+_FUNCTION_SCRIPT_KEYS = {"".join(name.split()): entry for name, entry in FUNCTION_SCRIPTS.items()}
+
+
+def function_script(text: str) -> tuple[str, str] | None:
+    """FUNCTION_SCRIPTS' entry for a node's text, spaces ignored ("lim inf" is an mrow of lim, space, inf)."""
+    return _FUNCTION_SCRIPT_KEYS.get("".join(text.split()))
 # Radical signs whose "〖...〗" right after them is the radicand.
 ROOT_SIGN_LABELS = {"√": "square root", "∛": "cube root", "∜": "fourth root"}
 FUNCTION_TEMPLATES = frozenset(template for template, _role in FUNCTION_SCRIPTS.values())
@@ -41,11 +68,16 @@ NARYAND_ROLES = {
     "double integral": "integrand",
     "triple integral": "integrand",
     "contour integral": "integrand",
+    "surface integral": "integrand",
+    "volume integral": "integrand",
     "union": "term",
     "intersection": "term",
     "sum": "summand",
     "product": "factor",
+    "coproduct": "factor",
     "limit": "argument",
+    "limit inferior": "argument",
+    "limit superior": "argument",
     "logarithm": "argument",
 }
 
@@ -81,8 +113,10 @@ def group_function_argument(source: str, caret: int, functions: tuple[str, ...] 
     without it `lim_(x→∞) (a)/(b)` or `ln (a)/(b)` is a fraction with the
     function in the numerator; `ln 〖(a)/(b)〗` is the log of the fraction.
     """
-    if caret == 0 or source[caret : caret + 1] in ("〖", "(", " "):
+    if caret == 0 or source[caret : caret + 1] in ("〖", "("):
         return None
+    if source[caret : caret + 1] == " " and source[caret:].strip():
+        return None  # An argument already follows. Only spaces after: the user's own, kept after the group.
     if source[caret - 1] in ROOT_SIGN_LABELS:
         # A radical: the group goes right after the sign (`√ 〖x〗` does not build).
         label = ROOT_SIGN_LABELS[source[caret - 1]]
@@ -98,10 +132,41 @@ def group_function_argument(source: str, caret: int, functions: tuple[str, ...] 
         start -= 1
     name = source[start:caret]
     if name and name in functions and not (start > 0 and source[start - 1] == "\\"):
-        return TemplateEdit(source[:caret] + " 〖〗" + source[caret:], caret + 2, f"{name}, empty argument")
+        spelled = FUNCTION_SPELLINGS.get(name, name)
+        source = source[:start] + spelled + source[caret:]
+        caret = start + len(spelled)
+        spoken = spelled.replace("\u00a0", " ")  # "lim sup", not "limsup".
+        return TemplateEdit(source[:caret] + " 〖〗" + source[caret:], caret + 2, f"{spoken}, empty argument")
     scripted = _unparenthesized_script(source, caret, functions)
     if scripted is not None:
         return TemplateEdit(source[:caret] + " 〖〗" + source[caret:], caret + 2, f"{scripted}, empty argument")
+    return None
+
+
+def script_on_function(source: str, caret: int, character: str, functions: tuple[str, ...] = ()) -> TemplateEdit | None:
+    """`_`/`^` typed after a function name and the spaces that ended it: the script goes on the name.
+
+    `lim _` does not parse (a space ends the operand `_` would attach to),
+    but UnicodeMath (UTN #28, sec. 3.5) applies a script right after a
+    function to the function's name, as in `sin^2 x`. So the script is
+    written glued to the name; the user's spaces stay where they were,
+    after it: `lim |` + `_` is `lim_| `.
+    """
+    if character not in "_^":
+        return None
+    spaces = caret
+    while spaces > 0 and source[spaces - 1] == " ":
+        spaces -= 1
+    if spaces == caret:
+        return None
+    for name in sorted(set(FUNCTION_SCRIPTS) | set(functions), key=len, reverse=True):
+        start = spaces - len(name)
+        if start < 0 or source[start:spaces] != name:
+            continue
+        if start > 0 and (source[start - 1].isalpha() or source[start - 1] == "\\"):
+            continue  # Part of a longer word, or a control word.
+        updated = source[:spaces] + character + source[spaces:]
+        return TemplateEdit(updated, spaces + 1, character)
     return None
 
 
@@ -603,7 +668,7 @@ def _detect_group(source: str, opening: int, closing: int) -> tuple[str, str, in
     brace = _brace_label(source, opening)
     if brace is not None:
         return brace, "label", closing + 1
-    if before == "/":
+    if before and before in FRACTION_SIGNS:
         return "fraction", "denominator", closing + 1
     if before == "_":
         return "scripts", "subscript", closing + 1
@@ -617,6 +682,6 @@ def _detect_group(source: str, opening: int, closing: int) -> tuple[str, str, in
         return None
     if after in ("_", "^"):
         return "scripts", "base", closing + 1
-    if after == "/":
+    if after and after in FRACTION_SIGNS:
         return "fraction", "numerator", closing + 1
     return None

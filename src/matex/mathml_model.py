@@ -345,10 +345,10 @@ class MathMLDocument:
 
     def _is_large_operator(self, node: MathMLNode) -> bool:
         content = self._normalized_text(node)
-        return any(symbol in content for symbol in "∫∬∭∮∯∰∱∲∳∑∏")
+        return any(symbol in content for symbol in "∫∬∭∮∯∰∱∲∳∑∏∐")
 
     def _is_limit_operator(self, node: MathMLNode) -> bool:
-        return self._normalized_text(node) == "lim"
+        return self._normalized_text(node) in {"lim", "liminf", "limsup"}  # "lim inf": lim, a space, inf.
 
     def _readable_content(self, node: MathMLNode) -> str:
         text = " ".join(node.content.split())

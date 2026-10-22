@@ -10,9 +10,11 @@ from .symbol_dictionary import load_dictionary
 from .editor_assist import EditorAssistMixin
 from .editor_built import BuiltEditingMixin
 from .editor_drawing import EditorDrawingMixin
+from . import session_log
 from .editor_keys import (
     cell_navigation_down,
     converter_control_words,
+    describe_key,
     effective_key,
     template_variant_down,
     word_navigation_down,
@@ -22,7 +24,7 @@ from .editor_structures import StructureActionsMixin
 from .edit_history import EditHistory, EditState
 from .mathcat import MathCatNavigator, create_mathcat_navigator
 from .insert_catalog import InsertItem, item_for_key
-from .math_templates import group_function_argument, move_to_slot
+from .math_templates import group_function_argument, move_to_slot, script_on_function
 from .mathml_model import MathMLDocument
 from .model import EquationDocument
 from .settings import AppSettings
@@ -127,6 +129,7 @@ if wx is not None:
             # with the source they were made for; any other key drops them.
             self._completion: tuple[Completion, str] | None = None
             self._last_symbol_query = ""
+            self._last_gallery = (0, 0)  # Category and structure the gallery last closed on.
             # Writing mode's caret between the characters of a leaf ("12",
             # "sin"): (leaf id, characters before it, the characters, MathML).
             # MathCAT stays on the leaf's own stop meanwhile.
@@ -234,6 +237,11 @@ if wx is not None:
             )
 
         def _announce(self, text: str) -> None:
+            if session_log.enabled():
+                session_log.write("say", text)
+                caret = self.caret
+                source = self.document.source
+                session_log.write("state", f"{self.mode}, caret {caret}: {source[:caret]!r} | {source[caret:]!r}")
             try:
                 self.output.announce(text, interrupt=True)
             except Exception:
@@ -245,6 +253,7 @@ if wx is not None:
             return self.document.source
 
         def set_source(self, source: str) -> None:
+            session_log.write("open", repr(source))
             if not self.writing_enabled:
                 # Every equation opens in writing mode.
                 self.writing_enabled = True
@@ -426,6 +435,7 @@ if wx is not None:
                 self._announce(f"The equation could not be read. {error}")
 
         def _toggle_mode(self, attempts: int = 40) -> None:
+            session_log.write("command", "toggle linear/professional")
             if self.mode == "linear" and self._converting and attempts > 0:
                 # F2 arrived inside the live preview's RunScript (its nested
                 # event loop): wait for that conversion instead of failing
@@ -489,6 +499,8 @@ if wx is not None:
                 return False
 
         def _on_key_down(self, event: wx.KeyEvent) -> None:
+            if session_log.enabled():
+                session_log.write("key", describe_key(event))
             key = event.GetKeyCode()
             command_modifier = event.CmdDown()
             if key not in (wx.WXK_BACK, wx.WXK_DELETE):
@@ -602,6 +614,7 @@ if wx is not None:
             settings say (linear or structural); writing always navigates
             linearly, by character, with Option/Ctrl for whole nodes.
             """
+            session_log.write("command", "toggle writing mode")
             self.writing_enabled = not self.writing_enabled
             self._typing_streak = False
             self._armed_removal = None
@@ -643,6 +656,7 @@ if wx is not None:
 
         def insert_item(self, item: InsertItem) -> None:
             """Insert an Insert-menu entry at the caret, or where MathCAT is in professional view."""
+            session_log.write("command", f"insert {item.label!r}")
             if self._writing_off():
                 return
             if self.mode == "professional" and self.mathcat is not None and self.mathcat.structure is not None:
@@ -658,6 +672,9 @@ if wx is not None:
             """Insert in the linear source; returns what to announce (the matrix dialog speaks itself)."""
             if item.dialog == "symbol":
                 return self._insert_symbol()
+            if item.dialog == "gallery":
+                chosen = self._choose_from_gallery()
+                return self._insert_linear(chosen) if chosen is not None else None
             if item.insert is None:
                 self._insert_matrix()
                 return None
@@ -668,6 +685,7 @@ if wx is not None:
 
         def edit_command(self, command: str) -> None:
             """An Edit-menu command, acting as its shortcut does (only Copy outside linear view)."""
+            session_log.write("command", f"edit {command}")
             if command == "copy":
                 self._copy_equation()
                 return
@@ -803,6 +821,8 @@ if wx is not None:
             self._announce("equation pasted")
 
         def _on_char(self, event: wx.KeyEvent) -> None:
+            if session_log.enabled() and event.GetUnicodeKey() > 32:
+                session_log.write("char", repr(chr(event.GetUnicodeKey())))
             key = effective_key(event)
             if not self.writing_enabled and self._is_typed_character(event):
                 # Key-down already stops these; EVT_CHAR is a second guard.
@@ -996,16 +1016,21 @@ if wx is not None:
                 if self._replace_selection(""):
                     self._announce("selection deleted")
                 elif self.caret:
-                    deleted = self.document.source[self.caret - 1]
-                    self._replace_linear(self.document.source[: self.caret - 1] + self.document.source[self.caret :], self.caret - 1)
-                    self._announce(self._offer_completion(deleted_character(deleted, self.symbols)))
+                    start, end = self._deletion_span(self.caret, backward=True)
+                    deleted = self.document.source[start:end]
+                    self._replace_linear(self.document.source[:start] + self.document.source[end:], start)
+                    if end - start > 1:  # A whole control word: its symbol, and no completion.
+                        self._announce(deleted_character(view_of(deleted).text, self.symbols))
+                    else:
+                        self._announce(self._offer_completion(deleted_character(deleted, self.symbols)))
             elif key == wx.WXK_DELETE:
                 if self._replace_selection(""):
                     self._announce("selection deleted")
                 elif self.caret < len(self.document.source):
-                    deleted = self.document.source[self.caret]
-                    self._replace_linear(self.document.source[: self.caret] + self.document.source[self.caret + 1 :], self.caret)
-                    self._announce(deleted_character(deleted, self.symbols))
+                    start, end = self._deletion_span(self.caret, backward=False)
+                    deleted = self.document.source[start:end]
+                    self._replace_linear(self.document.source[:start] + self.document.source[end:], start)
+                    self._announce(deleted_character(view_of(deleted).text, self.symbols))
             else:
                 codepoint = event.GetUnicodeKey()
                 if codepoint not in (wx.WXK_NONE, 0) and codepoint >= 32:
@@ -1024,6 +1049,13 @@ if wx is not None:
                         if edit is not None:
                             self._replace_linear(edit.source, edit.caret)
                             self._announce(f"{edit.announcement}, {inserted_character(value, self.symbols)}")
+                            self._after_typed(value, builds)
+                            return
+                        functions = self.settings.recognized_functions
+                        script = script_on_function(self.document.source, self.caret, value, functions)
+                        if script is not None:
+                            self._replace_linear(script.source, script.caret)
+                            self._announce(self._offer_completion(inserted_character(value, self.symbols)))
                             self._after_typed(value, builds)
                             return
                         if self.settings.convert_shortcuts_immediately:
@@ -1192,6 +1224,23 @@ if wx is not None:
                 return
             self.document.cursor.path = path
 
+
+        def _deletion_span(self, caret: int, backward: bool) -> tuple[int, int]:
+            """What one Backspace/Delete removes: a character, or in the built equation a whole control word.
+
+            The built equation shows `\\end ` as one symbol (an invisible
+            bracket), so deleting it letter by letter left `\\en`, `\\e`, ...
+            in between. In linear view the word is text, edited a letter at a time.
+            """
+            single = (caret - 1, caret) if backward else (caret, caret + 1)
+            if not self._editing_built:
+                return single
+            view = view_of(self.document.source)
+            index = view.to_view(caret)
+            if view.to_source(index) != caret:
+                return single
+            span = (view.to_source(index - 1), caret) if backward and index > 0 else (caret, view.to_source(index + 1))
+            return span if span[1] - span[0] > 1 and self.document.source[span[0]] == "\\" else single
 
         def _replace_linear(self, source: str, caret: int) -> None:
             self.document.replace_source(source, caret)

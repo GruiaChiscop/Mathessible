@@ -1,0 +1,39 @@
+MathCAT (intent, en): lim inf / lim sup read as "the limit inferior/superior as"
+
+1. The `limit` intent rule names lim sup / lim inf `limit-sup` /
+   `limit-inf`, but every language's definitions.yaml defines them as
+   `lim-sup` / `lim-inf` (en: "the limit inferior as"). No definition
+   matched, so the bare name was spoken: "limit inf n right arrow
+   infinity". The rule now produces the names the languages define.
+2. en unicode.yaml reads "→" as "approaches" only under a `limit`; under
+   `lim-inf`/`lim-sup` too now ("as n approaches infinity").
+
+Applied by scripts/bootstrap.sh on top of upstream 85c89a37. Worth
+proposing upstream to daisy/MathCAT.
+
+diff --git a/Rules/Intent/general.yaml b/Rules/Intent/general.yaml
+index e1652158..6706a3c3 100644
+--- a/Rules/Intent/general.yaml
++++ b/Rules/Intent/general.yaml
+@@ -351,7 +351,7 @@
+   match: "*[1][$NoSpacesBase='lim' or $NoSpacesBase='limsup' or $NoSpacesBase='liminf']"
+   replace: 
+   - intent:
+-      xpath-name: "IfThenElse($NoSpacesBase='lim', 'limit', IfThenElse($NoSpacesBase='limsup', 'limit-sup', 'limit-inf'))"
++      xpath-name: "IfThenElse($NoSpacesBase='lim', 'limit', IfThenElse($NoSpacesBase='limsup', 'lim-sup', 'lim-inf'))"
+       attrs: "data-intent-property='concat(data-intent-property, \":prefix:\")'"
+       children: [x: "*[2]"]
+ 
+diff --git a/Rules/Languages/en/unicode.yaml b/Rules/Languages/en/unicode.yaml
+index f9b39fb2..055b0ce8 100644
+--- a/Rules/Languages/en/unicode.yaml
++++ b/Rules/Languages/en/unicode.yaml
+@@ -333,7 +333,7 @@
+  - "↑": [t: "up arrow"]                       # 0x2191
+  - "→":                                          # 0x2192
+      - test:
+-        if: "ancestor::*[2][self::m:limit]"
++        if: "ancestor::*[2][self::m:limit or self::m:lim-inf or self::m:lim-sup]"
+         then: [t: "approaches"]
+         else: [t: "right arrow"]
+ 

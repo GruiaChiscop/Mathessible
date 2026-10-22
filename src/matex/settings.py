@@ -5,6 +5,11 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 
+# Word's own Recognized Functions (Equation Options), with the Romanian tg/ctg
+# and sqrt. Not lim (its own template). liminf/limsup are typed as one word
+# and written `lim inf` with a no-break space, the converter's own spelling
+# (space_conversion.FUNCTION_SPELLINGS). Each one gets Space-opens-argument and a
+# Tab slot for its argument.
 DEFAULT_RECOGNIZED_FUNCTIONS: tuple[str, ...] = (
     "sin",
     "cos",
@@ -14,10 +19,41 @@ DEFAULT_RECOGNIZED_FUNCTIONS: tuple[str, ...] = (
     "ctg",
     "sec",
     "csc",
+    "arcsin",
+    "arccos",
+    "arctan",
+    "arccot",
+    "arcsec",
+    "arccsc",
+    "sinh",
+    "cosh",
+    "tanh",
+    "coth",
+    "sech",
+    "csch",
     "log",
     "ln",
+    "lg",
+    "exp",
+    "arg",
+    "det",
+    "dim",
+    "ker",
+    "hom",
+    "deg",
+    "gcd",
+    "def",
+    "max",
+    "min",
+    "sup",
+    "inf",
+    "liminf",
+    "limsup",
+    "Pr",
     "sqrt",
 )
+# Names whose case matters keep it ("PR" and "pr" are Pr); others are lower-cased.
+_CANONICAL_FUNCTIONS = {name.lower(): name for name in DEFAULT_RECOGNIZED_FUNCTIONS}
 
 
 # The braille codes MathCAT ships (its Rules/Braille), with how they are
@@ -136,6 +172,7 @@ def _normalize_functions(value: object) -> tuple[str, ...]:
         if not isinstance(item, str):
             continue
         name = item.strip().lower()
+        name = _CANONICAL_FUNCTIONS.get(name, name)
         if not name or name in seen:
             continue
         result.append(name)

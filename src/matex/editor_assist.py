@@ -4,10 +4,12 @@ and the error list (F8).
 
 from __future__ import annotations
 
+from . import session_log
 from .character_speech import character_name
 from .completion import Completion, accept_completion, completion_at, symbol_insertion
 from .editor_keys import converter_control_words
 from .equation_errors import EquationError, find_errors
+from .insert_catalog import InsertItem
 from .space_conversion import FALLBACK_CONTROL_WORDS
 from .unicodemath import UnicodeMathError, code_point_index
 
@@ -108,6 +110,24 @@ class EditorAssistMixin:
         edit = symbol_insertion(self.document.source, self.caret, suggestion, self.settings.template_control_words)
         self._replace_linear(edit.source, edit.caret)
         return suggestion.speech(self.symbols.name)
+
+    def _choose_from_gallery(self) -> InsertItem | None:
+        """Insert > Structure Gallery: pick a structure; the last category and structure are kept."""
+        from .gallery_dialog import GalleryDialog
+
+        if self.mode != "linear":
+            return None
+        category, structure = self._last_gallery
+        dialog = GalleryDialog(self, self._announce, self.settings.template_control_words, category, structure)
+        try:
+            chosen = dialog.ShowModal() == wx.ID_OK
+            self._last_gallery = (dialog.category, dialog.structure)
+            item = dialog.selected if chosen else None
+        finally:
+            dialog.Destroy()
+        session_log.write("gallery", f"chose {item.label!r}" if item is not None else "cancelled")
+        self.SetFocus()
+        return item
 
     def current_errors(self, total_failure: bool | None = None) -> list[EquationError]:
         """The source's errors (equation_errors); `total_failure` None asks the converter."""

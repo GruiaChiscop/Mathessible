@@ -76,6 +76,34 @@ class MathReadingTests(unittest.TestCase):
         structural.structural_command("MoveNext")
         self.assertEqual(structural.structural_command("MoveNext"), "base, 2")
 
+    def test_lim_inf_and_lim_sup_read_as_limits(self) -> None:
+        # Converter output for "lim inf_(n→∞) a_n" (no-break space, the converter's
+        # spelling): an mrow of lim, space, inf; MathCAT patch 0005 names the intent.
+        for word, name in (("inf", "inferior"), ("sup", "superior")):
+            with self.subTest(word=word):
+                mathml = (
+                    f"<math><msub><mrow><mi>lim</mi><mo>\u00a0</mo><mi>{word}</mi></mrow><mrow><mi>𝑛</mi>"
+                    '<mo stretchy="true">→</mo><mi>∞</mi></mrow></msub><msub><mi>𝑎</mi><mi>𝑛</mi></msub></math>'
+                )
+                navigator = MathCatNavigator(language="en", auto_zoom_out=True, boundary_stops=True)
+                self.assertEqual(navigator.load(mathml), f"the limit {name} as n approaches infinity, of eigh sub n")
+                navigator.command("ZoomIn")
+                stops = [navigator.linear_command("MoveNext") for _ in range(6)]
+                self.assertEqual(
+                    stops, [f"lim {word}", "start limit condition", "n", "approaches", "infinity", "end limit condition"]
+                )
+
+    def test_lim_sup_without_a_condition_is_applied_to_its_argument(self) -> None:
+        # Converter output for "lim sup 〖a_n〗": lim applied to " sup", the argument outside.
+        mathml = (
+            '<math><mrow intent=":function"><mi>lim</mi><mo>⁡</mo><mo>\u00a0</mo><mi>sup</mi></mrow>'
+            '<mrow intent=":fenced"><mo></mo><msub><mi>𝑎</mi><mi>𝑛</mi></msub><mo></mo></mrow></math>'
+        )
+        navigator = MathCatNavigator(language="en", auto_zoom_out=True, boundary_stops=True)
+        self.assertEqual(navigator.load(mathml), "limit superior of eigh sub n")
+        navigator.command("ZoomIn")
+        self.assertEqual([navigator.linear_command("MoveNext") for _ in range(3)], ["limit superior", "of", "start argument"])
+
     def test_a_decimal_comma_is_read_as_one_number(self) -> None:
         mathml = (
             '<math><mrow intent=":fenced"><mo>{</mo><mrow><mn>1,5</mn><mo>,</mo><mn>2</mn></mrow>'

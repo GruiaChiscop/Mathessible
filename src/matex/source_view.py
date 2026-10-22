@@ -28,6 +28,9 @@ CONTROL_WORDS = {
     "∬": "iint",
     "∭": "iiint",
     "∮": "oint",
+    "∯": "oiint",
+    "∰": "oiiint",
+    "∐": "coprod",
     "∑": "sum",
     "∏": "prod",
     "▒": "of",
@@ -55,6 +58,18 @@ CONTROL_WORDS = {
     "┤": "close",
     "⋃": "bigcup",
     "⋂": "bigcap",
+    "¯": "overbar",
+    "▁": "underbar",
+    "\u20d7": "vec",
+    "\u0302": "hat",
+    "\u0305": "bar",
+    "\u0307": "dot",
+    "\u0308": "ddot",
+    "\u0303": "tilde",
+    "\u030c": "check",
+    "\u0301": "acute",
+    "\u0300": "grave",
+    "\u0306": "breve",
 }
 # Words always followed by a space: what comes next is typed right there
 # (`\begin x\end`), and a letter would run into the word (`\beginx`).

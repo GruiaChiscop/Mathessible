@@ -39,7 +39,7 @@ Inserter = Callable[[str, int], TemplateEdit]
 
 @dataclass(frozen=True, slots=True)
 class InsertItem:
-    """One Insert entry. `insert` is None for the entries that open a `dialog` first ("matrix", "symbol")."""
+    """One Insert entry. `insert` is None for the entries that open a `dialog` first ("matrix", "symbol", "gallery")."""
 
     label: str
     insert: Inserter | None
@@ -133,6 +133,8 @@ INSERT_GROUPS = (
         InsertItem("&Matrix…", None, "M", "command", shift=True, dialog="matrix"),
         # Searches control words and symbols by name (completion.py).
         InsertItem("S&ymbol…", None, "S", "command", shift=True, dialog="symbol"),
+        # Word's structure gallery: every template by category (structure_gallery.py).
+        InsertItem("Structure Gallery…", None, "G", "command", shift=True, dialog="gallery"),
     ),
 )
 

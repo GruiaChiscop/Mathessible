@@ -90,5 +90,14 @@ class SpaceConversionTests(unittest.TestCase):
         self.assertFalse(edit.converted)
 
 
+    def test_liminf_and_limsup_take_the_converters_spelling(self) -> None:
+        # "lim inf" with a no-break space is the converter's function name.
+        edit = convert_before_character("x+liminf", 8, "_")
+        self.assertEqual((edit.source, edit.caret), ("x+lim\u00a0inf_", 10))
+        self.assertEqual(convert_before_character("limsup", 6, "_").source, "lim\u00a0sup_")
+        self.assertIsNone(convert_before_character("xliminf", 7, "_"))  # Part of a longer word.
+        self.assertIsNone(convert_before_character("\\liminf", 7, "_"))
+
+
 if __name__ == "__main__":
     unittest.main()

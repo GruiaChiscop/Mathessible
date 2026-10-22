@@ -51,6 +51,9 @@ class SettingsTests(unittest.TestCase):
             settings = load_settings(path)
         self.assertFalse(settings.linear_navigation)
 
+    def test_function_names_whose_case_matters_keep_it(self) -> None:
+        self.assertEqual(parse_recognized_functions("PR, pr, Sin"), ("Pr", "sin"))
+
     def test_parse_recognized_functions_normalizes_and_deduplicates(self) -> None:
         self.assertEqual(parse_recognized_functions("sin, TG, tg,\nctg"), ("sin", "tg", "ctg"))
 
