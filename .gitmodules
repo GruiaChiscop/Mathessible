@@ -1,9 +1,6 @@
 [submodule "MathCAT"]
 	path = MathCAT
 	url = https://github.com/daisy/MathCAT
-[submodule "plurimath"]
-	path = plurimath
-	url = https://github.com/plurimath/plurimath
 [submodule "UnicodeMathML"]
 	path = UnicodeMathML
 	url = https://github.com/MurrayIII/UnicodeMathML/

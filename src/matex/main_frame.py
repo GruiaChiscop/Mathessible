@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import tempfile
+import threading
 from pathlib import Path
 
 from .document_editor import DocumentEditor
@@ -9,6 +10,7 @@ from .html_export import PREVIEW_PAGE, ExportPage, preview_update_script, write_
 from .macos_webview import guard_webview_key_equivalents
 from .markdown_math import find_math_zones
 from .notebook import Notebook, NotebookError
+from .patch_check import missing_patches
 from .portable_notebook import extract_mtex, save_mtex
 from .settings import AppSettings, load_settings, save_settings
 from .settings_dialog import SettingsDialog
@@ -18,6 +20,10 @@ try:
     import wx.html2
 except ImportError:
     wx = None
+
+
+# The patch check runs once per process, whatever the number of windows.
+_patches_checked = False
 
 
 if wx is not None:
@@ -73,6 +79,34 @@ if wx is not None:
             if self.settings.show_preview:
                 self._set_preview_shown(True)
             self._update_title()
+            self._check_patches_once()
+
+        def _check_patches_once(self) -> None:
+            """Warn once per run when bootstrap's patches are not applied (patch_check)."""
+            global _patches_checked
+            if _patches_checked:
+                return
+            _patches_checked = True
+
+            def check() -> None:
+                missing = missing_patches()
+                if missing:
+                    wx.CallAfter(self._warn_missing_patches, missing)
+
+            threading.Thread(target=check, name="matex-patch-check", daemon=True).start()
+
+        def _warn_missing_patches(self, missing: list[str]) -> None:
+            if not self:
+                return  # The window closed meanwhile.
+            listed = "\n".join(f"  {name}" for name in missing)
+            wx.MessageBox(
+                "MateX's fixes to MathCAT and UnicodeMathML are not applied, so some equations "
+                "will be read or built wrongly. Run scripts/bootstrap.sh in the MateX folder, "
+                f"then start MateX again.\n\nMissing patches:\n{listed}",
+                "MateX Setup",
+                wx.OK | wx.ICON_WARNING,
+                self,
+            )
 
         def _create_menu(self) -> None:
             file_menu = wx.Menu()

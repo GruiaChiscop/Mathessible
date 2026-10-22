@@ -51,6 +51,32 @@ Framework; scriptul detectează automat unul instalat prin Homebrew sau
 python.org și explică ce lipsește dacă nu îl găsește. Versiunea de proiect
 este Python 3.14.
 
+## Modificări locale ale MathCAT și UnicodeMathML
+
+Submodulele `MathCAT` și `UnicodeMathML` indică exact commit-urile
+originale (`daisy/MathCAT`, `MurrayIII/UnicodeMathML`). Corecturile MateX
+pentru ele stau separat, ca fișiere în `patches/mathcat/` și
+`patches/unicodemathml/`; antetul fiecărui fișier spune ce schimbă și de ce.
+`scripts/bootstrap.sh` le aplică după ce descarcă submodulele (le sare pe
+cele deja aplicate), deci după o clonare nouă rulați întâi:
+
+```shell
+git clone --recursive <adresa depozitului>
+cd MateX
+sh scripts/bootstrap.sh
+```
+
+Doar `uv sync`, fără bootstrap, construiește MathCAT **fără** corecturi:
+MateX pornește, dar citește sau construiește greșit unele ecuații. La
+pornire MateX verifică și, dacă lipsesc corecturi, spune care și cere
+rularea scriptului. După ce schimbați reguli MathCAT (`Rules/`), refaceți
+extensia nativă cu `uv sync --reinstall-package matex-mathcat`.
+
+Modificările din interiorul submodulelor nu intră în commit-urile MateX;
+o corectură nouă se salvează ca fișier în `patches/` (de exemplu cu
+`git -C MathCAT diff > patches/mathcat/0006-....patch`, plus un antet).
+Licențele MathCAT și UnicodeMathML (MIT) rămân în submodule.
+
 ## Comenzi uzuale
 
 După instalare, dacă UV se află în `PATH`:
@@ -62,6 +88,13 @@ uv run python -m unittest discover -s tests -v
 ```
 
 Dacă UV a fost instalat local de script, înlocuiți `uv` cu `.tools/uv`.
+
+Pentru a înregistra o sesiune de test (taste, ce spune MateX, sursa și
+cursorul, comenzi, erori) în `~/.matex/logs/`:
+
+```shell
+MATEX_LOG=1 uv run matex
+```
 
 În modul liniar se poate introduce text și se pot folosi săgețile,
 Backspace, Delete, Home și End (pe macOS și `Command`+stânga/dreapta pentru

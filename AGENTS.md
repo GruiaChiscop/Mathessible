@@ -915,11 +915,10 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   `uv sync --reinstall-package matex-mathcat`.
   MathCAT was last updated to upstream `85c89a37` (0.7.6-rc.4, 2026-10-07);
   the binding's API use was unchanged by that update.
-- `MathCAT/`, `UnicodeMathML/`, `plurimath/` — git submodules. **`plurimath`
-  is registered but not referenced by any code under `src/` or `native/`** —
-  don't assume it is wired in; it appears to be a leftover/candidate
-  dependency. Confirm with the user before adding a real dependency on it or
-  before removing the submodule.
+- `MathCAT/`, `UnicodeMathML/` — git submodules, at the upstream commits
+  (MateX's fixes are `patches/`). `plurimath` (a Ruby converter between
+  MathML, AsciiMath, UnicodeMath, LaTeX and OMML) was a submodule that no
+  code used; removed at the user's request (2026-10-22) before publishing.
 - `tests/` — `unittest`, one file per pure-logic module, run with
   `python -m unittest discover -s tests -v`. There is currently no automated
   coverage for the `wx.*` classes themselves (see below).
@@ -1015,6 +1014,12 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   - `src/canonicalize.rs` `merge_number_blocks` (patch 0004): with a
     decimal comma, a "," right after an `mn` that already has a decimal
     separator starts no new number (`{1,5, 2}` read "the set 1,5,2").
+- **Startup patch check** ([patch_check.py](src/matex/patch_check.py)):
+  `git apply --reverse --check` per patch file, on a worker thread from
+  the first `MainFrame`; a warning dialog lists the missing ones (a
+  `uv sync` without bootstrap builds MathCAT unpatched). It cannot see a
+  patched tree whose native extension was not rebuilt.
+  tests/test_patch_check.py also fails on this checkout until bootstrap ran.
 - **Local UnicodeMathML patches** (`patches/unicodemathml/`, applied by
   `scripts/bootstrap.sh` like MathCAT's): 0001 makes the decimal comma an
   option (`decimalComma`, default on as upstream). The dist parser is
