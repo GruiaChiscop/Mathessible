@@ -299,12 +299,16 @@ class LinearStopsMixin:
                 # "start matrix"/"end matrix" stand for them instead.
                 fenced_table = any(child.tag == "mtable" for child in node.children)
                 bars = structure.bar_pair_name(node) is not None
-                for child in node.children:
+                children = node.children
+                if node.tag == "mroot" and len(children) == 2:
+                    # The index first, as it is said ("cube root of") and written (`√(3&x)`).
+                    children = (children[1], children[0])
+                for child in children:
                     # A brace, `|x|`'s or `‖x‖`'s bars read as their whole structure;
                     # "start overbrace", "start absolute value" stand for them.
                     if fenced_table and child.tag == "mo" or child.text in ("⏞", "⏟"):
                         continue
-                    if bars and child.tag == "mo" and child in (node.children[0], node.children[-1]):
+                    if bars and child.tag == "mo" and child in (children[0], children[-1]):
                         continue
                     walk(child)
             elif node.identifier:

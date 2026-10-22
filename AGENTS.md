@@ -428,11 +428,19 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      2"); it describes the anchor, not an offset, since one offset can be
      either side of an edge. **Trap:** UnicodeMath juxtaposition joins a
      letter typed right after/before a structure into it (`(1)/(2)x` puts x
-     in the denominator, `x(1)/(2)` in the numerator). **No space is ever
-     added automatically** (the user's rule, 2026-10-22: "let me decide
-     when a space goes in"): `_built_offset` once added one at a
-     structure's outer edge, before `lim`/`∑`, and after a control word
-     reached by navigation; all removed. Do not bring any of it back.
+     in the denominator, `x(1)/(2)` in the numerator). `_built_offset(glue)`
+     adds a space at an outer edge when the neighbor is in a structure
+     (`_joins_structure`), before a function name or ∑/∫ (`_name_starts_at`:
+     `qlim`, `q∑_`), and after a control word reached by navigation
+     (`x\vec` + q is not `\vecq`). These are only operand-ending spaces,
+     eaten on build-up: UnicodeMath's own linearizer writes the same ones
+     (`MathMLtoUnicodeMath` in UnicodeMathML/src/unicodemathml.js: a space
+     after every fraction/script in `binary`, before a numerator glued to a
+     variable, `checkSpace` before `sin`; UTN #28 sec. 2.3), and Word's
+     linear form of a built `1/2` then `x` is `1/2 x`. Briefly removed
+     (2026-10-22, "let me decide when a space goes in"), restored the same
+     day once the user saw that Word keeps x outside the fraction this way.
+     No other space is ever added, and the user's own are never removed.
      **Step 4, [build_repair.py](src/matex/build_repair.py):** sources the
      converter cannot build at all while half-typed (a bare `▒`, `√(&x)`,
      `√(&)`, an open quote, `|` or `■(`) are built from a *repaired* text
@@ -768,9 +776,12 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
       text editing). The user's report: after fixing `llim` to `lim`,
       Space never opened the argument. The insertion point after a typed space names the next
       leaf in the source ("after space, before lim", `_next_in_source`).
-    - Left as they are: two nested structures ending together read the
-      same edge twice ("end superscript, end superscript" in `e^(-x^2)`),
-      and a root's radicand reads before its index (MathML order).
+    - A root reads its index before its radicand (`mroot` children
+      reversed in `_build_bounded_stops` and `_level_items`, as in
+      `leaf_nodes`): "start index, 3, end index, start radicand, x".
+      Two nested structures ending together read each edge ("end
+      superscript, end superscript" in `e^(-x^2)`): intended, the user
+      confirmed (inner square, then the outer power).
   - **Structural navigation with `structure_stops`** (`structural_stops` on
     the navigator, `structural_command`) no longer uses MathCAT's own
     Left/Right/Down/Up: a level is `_level_items(parent)` from the

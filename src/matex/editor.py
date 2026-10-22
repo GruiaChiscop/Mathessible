@@ -522,7 +522,7 @@ if wx is not None:
                     self._cut_node()
                     return
                 if key in (ord("V"), ord("v")):
-                    self._edit_in_built(self._paste_equation)
+                    self._edit_in_built(self._paste_equation, glue=True)
                     return
                 if key in (ord("Z"), ord("z")):
                     self._built_history("redo" if event.ShiftDown() else "undo")
@@ -646,7 +646,7 @@ if wx is not None:
             if self._writing_off():
                 return
             if self.mode == "professional" and self.mathcat is not None and self.mathcat.structure is not None:
-                self._edit_in_built(lambda: self._insert_linear(item))
+                self._edit_in_built(lambda: self._insert_linear(item), glue=True)
                 return
             if self.mode != "linear":
                 return
@@ -680,7 +680,7 @@ if wx is not None:
                 self._cut_node()
                 return
             if self.mode == "professional" and command == "paste" and self.mathcat is not None:
-                self._edit_in_built(self._paste_equation)
+                self._edit_in_built(self._paste_equation, glue=True)
                 return
             if self.mode == "professional" and command == "select_all" and self.mathcat is not None:
                 if self.writing_enabled:

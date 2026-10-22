@@ -189,6 +189,8 @@ class StructuralNavigationMixin:
             if child.identifier
             and not (child.tag == "mo" and (fenced_table or self._skips_invisible_operator(child.content)))
         ]
+        if node.tag == "mroot" and len(items) == 2:
+            items.reverse()  # The index first, as it is said and written.
         if (
             len(items) == 1
             and items[0].children

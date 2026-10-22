@@ -4,6 +4,7 @@ character and node steps, selection, whole-node edits, rebuilding.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable
 
 from .build_repair import BuildRepair
@@ -20,6 +21,7 @@ from .source_map import (
     leaf_characters,
     leaf_nodes,
     map_leaves,
+    scripted_operator,
 )
 from .source_view import view_of
 from .unicodemath import UnicodeMathError, mathml_has_parse_error
@@ -30,6 +32,7 @@ except ImportError:  # The interface is an optional dependency.
     wx = None
 
 
+_ENDS_WITH_CONTROL_WORD = re.compile(r"\\[A-Za-z0-9]+$")
 
 
 class BuiltEditingMixin:
@@ -115,7 +118,9 @@ class BuiltEditingMixin:
         def handle_key() -> None:
             self._on_char(event)  # Announces the character itself.
 
-        self._edit_in_built(handle_key)
+        typed = chr(event.GetUnicodeKey()) if self._is_typed_character(event) else ""
+        # A letter, digit, group or control word glued to a structure joins it.
+        self._edit_in_built(handle_key, glue=bool(typed) and (typed.isalnum() or typed in '(\\"'))
         self._typing_streak = True
 
     def _insertion_point(self) -> str:
@@ -420,18 +425,23 @@ class BuiltEditingMixin:
         self._update_braille_display()
         self._rebuild_professional_at_caret(announcement, place=self._place_after_caret)
 
-    def _built_offset(self) -> int:
+    def _built_offset(self, glue: bool = False) -> int:
         """The source offset of MathCAT's position (`edit_anchor`, `source_map`).
 
-        No space is ever added here: the user decides where spaces go, even
-        where UnicodeMath joins neighbors (`(1)/(2)x` puts x in the
-        denominator, `qlim` is one word).
+        With `glue` (something that would join an operand is about to be
+        typed) a space is put where UnicodeMath would otherwise join it to a
+        neighbor in another structure: `(1)/(2)x` puts x in the denominator,
+        `x(1)/(2)` in the numerator, `qlim` is one word, `\\vecq` an unknown
+        control word. It is the operand-ending space UnicodeMath's own
+        linearizer writes (`MathMLtoUnicodeMath`, UTN #28 sec. 2.3), eaten on
+        build-up; the user's own spaces are never added to or removed.
         """
         assert self.mathcat is not None and self.mathcat.structure is not None
+        source = self.document.source
         repair = self._built_repair()
         inside = self._current_inside()
         if inside is not None:
-            # Between a leaf's characters ("4|2").
+            # Between a leaf's characters ("4|2"): never at a structure's edge.
             span = map_leaves(repair.text, self.mathcat.structure).get(inside[0])
             if span is not None:
                 return repair.to_real(span.start + inside[1])
@@ -440,7 +450,26 @@ class BuiltEditingMixin:
         remembered = self._remembered_caret()
         if remembered is not None and remembered != offset:
             # Right after "x ": past the space MathCAT has no node for.
+            if glue and self._name_starts_at(remembered):
+                self.document.replace_source(source[:remembered] + " " + source[remembered:], remembered)
             return remembered
+        if glue and remembered is None and _ENDS_WITH_CONTROL_WORD.search(source[:offset]):
+            # Arrived (not typing on) right after a control word (`x\vec`): a
+            # letter would run into it (`\vecq`), so a space ends the word first.
+            self.document.replace_source(source[:offset] + " " + source[offset:], offset + 1)
+            return offset + 1
+        if glue and self._name_starts_at(offset):
+            # Before "lim", "sin" or ∑ wherever (the start of a numerator too):
+            # `qlim` would be one word, so the typed letter gets a space after it.
+            self.document.replace_source(source[:offset] + " " + source[offset:], offset)
+            return offset
+        if not (glue and outside and self._joins_structure(node_id, side)):
+            return offset
+        if side == "after" and 0 < offset and source[offset - 1] != " ":
+            self.document.replace_source(source[:offset] + " " + source[offset:], offset + 1)
+            return offset + 1
+        if side == "before" and offset < len(source) and source[offset] != " ":
+            self.document.replace_source(source[:offset] + " " + source[offset:], offset)
         return offset
 
     def _built_repair(self) -> BuildRepair:
@@ -448,7 +477,42 @@ class BuiltEditingMixin:
         source = self.document.source
         return self._repair if self._repair.source == source else BuildRepair(source, source)
 
-    def _edit_in_built(self, action: Callable[[], str | None]) -> None:
+    def _name_starts_at(self, offset: int) -> bool:
+        """Whether a function name or a large operator starts right at this source offset."""
+        structure = self.mathcat.structure if self.mathcat is not None else None
+        source = self.document.source
+        if structure is None or offset >= len(source) or source[offset] == " ":
+            return False
+        repair = self._built_repair()
+        spans = map_leaves(repair.text, structure)
+        at = repair.to_repaired(offset)
+        for leaf in leaf_nodes(structure):
+            span = spans.get(leaf.identifier or "")
+            if span is not None and span.start == at < span.end:
+                text = leaf.text.strip()
+                return (len(text) > 1 and text.isalpha()) or structure.is_large_operator(leaf)
+        return False
+
+    def _joins_structure(self, node_id: str, side: str) -> bool:
+        """Whether typing next to this edge would run into a structure (a whole one, or the math's first/last)."""
+        structure = self.mathcat.structure if self.mathcat is not None else None
+        if structure is None:
+            return False
+        node = structure.node(node_id)
+        if node is not structure.root:
+            return True
+        leaves = [leaf for leaf in leaf_nodes(structure) if leaf.text not in "\u2061\u2062\u2063\u2064"]
+        if not leaves:
+            return False
+        edge = leaves[-1] if side == "after" else leaves[0]
+        if side == "before" and (
+            structure.is_large_operator(edge) or scripted_operator(structure, edge) or len(edge.text.strip()) > 1
+        ):
+            # Before ∑/∫ (`q∑_` does not parse) or a name (`qlim`, `qsin` are one word).
+            return True
+        return bool(structure.region_entries(edge.identifier or ""))
+
+    def _edit_in_built(self, action: Callable[[], str | None], glue: bool = False) -> None:
         """Run a linear-mode edit at MathCAT's position, then rebuild the equation.
 
         `action` runs in linear mode with the caret on that offset and may
@@ -457,7 +521,7 @@ class BuiltEditingMixin:
         source = self.document.source
         if self._built_selection() is None:
             self._clear_selection()
-            self.caret = self._built_offset()
+            self.caret = self._built_offset(glue)
         # Else the linear handling replaces the selection (typing, Backspace, paste, cut).
         self._selected_ids = ()
         self.mode = "linear"
@@ -512,7 +576,7 @@ class BuiltEditingMixin:
 
     def _built_slot(self, reverse: bool) -> None:
         """Tab/Shift+Tab in professional mode: the next template slot, no rebuild needed."""
-        self.caret = self._built_offset()
+        self.caret = self._built_offset(glue)
         edit = self._edit(lambda source, caret: move_to_slot(source, caret, reverse, self.settings.recognized_functions))
         if edit is None:
             self._announce("no slot")

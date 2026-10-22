@@ -143,6 +143,26 @@ class MathCatTests(unittest.TestCase):
         self.assertEqual(step("ZoomIn"), "start arrow")
         self.assertEqual([step("MoveNext") for _ in range(3)], ["base, right arrow", "text above, q", "end arrow"])
 
+    def test_a_root_reads_its_index_before_its_radicand(self) -> None:
+        # MathML has the radicand first; "cube root of" and `√(3&x+1)` the index.
+        mathml = "<math><mroot><mrow><mi>x</mi><mo>+</mo><mn>1</mn></mrow><mn>3</mn></mroot></math>"
+        linear = MathCatNavigator(language="en", auto_zoom_out=True, boundary_stops=True)
+        linear.load(mathml)
+        linear.command("ZoomIn")
+        forward = [linear.linear_command("MoveNext") for _ in range(9)]
+        self.assertEqual(
+            forward,
+            ["start root", "start index", "3", "end index", "start radicand", "x", "plus", "1", "end radicand"],
+        )
+        self.assertEqual(linear.linear_command("MovePrevious"), "1")
+        structural = MathCatNavigator(language="en", auto_zoom_out=False, structural_stops=True)
+        structural.load(mathml)
+        structural.command("ZoomIn")
+        step = structural.structural_command
+        step("MoveNext")
+        self.assertEqual(step("ZoomIn"), "start root")
+        self.assertEqual([step("MoveNext") for _ in range(3)], ["index, 3", "radicand, x plus 1", "end root"])
+
     def test_flat_reading_frames_matrix_rows_and_cells(self) -> None:
         # Converter output for "(■(1&0@0&1))": "1 0 0 1" alone says nothing about the shape.
         mathml = (
