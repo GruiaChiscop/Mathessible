@@ -448,25 +448,25 @@ class BuiltEditingMixin:
         if remembered is not None and remembered != offset:
             # Right after "x ": past the space MathCAT has no node for.
             if glue and self._name_starts_at(remembered):
-                self.document.replace_source(source[:remembered] + " " + source[remembered:], remembered)
+                self.document.source = source[:remembered] + " " + source[remembered:]
             return remembered
         if glue and remembered is None and _ENDS_WITH_CONTROL_WORD.search(source[:offset]):
             # Arrived (not typing on) right after a control word (`x\vec`): a
             # letter would run into it (`\vecq`), so a space ends the word first.
-            self.document.replace_source(source[:offset] + " " + source[offset:], offset + 1)
+            self.document.source = source[:offset] + " " + source[offset:]
             return offset + 1
         if glue and self._name_starts_at(offset):
             # Before "lim", "sin" or ∑ wherever (the start of a numerator too):
             # `qlim` would be one word, so the typed letter gets a space after it.
-            self.document.replace_source(source[:offset] + " " + source[offset:], offset)
+            self.document.source = source[:offset] + " " + source[offset:]
             return offset
         if not (glue and outside and self._joins_structure(node_id, side)):
             return offset
         if side == "after" and 0 < offset and source[offset - 1] != " ":
-            self.document.replace_source(source[:offset] + " " + source[offset:], offset + 1)
+            self.document.source = source[:offset] + " " + source[offset:]
             return offset + 1
         if side == "before" and offset < len(source) and source[offset] != " ":
-            self.document.replace_source(source[:offset] + " " + source[offset:], offset)
+            self.document.source = source[:offset] + " " + source[offset:]
         return offset
 
     def _built_repair(self) -> BuildRepair:
@@ -609,7 +609,7 @@ class BuiltEditingMixin:
         if state is None:
             self._announce(f"nothing to {action}")
             return
-        self.document.replace_source(state.source, state.caret)
+        self.document.source = state.source
         self.caret = state.caret
         self._finish_built_edit(action)
 

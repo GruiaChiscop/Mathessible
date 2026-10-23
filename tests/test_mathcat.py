@@ -2,26 +2,25 @@ import unittest
 from pathlib import Path
 
 from matex.mathcat import MathCatNavigator
-from matex.model import EquationDocument
+
+# Converter output for "a/(b+c)".
+A_OVER_B_PLUS_C = '<math display="inline"><mfrac><mi>𝑎</mi><mrow><mi>𝑏</mi><mo>+</mo><mi>𝑐</mi></mrow></mfrac></math>'
 
 
 class MathCatTests(unittest.TestCase):
     def setUp(self) -> None:
         self.navigator = MathCatNavigator(language="en")
-        self.document = EquationDocument("a/(b+c)")
 
     def test_expression_speech_comes_from_mathcat(self) -> None:
-        speech = self.navigator.load(self.document.mathml)
+        speech = self.navigator.load(A_OVER_B_PLUS_C)
         self.assertIn("fraction", speech)
         self.assertIn("plus", speech)
 
     def test_operator_is_reached_by_mathcat_navigation(self) -> None:
-        self.navigator.load(self.document.mathml)
+        self.navigator.load(A_OVER_B_PLUS_C)
         commands = [
             "ZoomIn",     # numerator
             "MoveNext",   # denominator
-            "ZoomIn",     # opening parenthesis
-            "MoveNext",   # b + c
             "ZoomIn",     # b
             "MoveNext",   # plus
         ]
@@ -29,7 +28,7 @@ class MathCatTests(unittest.TestCase):
         for command in commands:
             speech = self.navigator.command(command)
         self.assertEqual(speech, "plus")
-        self.assertEqual(self.navigator.current_path, (1, 0, 1))
+        self.assertEqual(self.navigator.structure.node(self.navigator.current_id).text, "+")
 
     def test_math_edges_are_stops_of_their_own(self) -> None:
         # Left at the start used to leave the cursor on the first item, so

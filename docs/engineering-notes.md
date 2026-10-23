@@ -393,8 +393,8 @@ equation language; the gap is entirely in the editing UX layered on top.
    The dialog is Word's: Replace, With, the list, Add/Replace, Delete,
    Reset to Defaults; typing in Replace moves the list to its entry.
 4. Do not grow local autocorrect dicts: `space_conversion.py` uses the
-   converter's table, and its `FALLBACK_CONTROL_WORDS` (like `parser.py`'s)
-   only matters without the submodule.
+   converter's table, and its `FALLBACK_CONTROL_WORDS` only matters
+   without the submodule.
 
 **Braille code** (setting `braille_code`, Settings > Braille code):
 MathCAT's own `BrailleCode` preference, set on every load
@@ -665,8 +665,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   binding ([mathcat.py](../src/matex/mathcat.py)) for speech, structural
   navigation, and braille. [mathml_model.py](../src/matex/mathml_model.py)
   re-parses that MathML into a `MathMLDocument` used for semantic regions,
-  table/matrix position. [mathml_layout.py](../src/matex/mathml_layout.py)
-  is now only the fallback drawing when WebKit is unavailable.
+  table/matrix position.
 - **The same WebView is the visible renderer** (`_sync_renderer` in
   editor_renderer.py): in linear mode it is a live preview under the source, in
   professional mode it fills the editor and shows *MathCAT's* canonical
@@ -727,15 +726,16 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
 - Colours for the custom-drawn editor come from [theme.py](../src/matex/theme.py);
   its tests enforce WCAG contrast (4.5:1 text, 3:1 focus ring) in both
   light and dark appearance — keep new colours in that palette.
-- **Fallback toy system** ([ast.py](../src/matex/ast.py),
-  [parser.py](../src/matex/parser.py), [model.py](../src/matex/model.py)): a tiny,
-  self-contained expression grammar (no `\frac`, no matrices, a handful of
-  `\command` aliases) with its own cursor/path/describe/to-MathML logic. It
-  only drives the editor when `create_mathcat_navigator()` returns `None`
-  (native module missing or failed to load) — see the bottom half of
-  `EquationEditor._on_char` in [editor.py](../src/matex/editor.py). Do not
-  "improve" this parser to match UnicodeMath semantics; it is intentionally
-  minimal and is never used when the real pipeline is available.
+- **No fallback system any more** (removed 2026-10-23, the user's
+  decision): a toy parser, tree, cursor and two layout engines (~900 lines:
+  ast, parser, model, layout, layout_snapshot, mathml_layout) drove the
+  editor when the native extension or the WebView was missing, with a
+  grammar too small for real use, and parsed the source on every key even
+  when MathCAT was there. Now the editor keeps only the text
+  ([equation_source.py](../src/matex/equation_source.py)); without MathCAT
+  professional view refuses with `MATHCAT_MISSING`, a reading failure drops
+  to linear view, and `MainFrame` warns at startup (`mathcat_load_error`,
+  `WebView.IsBackendAvailable`, the patch check).
 - **MathCAT traps (professional-mode navigation)**, all confirmed by driving
   `MathCatNavigator` headlessly on real converter output:
   - An *unfenced* `mtable` (bare `■(...)`) is read as "2 lines" of
@@ -900,8 +900,8 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
 
 ## Code Organisation
 
-Pure-logic modules (parser, model, mathml_model,
-  mathml_sanitize, symbol_dictionary, layout*, notebook, portable_notebook, settings,
+Pure-logic modules (mathml_model,
+  mathml_sanitize, symbol_dictionary, notebook, portable_notebook, settings,
   space_conversion, completion, equation_errors, template_source, math_templates, matrix_templates,
   fraction_styles, structure_edits, source_view, source_map, insert_catalog, structure_gallery, character_speech, edit_history,
   html_export, markdown_math, document_io, unicodemath) import `wx`

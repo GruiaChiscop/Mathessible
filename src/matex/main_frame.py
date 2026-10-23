@@ -10,6 +10,7 @@ from .html_export import PREVIEW_PAGE, ExportPage, preview_update_script, write_
 from .macos_webview import guard_webview_key_equivalents
 from .markdown_math import find_math_zones
 from .notebook import Notebook, NotebookError
+from .mathcat import mathcat_load_error
 from .patch_check import missing_patches
 from .portable_notebook import extract_mtex, save_mtex
 from .settings import AppSettings, load_settings, save_settings
@@ -22,7 +23,7 @@ except ImportError:
     wx = None
 
 
-# The patch check runs once per process, whatever the number of windows.
+# The setup check runs once per process, whatever the number of windows.
 _patches_checked = False
 
 
@@ -82,31 +83,42 @@ if wx is not None:
             self._check_patches_once()
 
         def _check_patches_once(self) -> None:
-            """Warn once per run when bootstrap's patches are not applied (patch_check)."""
+            """Warn once per run when the setup is incomplete: MathCAT, the WebView, bootstrap's patches."""
             global _patches_checked
             if _patches_checked:
                 return
             _patches_checked = True
+            problems = []
+            error = mathcat_load_error()
+            if error is not None:
+                problems.append(
+                    "MathCAT's native extension could not be loaded, so equations can only be "
+                    f"edited as text, not read or navigated ({error}). Run scripts/bootstrap.sh."
+                )
+            if not wx.html2.WebView.IsBackendAvailable(wx.html2.WebViewBackendDefault):
+                problems.append(
+                    "No web view is available to convert and show equations "
+                    "(on Linux, install WebKitGTK for wxPython)."
+                )
 
             def check() -> None:
                 missing = missing_patches()
                 if missing:
-                    wx.CallAfter(self._warn_missing_patches, missing)
+                    listed = "\n".join(f"  {name}" for name in missing)
+                    problems.append(
+                        "MateX's fixes to MathCAT and UnicodeMathML are not applied, so some equations "
+                        "will be read or built wrongly. Run scripts/bootstrap.sh in the MateX folder, "
+                        f"then start MateX again.\n\nMissing patches:\n{listed}"
+                    )
+                if problems:
+                    wx.CallAfter(self._warn_setup, problems)
 
-            threading.Thread(target=check, name="matex-patch-check", daemon=True).start()
+            threading.Thread(target=check, name="matex-setup-check", daemon=True).start()
 
-        def _warn_missing_patches(self, missing: list[str]) -> None:
+        def _warn_setup(self, problems: list[str]) -> None:
             if not self:
                 return  # The window closed meanwhile.
-            listed = "\n".join(f"  {name}" for name in missing)
-            wx.MessageBox(
-                "MateX's fixes to MathCAT and UnicodeMathML are not applied, so some equations "
-                "will be read or built wrongly. Run scripts/bootstrap.sh in the MateX folder, "
-                f"then start MateX again.\n\nMissing patches:\n{listed}",
-                "MateX Setup",
-                wx.OK | wx.ICON_WARNING,
-                self,
-            )
+            wx.MessageBox("\n\n".join(problems), "MateX Setup", wx.OK | wx.ICON_WARNING, self)
 
         def _create_menu(self) -> None:
             file_menu = wx.Menu()

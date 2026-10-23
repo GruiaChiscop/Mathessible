@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import importlib
 from dataclasses import dataclass, field
 
-from .ast import Path, path_from_mathml_id
 from .mathcat_common import (
     _INTENT_NODE,
     _FORWARD_STEPS,
@@ -463,13 +463,6 @@ class MathCatNavigator(LinearStopsMixin, StructuralNavigationMixin, TableNavigat
         return current_id
 
     @property
-    def current_path(self) -> Path | None:
-        identifier = self.current_id
-        if identifier == "math-root":
-            return ()
-        return path_from_mathml_id(identifier)
-
-    @property
     def current_id(self) -> str:
         identifier, _offset = self._native.navigation_id()
         return identifier
@@ -483,6 +476,19 @@ class MathCatNavigator(LinearStopsMixin, StructuralNavigationMixin, TableNavigat
     @property
     def current_braille(self) -> str:
         return self._native.navigation_braille()
+
+
+# Said when professional view is asked for without the native MathCAT extension.
+MATHCAT_MISSING = "Professional view needs MathCAT, which could not be loaded. Run scripts/bootstrap.sh"
+
+
+def mathcat_load_error() -> str | None:
+    """Why the native MathCAT extension cannot be loaded, or None when it can."""
+    try:
+        importlib.import_module("matex_mathcat")
+    except ImportError as error:
+        return str(error)
+    return None
 
 
 def create_mathcat_navigator(

@@ -28,9 +28,9 @@ The equation editor is drawn by MateX itself, not a native text field, so
 that VoiceOver does not enter web navigation or announce an equation
 twice. A system WebView converts UnicodeMath to MathML and shows the
 rendered equation, but never takes the focus. MathCAT receives the same
-MathML; what MateX says about the built equation is MathCAT's speech. A
-minimal reader in `matex.ast` is used only if the native extension cannot
-be loaded.
+MathML; what MateX says about the built equation is MathCAT's speech.
+Without the native MathCAT extension, equations can only be edited as
+text, and MateX says so at startup.
 
 ## Quick installation with uv
 

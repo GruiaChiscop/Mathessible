@@ -21,11 +21,11 @@ from .editor_keys import (
 from .editor_renderer import EquationRendererMixin
 from .editor_structures import StructureActionsMixin
 from .edit_history import EditHistory, EditState
-from .mathcat import MathCatNavigator, create_mathcat_navigator
+from .mathcat import MATHCAT_MISSING, MathCatNavigator, create_mathcat_navigator
 from .insert_catalog import InsertItem, item_for_key
 from .math_templates import group_function_argument, move_to_slot, script_on_function
 from .mathml_model import MathMLDocument
-from .model import EquationDocument
+from .equation_source import EquationSource
 from .settings import AppSettings
 from .speech import AssistiveOutput, create_output
 from .source_view import view_of
@@ -72,7 +72,7 @@ if wx is not None:
             self.SetBackgroundStyle(wx.BG_STYLE_PAINT)
             self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
             self.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
-            self.document = EquationDocument(source)
+            self.document = EquationSource(source)
             self.settings = settings or AppSettings()
             self.symbols = load_dictionary(self.settings.symbol_dictionary)
             self.output = output or create_output()
@@ -95,7 +95,6 @@ if wx is not None:
             self.selection_anchor: int | None = None
             self._dragging = False
             self.history = EditHistory(source, self.caret)
-            self._layout = None
             self.mathml_document: MathMLDocument | None = None
             self.mathml_current_id: str | None = None
             self._highlight_matrix_cell = False
@@ -259,7 +258,7 @@ if wx is not None:
                     self.mathcat.auto_zoom_out = self._auto_zoom_out
                     self.mathcat.boundary_stops = self._boundary_stops
                     self.mathcat.structural_stops = self._structural_stops
-            self.document = EquationDocument(source)
+            self.document = EquationSource(source)
             self.caret = len(source)
             self.selection_anchor = None
             self._selected_ids = ()
@@ -440,6 +439,9 @@ if wx is not None:
                 wx.CallLater(30, self._retry_toggle_mode, attempts - 1)
                 return
             self._clear_selection()
+            if self.mode == "linear" and self.mathcat is None:
+                self._announce(MATHCAT_MISSING)
+                return
             if self.mode == "linear" and not self.document.source.strip():
                 # Nothing to build (and MathCAT cannot even zoom into empty math).
                 self._announce("empty equation")
@@ -474,22 +476,16 @@ if wx is not None:
                     conversion.mathml,
                     recognized_functions=self.settings.recognized_functions,
                 )
-                if self.mathcat is not None:
-                    try:
-                        self.mathcat.load(conversion.mathml, speak=False)
-                        self.mathml_document = self.mathcat.structure
-                        speech = self.mathcat.command("ZoomIn")
-                        self._sync_mathcat_cursor()
-                        self._announce(f"professional mode, {speech}")
-                        self._start_linear_preparation()
-                    except (OSError, RuntimeError, ValueError):
-                        self.mathcat = None
-                        self._announce("professional mode, equation")
-                else:
-                    self._announce("professional mode, equation")
+                if self.mathcat is None:
+                    raise RuntimeError(MATHCAT_MISSING)
+                self.mathcat.load(conversion.mathml, speak=False)
+                self.mathml_document = self.mathcat.structure
+                speech = self.mathcat.command("ZoomIn")
                 self._sync_mathcat_cursor()
+                self._announce(f"professional mode, {speech}")
+                self._start_linear_preparation()
                 return True
-            except (RuntimeError, ValueError) as error:
+            except (OSError, RuntimeError, ValueError) as error:
                 self.mode = "linear"
                 self._announce(f"{error_prefix}. {error}")
                 return False
@@ -720,7 +716,7 @@ if wx is not None:
             if state is None:
                 self._announce(f"nothing to {action}")
                 return
-            self.document.replace_source(state.source, state.caret)
+            self.document.source = state.source
             self.caret = state.caret
             self._announce(action)
             self.Refresh()
@@ -919,23 +915,6 @@ if wx is not None:
                     if key in (wx.WXK_BACK, wx.WXK_DELETE) or self._is_typed_character(event):
                         self._edit_built_equation(event)
                         return
-                moved = False
-                if key == wx.WXK_LEFT:
-                    moved = self.document.cursor.move_previous(self.document.root)
-                elif key == wx.WXK_RIGHT:
-                    moved = self.document.cursor.move_next(self.document.root)
-                elif key == wx.WXK_DOWN:
-                    moved = self.document.cursor.move_into(self.document.root)
-                elif key == wx.WXK_UP:
-                    moved = self.document.cursor.move_out()
-                elif key == wx.WXK_SPACE:
-                    self._announce(self.document.announcement)
-                    return
-                else:
-                    return
-                if moved:
-                    self._announce(self.document.announcement)
-                    self.Refresh()
                 return
 
             if key == wx.WXK_TAB:
@@ -1197,9 +1176,10 @@ if wx is not None:
                 self._sync_mathcat_cursor()
                 self._start_linear_preparation()
                 self._announce("cannot move there")
-            except (OSError, RuntimeError, ValueError):
-                self.mathcat = None
-                self._announce("MathCAT is no longer available; fallback navigation is active")
+            except (OSError, RuntimeError, ValueError) as error:
+                self.mode = "linear"
+                self._update_braille_display()
+                self._announce(f"MathCAT could not read the equation, linear mode. {error}")
             self.Refresh()
 
         def _sync_mathcat_cursor(self) -> None:
@@ -1213,16 +1193,6 @@ if wx is not None:
                 else self.mathcat.display_id
             )
             self._update_braille_display()
-            path = self.mathcat.current_path
-            if path is None:
-                return
-            from .ast import node_at_path
-
-            try:
-                node_at_path(self.document.root, path)
-            except (IndexError, KeyError):
-                return
-            self.document.cursor.path = path
 
 
         def _autocorrect(self) -> AutoCorrectTable:
@@ -1273,7 +1243,7 @@ if wx is not None:
             return span if span[1] - span[0] > 1 and self.document.source[span[0]] == "\\" else single
 
         def _replace_linear(self, source: str, caret: int) -> None:
-            self.document.replace_source(source, caret)
+            self.document.source = source
             self.caret = caret
             self.history.push(source, caret)
             self.Refresh()

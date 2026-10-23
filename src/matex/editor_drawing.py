@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from .layout import Line, Text, professional_layout
-from .mathml_layout import mathml_layout
 from .theme import Palette
 
 try:
@@ -162,9 +160,12 @@ class EditorDrawingMixin:
                 message = self._renderer_error or ("" if self._renderer_ready else "Loading the math renderer…")
                 dc.DrawText(message, preview.x + 14, preview.y + 12)
             return
-        if self._webview is not None and self._webview.IsShown():
-            return
-        self._draw_fallback_layout(dc, colors)
+        if self._webview is None or not self._webview.IsShown():
+            # The built equation is shown only by the WebKit renderer.
+            content = self._content_rect()
+            dc.SetFont(self._ui_font(12))
+            dc.SetTextForeground(self._colour(colors.subtle_text))
+            dc.DrawText(self._renderer_error or "The math renderer is not available", content.x + 14, content.y + 12)
 
     def _draw_source(self, dc: wx.DC, colors: Palette) -> None:
         content = self._source_rect()
@@ -189,53 +190,4 @@ class EditorDrawingMixin:
         prefix_width = dc.GetTextExtent(self.document.source[: self.caret]).width
         dc.SetPen(wx.Pen(self._colour(colors.focus), 2))
         dc.DrawLine(x + prefix_width, y - 2, x + prefix_width, y + line_height + 2)
-        dc.DestroyClippingRegion()
-
-    def _draw_fallback_layout(self, dc: wx.DC, colors: Palette) -> None:
-        """Our own rough layout, for when the WebKit renderer is unavailable."""
-        content = self._content_rect()
-        dc.SetClippingRegion(content)
-        dc.SetTextForeground(self._colour(colors.text))
-        if self.mathml_document is not None:
-            self._layout = mathml_layout(self.mathml_document)
-            selected_key: object | None = self.mathml_current_id
-        elif self.document.parse_error is not None:
-            dc.SetFont(self._source_font())
-            dc.DrawText(self.document.source, content.x + 12, content.y + 16)
-            dc.DestroyClippingRegion()
-            return
-        else:
-            self._layout = professional_layout(self.document.root)
-            selected_key = self.document.cursor.path
-        origin_x = content.x + max(12, (content.width - self._layout.width) / 2)
-        origin_y = content.y + max(12, (content.height - self._layout.height) / 2)
-        selected = self._layout.boxes.get(selected_key)
-        if selected is not None:
-            dc.SetBrush(wx.Brush(self._colour(colors.highlight_fill)))
-            dc.SetPen(wx.Pen(self._colour(colors.focus), 2))
-            dc.DrawRoundedRectangle(
-                int(origin_x + selected.x - 3),
-                int(origin_y + selected.y - 3),
-                int(selected.width + 6),
-                int(selected.height + 6),
-                4,
-            )
-        for primitive in self._layout.primitives:
-            if isinstance(primitive, Text):
-                font = wx.Font(
-                    max(10, int(18 * primitive.scale)),
-                    wx.FONTFAMILY_ROMAN,
-                    wx.FONTSTYLE_NORMAL,
-                    wx.FONTWEIGHT_NORMAL,
-                )
-                dc.SetFont(font)
-                dc.DrawText(primitive.value, int(origin_x + primitive.x), int(origin_y + primitive.y))
-            elif isinstance(primitive, Line):
-                dc.SetPen(wx.Pen(self._colour(colors.text), 2))
-                dc.DrawLine(
-                    int(origin_x + primitive.x1),
-                    int(origin_y + primitive.y1),
-                    int(origin_x + primitive.x2),
-                    int(origin_y + primitive.y2),
-                )
         dc.DestroyClippingRegion()

@@ -40,10 +40,11 @@ spelling.
   ([mathcat_prepare.py](src/matex/mathcat_prepare.py)); the converter's
   own markers (`mathcolor="#F00"`/`"#F01"`) are the only test of whether a
   source builds.
-- Two maths systems exist: the real one (UnicodeMathML in a WebView, then
-  MathCAT) and a minimal fallback (`ast.py`, `parser.py`, `model.py`) used
-  only when the native extension is missing. Check which one you are in
-  (`self.mathcat is not None`); do not grow the fallback.
+- Equations are understood only by the converter (UnicodeMathML in a
+  WebView) and MathCAT; Python never parses UnicodeMath itself. Without
+  the native MathCAT extension the editor still edits the source as text,
+  but professional view refuses (`MATHCAT_MISSING`) and the app warns at
+  startup.
 
 ## Code Rules
 
