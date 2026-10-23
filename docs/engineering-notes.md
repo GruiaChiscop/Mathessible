@@ -495,7 +495,12 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   An empty `""` is a total failure: build_repair puts U+200B in it.
   **Trap:** the converter writes a text's spaces as no-break spaces
   (`for\u00a0all\u00a0`), so `map_leaves` found no text leaf until
-  `_normalize` took U+00A0 for a space.
+  `_normalize` took U+00A0 for a space. **Trap:** MathCAT splits a final
+  punctuation mark off (`mrow(everything before, ".")`), and ReadCurrent
+  on it read that whole group: every period ending a text or an
+  equation read the line. `_leaf_only` says just the mark ("dot") for a
+  punctuation leaf that ends such a pair (`_ends_sentence`); a colon or
+  comma inside keeps MathCAT's reading.
 - **Partial build: linear runs (2026-10-23).** Word builds only what has
   become unambiguous (UTN #28 sec. 2.3) and keeps the rest as linear text
   in the same equation. MateX keeps one source and, beside it,
@@ -543,7 +548,17 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   says nothing for it and `map_leaves` gives it an empty span.
   **Trap:** the converter writes a literal `&` (`\&`, also `"&"`) bare,
   which is not XML ("Invalid MathML: not well-formed"); `decode_conversion`
-  escapes bare ampersands. Runs
+  escapes bare ampersands. **Trap:** it also splits some characters past
+  U+FFFF into their UTF-16 halves, one token each (🜁 is
+  `<mo>\ud83d</mo><mo>\udf01</mo>`; 😀 and 𝑥 come whole), and loading
+  that into MathCAT raised UnicodeEncodeError: `decode_conversion` joins
+  the halves into one token (`_join_split_pairs`), a lone half is U+FFFD.
+  MathCAT names what its full Unicode table has and passes anything else
+  through as the character (🜁, 😀, 中); so does the symbol dictionary when
+  echoing typing. `name_unknown_symbols` (character_speech.py, setting
+  `name_unknown_symbols`, on) turns each remaining symbol (categories S*,
+  past ASCII) into its Unicode name in `_announce`, all speech's one
+  door; letters and punctuation are left for the screen reader. Runs
   live only in the editor; the document gets the plain source, so a
   reopened equation builds as before.
 - **Proposed staged approach**:

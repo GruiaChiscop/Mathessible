@@ -39,6 +39,13 @@ class UnicodeMathMLTests(unittest.TestCase):
             '<math><mo intent=":text">&amp;</mo><mo>&lt;</mo><mi>&#x1D44E;</mi></math>',
         )
 
+    def test_a_character_split_into_utf16_halves_is_joined(self) -> None:
+        # The converter gives 🜁 (U+1F701) as two tokens, one UTF-16 half each.
+        payload = json.dumps({"mathml": "<math><mi>x</mi><mo>\ud83d</mo><mo>\udf01</mo></math>"})
+        self.assertEqual(decode_conversion(payload).mathml, "<math><mi>x</mi><mo>\U0001f701</mo></math>")
+        lone = json.dumps({"mathml": '<math><mo intent=":text">\ud83d</mo></math>'})
+        self.assertEqual(decode_conversion(lone).mathml, '<math><mo intent=":text">\ufffd</mo></math>')
+
     def test_another_scripts_result_is_recognized_as_stray(self) -> None:
         own = json.dumps({"mathml": "<math><mi>x</mi></math>", "error": None, "token": 7})
         self.assertEqual(decode_conversion(own, 7).mathml, "<math><mi>x</mi></math>")

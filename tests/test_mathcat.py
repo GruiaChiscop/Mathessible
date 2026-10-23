@@ -49,6 +49,15 @@ class MathCatTests(unittest.TestCase):
                 self.assertEqual(step("MovePrevious"), last)
                 self.assertEqual(step("MovePrevious"), "plus")
 
+    def test_a_final_period_is_its_own_stop_not_the_whole_line(self) -> None:
+        # MathCAT groups everything before a final "." and read it all on the period.
+        mathml = "<math><mi>x</mi><mo>+</mo><mn>1</mn><mo>.</mo></math>"
+        navigator = MathCatNavigator(language="en", auto_zoom_out=True, boundary_stops=True)
+        navigator.load(mathml)
+        navigator.command("ZoomIn")
+        forward = [navigator.linear_command("MoveNext") for _ in range(5)]
+        self.assertEqual(forward, ["x", "plus", "1", "dot", "end of math"])
+
     def test_structure_stops_give_every_structure_a_start_and_an_end(self) -> None:
         mathml = "<math><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><mi>c</mi></mfrac><mo>=</mo><mn>1</mn></math>"
         navigator = MathCatNavigator(language="en", auto_zoom_out=True, boundary_stops=True)

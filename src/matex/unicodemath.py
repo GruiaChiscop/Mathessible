@@ -61,6 +61,26 @@ def distribution_directory() -> Path:
 # One `'word': 'symbol',` entry per line of UnicodeMathML's controlWords table.
 # The converter writes a literal "&" (`\\&`, `"&"`) unescaped, which is not XML.
 _BARE_AMPERSAND = re.compile(r"&(?!(?:[A-Za-z]+|#[0-9]+|#x[0-9A-Fa-f]+);)")
+# It also splits some characters past U+FFFF into their UTF-16 halves, one
+# token each (🜁 is `<mo>\\ud83d</mo><mo>\\udf01</mo>`), which no UTF-8 text holds.
+_SPLIT_PAIR = re.compile(r"<(m[a-z]+)([^>]*)>([\ud800-\udbff])</\1>\s*<m[a-z]+[^>]*>([\udc00-\udfff])</m[a-z]+>")
+_LONE_SURROGATE = re.compile(r"[\ud800-\udfff]")
+
+
+def _join_split_pairs(mathml: str) -> str:
+    """One token per character again (`_SPLIT_PAIR`); a half left alone becomes U+FFFD."""
+    joined = _SPLIT_PAIR.sub(
+        lambda match: (
+            f"<{match[1]}{match[2]}>"
+            + (match[3] + match[4]).encode("utf-16", "surrogatepass").decode("utf-16")
+            + f"</{match[1]}>"
+        ),
+        mathml,
+    )
+    joined = joined.encode("utf-16", "surrogatepass").decode("utf-16", "replace")  # Pairs left within a token.
+    return _LONE_SURROGATE.sub("\ufffd", joined)
+
+
 _CONTROL_WORD_ENTRY = re.compile(r"^\s*'([A-Za-z0-9]+)':\s*'((?:[^'\\]|\\u[0-9A-Fa-f]{4})*)'")
 
 
@@ -228,7 +248,7 @@ def decode_conversion(value: str, token: int | None = None) -> ConversionResult:
     offset = decoded.get("parseOffset")
     found = decoded.get("parseFound")
     return ConversionResult(
-        mathml=_BARE_AMPERSAND.sub("&amp;", mathml),
+        mathml=_BARE_AMPERSAND.sub("&amp;", _join_split_pairs(mathml)),
         error=error,
         parse_offset=offset if isinstance(offset, int) else None,
         parse_found=found if isinstance(found, str) else None,

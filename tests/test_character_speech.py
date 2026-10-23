@@ -1,6 +1,11 @@
 import unittest
 
-from matex.editing.character_speech import character_name, deleted_character, inserted_character
+from matex.editing.character_speech import (
+    character_name,
+    deleted_character,
+    inserted_character,
+    name_unknown_symbols,
+)
 
 
 class CharacterSpeechTests(unittest.TestCase):
@@ -24,6 +29,16 @@ class CharacterSpeechTests(unittest.TestCase):
     def test_deleted_character_uses_spoken_name(self) -> None:
         self.assertEqual(deleted_character(" "), "deleted space")
         self.assertEqual(deleted_character("/"), "deleted slash")
+
+
+class UnknownSymbolTests(unittest.TestCase):
+    def test_a_symbol_nothing_named_is_said_by_its_unicode_name(self) -> None:
+        self.assertEqual(name_unknown_symbols("x plus 🜁"), "x plus alchemical symbol for air")
+        self.assertEqual(name_unknown_symbols("deleted ⟁"), "deleted white triangle containing small white triangle")
+
+    def test_letters_punctuation_and_named_speech_stay_as_they_are(self) -> None:
+        for speech in ("x plus ș", "x plus 中", "la . sa se", "x plus 1", "x plus \ue000"):
+            self.assertEqual(name_unknown_symbols(speech), speech)
 
 
 if __name__ == "__main__":

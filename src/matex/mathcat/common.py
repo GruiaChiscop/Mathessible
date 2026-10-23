@@ -69,6 +69,9 @@ _INVISIBLE_OPERATOR_NAMES = {
 _LINEAR_SEARCH_BUDGET = 0.25  # seconds
 # Leaves MathCAT may read as their whole interval or set (see `_leaf_only`).
 _FENCES_AND_SEPARATORS = frozenset("()[]{}⟨⟩,;")
+# Punctuation MathCAT may take for the end of a sentence ("x+1.", a text's "."):
+# it groups everything before it, and ReadCurrent on it reads that whole group.
+_PUNCTUATION = frozenset(".,;:?!")
 # Cell commands as (row, column) steps.
 _CELL_STEPS = {
     "MoveCellNext": (0, 1),

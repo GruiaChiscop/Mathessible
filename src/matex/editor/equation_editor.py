@@ -5,7 +5,12 @@ import threading
 from matex import session_log
 from matex.editing.autocorrect import AutoCorrectTable, autocorrect_defaults
 from matex.editing.build_repair import BuildRepair
-from matex.editing.character_speech import character_name, deleted_character, inserted_character
+from matex.editing.character_speech import (
+    character_name,
+    deleted_character,
+    inserted_character,
+    name_unknown_symbols,
+)
 from matex.editing.completion import Completion
 from matex.editing.edit_history import EditHistory, EditState
 from matex.editing.equation_source import EquationSource
@@ -263,6 +268,8 @@ if wx is not None:
             )
 
         def _announce(self, text: str) -> None:
+            if self.settings.name_unknown_symbols:
+                text = name_unknown_symbols(text)
             self._last_spoken = text
             if session_log.enabled():
                 session_log.write("say", text)

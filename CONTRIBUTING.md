@@ -17,8 +17,10 @@ uv run matex
 applies MateX's patches to them, builds the native MathCAT extension and
 runs the tests. Run it again after pulling changes to `patches/`. On macOS
 wxPython needs a Framework build of Python (Homebrew's or python.org's);
-the script finds one.
+the script finds one. If it installed uv locally, use `.tools/uv`
+instead of `uv`.
 
+[docs/user-guide.md](docs/user-guide.md) describes MateX as its users see it.
 [docs/architecture.md](docs/architecture.md) explains how an equation goes
 through the app in one page. [docs/engineering-notes.md](docs/engineering-notes.md)
 is the long record of what was built and why; read the section for the
@@ -55,7 +57,10 @@ Both are submodules at their upstream commits. A fix that belongs in one of
 them is a numbered file in `patches/mathcat/` or `patches/unicodemathml/`,
 with a header saying what it changes and why; `scripts/bootstrap.sh`
 applies it. Changes left only inside the submodule are lost on a fresh
-clone. MathCAT's rules are compiled into the extension: after changing
+clone, and `uv sync` alone builds MathCAT without them: MateX checks at
+startup and says which fix is missing. To save a fix, for example
+`git -C MathCAT diff > patches/mathcat/0006-….patch`, then add the
+header. MathCAT's rules are compiled into the extension: after changing
 them, run `uv sync --reinstall-package matex-mathcat`. Fixes useful to
 everyone are worth proposing upstream too.
 

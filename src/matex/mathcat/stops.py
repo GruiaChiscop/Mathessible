@@ -14,6 +14,7 @@ from matex.mathcat.common import (
     _INTENT_NODE,
     _INVISIBLE_OPERATOR_NAMES,
     _LINEAR_SEARCH_BUDGET,
+    _PUNCTUATION,
     BoundaryStop,
     _LinearStop,
 )
@@ -416,11 +417,20 @@ class LinearStopsMixin:
             return "negative"
         if leaf.tag == "mo" and text in _FENCES_AND_SEPARATORS and len(speech.split()) > 3:
             return self.character_speech(text)
+        if text in _PUNCTUATION and self._ends_sentence(leaf):
+            # A final "." reads the whole line before it in MathCAT: just the mark ("dot").
+            return self.character_speech(text)
         if text in FUNCTION_SCRIPTS and len(speech.split()) > 2:
             # `log`/`lim` read the whole "the log base 2" / "the limit as x
             # approaches 0", then the base or condition again: just the name.
             return self.character_speech(text)
         return speech
+
+    def _ends_sentence(self, leaf: MathMLNode) -> bool:
+        """Whether a punctuation mark is the final one MathCAT splits off: `mrow(everything before, ".")`."""
+        structure = self.structure
+        parent = structure.parent_by_id.get(leaf.identifier or "") if structure is not None else None
+        return parent is not None and len(parent.children) == 2 and parent.children[-1] is leaf
 
     def _table_part_label(self, part: MathMLNode, index: int | None) -> str | None:
         """A row/cell region's name: "equation 2" and no columns in an equation array,

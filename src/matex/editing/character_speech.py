@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import re
+import unicodedata
+
 from matex.symbols.dictionary import BUILTIN_ID, SymbolDictionary, load_dictionary
 
 # The names come from a symbols.dic dictionary (symbol_dictionary.py); the
@@ -28,3 +31,23 @@ def inserted_character(character: str, symbols: SymbolDictionary | None = None) 
 def deleted_character(character: str, symbols: SymbolDictionary | None = None) -> str:
     name = character_name(character, symbols)
     return f"deleted {name}" if name else "deleted"
+
+
+def name_unknown_symbols(text: str) -> str:
+    """Each symbol left unnamed in speech (🜁, ⟁ when nothing named it) as its Unicode name.
+
+    MathCAT and the symbol dictionary pass a character they do not know
+    through as itself, and the screen reader may not know it either. Only
+    symbols (Unicode categories Sm, So, Sc, Sk) past ASCII: letters (ș, 中)
+    and a text's punctuation are read well as they are.
+    """
+    if text.isascii():
+        return text
+    parts: list[str] = []
+    for character in text:
+        name = unicodedata.name(character, "") if ord(character) > 127 else ""
+        if name and unicodedata.category(character).startswith("S"):
+            parts.append(f" {name.lower()} ")
+        else:
+            parts.append(character)
+    return re.sub(r" {2,}", " ", "".join(parts)).strip()

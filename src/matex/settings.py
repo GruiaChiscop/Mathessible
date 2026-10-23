@@ -104,6 +104,8 @@ class AppSettings:
     announce_built: bool = True
     # Math AutoCorrect (control words, shortcuts, argument boxes) in normal text too.
     autocorrect_in_text: bool = False
+    # Say a symbol nothing named (MathCAT, the dictionary) by its Unicode name (🜁: "alchemical symbol for air").
+    name_unknown_symbols: bool = True
     # Closing lim_(...)/log_(...) opens the argument (and builds) at once,
     # instead of on the Space after it, as Word does.
     argument_on_closing_paren: bool = False
@@ -146,6 +148,7 @@ def load_settings(path: Path | None = None) -> AppSettings:
         build_as_you_type=bool(data.get("build_as_you_type", True)),
         announce_built=bool(data.get("announce_built", True)),
         autocorrect_in_text=bool(data.get("autocorrect_in_text", False)),
+        name_unknown_symbols=bool(data.get("name_unknown_symbols", True)),
         argument_on_closing_paren=bool(data.get("argument_on_closing_paren", False)),
         symbol_dictionary=str(data.get("symbol_dictionary", "matex-en")),
         auto_zoom_out=bool(data.get("auto_zoom_out", False)),
