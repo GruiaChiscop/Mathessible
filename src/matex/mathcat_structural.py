@@ -162,9 +162,9 @@ class StructuralNavigationMixin:
         if named == "script" and node.tag in {"mover", "munder", "munderover"} and node.children:
             # An operator with text over/under it (`→┴(x)`): named like its template.
             base = node.children[0]
-            if base.tag == "mo" and len(node.children) > 1 and node.children[1].identifier:
-                if structure.semantic_role(node.children[1].identifier) in {"text above", "text below"}:
-                    return "arrow" if base.content.strip() in ARROWS else "operator"
+            text = node.children[1].identifier if len(node.children) > 1 else None
+            if base.tag == "mo" and text and structure.semantic_role(text) in {"text above", "text below"}:
+                return "arrow" if base.content.strip() in ARROWS else "operator"
         if named:
             return named
         if node.identifier:

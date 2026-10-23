@@ -4,7 +4,6 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-
 MANIFEST_NAME = "matex.json"
 FORMAT_NAME = "matex-notebook"
 FORMAT_VERSION = 1
@@ -35,7 +34,7 @@ class Notebook:
     pages: list[NotebookPage]
 
     @classmethod
-    def create(cls, root: str | Path, title: str | None = None) -> "Notebook":
+    def create(cls, root: str | Path, title: str | None = None) -> Notebook:
         root = Path(root).expanduser()
         if root.exists() and any(root.iterdir()):
             raise NotebookError("The selected folder is not empty")
@@ -46,7 +45,7 @@ class Notebook:
         return notebook
 
     @classmethod
-    def open(cls, root: str | Path) -> "Notebook":
+    def open(cls, root: str | Path) -> Notebook:
         root = Path(root).expanduser()
         manifest_path = root / MANIFEST_NAME
         try:

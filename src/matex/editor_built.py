@@ -462,7 +462,7 @@ class BuiltEditingMixin:
             return offset
         if not (glue and outside and self._joins_structure(node_id, side)):
             return offset
-        if side == "after" and 0 < offset and source[offset - 1] != " ":
+        if side == "after" and offset > 0 and source[offset - 1] != " ":
             self.document.source = source[:offset] + " " + source[offset:]
             return offset + 1
         if side == "before" and offset < len(source) and source[offset] != " ":

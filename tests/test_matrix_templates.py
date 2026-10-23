@@ -4,14 +4,14 @@ from matex.matrix_templates import (
     MatrixPosition,
     delete_matrix_column,
     delete_matrix_row,
+    delete_table_row,
     insert_matrix_column,
     insert_matrix_row,
     insert_matrix_template,
+    insert_table_row,
     matrix_cell_caret,
     matrix_count,
     matrix_position_at,
-    delete_table_row,
-    insert_table_row,
     table_position_at,
 )
 

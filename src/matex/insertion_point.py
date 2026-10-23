@@ -11,9 +11,8 @@ other the denominator.
 
 from __future__ import annotations
 
-from collections.abc import Callable
-
 import unicodedata
+from collections.abc import Callable
 
 from .mathcat_lone import lone_speech
 from .mathml_model import MathMLDocument, MathMLNode

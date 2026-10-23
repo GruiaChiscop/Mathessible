@@ -6,7 +6,6 @@ from dataclasses import dataclass
 
 from .template_source import TemplateEdit, matching_parens
 
-
 # Fraction styles, as Word names them, and the UnicodeMath operator of each.
 # Linear (U+2215) is an inline "a/b": the converter drops the parens around
 # its operands, so `(a+b)∕c` keeps them only as `((a+b))∕c`. "¦" (no bar,

@@ -7,7 +7,6 @@ from pathlib import Path, PurePosixPath
 
 from .notebook import MANIFEST_NAME, Notebook, NotebookError
 
-
 MAX_ARCHIVE_FILES = 10_000
 MAX_UNCOMPRESSED_SIZE = 512 * 1024 * 1024
 

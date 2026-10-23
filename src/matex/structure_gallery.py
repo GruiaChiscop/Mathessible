@@ -14,7 +14,7 @@ from __future__ import annotations
 import unicodedata
 from dataclasses import dataclass
 
-from .insert_catalog import InsertItem, Inserter, all_items
+from .insert_catalog import Inserter, InsertItem, all_items
 from .math_templates import (
     insert_nary_operator_template,
     insert_operator_template,

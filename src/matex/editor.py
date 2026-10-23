@@ -2,15 +2,16 @@ from __future__ import annotations
 
 import threading
 
-from .clipboard import get_clipboard_text, set_clipboard_text
+from . import session_log
+from .autocorrect import AutoCorrectTable, autocorrect_defaults
 from .build_repair import BuildRepair
-from .completion import Completion
 from .character_speech import character_name, deleted_character, inserted_character
-from .symbol_dictionary import load_dictionary
+from .clipboard import get_clipboard_text, set_clipboard_text
+from .completion import Completion
+from .edit_history import EditHistory, EditState
 from .editor_assist import EditorAssistMixin
 from .editor_built import BuiltEditingMixin
 from .editor_drawing import EditorDrawingMixin
-from . import session_log
 from .editor_keys import (
     cell_navigation_down,
     describe_key,
@@ -20,22 +21,21 @@ from .editor_keys import (
 )
 from .editor_renderer import EquationRendererMixin
 from .editor_structures import StructureActionsMixin
-from .edit_history import EditHistory, EditState
-from .mathcat import MATHCAT_MISSING, MathCatNavigator, create_mathcat_navigator
+from .equation_source import EquationSource
 from .insert_catalog import InsertItem, item_for_key
 from .math_templates import group_function_argument, move_to_slot, script_on_function
+from .mathcat import MATHCAT_MISSING, MathCatNavigator, create_mathcat_navigator
 from .mathml_model import MathMLDocument
-from .equation_source import EquationSource
 from .settings import AppSettings
-from .speech import AssistiveOutput, create_output
 from .source_view import view_of
-from .autocorrect import AutoCorrectTable, autocorrect_defaults
 from .space_conversion import (
     convert_before_character,
     convert_on_space,
     convert_shortcut_on_character,
     convert_word_before,
 )
+from .speech import AssistiveOutput, create_output
+from .symbol_dictionary import load_dictionary
 from .theme import Palette, palette
 from .unicodemath import ConversionResult, UnicodeMathError
 from .word_navigation import next_word_boundary, previous_word_boundary
@@ -539,13 +539,10 @@ if wx is not None:
                     return
                 if self._insert_for_key(event, "command"):
                     return
-            if self.mode == "professional" and self.mathcat is not None and template_variant_down(event):
-                if self._insert_for_key(event, "variant"):
-                    return
-            if self.mode == "linear" and template_variant_down(event):
-                # Control+I/S/P/R/L/O (Alt elsewhere): the variants of Cmd+I/S/P/R/L/Shift+O.
-                if self._insert_for_key(event, "variant"):
-                    return
+            # Control+I/S/P/R/L/O (Alt elsewhere): the variants of Cmd+I/S/P/R/L/Shift+O.
+            variant_view = self.mode == "linear" or (self.mode == "professional" and self.mathcat is not None)
+            if variant_view and template_variant_down(event) and self._insert_for_key(event, "variant"):
+                return
             if self.mode == "linear" and command_modifier:
                 if key in (ord("X"), ord("x")):
                     self._cut_equation()

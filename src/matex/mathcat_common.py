@@ -5,7 +5,6 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-
 # MathCAT starts some phrases with a separator meant to follow other speech,
 # e.g. a matrix row read on its own comes back as "; row 1; a, b".
 # MathCAT's ids for the nodes its intents add: "<real node id>-<intent part>[-n]".

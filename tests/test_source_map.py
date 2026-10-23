@@ -99,10 +99,12 @@ class AnchorTests(unittest.TestCase):
         # "After the fraction 1/2" stays inside the numerator's parens.
         source = "(1/2)/(3/4)"
         mathml = "<math><mfrac><mfrac><mn>1</mn><mn>2</mn></mfrac><mfrac><mn>3</mn><mn>4</mn></mfrac></mfrac></math>"
-        inner = lambda document: document.root.children[0].children[0]
+        def inner(document):
+            return document.root.children[0].children[0]
         self.assertEqual(self.anchor(source, mathml, inner, "before"), 1)
         self.assertEqual(self.anchor(source, mathml, inner, "after"), 4)
-        outer = lambda document: document.root.children[0]
+        def outer(document):
+            return document.root.children[0]
         self.assertEqual(self.anchor(source, mathml, outer, "after"), len(source))
 
     def test_visible_parens_are_not_the_structure_s_own(self) -> None:
@@ -111,7 +113,8 @@ class AnchorTests(unittest.TestCase):
             '<math><msup><mrow intent=":fenced"><mo>(</mo><mfrac><mrow><mi>𝑎</mi><mo>+</mo><mi>𝑏</mi></mrow>'
             "<mi>𝑐</mi></mfrac><mo>)</mo></mrow><mn>2</mn></msup></math>"
         )
-        fraction = lambda document: document.find_all(lambda node: node.tag == "mfrac")[0]
+        def fraction(document):
+            return document.find_all(lambda node: node.tag == "mfrac")[0]
         self.assertEqual(self.anchor(source, mathml, fraction, "before"), 1)
         self.assertEqual(self.anchor(source, mathml, fraction, "after"), 8)
 
@@ -122,7 +125,8 @@ class AnchorTests(unittest.TestCase):
             '<math><mrow intent=":nary(,,$naryand)"><mo>∫</mo><mrow arg="naryand"><mi>𝑓</mi>'
             '<mrow intent=":fenced"><mo>(</mo><mi>𝑥</mi><mo>)</mo></mrow><mi>𝑑</mi><mi>𝑥</mi></mrow></mrow></math>'
         )
-        sign = lambda document: document.find_all(lambda node: node.text == "∫")[0]
+        def sign(document):
+            return document.find_all(lambda node: node.text == "∫")[0]
         self.assertEqual(self.anchor(source, mathml, sign, "after", outside=False), 2)
 
 

@@ -6,7 +6,6 @@ from .matrix_templates import matrix_cells, matrix_label, past_fence
 from .settings import DEFAULT_RECOGNIZED_FUNCTIONS
 from .template_source import TemplateEdit, insert_template, matching_parens, operand_end
 
-
 # N-ary operators whose `_(...)`/`^(...)` groups are limits, not scripts.
 NARY_LABELS = {
     "∫": "integral",

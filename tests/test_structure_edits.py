@@ -1,8 +1,10 @@
 import unittest
 
+from converter_harness import convert_all, has_error, needs_node
 from matex.structure_edits import (
     accent_at,
     add_nary_limits,
+    add_root_index,
     add_subscript,
     add_superscript,
     bracket_at,
@@ -10,24 +12,21 @@ from matex.structure_edits import (
     change_accent,
     change_brackets,
     hide_bracket,
+    nary_at,
+    nary_operators,
     remove_accent,
     remove_bar,
     remove_brackets,
+    remove_nary_limits,
+    remove_root_index,
     remove_subscript,
     remove_superscript,
+    root_at,
+    roots,
     script_at,
     scripts,
     switch_bar,
-    add_root_index,
-    nary_at,
-    nary_operators,
-    remove_nary_limits,
-    remove_root_index,
-    root_at,
-    roots,
 )
-
-from converter_harness import convert_all, has_error, needs_node
 
 
 class RootEditTests(unittest.TestCase):

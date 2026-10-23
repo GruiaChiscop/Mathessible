@@ -11,6 +11,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from .math_templates import (
+    insert_absolute_value_template,
     insert_binomial_template,
     insert_box_template,
     insert_brace_template,
@@ -18,12 +19,11 @@ from .math_templates import (
     insert_cases_template,
     insert_equation_array_template,
     insert_equation_number_template,
-    insert_nary_operator_template,
-    insert_absolute_value_template,
     insert_fraction_template,
     insert_integral_template,
     insert_limit_template,
     insert_logarithm_template,
+    insert_nary_operator_template,
     insert_operator_template,
     insert_product_template,
     insert_root_template,

@@ -7,8 +7,25 @@ from dataclasses import dataclass
 
 from .clipboard import get_clipboard_text
 from .fraction_styles import FRACTION_STYLES, built_fractions, fraction_at, restyle_fraction
+from .insert_catalog import INSERT_GROUPS, InsertItem
 from .math_templates import NARY_LABELS
+from .mathml_model import MathMLDocument, MathMLNode
+from .matrix_dialog import MatrixDialog
+from .matrix_templates import (
+    TABLE_SIGNS,
+    delete_matrix_column,
+    delete_matrix_row,
+    delete_table_row,
+    insert_matrix_column,
+    insert_matrix_row,
+    insert_matrix_template,
+    insert_table_row,
+    matrix_cell_caret,
+    matrix_count,
+    table_position_at,
+)
 from .source_map import anchor_offset
+from .source_view import edit_in_view, in_view, view_of
 from .structure_edits import (
     ACCENTS,
     BARS,
@@ -38,24 +55,7 @@ from .structure_edits import (
     script_at,
     switch_bar,
 )
-from .insert_catalog import INSERT_GROUPS, InsertItem
-from .source_view import edit_in_view, in_view, view_of
 from .template_source import TemplateEdit
-from .matrix_templates import (
-    delete_matrix_column,
-    delete_matrix_row,
-    insert_matrix_column,
-    insert_matrix_row,
-    insert_matrix_template,
-    TABLE_SIGNS,
-    delete_table_row,
-    insert_table_row,
-    matrix_cell_caret,
-    matrix_count,
-    table_position_at,
-)
-from .matrix_dialog import MatrixDialog
-from .mathml_model import MathMLDocument, MathMLNode
 from .unicodemath import UnicodeMathError, mathml_has_parse_error
 
 try:

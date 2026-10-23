@@ -6,7 +6,6 @@ from dataclasses import dataclass
 
 from .template_source import TemplateEdit, insert_template, matching_parens
 
-
 MAX_MATRIX_SIZE = 10
 # Fence name -> (opening, closing) characters wrapped around the bare `■(...)`.
 # Only fences the real converter groups cleanly are offered: `(`/`[` give an

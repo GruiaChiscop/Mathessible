@@ -160,7 +160,7 @@ class MathReadingTests(unittest.TestCase):
         self.assertIn("d", stops)
         whole, stops = read("max_(x∈A) f")
         # Needs patches/mathcat/0003 (no doubled "of").
-        self.assertEqual(whole.split(), "the max over x is an element of cap eigh of f".split())
+        self.assertEqual(whole.split(), ["the", "max", "over", "x", "is", "an", "element", "of", "cap", "eigh", "of", "f"])
         self.assertIn("start condition", stops)
 
     def test_bars_frame_their_content(self) -> None:

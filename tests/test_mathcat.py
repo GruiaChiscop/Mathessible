@@ -238,10 +238,10 @@ class NavigationRobustnessTests(unittest.TestCase):
 
     def every_mode(self):
         for options in (
-            dict(auto_zoom_out=True, boundary_stops=True),
-            dict(auto_zoom_out=True),
-            dict(auto_zoom_out=False, structural_stops=True),
-            dict(auto_zoom_out=False),
+            {'auto_zoom_out': True, 'boundary_stops': True},
+            {'auto_zoom_out': True},
+            {'auto_zoom_out': False, 'structural_stops': True},
+            {'auto_zoom_out': False},
         ):
             yield options, ("structural" if not options["auto_zoom_out"] else "linear")
 

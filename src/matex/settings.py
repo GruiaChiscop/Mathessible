@@ -4,7 +4,6 @@ import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-
 # Word's own Recognized Functions (Equation Options), with the Romanian tg/ctg
 # and sqrt. Not lim (its own template). liminf/limsup are typed as one word
 # and written `lim inf` with a no-break space, the converter's own spelling

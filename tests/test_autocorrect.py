@@ -1,9 +1,8 @@
 import unittest
 
+from converter_harness import convert, needs_node
 from matex.autocorrect import AutoCorrectTable, default_entries, differences, is_symbol_shortcut
 from matex.build_repair import literal_repair, literal_text, repairs
-
-from converter_harness import convert, needs_node
 
 DEFAULTS = {
     typed: symbol

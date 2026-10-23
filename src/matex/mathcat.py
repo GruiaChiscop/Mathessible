@@ -4,14 +4,15 @@ import importlib
 from dataclasses import dataclass, field
 
 from .mathcat_common import (
-    _INTENT_NODE,
     _FORWARD_STEPS,
+    _INTENT_NODE,
     _INVISIBLE_OPERATOR_NAMES,
     _INVISIBLE_OPERATORS,
     BoundaryStop,
     _clean_speech,
     _LinearStop,
 )
+from .mathcat_lone import lone_speech, warm_up
 from .mathcat_prepare import prepare_for_mathcat
 from .mathcat_stops import LinearStopsMixin
 from .mathcat_structural import StructuralNavigationMixin
@@ -19,7 +20,6 @@ from .mathcat_tables import TableNavigationMixin
 from .mathml_model import MathMLDocument, TablePosition
 from .settings import DEFAULT_RECOGNIZED_FUNCTIONS
 from .source_map import leaf_nodes
-from .mathcat_lone import lone_speech, warm_up
 
 
 @dataclass(slots=True)
@@ -433,10 +433,10 @@ class MathCatNavigator(LinearStopsMixin, StructuralNavigationMixin, TableNavigat
                 return parent.identifier, side, True
             return self.current_id, side, False
         stop = self._boundary_stop
-        if stop is not None and stop.speech == "start of math" and self.structure is not None:
+        at_start = stop is not None and stop.speech == "start of math"
+        if at_start and self.structure is not None and self.structure.root.identifier:
             # Before everything, not inside the first numerator or radicand.
-            if self.structure.root.identifier:
-                return self.structure.root.identifier, "before", True
+            return self.structure.root.identifier, "before", True
         if stop is not None and stop.speech.startswith("start"):
             return stop.current_id or self.current_id, "before", False
         if stop is not None and stop.speech.startswith("end"):

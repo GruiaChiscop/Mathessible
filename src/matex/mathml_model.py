@@ -16,7 +16,7 @@ class MathMLNode:
     identifier: str | None
     text: str
     attributes: dict[str, str]
-    children: tuple["MathMLNode", ...]
+    children: tuple[MathMLNode, ...]
 
     @property
     def content(self) -> str:
@@ -45,7 +45,7 @@ class MathMLDocument:
         cls,
         mathml: str,
         recognized_functions: tuple[str, ...] = DEFAULT_RECOGNIZED_FUNCTIONS,
-    ) -> "MathMLDocument":
+    ) -> MathMLDocument:
         try:
             element = ElementTree.fromstring(mathml.strip())
         except ElementTree.ParseError as error:

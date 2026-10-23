@@ -5,7 +5,6 @@ from dataclasses import dataclass
 
 from .autocorrect import is_symbol_shortcut
 
-
 # Typed shortcuts that are not control words (a subset of Word's math
 # AutoCorrect list). Some extend others: "<-" then ">" is "<->".
 SHORTCUTS = {

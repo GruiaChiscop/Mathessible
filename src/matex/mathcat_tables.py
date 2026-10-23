@@ -130,10 +130,7 @@ class TableNavigationMixin:
         cell = cells[column - 1]
         kind = self.structure.table_kind(table)
         row_name, _column_name = _table_names(kind)
-        if kind == "cases" and len(cells) == 2:
-            column_label = ("value", "condition")[column - 1]
-        else:
-            column_label = f"column {column}"
+        column_label = ("value", "condition")[column - 1] if kind == "cases" and len(cells) == 2 else f"column {column}"
         previous = self.current_id
         content_id = MathMLDocument._cell_target(cell)
         content_node = self.structure.node(content_id) if content_id else None

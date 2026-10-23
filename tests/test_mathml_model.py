@@ -3,7 +3,6 @@ import unittest
 from matex.mathcat import MathCatNavigator
 from matex.mathml_model import MathMLDocument
 
-
 MATRIX = """<math display="block"><mrow><mo>(</mo><mtable intent=":matrix(2,2)">
 <mtr><mtd><mi>a</mi></mtd><mtd><mi>b</mi></mtd></mtr>
 <mtr><mtd><mi>c</mi></mtd><mtd><mi>d</mi></mtd></mtr>

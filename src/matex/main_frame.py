@@ -9,8 +9,8 @@ from .document_io import read_markdown, write_markdown
 from .html_export import PREVIEW_PAGE, ExportPage, preview_update_script, write_notebook_html
 from .macos_webview import guard_webview_key_equivalents
 from .markdown_math import find_math_zones
-from .notebook import Notebook, NotebookError
 from .mathcat import mathcat_load_error
+from .notebook import Notebook, NotebookError
 from .patch_check import missing_patches
 from .portable_notebook import extract_mtex, save_mtex
 from .settings import AppSettings, load_settings, save_settings
@@ -419,7 +419,7 @@ if wx is not None:
             finally:
                 dialog.Destroy()
 
-        def _spawn_window(self) -> "MainFrame":
+        def _spawn_window(self) -> MainFrame:
             frame = MainFrame(settings=self.settings)
             current_position = self.GetPosition()
             frame.SetPosition((current_position.x + 28, current_position.y + 28))
@@ -428,7 +428,7 @@ if wx is not None:
             return frame
 
         @staticmethod
-        def _application_windows() -> list["MainFrame"]:
+        def _application_windows() -> list[MainFrame]:
             return [
                 window
                 for window in wx.GetTopLevelWindows()

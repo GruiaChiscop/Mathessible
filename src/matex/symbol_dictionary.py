@@ -14,6 +14,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import date
+from itertools import islice
 from pathlib import Path
 
 BUILTIN_ID = "matex-en"
@@ -134,7 +135,7 @@ def available_dictionaries(directory: Path | None = None) -> list[DictionaryInfo
 def _provenance_of(path: Path) -> dict[str, str]:
     try:
         with path.open(encoding="utf-8-sig") as file:
-            head = "".join(line for _index, line in zip(range(10), file))
+            head = "".join(islice(file, 10))
     except (OSError, UnicodeDecodeError):
         return {}
     return read_provenance(head)

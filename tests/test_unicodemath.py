@@ -1,18 +1,17 @@
 import json
 import unittest
 
+from converter_harness import convert, convert_all, has_error, needs_node
 from matex.unicodemath import (
     StrayScriptResult,
     code_point_index,
+    control_words,
     conversion_script,
     decode_conversion,
     distribution_directory,
-    control_words,
     mathml_has_parse_error,
     renderer_page,
 )
-
-from converter_harness import convert, convert_all, has_error, needs_node
 
 
 class UnicodeMathMLTests(unittest.TestCase):

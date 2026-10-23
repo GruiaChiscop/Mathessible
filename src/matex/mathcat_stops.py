@@ -8,16 +8,16 @@ import re
 import time
 from collections.abc import Callable
 
+from .math_templates import FUNCTION_SCRIPTS
 from .mathcat_common import (
     _CONTAINER_REGIONS,
     _FENCES_AND_SEPARATORS,
+    _INTENT_NODE,
     _INVISIBLE_OPERATOR_NAMES,
     _LINEAR_SEARCH_BUDGET,
     BoundaryStop,
     _LinearStop,
 )
-from .math_templates import FUNCTION_SCRIPTS
-from .mathcat_common import _INTENT_NODE
 from .mathml_model import MathMLNode
 
 
@@ -118,9 +118,8 @@ class LinearStopsMixin:
         (Home, End, Up/Down, a click) to somewhere not discovered yet.
         """
         current_id = self.current_id
-        if self._linear_index is not None and self._linear_index < len(self._linear_stops):
-            if self._linear_stops[self._linear_index].node_id == current_id:
-                return True
+        if self._stop_at_index_is(current_id):
+            return True
         return any(stop.node_id == current_id for stop in self._linear_stops)
 
     @property
@@ -193,12 +192,16 @@ class LinearStopsMixin:
         self._linear_done = True
         return True
 
+    def _stop_at_index_is(self, node_id: str) -> bool:
+        """Whether the stop the linear index points at stands on `node_id`."""
+        index = self._linear_index
+        return index is not None and index < len(self._linear_stops) and self._linear_stops[index].node_id == node_id
+
     def _linear_position(self) -> int | None:
         current_id = self.current_id
         stops = self._linear_stops
-        if self._linear_index is not None and self._linear_index < len(stops):
-            if stops[self._linear_index].node_id == current_id:
-                return self._linear_index
+        if self._stop_at_index_is(current_id):
+            return self._linear_index
         # Arrived some other way (Up/Down, Home, End, a click): the first stop
         # there, discovering further stops until it is found -- within a time
         # budget, since that costs one slow MathCAT call per stop. Past it the
@@ -354,17 +357,14 @@ class LinearStopsMixin:
                     entry for entry in self._stop_regions(leaf, leaf_id, region_nodes) if entry[1] != "function name"
                 )
                 current, previous = set(entries), set(previous_entries)
-                for entry in previous_entries:
-                    if entry not in current:
-                        stops.append(boundary(f"end {entry[1]}", leaf_id, last_id or leaf_id, entry))
-                for entry in reversed(entries):
-                    if entry not in previous:
-                        stops.append(boundary(f"start {entry[1]}", leaf_id, leaf_id, entry))
+                left = (entry for entry in previous_entries if entry not in current)
+                stops.extend(boundary(f"end {entry[1]}", leaf_id, last_id or leaf_id, entry) for entry in left)
+                entered = (entry for entry in reversed(entries) if entry not in previous)
+                stops.extend(boundary(f"start {entry[1]}", leaf_id, leaf_id, entry) for entry in entered)
                 stops.append(_LinearStop(leaf_id, speech, None, leaf_id))
                 previous_entries, last_id = entries, leaf_id
             if last_id is not None:
-                for entry in previous_entries:
-                    stops.append(boundary(f"end {entry[1]}", last_id, last_id, entry))
+                stops.extend(boundary(f"end {entry[1]}", last_id, last_id, entry) for entry in previous_entries)
                 stops.append(boundary("end of math", last_id, last_id))
         finally:
             current_id, self._boundary_stop, self._ends_announced_at, self._linear_index = saved
