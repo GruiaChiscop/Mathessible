@@ -49,6 +49,22 @@ class MathCatTests(unittest.TestCase):
                 self.assertEqual(step("MovePrevious"), last)
                 self.assertEqual(step("MovePrevious"), "plus")
 
+    def test_linear_unicodemath_syntax_in_braille(self) -> None:
+        # Patch 0006: a linear "_" is Nemeth's long dash (omission), and "▒" its control word.
+        def braille(mathml: str, code: str) -> str:
+            navigator = MathCatNavigator(language="en")
+            navigator.braille_code = code
+            navigator.load(mathml)
+            cells = navigator._native.braille(navigator.structure.root.identifier)
+            return "".join(chr(0x2800 + ((ord(cell) - 0x2800) & 0x3F)) for cell in cells)  # No dots 7-8.
+
+        underscore = '<math><mi>x</mi><mo intent=":text">_</mo></math>'
+        self.assertEqual(braille(underscore, "Nemeth"), "⠭⠤⠤⠤⠤")
+        self.assertEqual(braille(underscore, "UEB"), "⠭⠨⠤")
+        naryand = '<math><mi>x</mi><mo intent=":text">▒</mo></math>'
+        self.assertEqual(braille(naryand, "Nemeth"), "⠭⠸⠡⠕⠋")
+        self.assertEqual(braille(naryand, "UEB"), "⠭⠸⠡⠕⠋")
+
     def test_a_final_period_is_its_own_stop_not_the_whole_line(self) -> None:
         # MathCAT groups everything before a final "." and read it all on the period.
         mathml = "<math><mi>x</mi><mo>+</mo><mn>1</mn><mo>.</mo></math>"

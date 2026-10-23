@@ -1118,6 +1118,16 @@ tested. Templates: `template_source` holds
   - `src/canonicalize.rs` `merge_number_blocks` (patch 0004): with a
     decimal comma, a "," right after an `mn` that already has a decimal
     separator starts no new number (`{1,5, 2}` read "the set 1,5,2").
+  - `Rules/Braille/Nemeth/unicode.yaml`, `Rules/Braille/UEB/unicode.yaml`
+    (patch 0006): linear text's escaped operators in braille. Nemeth gave
+    `_` nothing (`x_` read `x`); a linear one (`intent=":text"`) is now the
+    long dash `⠤⠤⠤⠤`, Nemeth Code 2022 11.1.2's sign for an underscore
+    marking omission. UnicodeMath's own syntax characters (▒ ┬ ┴ 〖 〗 ¦ ├
+    ┤ ▁ █ ⍁ ...) were in neither table and came out as a dozen-cell hex
+    code; each is its control word now (`⠸⠡` and the letters: ▒ is
+    `\of`). Still missing, built or not: real symbols MathCAT's tables
+    lack (Nemeth ∐ ∯ ⨃ ⅅ; UEB also ∬ ∭ ⌈ ⌊ ⋃ ⋂ ∛ and more), which need
+    their official signs, not invented ones.
 - **Startup patch check** ([patch_check.py](../src/matex/patch_check.py)):
   `git apply --reverse --check` per patch file, on a worker thread from
   the first `MainFrame`; a warning dialog lists the missing ones (a

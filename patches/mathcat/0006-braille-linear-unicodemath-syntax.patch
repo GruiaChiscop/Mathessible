@@ -1,0 +1,119 @@
+MathCAT (braille, Nemeth and UEB): linear UnicodeMath syntax characters
+
+MateX keeps what is typed and not complete yet as linear text inside the
+built equation, each build-up operator escaped (`x\_`, `x\▒`): the
+converter gives it as `<mo intent=":text">`. Braille showed some of them
+wrongly:
+
+1. Nemeth `_` was empty, so `x_` (a subscript not typed yet) read as
+   `x`. Nemeth has no underscore; an underscore denoting omission is the
+   long dash (Nemeth Code 2022, 11.1.2), so a linear `_` (intent
+   ":text") is `⠤⠤⠤⠤`. Every other `_` is still empty.
+2. UnicodeMath's own syntax characters (▒ ┬ ┴ 〖 〗 ¦ ├ ┤ ▁ █ ⍁ ╱ ╲ ╳ ▢
+   ☁ ✎ ⟌ ⟡ ⬄ ⇳ ⬆ ⬇ ⬌ ⬍ ⏜ ⏝ ⏠ ⏡) were not in either table and came out as
+   a hex code of a dozen cells. Each is now its control word, as typed:
+   backslash `⠸⠡` and the word's letters (▒ is `\of`). UEB's own `¦` (broken
+   bar) is kept.
+
+Applied by scripts/bootstrap.sh on top of upstream 85c89a37. Only useful
+upstream for UnicodeMath-aware callers; the Nemeth `_` rule may be worth
+proposing to daisy/MathCAT.
+
+diff --git a/Rules/Braille/Nemeth/unicode.yaml b/Rules/Braille/Nemeth/unicode.yaml
+index 6ac9c74d..f7a57db5 100644
+--- a/Rules/Braille/Nemeth/unicode.yaml
++++ b/Rules/Braille/Nemeth/unicode.yaml
+@@ -260,7 +260,13 @@
+  - "\\": [t: "⠸⠡"]              # 0x005C (Reverse solidus)
+  - "]": [t: "⠈⠾"]               # 0x005D (Right square bracket)
+  - "^": [t: "⠸⠣"]               # 0x005E (Circumflex accent)
+- - "_": [t: ""]                 # 0x005F (Low line)
++ - "_":                         # 0x005F (Low line)
++     - test:
++        # MateX: an underscore left as linear text (a subscript not typed yet) marks an
++        # omission; Nemeth 2022, 11.1.2: an underscore denoting omission is the long dash.
++        if: "@intent=':text'"
++        then: [t: "⠤⠤⠤⠤"]
++        else: [t: ""]
+  - "{": [t: "⠨⠷"]               # 0x007B (Left curly bracket)
+  - "|":                # 0x007C (Vertical line)
+      - test:
+@@ -268,6 +274,37 @@
+         then: [t: "w⠳w"]        # comparison (e.g., such that -- rule 145)
+         else: [t: "⠳"]          # absolute value, others???
+  - "}": [t: "⠨⠾"]               # 0x007D (Right curly bracket)
++ # MateX: UnicodeMath's own syntax characters, seen only while left as linear text
++ # (MateX's linear runs): their control words, as typed, not a hex code.
++ - "¦": [t: "⠸⠡⠁⠞⠕⠏"]         # 0x00A6 (\atop)
++ - "▒": [t: "⠸⠡⠕⠋"]             # 0x2592 (\of)
++ - "┬": [t: "⠸⠡⠃⠑⠇⠕⠺"]       # 0x252C (\below)
++ - "┴": [t: "⠸⠡⠁⠃⠕⠧⠑"]       # 0x2534 (\above)
++ - "〖": [t: "⠸⠡⠃⠑⠛⠊⠝"]       # 0x3016 (\begin)
++ - "〗": [t: "⠸⠡⠑⠝⠙"]           # 0x3017 (\end)
++ - "├": [t: "⠸⠡⠇⠑⠋⠞"]               # 0x251C (\left)
++ - "┤": [t: "⠸⠡⠗⠊⠛⠓⠞"]              # 0x2524 (\right)
++ - "▁": [t: "⠸⠡⠥⠝⠙⠑⠗⠃⠁⠗"]           # 0x2581 (\underbar)
++ - "█": [t: "⠸⠡⠑⠟⠁⠗⠗⠁⠽"]            # 0x2588 (\eqarray)
++ - "⍁": [t: "⠸⠡⠋⠗⠁⠉"]               # 0x2341 (\frac)
++ - "╱": [t: "⠸⠡⠉⠁⠝⠉⠑⠇"]             # 0x2571 (\cancel)
++ - "╲": [t: "⠸⠡⠃⠉⠁⠝⠉⠑⠇"]            # 0x2572 (\bcancel)
++ - "╳": [t: "⠸⠡⠭⠉⠁⠝⠉⠑⠇"]            # 0x2573 (\xcancel)
++ - "▢": [t: "⠸⠡⠗⠗⠑⠉⠞"]              # 0x25A2 (\rrect)
++ - "☁": [t: "⠸⠡⠃⠁⠉⠅⠉⠕⠇⠕⠗"]          # 0x2601 (\backcolor)
++ - "✎": [t: "⠸⠡⠉⠕⠇⠕⠗"]              # 0x270E (\color)
++ - "⟌": [t: "⠸⠡⠇⠕⠝⠛⠙⠊⠧"]            # 0x27CC (\longdiv)
++ - "⟡": [t: "⠸⠡⠏⠓⠁⠝⠞⠕⠍"]            # 0x27E1 (\phantom)
++ - "⬄": [t: "⠸⠡⠓⠏⠓⠁⠝⠞⠕⠍"]           # 0x2B04 (\hphantom)
++ - "⇳": [t: "⠸⠡⠧⠏⠓⠁⠝⠞⠕⠍"]           # 0x21F3 (\vphantom)
++ - "⬆": [t: "⠸⠡⠁⠎⠍⠁⠎⠓"]             # 0x2B06 (\asmash)
++ - "⬇": [t: "⠸⠡⠙⠎⠍⠁⠎⠓"]             # 0x2B07 (\dsmash)
++ - "⬌": [t: "⠸⠡⠓⠎⠍⠁⠎⠓"]             # 0x2B0C (\hsmash)
++ - "⬍": [t: "⠸⠡⠎⠍⠁⠎⠓"]              # 0x2B0D (\smash)
++ - "⏜": [t: "⠸⠡⠕⠧⠑⠗⠏⠁⠗⠑⠝"]          # 0x23DC (\overparen)
++ - "⏝": [t: "⠸⠡⠥⠝⠙⠑⠗⠏⠁⠗⠑⠝"]         # 0x23DD (\underparen)
++ - "⏠": [t: "⠸⠡⠕⠧⠑⠗⠎⠓⠑⠇⠇"]          # 0x23E0 (\overshell)
++ - "⏡": [t: "⠸⠡⠥⠝⠙⠑⠗⠎⠓⠑⠇⠇"]         # 0x23E1 (\undershell)
+  - "~": [t: "⠈⠱"]               # 0x007E (Tilde)
+  - "¬": [t: ""]                 # 0x00AC (Not sign)
+  - "¯": [t: "⠱"]                # 0x00AF (bar)
+diff --git a/Rules/Braille/UEB/unicode.yaml b/Rules/Braille/UEB/unicode.yaml
+index 0700fa24..3111ba28 100644
+--- a/Rules/Braille/UEB/unicode.yaml
++++ b/Rules/Braille/UEB/unicode.yaml
+@@ -100,6 +100,36 @@
+  - "\\": [t: "⠸⠡"]              # 0x005C (Backslash)
+  - "^": [t: "⠈⠢"]               # 0x005E (Caret (hat, up arrow))
+  - "_": [t: "⠨⠤"]               # 0x005F (Low line (underscore))
++ # MateX: UnicodeMath's own syntax characters, seen only while left as linear text
++ # (MateX's linear runs): their control words, as typed, not a hex code.
++ - "▒": [t: "⠸⠡⠕⠋"]             # 0x2592 (\of)
++ - "┬": [t: "⠸⠡⠃⠑⠇⠕⠺"]       # 0x252C (\below)
++ - "┴": [t: "⠸⠡⠁⠃⠕⠧⠑"]       # 0x2534 (\above)
++ - "〖": [t: "⠸⠡⠃⠑⠛⠊⠝"]       # 0x3016 (\begin)
++ - "〗": [t: "⠸⠡⠑⠝⠙"]           # 0x3017 (\end)
++ - "├": [t: "⠸⠡⠇⠑⠋⠞"]               # 0x251C (\left)
++ - "┤": [t: "⠸⠡⠗⠊⠛⠓⠞"]              # 0x2524 (\right)
++ - "▁": [t: "⠸⠡⠥⠝⠙⠑⠗⠃⠁⠗"]           # 0x2581 (\underbar)
++ - "█": [t: "⠸⠡⠑⠟⠁⠗⠗⠁⠽"]            # 0x2588 (\eqarray)
++ - "⍁": [t: "⠸⠡⠋⠗⠁⠉"]               # 0x2341 (\frac)
++ - "╱": [t: "⠸⠡⠉⠁⠝⠉⠑⠇"]             # 0x2571 (\cancel)
++ - "╲": [t: "⠸⠡⠃⠉⠁⠝⠉⠑⠇"]            # 0x2572 (\bcancel)
++ - "╳": [t: "⠸⠡⠭⠉⠁⠝⠉⠑⠇"]            # 0x2573 (\xcancel)
++ - "▢": [t: "⠸⠡⠗⠗⠑⠉⠞"]              # 0x25A2 (\rrect)
++ - "☁": [t: "⠸⠡⠃⠁⠉⠅⠉⠕⠇⠕⠗"]          # 0x2601 (\backcolor)
++ - "✎": [t: "⠸⠡⠉⠕⠇⠕⠗"]              # 0x270E (\color)
++ - "⟌": [t: "⠸⠡⠇⠕⠝⠛⠙⠊⠧"]            # 0x27CC (\longdiv)
++ - "⟡": [t: "⠸⠡⠏⠓⠁⠝⠞⠕⠍"]            # 0x27E1 (\phantom)
++ - "⬄": [t: "⠸⠡⠓⠏⠓⠁⠝⠞⠕⠍"]           # 0x2B04 (\hphantom)
++ - "⇳": [t: "⠸⠡⠧⠏⠓⠁⠝⠞⠕⠍"]           # 0x21F3 (\vphantom)
++ - "⬆": [t: "⠸⠡⠁⠎⠍⠁⠎⠓"]             # 0x2B06 (\asmash)
++ - "⬇": [t: "⠸⠡⠙⠎⠍⠁⠎⠓"]             # 0x2B07 (\dsmash)
++ - "⬌": [t: "⠸⠡⠓⠎⠍⠁⠎⠓"]             # 0x2B0C (\hsmash)
++ - "⬍": [t: "⠸⠡⠎⠍⠁⠎⠓"]              # 0x2B0D (\smash)
++ - "⏜": [t: "⠸⠡⠕⠧⠑⠗⠏⠁⠗⠑⠝"]          # 0x23DC (\overparen)
++ - "⏝": [t: "⠸⠡⠥⠝⠙⠑⠗⠏⠁⠗⠑⠝"]         # 0x23DD (\underparen)
++ - "⏠": [t: "⠸⠡⠕⠧⠑⠗⠎⠓⠑⠇⠇"]          # 0x23E0 (\overshell)
++ - "⏡": [t: "⠸⠡⠥⠝⠙⠑⠗⠎⠓⠑⠇⠇"]         # 0x23E1 (\undershell)
+  - "~": [t: "⠈⠔"]               # 0x007E (Tilde (swung dash))
+  - "¢": [t: "⠈⠉"]               # 0x00A2 (Cents sign)
+  - "‐": [t: "⠤"]                # 0x2010 (Hyphen)
