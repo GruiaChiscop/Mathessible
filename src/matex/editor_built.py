@@ -10,7 +10,7 @@ from collections.abc import Callable
 from .build_repair import BuildRepair
 from .character_speech import character_name
 from .clipboard import set_clipboard_text
-from .editor_keys import converter_control_words, word_navigation_down
+from .editor_keys import word_navigation_down
 from .insertion_point import describe_insertion_point, node_name
 from .math_templates import move_to_slot
 from .node_edits import removal
@@ -583,7 +583,7 @@ class BuiltEditingMixin:
         """
         self.caret = self._built_offset()
         source = self.document.source
-        if convert_word_before(source, self.caret, self.settings.convert_on_space, converter_control_words()):
+        if convert_word_before(source, self.caret, self.settings.convert_on_space, self._control_words()):
 
             def convert_and_move() -> str:
                 converted = self._convert_word_before_caret()

@@ -100,7 +100,10 @@ the start and end). Up/Down read the source; with Shift they select to its
 start or end. A control word is converted when you type Space or a
 punctuation mark after it (`\alpha` becomes α), and while you type one the
 matching words are offered: Up/Down browse them, Tab takes one, Escape
-closes the list. Tab and Shift+Tab move between a template's slots.
+closes the list. Tab and Shift+Tab move between a template's slots. Your
+own entries go in `Settings → Math AutoCorrect entries`, one per line, as
+in Word: `\R ℝ` works like a control word, and `+- ±` is replaced when you
+type Space after it.
 
 With **Build equations as you type** (on by default), as in Word, the
 equation is built as soon as it is complete, on Space or an operator or

@@ -4,7 +4,14 @@ import threading
 from collections.abc import Callable
 from pathlib import Path
 
-from .settings import BRAILLE_CODES, AppSettings, format_recognized_functions, parse_recognized_functions
+from .settings import (
+    BRAILLE_CODES,
+    AppSettings,
+    format_math_autocorrect,
+    format_recognized_functions,
+    parse_math_autocorrect,
+    parse_recognized_functions,
+)
 from .symbol_dictionary import SymbolDictionaryError, available_dictionaries, import_dictionary
 from .symbol_download import SymbolDownloadError, download_languages, nvda_languages
 
@@ -128,6 +135,23 @@ if wx is not None:
                 ),
             )
             functions_help.Wrap(460)
+            autocorrect_label = wx.StaticText(self, label="&Math AutoCorrect entries")
+            self.math_autocorrect = wx.TextCtrl(
+                self,
+                value=format_math_autocorrect(settings.math_autocorrect),
+                style=wx.TE_MULTILINE,
+                size=(-1, 90),
+            )
+            self.math_autocorrect.SetName("Math AutoCorrect entries")
+            autocorrect_help = wx.StaticText(
+                self,
+                label=(
+                    "One entry per line: what you type, a space, what it becomes, as in Word's "
+                    "Math AutoCorrect. An entry starting with a backslash (\\R ℝ) works like a "
+                    "control word; any other (+- ±) is replaced when you type Space after it."
+                ),
+            )
+            autocorrect_help.Wrap(460)
             braille_label = wx.StaticText(self, label="&Braille code (the braille strip under the equation)")
             self.braille_code = wx.Choice(self, choices=[label for _code, label in BRAILLE_CODES])
             self.braille_code.SetName("Braille code")
@@ -172,6 +196,9 @@ if wx is not None:
             sizer.Add(functions_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
             sizer.Add(self.recognized_functions, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
             sizer.Add(functions_help, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
+            sizer.Add(autocorrect_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
+            sizer.Add(self.math_autocorrect, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
+            sizer.Add(autocorrect_help, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
             sizer.Add(braille_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
             sizer.Add(self.braille_code, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
             sizer.Add(symbols_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
@@ -294,6 +321,7 @@ if wx is not None:
             self._settings.recognized_functions = parse_recognized_functions(
                 self.recognized_functions.GetValue()
             )
+            self._settings.math_autocorrect = parse_math_autocorrect(self.math_autocorrect.GetValue())
 
 else:
 

@@ -31,10 +31,12 @@ from .settings import AppSettings
 from .speech import AssistiveOutput, create_output
 from .source_view import view_of
 from .space_conversion import (
+    FALLBACK_CONTROL_WORDS,
     convert_before_character,
     convert_on_space,
-    convert_word_before,
     convert_shortcut_on_character,
+    convert_word_before,
+    split_autocorrect,
 )
 from .theme import Palette, palette
 from .unicodemath import ConversionResult, UnicodeMathError
@@ -993,7 +995,11 @@ if wx is not None:
                 else:
                     source, caret = self.document.source, self.caret
                 edit = convert_on_space(
-                    source, caret, enabled=self.settings.convert_on_space, control_words=converter_control_words()
+                    source,
+                    caret,
+                    enabled=self.settings.convert_on_space,
+                    control_words=self._control_words(),
+                    shortcuts=self._user_shortcuts(),
                 )
                 self._replace_linear(edit.source, edit.caret)
                 self._announce(edit.announcement)
@@ -1047,7 +1053,7 @@ if wx is not None:
                             self.caret,
                             value,
                             enabled=self.settings.convert_on_space,
-                            control_words=converter_control_words(),
+                            control_words=self._control_words(),
                         )
                         if edit is not None:
                             self._replace_linear(edit.source, edit.caret)
@@ -1228,10 +1234,22 @@ if wx is not None:
             self.document.cursor.path = path
 
 
+        def _control_words(self) -> dict[str, str] | None:
+            """The converter's control words with the user's Math AutoCorrect ones (`\\R`), which win."""
+            converter = converter_control_words()
+            words, _shortcuts = split_autocorrect(self.settings.math_autocorrect)
+            if converter is None and not words:
+                return None
+            return {**(converter if converter is not None else FALLBACK_CONTROL_WORDS), **words}
+
+        def _user_shortcuts(self) -> dict[str, str]:
+            """The user's Math AutoCorrect entries that are not control words (converted on Space)."""
+            return split_autocorrect(self.settings.math_autocorrect)[1]
+
         def _convert_word_before_caret(self) -> str:
             """Tab after a typed control word (`\\infty`) converts it first, as Space would; returns the symbol or ""."""
             edit = convert_word_before(
-                self.document.source, self.caret, self.settings.convert_on_space, converter_control_words()
+                self.document.source, self.caret, self.settings.convert_on_space, self._control_words()
             )
             if edit is None:
                 return ""

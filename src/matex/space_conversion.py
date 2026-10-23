@@ -48,6 +48,23 @@ FALLBACK_CONTROL_WORDS = {
 }
 
 
+def split_autocorrect(entries: tuple[tuple[str, str], ...]) -> tuple[dict[str, str], dict[str, str]]:
+    """The user's Math AutoCorrect entries as (control words without "\\", shortcuts).
+
+    `\\R` is a control word (Space or punctuation converts it, completion
+    offers it); anything else is a shortcut, converted on Space only, as in
+    Word: one made of letters must not change words while they are typed.
+    """
+    words: dict[str, str] = {}
+    shortcuts: dict[str, str] = {}
+    for typed, replacement in entries:
+        if typed.startswith("\\") and typed[1:].isascii() and typed[1:].isalnum():
+            words[typed[1:]] = replacement
+        else:
+            shortcuts[typed] = replacement
+    return words, shortcuts
+
+
 @dataclass(frozen=True, slots=True)
 class SpaceConversion:
     source: str
@@ -61,6 +78,7 @@ def convert_on_space(
     caret: int,
     enabled: bool = True,
     control_words: Mapping[str, str] | None = None,
+    shortcuts: Mapping[str, str] | None = None,
 ) -> SpaceConversion:
     """Space after a control word (`\\circ`) or shortcut (`->`) replaces it, as in Word.
 
@@ -71,7 +89,7 @@ def convert_on_space(
     caret = max(0, min(caret, len(source)))
     if not enabled:
         return _insert_space(source, caret)
-    match = _control_word_match(source, caret, control_words) or _shortcut_match(source, caret)
+    match = _control_word_match(source, caret, control_words) or _shortcut_match(source, caret, shortcuts)
     if match is None:
         return _insert_space(source, caret)
     token_start, replacement = match
@@ -182,9 +200,13 @@ def _function_spelling_match(source: str, caret: int) -> tuple[int, str] | None:
     return start, spelled
 
 
-def _shortcut_match(source: str, caret: int) -> tuple[int, str] | None:
-    for token in sorted(SHORTCUTS, key=len, reverse=True):
+def _shortcut_match(source: str, caret: int, extra: Mapping[str, str] | None = None) -> tuple[int, str] | None:
+    table = {**SHORTCUTS, **(extra or {})}
+    for token in sorted(table, key=len, reverse=True):
         token_start = caret - len(token)
-        if token_start >= 0 and source[token_start:caret] == token:
-            return token_start, SHORTCUTS[token]
+        if token_start < 0 or source[token_start:caret] != token:
+            continue
+        if token[0].isalnum() and token_start > 0 and source[token_start - 1].isalnum():
+            continue  # A user entry made of letters ("deg") only as a whole word, not inside "pedegree".
+        return token_start, table[token]
     return None

@@ -365,6 +365,15 @@ equation language; the gap is entirely in the editing UX layered on top.
    tests/test_structure_gallery.py builds every variant with the real
    converter (after `build_repair`, as the editor does), so a variant that
    stops building fails there.
+   **The user's own Math AutoCorrect entries** (Settings, one per line,
+   `math_autocorrect` setting, as Word's list): `split_autocorrect` makes an
+   entry starting with `\` a control word, merged over the converter's
+   table by `EquationEditor._control_words` (so Space/punctuation, Tab,
+   completion and Insert > Symbol all know it), and any other a shortcut,
+   converted on Space only and only as a whole word (`_shortcut_match`:
+   `deg` is not replaced inside `90deg`), never immediately: one made of
+   letters would change words while they are typed. The converter itself
+   does not know a user's `\R`, so with conversion off it stays an error.
 4. Do not grow local autocorrect dicts: `space_conversion.py` uses the
    converter's table, and its `FALLBACK_CONTROL_WORDS` (like `parser.py`'s)
    only matters without the submodule.

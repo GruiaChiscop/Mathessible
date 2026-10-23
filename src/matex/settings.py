@@ -109,6 +109,9 @@ class AppSettings:
     auto_zoom_out: bool = False
     show_preview: bool = False
     recognized_functions: tuple[str, ...] = DEFAULT_RECOGNIZED_FUNCTIONS
+    # The user's own Math AutoCorrect entries, as Word's: (what is typed, what
+    # it becomes). `\R` -> ℝ acts as a control word; others convert on Space.
+    math_autocorrect: tuple[tuple[str, str], ...] = ()
 
 
 def default_settings_path() -> Path:
@@ -138,6 +141,7 @@ def load_settings(path: Path | None = None) -> AppSettings:
         auto_zoom_out=bool(data.get("auto_zoom_out", False)),
         show_preview=bool(data.get("show_preview", False)),
         recognized_functions=_normalize_functions(data.get("recognized_functions")),
+        math_autocorrect=_normalize_autocorrect(data.get("math_autocorrect")),
     )
 
 
@@ -178,3 +182,36 @@ def _normalize_functions(value: object) -> tuple[str, ...]:
         result.append(name)
         seen.add(name)
     return tuple(result) or DEFAULT_RECOGNIZED_FUNCTIONS
+
+
+def parse_math_autocorrect(text: str) -> tuple[tuple[str, str], ...]:
+    """One entry per line: what is typed, a space, what it becomes (`\\R ℝ`, `+- ±`)."""
+    entries = []
+    for line in text.splitlines():
+        parts = line.strip().split(maxsplit=1)
+        if len(parts) == 2:
+            entries.append((parts[0], parts[1].strip()))
+    return _normalize_autocorrect(entries)
+
+
+def format_math_autocorrect(entries: tuple[tuple[str, str], ...]) -> str:
+    return "\n".join(f"{typed} {replacement}" for typed, replacement in entries)
+
+
+def _normalize_autocorrect(value: object) -> tuple[tuple[str, str], ...]:
+    """Valid (typed, replacement) pairs, the last one for a typed text winning."""
+    if not isinstance(value, (list, tuple)):
+        return ()
+    entries: dict[str, str] = {}
+    for item in value:
+        if not isinstance(item, (list, tuple)) or len(item) != 2:
+            continue
+        typed, replacement = item
+        if not isinstance(typed, str) or not isinstance(replacement, str):
+            continue
+        typed, replacement = typed.strip(), replacement.strip()
+        if not typed or not replacement or any(character.isspace() for character in typed) or typed == "\\":
+            continue
+        entries.pop(typed, None)
+        entries[typed] = replacement
+    return tuple(entries.items())

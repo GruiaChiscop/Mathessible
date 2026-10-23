@@ -7,7 +7,6 @@ from __future__ import annotations
 from . import session_log
 from .character_speech import character_name
 from .completion import Completion, accept_completion, completion_at, symbol_insertion
-from .editor_keys import converter_control_words
 from .equation_errors import EquationError, find_errors
 from .insert_catalog import InsertItem
 from .space_conversion import FALLBACK_CONTROL_WORDS
@@ -27,7 +26,7 @@ class EditorAssistMixin:
         self._completion = None
         if not self.settings.complete_control_words or self._selection_range() is not None:
             return announcement
-        table = converter_control_words() or FALLBACK_CONTROL_WORDS
+        table = self._control_words() or FALLBACK_CONTROL_WORDS
         completion = completion_at(self.document.source, self.caret, table)
         if completion is None:
             return announcement
@@ -95,7 +94,7 @@ class EditorAssistMixin:
 
         if self.mode != "linear":
             return None
-        table = converter_control_words() or FALLBACK_CONTROL_WORDS
+        table = self._control_words() or FALLBACK_CONTROL_WORDS
         dialog = SymbolDialog(self, table, self.symbols.name, self._announce, self._last_symbol_query)
         try:
             chosen = dialog.ShowModal() == wx.ID_OK
@@ -138,7 +137,7 @@ class EditorAssistMixin:
             except (UnicodeMathError, RuntimeError):
                 total_failure = False
         caret = self.caret if self.mode == "linear" else None
-        table = converter_control_words() or FALLBACK_CONTROL_WORDS
+        table = self._control_words() or FALLBACK_CONTROL_WORDS
         stopped: tuple[int, str | None] | None = None
         if total_failure and (self._last_conversion is None or self._last_conversion[0] != source):
             try:

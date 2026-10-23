@@ -2,7 +2,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from matex.settings import AppSettings, load_settings, parse_recognized_functions, save_settings
+from matex.settings import (
+    AppSettings,
+    format_math_autocorrect,
+    load_settings,
+    parse_math_autocorrect,
+    parse_recognized_functions,
+    save_settings,
+)
 
 
 class SettingsTests(unittest.TestCase):
@@ -50,6 +57,15 @@ class SettingsTests(unittest.TestCase):
             path.write_text("not json", encoding="utf-8")
             settings = load_settings(path)
         self.assertFalse(settings.linear_navigation)
+
+    def test_math_autocorrect_entries_are_parsed_and_saved(self) -> None:
+        entries = parse_math_autocorrect("\\R ℝ\n+- ±\n\nbad\n\\R ℝ\n  deg  °  \n")
+        self.assertEqual(entries, (("+-", "±"), ("\\R", "ℝ"), ("deg", "°")))  # A repeated entry moves to its last place.
+        self.assertEqual(parse_math_autocorrect(format_math_autocorrect(entries)), entries)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            save_settings(AppSettings(math_autocorrect=entries), path)
+            self.assertEqual(load_settings(path).math_autocorrect, entries)
 
     def test_function_names_whose_case_matters_keep_it(self) -> None:
         self.assertEqual(parse_recognized_functions("PR, pr, Sin"), ("Pr", "sin"))
