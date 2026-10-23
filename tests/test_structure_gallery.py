@@ -62,12 +62,12 @@ class StructureGalleryTests(unittest.TestCase):
     def test_every_structure_builds_with_the_real_converter(self) -> None:
         # Fresh templates may be half-typed (an empty integrand or index):
         # some repair (build_repair) must build them, as the editor does.
-        failed = []
-        for _name, item in _items():
-            if item.insert is None:
-                continue
-            source = edit_in_view("x+", 2, item.insert, False).source
-            candidates = [repair.text for repair in repairs(source)]
-            if not any(builds(result["mathml"]) for result in convert_all(candidates)):
-                failed.append(source)
+        sources = [edit_in_view("x+", 2, item.insert, False).source for _name, item in _items() if item.insert]
+        candidates = [[repair.text for repair in repairs(source)] for source in sources]
+        texts = [text for options in candidates for text in options]
+        results = convert_all(texts)  # One Node run for every candidate.
+        built = {text: builds(result["mathml"]) for text, result in zip(texts, results, strict=True)}
+        failed = [
+            source for source, options in zip(sources, candidates, strict=True) if not any(built[text] for text in options)
+        ]
         self.assertEqual(failed, [])
