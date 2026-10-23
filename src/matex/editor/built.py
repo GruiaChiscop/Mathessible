@@ -10,7 +10,17 @@ from collections.abc import Callable
 from matex.editing.build_repair import BuildRepair, literal_repair
 from matex.editing.character_speech import character_name
 from matex.editing.insertion_point import describe_insertion_point, node_name
-from matex.editing.linear_runs import Run, Runs, build_run, built_structure, edit_between, run_at, shift_runs, typed
+from matex.editing.linear_runs import (
+    Run,
+    Runs,
+    build_run,
+    built_structure,
+    edit_between,
+    run_at,
+    shift_runs,
+    toggle_selection,
+    typed,
+)
 from matex.editing.node_edits import removal
 from matex.editing.source_map import (
     anchor_offset,
@@ -435,6 +445,20 @@ class BuiltEditingMixin:
         self.mode = "professional"
         self._update_braille_display()
         self._rebuild_professional_at_caret(announcement, place=self._place_after_caret)
+
+    def _toggle_selection_linear(self, start: int, end: int) -> None:
+        """F2 on a selection in the built equation: it becomes linear text, or the linear text in it builds.
+
+        Word's Linear/Professional on a selection; the rest of the equation
+        stays as it is. The source does not change, only the runs (undoable).
+        """
+        linear_text = self._span_speech(start, end)
+        runs, linear = toggle_selection(self._linear_runs, start, end)
+        self._linear_runs = runs
+        self._clear_selection()
+        self.caret = end
+        self.history.push(self.document.source, self.caret, runs)
+        self._finish_built_edit(f"linear, {linear_text}" if linear else "built")
 
     def _build_linear_run(self, runs: Runs, run: Run) -> tuple[Runs, str | None]:
         """`runs` with `run` built as far as it builds (`linear_runs.build_run`), and what it built.

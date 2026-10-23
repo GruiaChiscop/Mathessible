@@ -10,6 +10,7 @@ from matex.editing.linear_runs import (
     escape_insertions,
     shift_runs,
     split_candidates,
+    toggle_selection,
     typed,
 )
 from matex.editing.source_map import leaf_nodes, map_leaves
@@ -73,6 +74,13 @@ class RunBookkeepingTests(unittest.TestCase):
         self.assertEqual(shift_runs(((3, 5),), 4, 0, 2), ())
         self.assertEqual(shift_runs(((3, 5),), 2, 2, 0), ())
 
+    def test_f2_on_a_selection_makes_it_linear_or_builds_the_linear_text_in_it(self) -> None:
+        self.assertEqual(toggle_selection((), 2, 9), (((2, 9),), True))
+        self.assertEqual(toggle_selection(((0, 1),), 2, 9), (((0, 1), (2, 9)), True))
+        # Touching linear text: every run it touches builds, nothing else changes.
+        self.assertEqual(toggle_selection(((2, 9), (12, 14)), 0, 3), (((12, 14),), False))
+        self.assertEqual(toggle_selection(((2, 9), (12, 14)), 5, 13), ((), False))
+
     def test_split_candidates_longest_built_part_first(self) -> None:
         self.assertEqual(split_candidates("a/b+c/d", (4, 7)), [7, 5, 4])
         self.assertEqual(split_candidates("(a+", (0, 3)), [3, 0])
@@ -112,6 +120,12 @@ class BuiltStructureTests(unittest.TestCase):
         before = "<math><mi>c</mi><mo>/</mo><mi>d</mi></math>"
         after = "<math><mfrac><msup><mi>c</mi><mn>2</mn></msup><mi>d</mi></mfrac></math>"
         self.assertEqual(built_structure(before, after), "fraction")
+
+    def test_limits_on_an_n_ary_sign_are_named_by_the_sign(self) -> None:
+        before = "<math><mo>∫</mo><mi>x</mi></math>"
+        after = '<math><msubsup id="s"><mo id="o">∫</mo><mn>0</mn><mn>1</mn></msubsup><mi>x</mi></math>'
+        self.assertEqual(built_structure(before, after), "integral")
+        self.assertEqual(built_structure(before, after.replace("∫", "∑")), "sum")
 
     def test_nothing_new_is_none(self) -> None:
         fraction = "<math><mfrac><mi>a</mi><mi>b</mi></mfrac><mo>+</mo><mi>c</mi></math>"

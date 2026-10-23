@@ -210,11 +210,11 @@ class MathTemplateTests(unittest.TestCase):
         self.assertIsNotNone(denominator)
         self.assertEqual(denominator.announcement, "empty denominator")
 
-    def test_integral_template_places_caret_after_the_naryand_marker(self) -> None:
+    def test_integral_template_places_caret_in_the_integrand_box(self) -> None:
         edit = insert_integral_template("x=", 2)
-        self.assertEqual(edit.source, "x=∫▒")
-        self.assertEqual(edit.caret, 4)
-        self.assertEqual(edit.announcement, "integral template")
+        self.assertEqual(edit.source, "x=∫▒〖〗")
+        self.assertEqual(edit.caret, 5)
+        self.assertEqual(edit.announcement, "integral template, empty integrand")
 
     def test_the_integrand_is_a_slot_without_a_placeholder(self) -> None:
         # No "()" after "▒" (it would stay visible); the operand itself is the slot.
@@ -228,26 +228,48 @@ class MathTemplateTests(unittest.TestCase):
         back = move_to_slot(source, len(source), reverse=True)
         self.assertEqual((back.caret, back.announcement), (13, "integrand, x^2"))
 
-    def test_typing_after_the_integral_template_produces_the_integrand(self) -> None:
+    def test_typing_in_the_integral_template_fills_the_integrand_box(self) -> None:
         edit = insert_integral_template("", 0)
-        typed = edit.source[: edit.caret] + "x" + edit.source[edit.caret :]
-        self.assertEqual(typed, "∫▒x")
+        typed = edit.source[: edit.caret] + "x+1" + edit.source[edit.caret :]
+        self.assertEqual(typed, "∫▒〖x+1〗")
 
-    def test_sum_template_places_caret_after_the_naryand_marker(self) -> None:
+    def test_space_after_an_n_ary_sign_and_its_limits_opens_the_operand_box(self) -> None:
+        # As in Word: `\\int_0^1` and Space builds the integral, the caret in its integrand.
+        for source, expected, spoken in (
+            ("∫", "∫▒〖〗", "integral, empty integrand"),
+            ("∫_0^1", "∫_0^1▒〖〗", "integral, empty integrand"),
+            ("∑_(k=1)^n", "∑_(k=1)^n▒〖〗", "sum, empty summand"),
+            ("x+∏_k", "x+∏_k▒〖〗", "product, empty factor"),
+        ):
+            edit = group_function_argument(source, len(source))
+            self.assertEqual((edit.source, edit.caret, edit.announcement), (expected, len(source) + 2, spoken))
+        # Not after a plain script, nor where the box is already there.
+        self.assertIsNone(group_function_argument("x_0^1", 5))
+        self.assertIsNone(group_function_argument("∫_0^1▒〖x〗", 5))
+
+    def test_tab_goes_into_the_integrand_box_and_out_past_it(self) -> None:
+        # Word's integrand box: "+2" stays inside, and Tab reads it back whole.
+        source = "∫_(-1)^(1)▒〖e^2+2〗+x"
+        into = move_to_slot(source, source.index("^(1)") + 3, reverse=False)
+        self.assertEqual((into.caret, into.announcement), (source.index("〗"), "integrand, e^2+2"))
+        out = move_to_slot(source, into.caret, reverse=False)
+        self.assertEqual((out.caret, out.announcement), (source.index("〗") + 1, "end integral"))
+
+    def test_sum_template_places_caret_in_the_summand_box(self) -> None:
         edit = insert_sum_template("", 0)
-        self.assertEqual(edit.source, "∑▒")
-        self.assertEqual(edit.caret, 2)
-        self.assertEqual(edit.announcement, "sum template")
+        self.assertEqual(edit.source, "∑▒〖〗")
+        self.assertEqual(edit.caret, 3)
+        self.assertEqual(edit.announcement, "sum template, empty summand")
 
-    def test_product_template_places_caret_after_the_naryand_marker(self) -> None:
+    def test_product_template_places_caret_in_the_factor_box(self) -> None:
         edit = insert_product_template("", 0)
-        self.assertEqual(edit.source, "∏▒")
-        self.assertEqual(edit.caret, 2)
-        self.assertEqual(edit.announcement, "product template")
+        self.assertEqual(edit.source, "∏▒〖〗")
+        self.assertEqual(edit.caret, 3)
+        self.assertEqual(edit.announcement, "product template, empty factor")
 
     def test_integral_with_limits_starts_in_the_lower_limit(self) -> None:
         edit = insert_integral_template("x=", 2, limits=True)
-        self.assertEqual(edit.source, "x=∫_()^()▒")
+        self.assertEqual(edit.source, "x=∫_()^()▒〖〗")
         self.assertEqual(edit.caret, 5)
         self.assertEqual(edit.announcement, "integral template, empty lower limit")
 
@@ -266,7 +288,7 @@ class MathTemplateTests(unittest.TestCase):
         self.assertEqual(move_to_slot(source, 10).announcement, "summand, i")
 
     def test_sum_and_product_with_limits(self) -> None:
-        self.assertEqual(insert_sum_template("", 0, limits=True).source, "∑_()^()▒")
+        self.assertEqual(insert_sum_template("", 0, limits=True).source, "∑_()^()▒〖〗")
         self.assertEqual(
             insert_product_template("", 0, limits=True).announcement, "product template, empty lower limit"
         )

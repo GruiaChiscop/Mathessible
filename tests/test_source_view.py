@@ -38,16 +38,17 @@ class EditInViewTests(unittest.TestCase):
         return edit.source, edit.caret
 
     def test_templates_are_written_as_control_words(self) -> None:
-        self.assertEqual(self.edit("", 0, insert_integral_template), ("\\int\\of ", 8))
+        self.assertEqual(self.edit("", 0, insert_integral_template), ("\\int\\of\\begin \\end ", 14))
         self.assertEqual(
-            self.edit("x=", 2, lambda s, c: insert_sum_template(s, c, limits=True)), ("x=\\sum_()^()\\of ", 8)
+            self.edit("x=", 2, lambda s, c: insert_sum_template(s, c, limits=True)),
+            ("x=\\sum_()^()\\of\\begin \\end ", 8),
         )
         self.assertEqual(self.edit("a", 1, insert_square_root_template), ("a\\sqrt\\begin \\end ", 13))
         self.assertEqual(self.edit("a", 1, insert_operator_template), ("a\\rightarrow\\above() ", 19))
         self.assertEqual(self.edit("A=", 2, lambda s, c: insert_matrix_template(s, c, 2, 2)), ("A=(\\matrix(&@&))", 11))
 
     def test_symbols_when_the_setting_is_off(self) -> None:
-        self.assertEqual(self.edit("", 0, insert_integral_template, control_words=False), ("∫▒", 2))
+        self.assertEqual(self.edit("", 0, insert_integral_template, control_words=False), ("∫▒〖〗", 3))
 
     def test_slots_are_found_in_control_word_source(self) -> None:
         self.assertEqual(self.edit("\\int_()^()\\of x", 5, move_to_slot), ("\\int_()^()\\of x", 6))

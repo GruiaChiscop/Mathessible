@@ -1,5 +1,6 @@
 import unittest
 
+from converter_harness import convert
 from matex.editing.source_map import anchor_offset, inside_leaf, leaf_at, leaf_characters, leaf_nodes, map_leaves
 from matex.mathcat.navigator import MathCatNavigator
 
@@ -120,6 +121,15 @@ class AnchorTests(unittest.TestCase):
 
         self.assertEqual(self.anchor(source, mathml, fraction, "before"), 1)
         self.assertEqual(self.anchor(source, mathml, fraction, "after"), 8)
+
+    def test_the_end_of_an_argument_or_integrand_box_types_inside_it(self) -> None:
+        # "end integrand" / "end argument": inside the box `〖...〗`, empty or not, never after it.
+        def box(document):
+            return document.find_all(lambda node: node.attributes.get("intent", "").startswith(":fenced"))[0]
+
+        for source, inside in (("∫_0^1▒〖〗", 7), ("∫_0^1▒〖x〗", 8), ("lim_(x→0) 〖x〗", 12), ("ln 〖x〗+1", 5)):
+            with self.subTest(source=source):
+                self.assertEqual(self.anchor(source, convert(source), box, "after", outside=False), inside)
 
     def test_after_an_integral_sign_typing_goes_into_its_argument(self) -> None:
         # Right after ∫ comes ▒: "∫q▒" does not parse.

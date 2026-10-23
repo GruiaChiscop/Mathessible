@@ -119,7 +119,10 @@ punctuation mark, and typing goes on in the professional view. What is
 not complete yet stays linear text inside the built equation: in
 `a/b+c/`, a/b is a fraction and `c/` is still read as "c divided by"
 until `d` and Space build it. Linear text stays linear when you move
-away from it; Undo right after a build takes it back. **Say what was
+away from it; Undo right after a build takes it back. As with Word's
+Linear and Professional on a selection, `F2` with a selection in the
+professional view (Shift with the arrows) turns only that part linear,
+and `F2` on a selection holding linear text builds it again. **Say what was
 built** (on by default) adds "built fraction" when typing builds a
 structure. With
 **Open equations built**, equations open straight in the professional
@@ -157,7 +160,9 @@ the current row or column), cases or an equation array, a fraction's style
 sum's limits.
 
 The **Insert** menu has the templates, each with its shortcut where Word
-has one, the matrix and symbol dialogs, and the **Structure Gallery**
+has one (an integral's, sum's or product's operand is a box, as in Word:
+`+` typed in it stays inside; Space after `\int_0^1` typed by hand opens
+it too), the matrix and symbol dialogs, and the **Structure Gallery**
 (`Cmd+Shift+G`): Word's structure categories (Fraction, Script, Radical,
 Integral, Large Operator, Bracket, Function, Accent, Limit and Log,
 Operator, Matrix), each a list of variants. Shift+Tab goes to the

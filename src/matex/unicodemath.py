@@ -59,6 +59,8 @@ def distribution_directory() -> Path:
 
 
 # One `'word': 'symbol',` entry per line of UnicodeMathML's controlWords table.
+# The converter writes a literal "&" (`\\&`, `"&"`) unescaped, which is not XML.
+_BARE_AMPERSAND = re.compile(r"&(?!(?:[A-Za-z]+|#[0-9]+|#x[0-9A-Fa-f]+);)")
 _CONTROL_WORD_ENTRY = re.compile(r"^\s*'([A-Za-z0-9]+)':\s*'((?:[^'\\]|\\u[0-9A-Fa-f]{4})*)'")
 
 
@@ -226,7 +228,7 @@ def decode_conversion(value: str, token: int | None = None) -> ConversionResult:
     offset = decoded.get("parseOffset")
     found = decoded.get("parseFound")
     return ConversionResult(
-        mathml=mathml,
+        mathml=_BARE_AMPERSAND.sub("&amp;", mathml),
         error=error,
         parse_offset=offset if isinstance(offset, int) else None,
         parse_found=found if isinstance(found, str) else None,

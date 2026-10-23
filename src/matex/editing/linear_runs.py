@@ -19,6 +19,7 @@ import re
 from collections.abc import Callable
 
 from matex.editing.insertion_point import STRUCTURE_NAMES
+from matex.templates.math_templates import NARY_LABELS
 
 Run = tuple[int, int]
 Runs = tuple[Run, ...]
@@ -178,6 +179,8 @@ def build_run(source: str, runs: Runs, run: Run, convert: Callable[[Runs], str])
 
 
 _OPENING_TAG = re.compile(r"<(m[a-z]+)[\s>/]")
+_SCRIPT_TAGS = frozenset({"msub", "msup", "msubsup", "munder", "mover", "munderover"})
+_FIRST_OPERATOR = re.compile(r"\s*<mo[^>]*>([^<]*)</mo>")
 
 
 def built_structure(before: str, after: str) -> str | None:
@@ -185,9 +188,26 @@ def built_structure(before: str, after: str) -> str | None:
 
     The first kind there is more of, outermost first ("fraction" for a
     fraction with a superscript in it); None when nothing new was built.
+    Scripts on an n-ary sign are its limits: "integral", not "scripts".
     """
     old, new = _OPENING_TAG.findall(before), _OPENING_TAG.findall(after)
-    for tag in new:
+    for match in _OPENING_TAG.finditer(after):
+        tag = match.group(1)
         if tag in STRUCTURE_NAMES and new.count(tag) > old.count(tag):
+            operator = _FIRST_OPERATOR.match(after, match.end() + after[match.end() - 1 :].index(">"))
+            if tag in _SCRIPT_TAGS and operator is not None and operator.group(1).strip() in NARY_LABELS:
+                return NARY_LABELS[operator.group(1).strip()]
             return STRUCTURE_NAMES[tag]
     return None
+
+
+def toggle_selection(runs: Runs, start: int, end: int) -> tuple[Runs, bool]:
+    """F2 on a selection in the built equation, as Word's Linear/Professional on one: (runs, made linear).
+
+    A selection holding linear text builds it (every run it touches);
+    otherwise the selection becomes a linear run of its own.
+    """
+    touched = [run for run in runs if run[0] < end and start < run[1]]
+    if touched:
+        return tuple(run for run in runs if run not in touched), False
+    return tuple(sorted((*runs, (start, end)))), True

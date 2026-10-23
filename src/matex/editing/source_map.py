@@ -225,7 +225,11 @@ def _fills_a_slot(document: MathMLDocument, node: MathMLNode) -> bool:
         if parent.tag != "mrow" or len(parent.children) != 1:
             break
         current = parent  # A lone wrapper mrow: the slot is around it.
-    return bool(node.identifier and document.semantic_role(node.identifier))
+    if not node.identifier:
+        return False
+    # An argument's or integrand's box `〖...〗` is a slot too: "end integrand" types inside it.
+    boxed = node.attributes.get("intent", "").startswith(":fenced") and bool(document.regions(node.identifier))
+    return boxed or bool(document.semantic_role(node.identifier))
 
 
 def _without_slot_parens(source: str, start: int, end: int) -> tuple[int, int]:

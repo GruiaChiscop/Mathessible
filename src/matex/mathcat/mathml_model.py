@@ -371,6 +371,9 @@ class MathMLDocument:
         parent = self.parent_by_id.get(node.identifier)
         if parent is None:
             return False
+        if parent.attributes.get("intent", "").startswith(":nary"):
+            # `∫_(0)^(1)▒〖x〗`: the group after the scripted sign is its integrand, not a function's argument.
+            return False
         if ":function" in parent.attributes.get("intent", "") or self._has_recognized_function(parent):
             return True
         try:

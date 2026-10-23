@@ -117,11 +117,17 @@ def group_function_argument(source: str, caret: int, functions: tuple[str, ...] 
     group: `/` takes everything glued before it as its numerator, so
     without it `lim_(x→∞) (a)/(b)` or `ln (a)/(b)` is a fraction with the
     function in the numerator; `ln 〖(a)/(b)〗` is the log of the fraction.
+    After an n-ary sign and its limits (`∫_0^1`, `∑_(k=1)^n`, a bare `∫`)
+    it is the integrand's box, `▒〖〗`, as the templates write it.
     """
-    if caret == 0 or source[caret : caret + 1] in ("〖", "("):
+    if caret == 0 or source[caret : caret + 1] in ("〖", "(", "▒"):
         return None
     if source[caret : caret + 1] == " " and source[caret:].strip():
         return None  # An argument already follows. Only spaces after: the user's own, kept after the group.
+    nary = _nary_before(source, caret)
+    if nary is not None:
+        role = NARYAND_ROLES.get(nary, "argument")
+        return TemplateEdit(source[:caret] + "▒〖〗" + source[caret:], caret + 2, f"{nary}, empty {role}")
     if source[caret - 1] in ROOT_SIGN_LABELS:
         # A radical: the group goes right after the sign (`√ 〖x〗` does not build).
         label = ROOT_SIGN_LABELS[source[caret - 1]]
@@ -146,6 +152,32 @@ def group_function_argument(source: str, caret: int, functions: tuple[str, ...] 
     if scripted is not None:
         return TemplateEdit(source[:caret] + " 〖〗" + source[caret:], caret + 2, f"{scripted}, empty argument")
     return None
+
+
+def _nary_before(source: str, caret: int) -> str | None:
+    """The n-ary operator (`∫`, `∑_(k=1)^n`, `∫_0^1`) ending right at the caret: its label, else None.
+
+    Steps back over up to two limits, each `_`/`^` with a "(...)" or one
+    token (a number, a letter, ∞), as UnicodeMath reads an unparenthesized script.
+    """
+    position = caret
+    for _limit in range(2):
+        if position > 0 and source[position - 1] == ")":
+            pairs = matching_parens(source)
+            opening = next((start for start, end in pairs.items() if end == position - 1), None)
+            if opening is None or opening < 1 or source[opening - 1] not in "_^":
+                break
+            position = opening - 1
+            continue
+        start = position
+        while start > 0 and source[start - 1].isdigit():
+            start -= 1
+        if start == position and start > 0 and (source[start - 1].isalpha() or source[start - 1] == "∞"):
+            start -= 1
+        if start == position or start < 1 or source[start - 1] not in "_^":
+            break
+        position = start - 1
+    return NARY_LABELS.get(source[position - 1]) if position > 0 else None
 
 
 def script_on_function(source: str, caret: int, character: str, functions: tuple[str, ...] = ()) -> TemplateEdit | None:
@@ -302,30 +334,32 @@ def insert_product_template(source: str, caret: int, limits: bool = False) -> Te
 def _insert_nary_template(source: str, caret: int, symbol: str, limits: bool) -> TemplateEdit:
     """Insert an n-ary operator sign, caret ready to type the naryand or its limits.
 
-    With `limits`, `∫_()^()▒`: the caret starts in the lower limit, Tab goes
-    to the upper one and then past `▒` to the naryand. Empty limits are fine
+    With `limits`, `∫_()^()▒〖〗`: the caret starts in the lower limit, Tab
+    goes to the upper one and then into the naryand. Empty limits are fine
     for the converter (zero-width `mspace`s, like empty matrix cells, and
     "()" around a limit is transparent), so they can simply be left empty.
 
-    Unlike `/`, `√`, `_`, `^` and `|`, UnicodeMath's n-ary delimiter `▒`
-    never makes a following "()" transparent (confirmed against the real
-    converter: `∫▒(f(x))` keeps visible parens around the integrand, even
-    though `∫▒f(x)` alone renders cleanly). So there is no empty-slot
-    placeholder here — the caret is simply placed right after `▒`, and the
-    user types the naryand directly, same as in Word once the structure
-    exists. A bare "∫▒"/"∑▒"/"∏▒" with nothing typed after it is itself a
-    total parse failure (confirmed empirically), same as any other
-    freshly-inserted, not-yet-filled template — not a bug, just the
-    expected transient state before typing.
+    The naryand is an invisible group `〖〗` (`\\begin \\end`), Word's
+    integrand box, as for a lim/log argument: a bare `∫▒e^2+2` ends the
+    integrand at the "+", `∫▒〖e^2+2〗` keeps it inside. A "()" would not do:
+    `▒` never makes it transparent (`∫▒(f(x))` keeps visible parens). An
+    empty group builds cleanly, where a bare `∫▒` was a total failure.
 
-    Without limits, the caret is placed right after `▒`.
+    Without limits, the caret is placed inside the group.
     """
     label = NARY_LABELS[symbol]
+    role = NARYAND_ROLES.get(label, "argument")
     if limits:
         return insert_template(
-            source, caret, f"{symbol}_()^()▒", first_slot_offset=3, announcement=f"{label} template, empty lower limit"
+            source,
+            caret,
+            f"{symbol}_()^()▒〖〗",
+            first_slot_offset=3,
+            announcement=f"{label} template, empty lower limit",
         )
-    return insert_template(source, caret, f"{symbol}▒", first_slot_offset=2, announcement=f"{label} template")
+    return insert_template(
+        source, caret, f"{symbol}▒〖〗", first_slot_offset=3, announcement=f"{label} template, empty {role}"
+    )
 
 
 def insert_subscript_template(source: str, caret: int) -> TemplateEdit:
@@ -447,7 +481,13 @@ def _naryand_slots(source: str, pairs: dict[int, int], slots: list[_Slot], funct
         if character != "▒":
             continue
         label = _nary_label_before(source, index, pairs)
-        if label is not None:
+        if label is None:
+            continue
+        group_end = _invisible_group_end(source, index + 1)
+        if group_end is not None:
+            # `∫▒〖...〗`: the naryand is the group's content; Tab leaves past "〗".
+            found.append(_Slot(index + 2, group_end, label, NARYAND_ROLES[label], group_end + 1))
+        else:
             start = index + 1
             end = operand_end(source, start, pairs)
             found.append(_Slot(start, end, label, NARYAND_ROLES[label], end))
@@ -615,6 +655,8 @@ def _nary_limit(source: str, opening: int, closing: int) -> tuple[str, str, int]
         return label, role, exit  # An upper limit follows; it is the next slot.
     if source[exit : exit + 1] == "▒":
         exit += 1
+        if source[exit : exit + 1] == "〖":
+            exit += 1  # Into the naryand's group.
     return label, role, exit
 
 

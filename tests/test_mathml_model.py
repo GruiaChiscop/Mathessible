@@ -46,6 +46,17 @@ class MathMLModelTests(unittest.TestCase):
         self.assertEqual(document.semantic_role("condition"), "limit condition")
         self.assertIn("limit condition", document.regions("x"))
 
+    def test_a_grouped_integrand_after_limits_is_no_function_argument(self) -> None:
+        # `∫_(0)^(1)▒〖x+1〗`: the group follows a scripted sign, as `sin^2 〖x〗` does.
+        document = MathMLDocument.parse(
+            """<math id="root"><mrow id="integral" intent=":nary($l,$h,$naryand)"><msubsup id="limits">
+            <mo id="operator">∫</mo><mn id="lower" arg="l">0</mn><mn id="upper" arg="h">1</mn></msubsup>
+            <mrow id="body" arg="naryand" intent=":fenced"><mi id="x">x</mi><mo id="plus">+</mo><mn id="one">1</mn></mrow>
+            </mrow></math>"""
+        )
+        self.assertNotIn("argument", document.regions("x"))
+        self.assertIn("integrand", document.regions("x"))
+
     def test_integrand_and_function_argument_boundaries(self) -> None:
         document = MathMLDocument.parse(
             """<math id="root"><mrow id="nary" intent=":nary(a,b,$naryand)">

@@ -85,20 +85,34 @@ equation language; the gap is entirely in the editing UX layered on top.
    [templates/math_templates.py](../src/matex/templates/math_templates.py): fraction (Ctrl+/),
    square root (Ctrl+R), subscript/superscript (Ctrl+=/Ctrl+Shift+=,
    mirroring Word's own character-formatting shortcuts), absolute value
-   (Ctrl+\\), integral/sum/product (Ctrl+I/Ctrl+S/Ctrl+P bare `∫▒`, caret
-   after `▒`; with limits `∫_()^()▒` on Control+I/S/P on macOS — the
+   (Ctrl+\\), integral/sum/product (Ctrl+I/Ctrl+S/Ctrl+P `∫▒〖〗`, caret
+   in the group; with limits `∫_()^()▒〖〗` on Control+I/S/P on macOS — the
    physical Control key, `_template_variant_down`, since Option+S/P/I type
-   ß/π/a dead key — and Alt+I/S/P elsewhere). The naryand after `▒` gets
-   no "()" placeholder (`▒`'s argument is not paren-transparent); empty
-   limits are clean zero-width `mspace`s. `_nary_limit` makes
-   `_(...)`/`^(...)` after an n-ary sign "lower/upper limit" slots. The
-   naryand itself (and a lim/log argument after its space) is a slot
-   without parens (`_naryand_slots`, bounded by `operand_end`: up to a
-   top-level space or `+-=<>,`), so after typing in it Tab/Shift+Tab
-   still read it back ("integrand, x^2") — it was once only a landing
-   spot, and its content was never announced again. A bare
-   `"∫▒"` with nothing typed after it is a total parse failure until
-   filled in, same as any other empty template, not a bug.
+   ß/π/a dead key — and Alt+I/S/P elsewhere). The naryand is an invisible
+   group (2026-10-23, the user's request), Word's integrand box as for a
+   lim/log argument: `∫▒e^2+2` ends the integrand at "+", `∫▒〖e^2+2〗`
+   keeps it inside; "()" would not do (`▒`'s argument is not
+   paren-transparent), and an empty group builds cleanly. Empty limits
+   are clean zero-width `mspace`s. `_nary_limit` makes `_(...)`/`^(...)`
+   after an n-ary sign "lower/upper limit" slots, the last one exiting
+   into the group. The naryand itself is a slot: the group's content
+   (Tab leaves past "〗"), or, typed by hand without a group, the operand
+   (`_naryand_slots`, bounded by `operand_end`: up to a top-level space or
+   `+-=<>,`), so after typing in it Tab/Shift+Tab still read it back
+   ("integrand, x^2"). Typed by hand, Space right after the sign and its
+   limits (`\\int_0^1`, `\\sum_(k=1)^n`, a bare `\\int`; `_nary_before`)
+   opens the box as Word does ("integral, empty integrand"), through
+   `group_function_argument` like a lim/log argument; a build of the
+   limits alone says "built integral", not "built scripts"
+   (`built_structure`). **Trap:** after limits the group follows the
+   scripted sign as `sin^2 〖x〗` does, and `_is_argument` took it for a
+   function argument ("start argument, start integrand"); a `:nary`
+   parent is never a function. **Trap:** on "end integrand"/"end
+   argument", typing went after the box's "〗" (`anchor_offset` stepped
+   over a node's own parens, and only roles such as "numerator" counted
+   as slots in `_fills_a_slot`); a fenced group with a region is a slot
+   too, so it types inside, empty or not. A bare `"∫▒"` typed by hand with nothing
+   after it is still a total parse failure until filled in.
    Matrix (Ctrl+Shift+M, or Insert > Matrix…)
    opens `MatrixDialog` ([ui/matrix_dialog.py](../src/matex/ui/matrix_dialog.py):
    rows, columns, fence) and inserts `insert_matrix_template`'s output,
@@ -490,7 +504,11 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   editing inside it, only once all of it builds, as before (an error left
   elsewhere must not take a correction typed after F2 out of linear view). Runs stay
   linear when the caret leaves them; F2 either way clears them (Word's
-  Professional/Linear for all). Each build is its own history state
+  Professional/Linear for all). F2 with a professional-view selection
+  is Word's Linear/Professional on a selection
+  (`_toggle_selection_linear`, `toggle_selection`): the selection becomes
+  a run of its own, or every run it touches builds; the source is
+  unchanged and the step undoable. Each build is its own history state
   (`EditState.runs`), so Undo right after it brings the linear text back,
   as in Word. `announce_built` adds "built fraction" (`built_structure`:
   a structure tag there is more of), but not when the edit says what it
@@ -505,7 +523,10 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   escaped character the function's argument ("the log of under bar",
   start/end argument stops) though nothing was built: an invisible times
   (U+2062) goes before the backslash after two or more letters; MathCAT
-  says nothing for it and `map_leaves` gives it an empty span. Runs
+  says nothing for it and `map_leaves` gives it an empty span.
+  **Trap:** the converter writes a literal `&` (`\&`, also `"&"`) bare,
+  which is not XML ("Invalid MathML: not well-formed"); `decode_conversion`
+  escapes bare ampersands. Runs
   live only in the editor; the document gets the plain source, so a
   reopened equation builds as before.
 - **Proposed staged approach**:

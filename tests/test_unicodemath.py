@@ -31,6 +31,14 @@ class UnicodeMathMLTests(unittest.TestCase):
         self.assertEqual(decode_conversion(payload).mathml, "<math><mi>x</mi></math>")
         self.assertEqual(decode_conversion(json.dumps(payload)).mathml, "<math><mi>x</mi></math>")
 
+    def test_a_literal_ampersand_is_escaped_for_xml(self) -> None:
+        # The converter writes `\\&` and `"&"` as a bare "&", which no XML parser takes.
+        payload = json.dumps({"mathml": '<math><mo intent=":text">&</mo><mo>&lt;</mo><mi>&#x1D44E;</mi></math>'})
+        self.assertEqual(
+            decode_conversion(payload).mathml,
+            '<math><mo intent=":text">&amp;</mo><mo>&lt;</mo><mi>&#x1D44E;</mi></math>',
+        )
+
     def test_another_scripts_result_is_recognized_as_stray(self) -> None:
         own = json.dumps({"mathml": "<math><mi>x</mi></math>", "error": None, "token": 7})
         self.assertEqual(decode_conversion(own, 7).mathml, "<math><mi>x</mi></math>")

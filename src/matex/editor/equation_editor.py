@@ -468,6 +468,11 @@ if wx is not None:
                 # with "busy".
                 wx.CallLater(30, self._retry_toggle_mode, attempts - 1)
                 return
+            selection = self._built_selection()
+            if selection is not None:
+                # As Word's Linear/Professional on a selection: only that part changes.
+                self._toggle_selection_linear(*selection)
+                return
             self._clear_selection()
             if self.mode == "linear" and self.mathcat is None:
                 self._announce(MATHCAT_MISSING)
@@ -1129,10 +1134,11 @@ if wx is not None:
             return probe is not None or self._existing_argument(closing) is not None
 
         def _existing_argument(self, after: int) -> int | None:
-            """Inside the argument box `〖...〗` right after this offset (` \\begin ...`), at its end; else None."""
+            """Inside the argument box `〖...〗` right after this offset (` \\begin ...`, an integrand's
+            `\\of\\begin ...`), at its end; else None."""
             view = view_of(self.document.source)
             index = view.to_view(after)
-            if view.text[index : index + 2] != " 〖":
+            if view.text[index : index + 2] not in (" 〖", "▒〖"):
                 return None
             depth = 0
             for position in range(index + 1, len(view.text)):
