@@ -276,7 +276,7 @@ class MathMLDocument:
         return None
 
     def table_kind(self, table: MathMLNode) -> str:
-        """"equations" (an equation array `█(...)`), "cases" (`{■(...)┤`) or "matrix"."""
+        """ "equations" (an equation array `█(...)`), "cases" (`{■(...)┤`) or "matrix"."""
         if ":equations" in table.attributes.get("intent", ""):
             return "equations"
         parent = self.parent_by_id.get(table.identifier or "")

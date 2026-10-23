@@ -14,7 +14,7 @@ class SanitizeMathMLTests(unittest.TestCase):
 
     def test_rejects_disallowed_descendant_elements(self) -> None:
         with self.assertRaises(MathMLModelError):
-            sanitize_mathml('<math><mtext><script>alert(1)</script></mtext></math>')
+            sanitize_mathml("<math><mtext><script>alert(1)</script></mtext></math>")
 
     def test_drops_annotation_children_of_semantics(self) -> None:
         source = (

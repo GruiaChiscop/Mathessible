@@ -28,7 +28,9 @@ class StructureGalleryTests(unittest.TestCase):
                     continue
                 edit = edit_in_view("x+", 2, item.insert, True)
                 self.assertTrue(edit.announcement)
-                if not item.label.endswith(("arrow", "Hat", "Bar", "Dot", "dot", "Tilde", "Check", "Acute", "Grave", "Breve")):
+                if not item.label.endswith(
+                    ("arrow", "Hat", "Bar", "Dot", "dot", "Tilde", "Check", "Acute", "Grave", "Breve")
+                ):
                     self.assertNotEqual(edit.source, "x+")
                     self.assertTrue(written_form(item, True))
 
@@ -48,7 +50,11 @@ class StructureGalleryTests(unittest.TestCase):
         self.assertIn("type the base first", refused.announcement)
 
     def test_new_fraction_styles_and_signs_have_tab_slots(self) -> None:
-        for source, first in (("()⁄()", "empty numerator"), ("¯()", "empty content"), ("∐_()^()▒", "empty lower limit")):
+        for source, first in (
+            ("()⁄()", "empty numerator"),
+            ("¯()", "empty content"),
+            ("∐_()^()▒", "empty lower limit"),
+        ):
             with self.subTest(source=source):
                 self.assertEqual(move_to_slot(source, 0).announcement, first)
 
@@ -67,6 +73,8 @@ class StructureGalleryTests(unittest.TestCase):
         results = convert_all(texts)  # One Node run for every candidate.
         built = {text: builds(result["mathml"]) for text, result in zip(texts, results, strict=True)}
         failed = [
-            source for source, options in zip(sources, candidates, strict=True) if not any(built[text] for text in options)
+            source
+            for source, options in zip(sources, candidates, strict=True)
+            if not any(built[text] for text in options)
         ]
         self.assertEqual(failed, [])

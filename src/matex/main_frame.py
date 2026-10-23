@@ -97,8 +97,7 @@ if wx is not None:
                 )
             if not wx.html2.WebView.IsBackendAvailable(wx.html2.WebViewBackendDefault):
                 problems.append(
-                    "No web view is available to convert and show equations "
-                    "(on Linux, install WebKitGTK for wxPython)."
+                    "No web view is available to convert and show equations (on Linux, install WebKitGTK for wxPython)."
                 )
 
             def check() -> None:
@@ -347,9 +346,7 @@ if wx is not None:
                 int(self._rename_page_id): has_notebook,
                 int(self._delete_page_id): has_notebook and len(self.notebook.pages) > 1,
                 int(self._move_page_up_id): has_notebook and self.current_page > 0,
-                int(self._move_page_down_id): (
-                    has_notebook and self.current_page < len(self.notebook.pages) - 1
-                ),
+                int(self._move_page_down_id): (has_notebook and self.current_page < len(self.notebook.pages) - 1),
             }
             event.Enable(availability.get(event.GetId(), True))
 
@@ -371,10 +368,7 @@ if wx is not None:
             last_newline = preceding.rfind("\n")
             column = position - last_newline
             if self.notebook is not None:
-                context = (
-                    f"{self.notebook.title} — Page {self.current_page + 1} "
-                    f"of {len(self.notebook.pages)}"
-                )
+                context = f"{self.notebook.title} — Page {self.current_page + 1} of {len(self.notebook.pages)}"
             else:
                 context = self.document_path.name if self.document_path else "Untitled Markdown document"
             self.SetStatusText(context, 0)
@@ -429,11 +423,7 @@ if wx is not None:
 
         @staticmethod
         def _application_windows() -> list[MainFrame]:
-            return [
-                window
-                for window in wx.GetTopLevelWindows()
-                if isinstance(window, MainFrame) and window.IsShown()
-            ]
+            return [window for window in wx.GetTopLevelWindows() if isinstance(window, MainFrame) and window.IsShown()]
 
         def _cycle_window(self, offset: int) -> None:
             windows = self._application_windows()
@@ -564,7 +554,9 @@ if wx is not None:
                 except (OSError, UnicodeError) as error:
                     self._show_error("read the notebook for export", error)
                     return
-                default_file = f"{self.notebook_archive_path.stem if self.notebook_archive_path else self.notebook.root.name}.html"
+                default_file = (
+                    f"{self.notebook_archive_path.stem if self.notebook_archive_path else self.notebook.root.name}.html"
+                )
                 default_directory = (
                     str(self.notebook_archive_path.parent)
                     if self.notebook_archive_path is not None
@@ -712,8 +704,7 @@ if wx is not None:
 
         def _choose_mtex_path(self, default_name: str | None = None) -> Path | None:
             default_file = (
-                default_name
-                or self.notebook_archive_path.name
+                default_name or self.notebook_archive_path.name
                 if self.notebook_archive_path is not None
                 else default_name or f"{self.notebook.title if self.notebook else 'notebook'}.mtex"
             )

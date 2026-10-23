@@ -27,7 +27,13 @@ def walk(source: str) -> dict[str, tuple[str, str]]:
         speech = navigator.linear_command("MoveNext")
         node, side, outside = navigator.edit_anchor()
         offset = anchor_offset(source, navigator.structure, node, side, outside)
-        found.setdefault(speech, (describe_insertion_point(navigator.structure, node, side, outside), f"{source[:offset]}|{source[offset:]}"))
+        found.setdefault(
+            speech,
+            (
+                describe_insertion_point(navigator.structure, node, side, outside),
+                f"{source[:offset]}|{source[offset:]}",
+            ),
+        )
         if speech == "end of math":
             break
     return found

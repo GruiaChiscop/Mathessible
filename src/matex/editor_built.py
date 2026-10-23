@@ -116,6 +116,7 @@ class BuiltEditingMixin:
         The key is handled exactly as in linear mode (autocorrect,
         history, speech) at MathCAT's position; see `_edit_in_built`.
         """
+
         def handle_key() -> None:
             self._on_char(event)  # Announces the character itself.
 
@@ -143,7 +144,7 @@ class BuiltEditingMixin:
         return described
 
     def _next_in_source(self, offset: int) -> str:
-        """"before lim" / "end of math": the first leaf at or after a source offset."""
+        """ "before lim" / "end of math": the first leaf at or after a source offset."""
         assert self.mathcat is not None and self.mathcat.structure is not None
         repair = self._built_repair()
         spans = map_leaves(repair.text, self.mathcat.structure)
@@ -151,7 +152,8 @@ class BuiltEditingMixin:
         following = [
             (spans[leaf.identifier].start, leaf)
             for leaf in leaf_nodes(self.mathcat.structure)
-            if leaf.identifier in spans and spans[leaf.identifier].start >= at
+            if leaf.identifier in spans
+            and spans[leaf.identifier].start >= at
             and spans[leaf.identifier].end > spans[leaf.identifier].start
         ]
         if not following:
@@ -318,9 +320,7 @@ class BuiltEditingMixin:
         return tuple(
             leaf.identifier
             for leaf in leaf_nodes(self.mathcat.structure)
-            if leaf.identifier in spans
-            and spans[leaf.identifier].start < high
-            and spans[leaf.identifier].end > low
+            if leaf.identifier in spans and spans[leaf.identifier].start < high and spans[leaf.identifier].end > low
         )
 
     def _span_speech(self, start: int, end: int) -> str:
@@ -593,7 +593,9 @@ class BuiltEditingMixin:
 
             self._edit_in_built(convert_and_move)
             return
-        edit = self._edit(lambda source, caret: move_to_slot(source, caret, reverse, self.settings.recognized_functions))
+        edit = self._edit(
+            lambda source, caret: move_to_slot(source, caret, reverse, self.settings.recognized_functions)
+        )
         if edit is None:
             self._announce("no slot")
             return

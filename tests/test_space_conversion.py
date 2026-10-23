@@ -94,7 +94,6 @@ class SpaceConversionTests(unittest.TestCase):
         self.assertEqual(edit.caret, 3)
         self.assertFalse(edit.converted)
 
-
     def test_liminf_and_limsup_take_the_converters_spelling(self) -> None:
         # "lim inf" with a no-break space is the converter's function name.
         edit = convert_before_character("x+liminf", 8, "_")
@@ -102,7 +101,6 @@ class SpaceConversionTests(unittest.TestCase):
         self.assertEqual(convert_before_character("limsup", 6, "_").source, "lim\u00a0sup_")
         self.assertIsNone(convert_before_character("xliminf", 7, "_"))  # Part of a longer word.
         self.assertIsNone(convert_before_character("\\liminf", 7, "_"))
-
 
     def test_a_control_word_before_the_caret_converts_with_nothing_typed(self) -> None:
         # Tab leaving "lim_(x→\\infty|)" converts the word first, as Space would.
@@ -112,9 +110,10 @@ class SpaceConversionTests(unittest.TestCase):
         self.assertIsNone(convert_word_before("x+1", 3, control_words={"infty": "∞"}))
         self.assertIsNone(convert_word_before("\\infty", 6, enabled=False, control_words={"infty": "∞"}))
 
-
     def test_user_shortcuts_convert_on_space_as_whole_words(self) -> None:
-        self.assertEqual(convert_on_space("90deg", 5, shortcuts={"deg": "°"}).source, "90deg ")  # Not after a letter or digit.
+        self.assertEqual(
+            convert_on_space("90deg", 5, shortcuts={"deg": "°"}).source, "90deg "
+        )  # Not after a letter or digit.
         self.assertEqual(convert_on_space("90 deg", 6, shortcuts={"deg": "°"}).source, "90 °")
         self.assertEqual(convert_on_space("x~~", 3, shortcuts={"~~": "≈"}).source, "x≈")
         self.assertEqual(convert_on_space("a->", 3, shortcuts={}).source, "a-> ")  # "->" deleted from the list.

@@ -183,14 +183,21 @@ def anchor_offset(source: str, document: MathMLDocument, node_id: str, side: str
     if side == "after" and not node.children and scripted_operator(document, node):
         # Right after ∑, ∫ or lim, before its limits: nothing can be typed
         # there (`∑q_(i=1)` does not parse), so typing goes on at the next leaf.
-        later = [spans[leaf.identifier].start for leaf in leaf_nodes(document)
-                 if leaf.identifier in spans and spans[leaf.identifier].start >= end
-                 and spans[leaf.identifier].end > spans[leaf.identifier].start]
+        later = [
+            spans[leaf.identifier].start
+            for leaf in leaf_nodes(document)
+            if leaf.identifier in spans
+            and spans[leaf.identifier].start >= end
+            and spans[leaf.identifier].end > spans[leaf.identifier].start
+        ]
         if later:
             return min(later)
     if outside or node.children:
-        visible = {spans[leaf.identifier].start for leaf in leaf_nodes(document)
-                   if leaf.identifier in spans and leaf.text.strip() in ("(", ")", "[", "]", "{", "}")}
+        visible = {
+            spans[leaf.identifier].start
+            for leaf in leaf_nodes(document)
+            if leaf.identifier in spans and leaf.text.strip() in ("(", ")", "[", "]", "{", "}")
+        }
         start, end = _with_own_parens(source, start, end, visible)
         if _fills_a_slot(document, node):
             # A numerator's, a radicand's, an argument's parens are the slot's,
@@ -200,7 +207,9 @@ def anchor_offset(source: str, document: MathMLDocument, node_id: str, side: str
     return start if side == "before" else end
 
 
-_SLOT_PARENTS = frozenset({"mfrac", "msqrt", "mroot", "msub", "msup", "msubsup", "munder", "mover", "munderover", "mtd"})
+_SLOT_PARENTS = frozenset(
+    {"mfrac", "msqrt", "mroot", "msub", "msup", "msubsup", "munder", "mover", "munderover", "mtd"}
+)
 _SCRIPTED = frozenset({"msub", "msup", "msubsup", "munder", "mover", "munderover"})
 
 

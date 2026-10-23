@@ -121,4 +121,3 @@ def math_zone_at(source: str, start: int, end: int | None = None) -> MathZone | 
         if zone.contains(start, end):
             return zone
     return None
-

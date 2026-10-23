@@ -143,9 +143,7 @@ def _serialize_safe(element: ElementTree.Element) -> str:
     if tag not in ALLOWED_MATHML_TAGS:
         raise MathMLModelError(f"Disallowed MathML element: {tag}")
     attributes = "".join(
-        f" {name}={quoteattr(value)}"
-        for name, value in element.attrib.items()
-        if name in ALLOWED_MATHML_ATTRIBUTES
+        f" {name}={quoteattr(value)}" for name, value in element.attrib.items() if name in ALLOWED_MATHML_ATTRIBUTES
     )
     # Only the first child of <semantics> is the visible presentation form;
     # annotation/annotation-xml siblings are dropped rather than validated.

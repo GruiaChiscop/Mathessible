@@ -245,7 +245,6 @@ class MathTemplateTests(unittest.TestCase):
         self.assertEqual(edit.caret, 2)
         self.assertEqual(edit.announcement, "product template")
 
-
     def test_integral_with_limits_starts_in_the_lower_limit(self) -> None:
         edit = insert_integral_template("x=", 2, limits=True)
         self.assertEqual(edit.source, "x=∫_()^()▒")
@@ -268,7 +267,9 @@ class MathTemplateTests(unittest.TestCase):
 
     def test_sum_and_product_with_limits(self) -> None:
         self.assertEqual(insert_sum_template("", 0, limits=True).source, "∑_()^()▒")
-        self.assertEqual(insert_product_template("", 0, limits=True).announcement, "product template, empty lower limit")
+        self.assertEqual(
+            insert_product_template("", 0, limits=True).announcement, "product template, empty lower limit"
+        )
 
     def test_a_lower_limit_alone_exits_past_the_naryand_marker(self) -> None:
         self.assertEqual(move_to_slot("∑_(k)▒", 4).caret, 6)
@@ -343,21 +344,30 @@ class MathTemplateTests(unittest.TestCase):
         self.assertEqual(edit.source, "f={■(&@&)┤")
         self.assertEqual(
             self.walk_slots(edit),
-            ["cases template, empty value, case 1", "empty condition, case 1", "empty value, case 2", "empty condition, case 2"],
+            [
+                "cases template, empty value, case 1",
+                "empty condition, case 1",
+                "empty value, case 2",
+                "empty condition, case 2",
+            ],
         )
         self.assertEqual(move_to_slot(edit.source, 8).caret, 10)  # Tab out past ")┤".
 
     def test_equation_array_lines_binomial_and_brackets(self) -> None:
         self.assertEqual(self.walk_slots(insert_equation_array_template("", 0))[1], "empty line 2")
         self.assertEqual(move_to_slot("█(a&=b@&=c)", 0).announcement, "line 1, a&=b")
-        self.assertEqual(self.walk_slots(insert_binomial_template("", 0)), ["binomial template, empty top", "empty bottom"])
+        self.assertEqual(
+            self.walk_slots(insert_binomial_template("", 0)), ["binomial template, empty top", "empty bottom"]
+        )
         self.assertEqual(insert_bracket_template("", 0, "⌊").source, "⌊⌋")
         self.assertEqual(move_to_slot("‖v‖+1", 0).announcement, "value, v")
 
     def test_box_number_brace_and_large_operators(self) -> None:
         edit = insert_equation_number_template("E=mc^2", 1)
         self.assertEqual((edit.source, edit.caret), ("E=mc^2#()", 8))  # Always at the end.
-        self.assertEqual(self.walk_slots(insert_brace_template("", 0)), ["overbrace template, empty content", "empty label"])
+        self.assertEqual(
+            self.walk_slots(insert_brace_template("", 0)), ["overbrace template, empty content", "empty label"]
+        )
         double = insert_nary_operator_template("", 0, "∬", limits=True)
         self.assertEqual(double.announcement, "double integral template, empty lower limit")
         self.assertEqual(move_to_slot("⋃_(i)▒A_i", 3).announcement, "term, A_i")
@@ -381,7 +391,9 @@ class MathTemplateTests(unittest.TestCase):
 
     def test_logarithm_template_starts_in_the_base(self) -> None:
         edit = insert_logarithm_template("", 0)
-        self.assertEqual((edit.source, edit.caret, edit.announcement), ("log_() 〖〗", 5, "logarithm template, empty base"))
+        self.assertEqual(
+            (edit.source, edit.caret, edit.announcement), ("log_() 〖〗", 5, "logarithm template, empty base")
+        )
 
     def test_typed_limit_and_logarithm_subscripts_are_slots(self) -> None:
         self.assertEqual(move_to_slot("lim_(n→∞) a_n", 0).announcement, "limit condition, n→∞")
@@ -482,7 +494,6 @@ class MathTemplateTests(unittest.TestCase):
         self.assertEqual(outer.announcement, "empty cell, row 1, column 2")
 
 
-
 class UnparenthesizedScriptArgumentTests(unittest.TestCase):
     """Space after `log_2`, `sin^2`: the argument box, as after `log_(2)` or `ln` (user report)."""
 
@@ -492,7 +503,10 @@ class UnparenthesizedScriptArgumentTests(unittest.TestCase):
         for source, name in (("log_2", "log"), ("log_10", "log"), ("log_a", "log"), ("lim_x", "lim"), ("sin^2", "sin")):
             edit = group_function_argument(source, len(source), self.FUNCTIONS)
             self.assertIsNotNone(edit, source)
-            self.assertEqual((edit.source, edit.caret, edit.announcement), (source + " 〖〗", len(source) + 2, f"{name}, empty argument"))
+            self.assertEqual(
+                (edit.source, edit.caret, edit.announcement),
+                (source + " 〖〗", len(source) + 2, f"{name}, empty argument"),
+            )
 
     def test_not_after_a_variable_or_a_glued_argument(self) -> None:
         for source in ("x_2", "a_n", "log_2x"):
@@ -501,7 +515,6 @@ class UnparenthesizedScriptArgumentTests(unittest.TestCase):
     def test_its_argument_is_a_tab_slot(self) -> None:
         edit = move_to_slot("log_2 〖x〗", 0, False, self.FUNCTIONS)
         self.assertEqual((edit.caret, edit.announcement), (8, "argument, x"))
-
 
 
 class LimitInferiorTests(unittest.TestCase):
@@ -515,7 +528,6 @@ class LimitInferiorTests(unittest.TestCase):
         self.assertEqual(move_to_slot(source, 9).announcement, "empty argument")
         typed = "lim\u00a0inf_(n→∞)"
         self.assertEqual(group_function_argument(typed, len(typed)).source, typed + " 〖〗")
-
 
 
 class ScriptOnFunctionTests(unittest.TestCase):

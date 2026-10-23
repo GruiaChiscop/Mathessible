@@ -44,9 +44,7 @@ class EditInViewTests(unittest.TestCase):
         )
         self.assertEqual(self.edit("a", 1, insert_square_root_template), ("a\\sqrt\\begin \\end ", 13))
         self.assertEqual(self.edit("a", 1, insert_operator_template), ("a\\rightarrow\\above() ", 19))
-        self.assertEqual(
-            self.edit("A=", 2, lambda s, c: insert_matrix_template(s, c, 2, 2)), ("A=(\\matrix(&@&))", 11)
-        )
+        self.assertEqual(self.edit("A=", 2, lambda s, c: insert_matrix_template(s, c, 2, 2)), ("A=(\\matrix(&@&))", 11))
 
     def test_symbols_when_the_setting_is_off(self) -> None:
         self.assertEqual(self.edit("", 0, insert_integral_template, control_words=False), ("∫▒", 2))

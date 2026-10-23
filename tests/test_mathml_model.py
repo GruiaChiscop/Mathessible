@@ -516,5 +516,6 @@ class MathMLDocumentTableTests(unittest.TestCase):
         navigator.load(navigator.mathml, keep_position=True)
         self.assertEqual(navigator.current_id, "a")
 
+
 if __name__ == "__main__":
     unittest.main()

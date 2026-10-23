@@ -8,7 +8,7 @@ from matex.html_export import ExportPage, notebook_html, preview_update_script, 
 def fake_mathml(source: str) -> str:
     if source == "bad":
         raise ValueError("invalid equation")
-    return f'<math><mi>{source}</mi></math>'
+    return f"<math><mi>{source}</mi></math>"
 
 
 class HtmlExportTests(unittest.TestCase):
@@ -34,7 +34,7 @@ class HtmlExportTests(unittest.TestCase):
     def test_malicious_converter_output_falls_back_instead_of_being_embedded(self) -> None:
         def malicious_mathml(source: str) -> str:
             return (
-                '<math><semantics><mi>x</mi>'
+                "<math><semantics><mi>x</mi>"
                 '<annotation-xml encoding="text/html">'
                 "<script>alert(1)</script></annotation-xml>"
                 "</semantics></math>"
@@ -46,7 +46,7 @@ class HtmlExportTests(unittest.TestCase):
 
     def test_converter_output_with_disallowed_element_falls_back(self) -> None:
         def unsafe_mathml(source: str) -> str:
-            return '<math><mi><foreignObject>x</foreignObject></mi></math>'
+            return "<math><mi><foreignObject>x</foreignObject></mi></math>"
 
         rendered = render_markdown("$x$", unsafe_mathml)
 
@@ -77,14 +77,16 @@ class HtmlExportTests(unittest.TestCase):
             self.assertEqual(destination.suffix, ".html")
             self.assertTrue(destination.read_text(encoding="utf-8").startswith("<!doctype html>"))
 
-
     def test_preview_script_embeds_sanitized_document_as_a_js_string(self) -> None:
-        script = preview_update_script("# Title\n\n$x$ and <script>alert(1)</script>", lambda _s: "<math><mi>x</mi></math>")
+        script = preview_update_script(
+            "# Title\n\n$x$ and <script>alert(1)</script>", lambda _s: "<math><mi>x</mi></math>"
+        )
         self.assertTrue(script.startswith("window.matexSetDocument("))
         self.assertIn("<h1>Title</h1>", script)
         self.assertIn('<span class=\\"math-inline\\"><math><mi>x</mi></math></span>', script)
         self.assertNotIn("<script>", script)
         self.assertIn("Empty document", preview_update_script("  \n", lambda _s: ""))
+
 
 if __name__ == "__main__":
     unittest.main()

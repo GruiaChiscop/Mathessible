@@ -23,7 +23,7 @@ class Suggestion:
     symbol: str
 
     def speech(self, name: SymbolNamer | None = None) -> str:
-        """"alpha" ("α" is called alpha too), or "le, less than or equal to"."""
+        """ "alpha" ("α" is called alpha too), or "le, less than or equal to"."""
         spoken = name(self.symbol) if name is not None else None
         if not spoken or spoken.lower() == self.word.lower():
             return self.word
@@ -131,4 +131,3 @@ def symbol_insertion(source: str, caret: int, suggestion: Suggestion, control_wo
     else:
         text = suggestion.symbol
     return TemplateEdit(source[:caret] + text + source[caret:], caret + len(text), suggestion.word)
-

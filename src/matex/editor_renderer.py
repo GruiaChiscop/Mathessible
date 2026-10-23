@@ -51,8 +51,7 @@ class EquationRendererMixin:
     def _on_renderer_loaded(self, event: wx.html2.WebViewEvent) -> None:
         if self._webview is not None:
             success, value = self._webview.RunScript(
-                "typeof window.matexConvert === 'function' && "
-                "typeof window.matexRender === 'function'"
+                "typeof window.matexConvert === 'function' && typeof window.matexRender === 'function'"
             )
             self._renderer_ready = success and value.strip().lower() == "true"
             if not self._renderer_ready:

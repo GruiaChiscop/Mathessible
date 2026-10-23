@@ -35,7 +35,9 @@ class MatrixCell:
     matrix_close: int
 
 
-def insert_matrix_template(source: str, caret: int, rows: int, columns: int, fence: str = "parentheses") -> TemplateEdit:
+def insert_matrix_template(
+    source: str, caret: int, rows: int, columns: int, fence: str = "parentheses"
+) -> TemplateEdit:
     """Insert a rows x columns matrix with every cell empty, caret in the first.
 
     Cells are left genuinely empty (`■(&@&)`) rather than filled with "()"
@@ -177,7 +179,9 @@ def insert_table_row(source: str, caret: int, below: bool = True) -> TemplateEdi
         part = _ROW_NAMES[kind]
         empty = "empty value, " if kind == "cases" else "empty "
         return TemplateEdit(
-            edit.source, edit.caret, f"inserted {part} {index + 1}, {_count(len(grid), part)}, {empty}{part} {index + 1}"
+            edit.source,
+            edit.caret,
+            f"inserted {part} {index + 1}, {_count(len(grid), part)}, {empty}{part} {index + 1}",
         )
     return TemplateEdit(edit.source, edit.caret, f"inserted row {index + 1}{edit.announcement}")
 
@@ -208,15 +212,13 @@ def _count(count: int, part: str) -> str:
 
 
 def table_kind(source: str, cell: MatrixCell) -> str:
-    """"equations" for an equation array `█(...)`, else `matrix_label`."""
+    """ "equations" for an equation array `█(...)`, else `matrix_label`."""
     if cell.matrix_open > 0 and source[cell.matrix_open - 1] == "█":
         return "equations"
     return matrix_label(source, cell)
 
 
-def _matrix_at(
-    source: str, caret: int, signs: str = MATRIX_SIGNS
-) -> tuple[MatrixCell, list[list[str]]] | None:
+def _matrix_at(source: str, caret: int, signs: str = MATRIX_SIGNS) -> tuple[MatrixCell, list[list[str]]] | None:
     """The innermost cell around the caret, plus its matrix as a grid of cell texts."""
     caret = max(0, min(caret, len(source)))
     cells = matrix_cells(source, signs)

@@ -173,8 +173,14 @@ class StructureActionsMixin:
             matrix_actions = [
                 ("Insert Row &Above", lambda: self._edit(lambda s, c: insert_matrix_row(s, c, below=False), caret)),
                 ("Insert Row &Below", lambda: self._edit(lambda s, c: insert_matrix_row(s, c, below=True), caret)),
-                ("Insert Column &Left", lambda: self._edit(lambda s, c: insert_matrix_column(s, c, right=False), caret)),
-                ("Insert Column &Right", lambda: self._edit(lambda s, c: insert_matrix_column(s, c, right=True), caret)),
+                (
+                    "Insert Column &Left",
+                    lambda: self._edit(lambda s, c: insert_matrix_column(s, c, right=False), caret),
+                ),
+                (
+                    "Insert Column &Right",
+                    lambda: self._edit(lambda s, c: insert_matrix_column(s, c, right=True), caret),
+                ),
                 None,
                 ("Delete R&ow", lambda: self._edit(delete_matrix_row, caret)),
                 ("Delete C&olumn", lambda: self._edit(delete_matrix_column, caret)),
@@ -228,7 +234,9 @@ class StructureActionsMixin:
             add_item.Enable(not has_limits)
             remove_item.Enable(has_limits)
             self.Bind(
-                wx.EVT_MENU, lambda _e: self._apply_structure_edit(add_nary_limits, nary_caret, _NARY_OPERATORS), add_item
+                wx.EVT_MENU,
+                lambda _e: self._apply_structure_edit(add_nary_limits, nary_caret, _NARY_OPERATORS),
+                add_item,
             )
             self.Bind(
                 wx.EVT_MENU,
@@ -310,7 +318,9 @@ class StructureActionsMixin:
                 item.Check(view.text[accent.mark] == mark)
                 self.Bind(
                     wx.EVT_MENU,
-                    lambda _e, mark=mark: self._apply_caret_edit(lambda source, at: change_accent(source, at, mark), caret),
+                    lambda _e, mark=mark: self._apply_caret_edit(
+                        lambda source, at: change_accent(source, at, mark), caret
+                    ),
                     item,
                 )
             accent_menu.AppendSeparator()
@@ -336,7 +346,12 @@ class StructureActionsMixin:
         structure = self.mathcat.structure if self.mathcat is not None else None
         # The highlighted node: on an "end X" stop MathCAT is already on the next one.
         node_id = self.mathcat.display_id if self.mathcat is not None else None
-        if structure is None or not node_id or structure.node(node_id) is None or structure.node(node_id) is structure.root:
+        if (
+            structure is None
+            or not node_id
+            or structure.node(node_id) is None
+            or structure.node(node_id) is structure.root
+        ):
             return None
         repair = self._built_repair()
         try:

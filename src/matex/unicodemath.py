@@ -53,8 +53,7 @@ def distribution_directory() -> Path:
     required = (directory / "unicodemathml-parser.js", directory / "unicodemathml.js")
     if not all(path.is_file() for path in required):
         raise FileNotFoundError(
-            "The UnicodeMathML submodule is not initialized. "
-            "Run: git submodule update --init --recursive"
+            "The UnicodeMathML submodule is not initialized. Run: git submodule update --init --recursive"
         )
     return directory
 

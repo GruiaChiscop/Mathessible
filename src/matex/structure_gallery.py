@@ -197,7 +197,10 @@ CATEGORIES: tuple[GalleryCategory, ...] = (
         "Limit and Log",
         (
             _menu_item("Limit"),
-            InsertItem("Limit as n goes to infinity", _template("lim_(n→∞) 〖〗", 11, "limit as n goes to infinity, empty argument")),
+            InsertItem(
+                "Limit as n goes to infinity",
+                _template("lim_(n→∞) 〖〗", 11, "limit as n goes to infinity, empty argument"),
+            ),
             InsertItem(
                 "Limit inferior", _template("lim\u00a0inf_() 〖〗", 9, "limit inferior template, empty limit condition")
             ),
@@ -257,7 +260,9 @@ def _scripts_template(source: str, caret: int) -> TemplateEdit:
     caret = max(0, min(caret, len(source)))
     before = source[caret - 1] if caret else ""
     if before.isalnum() or before in ")]}":
-        return insert_template(source, caret, "_()^()", first_slot_offset=2, announcement="scripts template, empty subscript")
+        return insert_template(
+            source, caret, "_()^()", first_slot_offset=2, announcement="scripts template, empty subscript"
+        )
     return insert_template(source, caret, "()_()^()", first_slot_offset=1, announcement="scripts template, empty base")
 
 

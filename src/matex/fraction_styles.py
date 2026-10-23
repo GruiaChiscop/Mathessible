@@ -30,7 +30,9 @@ def fractions(source: str) -> list[Fraction]:
     pairs = matching_parens(source)
     closing_to_opening = {end: start for start, end in pairs.items()}
     found = [
-        Fraction(index, _numerator_start(source, index, closing_to_opening), _denominator_end(source, index, pairs), style)
+        Fraction(
+            index, _numerator_start(source, index, closing_to_opening), _denominator_end(source, index, pairs), style
+        )
         for index, character in enumerate(source)
         if (style := _FRACTION_OPERATORS.get(character)) is not None
     ]

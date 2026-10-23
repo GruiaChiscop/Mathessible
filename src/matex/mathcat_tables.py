@@ -1,5 +1,4 @@
-"""Tables: cell navigation (Command+Option+arrows), rows as lines (Up/Down), cells read alone.
-"""
+"""Tables: cell navigation (Command+Option+arrows), rows as lines (Up/Down), cells read alone."""
 
 from __future__ import annotations
 

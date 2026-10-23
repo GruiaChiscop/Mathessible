@@ -76,7 +76,6 @@ class NaryEditTests(unittest.TestCase):
         self.assertIsNone(remove_nary_limits("∫▒x", 0))
 
 
-
 class ScriptEditTests(unittest.TestCase):
     def test_scripts_are_found_but_not_limits_of_sums_or_lim_conditions(self) -> None:
         self.assertEqual(len(scripts("x_i^2+(a+b)^2")), 2)
@@ -143,7 +142,9 @@ class EditsBuildTests(unittest.TestCase):
             change_accent("x\u0302", 1, "\u0308").source,
             switch_bar("¯(x+y)", 3).source,
         ]
-        errors = [source for source, result in zip(sources, convert_all(sources), strict=True) if has_error(result["mathml"])]
+        errors = [
+            source for source, result in zip(sources, convert_all(sources), strict=True) if has_error(result["mathml"])
+        ]
         self.assertEqual(errors, [])
 
 

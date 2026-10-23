@@ -16,15 +16,12 @@ CONVERTED = {
         "</mtr></mtable><mo>)</mo></mrow></math>"
     ),
     "f'(x)": (
-        '<math><msup><mi>𝑓</mi><mo>′</mo></msup><mrow intent=":fenced"><mo>(</mo><mi>𝑥</mi>'
-        "<mo>)</mo></mrow></math>"
+        '<math><msup><mi>𝑓</mi><mo>′</mo></msup><mrow intent=":fenced"><mo>(</mo><mi>𝑥</mi><mo>)</mo></mrow></math>'
     ),
     "()/()": '<math><mfrac><mspace width="0" /><mspace width="0" /></mfrac></math>',
     "a<=b": "<math><mi>𝑎</mi><mo>≤</mo><mi>𝑏</mi></math>",
     "x+4345": "<math><mi>𝑥</mi><mo>+</mo><mn>4345</mn></math>",
-    "\\alpha+sin x": (
-        "<math><mi>𝛼</mi><mo>+</mo><mi>sin</mi><mo>&#x2061;</mo><mi>𝑥</mi></math>"
-    ),
+    "\\alpha+sin x": ("<math><mi>𝛼</mi><mo>+</mo><mi>sin</mi><mo>&#x2061;</mo><mi>𝑥</mi></math>"),
     "√(3&x)": "<math><mroot><mi>𝑥</mi><mn>3</mn></mroot></math>",
     "∛x": "<math><mroot><mi>𝑥</mi><mn>3</mn></mroot></math>",
     "x\\hat": '<math><mover accent="true"><mi>𝑥</mi><mo>&#x302;</mo></mover></math>',
@@ -99,12 +96,16 @@ class AnchorTests(unittest.TestCase):
         # "After the fraction 1/2" stays inside the numerator's parens.
         source = "(1/2)/(3/4)"
         mathml = "<math><mfrac><mfrac><mn>1</mn><mn>2</mn></mfrac><mfrac><mn>3</mn><mn>4</mn></mfrac></mfrac></math>"
+
         def inner(document):
             return document.root.children[0].children[0]
+
         self.assertEqual(self.anchor(source, mathml, inner, "before"), 1)
         self.assertEqual(self.anchor(source, mathml, inner, "after"), 4)
+
         def outer(document):
             return document.root.children[0]
+
         self.assertEqual(self.anchor(source, mathml, outer, "after"), len(source))
 
     def test_visible_parens_are_not_the_structure_s_own(self) -> None:
@@ -113,8 +114,10 @@ class AnchorTests(unittest.TestCase):
             '<math><msup><mrow intent=":fenced"><mo>(</mo><mfrac><mrow><mi>𝑎</mi><mo>+</mo><mi>𝑏</mi></mrow>'
             "<mi>𝑐</mi></mfrac><mo>)</mo></mrow><mn>2</mn></msup></math>"
         )
+
         def fraction(document):
             return document.find_all(lambda node: node.tag == "mfrac")[0]
+
         self.assertEqual(self.anchor(source, mathml, fraction, "before"), 1)
         self.assertEqual(self.anchor(source, mathml, fraction, "after"), 8)
 
@@ -125,8 +128,10 @@ class AnchorTests(unittest.TestCase):
             '<math><mrow intent=":nary(,,$naryand)"><mo>∫</mo><mrow arg="naryand"><mi>𝑓</mi>'
             '<mrow intent=":fenced"><mo>(</mo><mi>𝑥</mi><mo>)</mo></mrow><mi>𝑑</mi><mi>𝑥</mi></mrow></mrow></math>'
         )
+
         def sign(document):
             return document.find_all(lambda node: node.text == "∫")[0]
+
         self.assertEqual(self.anchor(source, mathml, sign, "after", outside=False), 2)
 
 

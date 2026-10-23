@@ -117,7 +117,9 @@ INSERT_GROUPS = (
         InsertItem("Triple Integral", lambda source, caret: insert_nary_operator_template(source, caret, "∭")),
         InsertItem("Contour Integral", lambda source, caret: insert_nary_operator_template(source, caret, "∮")),
         InsertItem("&Union", lambda source, caret: insert_nary_operator_template(source, caret, "⋃", limits=True)),
-        InsertItem("Intersection", lambda source, caret: insert_nary_operator_template(source, caret, "⋂", limits=True)),
+        InsertItem(
+            "Intersection", lambda source, caret: insert_nary_operator_template(source, caret, "⋂", limits=True)
+        ),
     ),
     (
         InsertItem("&Cases", insert_cases_template),

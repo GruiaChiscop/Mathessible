@@ -140,9 +140,7 @@ if wx is not None:
 
         def prepare(self, source: str, display: bool) -> None:
             kind = "display" if display else "inline"
-            self.heading.SetLabel(
-                f"Edit {kind} equation — Enter or {EQUATION_SHORTCUT_LABEL} saves. Escape cancels."
-            )
+            self.heading.SetLabel(f"Edit {kind} equation — Enter or {EQUATION_SHORTCUT_LABEL} saves. Escape cancels.")
             self.equation.set_source(source)
 
         def begin(self, on_done: Callable[[bool, bool], None]) -> None:
@@ -232,9 +230,7 @@ if wx is not None:
 
             self._shortcut_id = wx.NewIdRef()
             self.Bind(wx.EVT_MENU, self._on_equation_accelerator, id=self._shortcut_id)
-            self.SetAcceleratorTable(
-                wx.AcceleratorTable([(self._shortcut_modifier(), ord("="), self._shortcut_id)])
-            )
+            self.SetAcceleratorTable(wx.AcceleratorTable([(self._shortcut_modifier(), ord("="), self._shortcut_id)]))
 
         @staticmethod
         def _shortcut_modifier() -> int:
@@ -306,10 +302,7 @@ if wx is not None:
             if session is None:
                 return
             if saved:
-                replacement = (
-                    f"{session.zone.delimiter}{self.equation_window.equation.source}"
-                    f"{session.zone.delimiter}"
-                )
+                replacement = f"{session.zone.delimiter}{self.equation_window.equation.source}{session.zone.delimiter}"
                 self.markdown.SetSelection(session.zone.start, session.zone.end)
                 self.markdown.WriteText(replacement)
                 caret = session.zone.start + len(replacement)

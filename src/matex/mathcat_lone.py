@@ -101,7 +101,9 @@ def lone_speeches(
         return {c: _CACHE.get((settings, c), c) for c in wanted}
 
 
-def lone_speech(character: str, language: str = "en", speech_style: str = "SimpleSpeak", verbosity: str = "Medium") -> str:
+def lone_speech(
+    character: str, language: str = "en", speech_style: str = "SimpleSpeak", verbosity: str = "Medium"
+) -> str:
     if character == " ":
         return "space"  # MathCAT says nothing for spacing; a selection of spaces still says what it is.
     return lone_speeches((character,), language, speech_style, verbosity).get(character, character)

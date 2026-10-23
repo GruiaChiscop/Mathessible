@@ -40,7 +40,7 @@ def render_markdown(source: str, convert_math: MathConverter) -> str:
             delimiter = zone.delimiter
             rendered = (
                 f'<code class="math-error" title="Equation could not be converted">'
-                f'{escape(delimiter + equation + delimiter)}</code>'
+                f"{escape(delimiter + equation + delimiter)}</code>"
             )
         replacements[token] = rendered
         placeholder = f"\n\n{token}\n\n" if zone.display else token
@@ -111,7 +111,7 @@ def notebook_html(
         sections.append(
             f'<section class="notebook-page" id="{identifier}" aria-labelledby="{identifier}-title">\n'
             f'<h2 id="{identifier}-title">{escape(page.title)}</h2>\n'
-            f'{render_markdown(page.source, convert_math)}'
+            f"{render_markdown(page.source, convert_math)}"
             "</section>"
         )
 
@@ -146,10 +146,10 @@ def notebook_html(
   <header><h1>{safe_title}</h1></header>
   <nav aria-label="Notebook pages">
     <h2>Pages</h2>
-    <ol>{''.join(navigation)}</ol>
+    <ol>{"".join(navigation)}</ol>
   </nav>
   <main>
-    {''.join(sections)}
+    {"".join(sections)}
   </main>
 </body>
 </html>

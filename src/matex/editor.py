@@ -507,9 +507,7 @@ if wx is not None:
                 return
             # Keyboard access to the right-click menu: the Menu key (Windows),
             # or Shift+F10 everywhere, as in other native text fields; both modes.
-            if (
-                key == wx.WXK_WINDOWS_MENU or (key == wx.WXK_F10 and event.ShiftDown() and not command_modifier)
-            ):
+            if key == wx.WXK_WINDOWS_MENU or (key == wx.WXK_F10 and event.ShiftDown() and not command_modifier):
                 self._show_context_menu(self._caret_point())
                 return
             if key == wx.WXK_F10 and not event.ShiftDown() and not command_modifier:
@@ -917,7 +915,11 @@ if wx is not None:
             if key == wx.WXK_TAB:
                 self._clear_selection()
                 converted = self._convert_word_before_caret()
-                edit = self._edit(lambda source, caret: move_to_slot(source, caret, event.ShiftDown(), self.settings.recognized_functions))
+                edit = self._edit(
+                    lambda source, caret: move_to_slot(
+                        source, caret, event.ShiftDown(), self.settings.recognized_functions
+                    )
+                )
                 if edit is None:
                     self._announce(f"{converted}, no slot" if converted else "no slot")
                     self.Refresh()
@@ -1035,7 +1037,9 @@ if wx is not None:
                             self._after_typed(value, builds)
                             return
                         if self.settings.convert_shortcuts_immediately:
-                            edit = convert_shortcut_on_character(self.document.source, self.caret, value, self._shortcuts())
+                            edit = convert_shortcut_on_character(
+                                self.document.source, self.caret, value, self._shortcuts()
+                            )
                             if edit is not None:
                                 self._replace_linear(edit.source, edit.caret)
                                 self._announce(edit.announcement)
@@ -1055,8 +1059,10 @@ if wx is not None:
 
         @staticmethod
         def _is_typed_character(event: wx.KeyEvent) -> bool:
-            return event.GetEventType() == wx.wxEVT_CHAR and event.GetUnicodeKey() not in (wx.WXK_NONE, 0) and (
-                event.GetUnicodeKey() > 32
+            return (
+                event.GetEventType() == wx.wxEVT_CHAR
+                and event.GetUnicodeKey() not in (wx.WXK_NONE, 0)
+                and (event.GetUnicodeKey() > 32)
             )
 
         def _insertion_point_here(self) -> str:
@@ -1191,7 +1197,6 @@ if wx is not None:
             )
             self._update_braille_display()
 
-
         def _autocorrect(self) -> AutoCorrectTable:
             """Math AutoCorrect as one list: the converter's words and MateX's shortcuts, with the user's changes."""
             return AutoCorrectTable(
@@ -1256,17 +1261,6 @@ if wx is not None:
                 self._announce("start")
             else:
                 self._announce("end")
-
-
-
-
-
-
-
-
-
-
-
 
 
 else:

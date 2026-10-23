@@ -52,6 +52,8 @@ _FUNCTION_SCRIPT_KEYS = {"".join(name.split()): entry for name, entry in FUNCTIO
 def function_script(text: str) -> tuple[str, str] | None:
     """FUNCTION_SCRIPTS' entry for a node's text, spaces ignored ("lim inf" is an mrow of lim, space, inf)."""
     return _FUNCTION_SCRIPT_KEYS.get("".join(text.split()))
+
+
 # Radical signs whose "〖...〗" right after them is the radicand.
 ROOT_SIGN_LABELS = {"√": "square root", "∛": "cube root", "∜": "fourth root"}
 FUNCTION_TEMPLATES = frozenset(template for template, _role in FUNCTION_SCRIPTS.values())
@@ -82,12 +84,16 @@ NARYAND_ROLES = {
 
 
 def insert_fraction_template(source: str, caret: int) -> TemplateEdit:
-    return insert_template(source, caret, "()/()", first_slot_offset=1, announcement="fraction template, empty numerator")
+    return insert_template(
+        source, caret, "()/()", first_slot_offset=1, announcement="fraction template, empty numerator"
+    )
 
 
 def insert_square_root_template(source: str, caret: int) -> TemplateEdit:
     """`√〖〗`: the radicand is an invisible group, like a function's argument (see group_function_argument)."""
-    return insert_template(source, caret, "√〖〗", first_slot_offset=2, announcement="square root template, empty radicand")
+    return insert_template(
+        source, caret, "√〖〗", first_slot_offset=2, announcement="square root template, empty radicand"
+    )
 
 
 def insert_limit_template(source: str, caret: int) -> TemplateEdit:
@@ -197,7 +203,9 @@ def _unparenthesized_script(source: str, caret: int, functions: tuple[str, ...])
 
 def insert_logarithm_template(source: str, caret: int) -> TemplateEdit:
     """`log_() 〖〗`: caret in the base; Tab goes on to the argument, an invisible group as for lim."""
-    return insert_template(source, caret, "log_() 〖〗", first_slot_offset=5, announcement="logarithm template, empty base")
+    return insert_template(
+        source, caret, "log_() 〖〗", first_slot_offset=5, announcement="logarithm template, empty base"
+    )
 
 
 def insert_operator_template(source: str, caret: int, operator: str = "→", above: bool = True) -> TemplateEdit:
@@ -230,12 +238,16 @@ def insert_nary_operator_template(source: str, caret: int, symbol: str, limits: 
 
 def insert_cases_template(source: str, caret: int) -> TemplateEdit:
     """`{■(&@&)┤`: a piecewise definition, two cases of value & condition, caret in the first value."""
-    return insert_template(source, caret, "{■(&@&)┤", first_slot_offset=3, announcement="cases template, empty value, case 1")
+    return insert_template(
+        source, caret, "{■(&@&)┤", first_slot_offset=3, announcement="cases template, empty value, case 1"
+    )
 
 
 def insert_equation_array_template(source: str, caret: int) -> TemplateEdit:
     """`█(@)`: lines of an equation array (a derivation step by step); `&` aligns them where typed."""
-    return insert_template(source, caret, "█(@)", first_slot_offset=2, announcement="equation array template, empty line 1")
+    return insert_template(
+        source, caret, "█(@)", first_slot_offset=2, announcement="equation array template, empty line 1"
+    )
 
 
 def insert_binomial_template(source: str, caret: int) -> TemplateEdit:
@@ -246,7 +258,9 @@ def insert_binomial_template(source: str, caret: int) -> TemplateEdit:
 def insert_bracket_template(source: str, caret: int, opening: str) -> TemplateEdit:
     """A pair of BRACKET_PAIRS (`‖‖`, `⌊⌋`, `⌈⌉`, `⟨⟩`), caret between."""
     closing, name = BRACKET_PAIRS[opening]
-    return insert_template(source, caret, opening + closing, first_slot_offset=1, announcement=f"{name} template, empty value")
+    return insert_template(
+        source, caret, opening + closing, first_slot_offset=1, announcement=f"{name} template, empty value"
+    )
 
 
 def insert_box_template(source: str, caret: int) -> TemplateEdit:
@@ -268,7 +282,9 @@ def insert_brace_template(source: str, caret: int, above: bool = True) -> Templa
 
 
 def insert_absolute_value_template(source: str, caret: int) -> TemplateEdit:
-    return insert_template(source, caret, "|()|", first_slot_offset=2, announcement="absolute value template, empty value")
+    return insert_template(
+        source, caret, "|()|", first_slot_offset=2, announcement="absolute value template, empty value"
+    )
 
 
 def insert_integral_template(source: str, caret: int, limits: bool = False) -> TemplateEdit:
@@ -442,7 +458,9 @@ def _naryand_slots(source: str, pairs: dict[int, int], slots: list[_Slot], funct
             group_end = _invisible_group_end(source, slot.exit)
             if group_end is not None:
                 # `lim_(...) 〖...〗`: the argument is the group's content; Tab leaves past "〗".
-                found.append(_Slot(slot.exit + 1, group_end, slot.template, NARYAND_ROLES[slot.template], group_end + 1))
+                found.append(
+                    _Slot(slot.exit + 1, group_end, slot.template, NARYAND_ROLES[slot.template], group_end + 1)
+                )
             else:
                 end = operand_end(source, slot.exit, pairs)
                 found.append(_Slot(slot.exit, end, slot.template, NARYAND_ROLES[slot.template], end))
@@ -456,7 +474,9 @@ def _naryand_slots(source: str, pairs: dict[int, int], slots: list[_Slot], funct
                 starts.add(index + 1)
     for index, character in enumerate(source):
         # `ln 〖...〗`, `sin(...)`: a named function's group or parens hold its argument.
-        closing = _invisible_group_end(source, index) if character == "〖" else pairs.get(index) if character == "(" else None
+        closing = (
+            _invisible_group_end(source, index) if character == "〖" else pairs.get(index) if character == "(" else None
+        )
         if closing is None:
             continue
         name_end = index - 1 if index > 0 and source[index - 1] == " " and character == "〖" else index

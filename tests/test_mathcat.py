@@ -19,10 +19,10 @@ class MathCatTests(unittest.TestCase):
     def test_operator_is_reached_by_mathcat_navigation(self) -> None:
         self.navigator.load(A_OVER_B_PLUS_C)
         commands = [
-            "ZoomIn",     # numerator
-            "MoveNext",   # denominator
-            "ZoomIn",     # b
-            "MoveNext",   # plus
+            "ZoomIn",  # numerator
+            "MoveNext",  # denominator
+            "ZoomIn",  # b
+            "MoveNext",  # plus
         ]
         speech = ""
         for command in commands:
@@ -50,10 +50,7 @@ class MathCatTests(unittest.TestCase):
                 self.assertEqual(step("MovePrevious"), "plus")
 
     def test_structure_stops_give_every_structure_a_start_and_an_end(self) -> None:
-        mathml = (
-            "<math><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><mi>c</mi></mfrac>"
-            "<mo>=</mo><mn>1</mn></math>"
-        )
+        mathml = "<math><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><mi>c</mi></mfrac><mo>=</mo><mn>1</mn></math>"
         navigator = MathCatNavigator(language="en", auto_zoom_out=True, boundary_stops=True)
         navigator.load(mathml)
         navigator.command("ZoomIn")  # Enters on "start of math".
@@ -61,14 +58,24 @@ class MathCatTests(unittest.TestCase):
         self.assertEqual(
             forward,
             [
-                "start fraction", "start numerator", "eigh", "plus", "b", "end numerator",
-                "start denominator", "c", "end denominator", "end fraction",
-                "is equal to", "1", "end of math", "end of math",
+                "start fraction",
+                "start numerator",
+                "eigh",
+                "plus",
+                "b",
+                "end numerator",
+                "start denominator",
+                "c",
+                "end denominator",
+                "end fraction",
+                "is equal to",
+                "1",
+                "end of math",
+                "end of math",
             ],
         )
         backward = [navigator.linear_command("MovePrevious") for _ in range(14)]
         self.assertEqual(backward, list(reversed(forward[:-2])) + ["start of math", "start of math"])
-
 
     def test_invisible_times_is_not_a_linear_stop(self) -> None:
         # Converter output for "3x+1"; MathCAT reads its own invisible times
@@ -81,9 +88,7 @@ class MathCatTests(unittest.TestCase):
 
     def test_invisible_operator_stops_read_invisible_times_by_name(self) -> None:
         mathml = "<math><mn>3</mn><mi>𝑥</mi><mo>+</mo><mn>1</mn></math>"
-        linear = MathCatNavigator(
-            language="en", auto_zoom_out=True, boundary_stops=True, invisible_operator_stops=True
-        )
+        linear = MathCatNavigator(language="en", auto_zoom_out=True, boundary_stops=True, invisible_operator_stops=True)
         linear.load(mathml)
         linear.command("ZoomIn")
         forward = [linear.linear_command("MoveNext") for _ in range(6)]
@@ -100,10 +105,7 @@ class MathCatTests(unittest.TestCase):
         self.assertEqual(forward, ["3", "invisible times", "x", "end group"])
 
     def test_structural_stops_frame_each_level(self) -> None:
-        mathml = (
-            "<math><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><mi>c</mi></mfrac>"
-            "<mo>=</mo><mn>1</mn></math>"
-        )
+        mathml = "<math><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><mi>c</mi></mfrac><mo>=</mo><mn>1</mn></math>"
         navigator = MathCatNavigator(language="en", auto_zoom_out=False, structural_stops=True)
         navigator.load(mathml)
         navigator.command("ZoomIn")  # Enters on "start of math".
@@ -203,7 +205,6 @@ class MathCatTests(unittest.TestCase):
         self.assertEqual(step("MoveNext"), "the limit as n approaches infinity")
         self.assertEqual(step("MoveNext"), "argument, s sub n")
 
-
     def test_an_empty_naryand_stays_a_node(self) -> None:
         # Needs patches/mathcat/0002 (canonicalize keeps an `arg` whitespace mtext).
         mathml = (
@@ -224,6 +225,7 @@ class MathCatTests(unittest.TestCase):
             speech.read_text(encoding="utf-8"),
         )
 
+
 class NavigationRobustnessTests(unittest.TestCase):
     """Found by the navigation audit: MathCAT's own moves fail inside sums and integrals."""
 
@@ -238,10 +240,10 @@ class NavigationRobustnessTests(unittest.TestCase):
 
     def every_mode(self):
         for options in (
-            {'auto_zoom_out': True, 'boundary_stops': True},
-            {'auto_zoom_out': True},
-            {'auto_zoom_out': False, 'structural_stops': True},
-            {'auto_zoom_out': False},
+            {"auto_zoom_out": True, "boundary_stops": True},
+            {"auto_zoom_out": True},
+            {"auto_zoom_out": False, "structural_stops": True},
+            {"auto_zoom_out": False},
         ):
             yield options, ("structural" if not options["auto_zoom_out"] else "linear")
 
@@ -253,7 +255,15 @@ class NavigationRobustnessTests(unittest.TestCase):
                     navigator.load(mathml)
                     navigator.command("ZoomIn")
                     step = navigator.linear_command if kind == "linear" else navigator.structural_command
-                    for command in ("MoveEnd", "MoveStart", "MoveNext", "MoveNext", "MoveEnd", "MovePrevious", "MoveNext"):
+                    for command in (
+                        "MoveEnd",
+                        "MoveStart",
+                        "MoveNext",
+                        "MoveNext",
+                        "MoveEnd",
+                        "MovePrevious",
+                        "MoveNext",
+                    ):
                         self.assertTrue(step(command).strip(), command)
 
     def test_stops_from_the_worker_never_point_at_missing_nodes(self) -> None:
@@ -262,8 +272,7 @@ class NavigationRobustnessTests(unittest.TestCase):
         import threading
 
         mathml = (
-            "<math><msup><mi>𝑓</mi><mo>′</mo></msup><mrow intent=\":fenced\"><mo>(</mo><mi>𝑥</mi>"
-            "<mo>)</mo></mrow></math>"
+            '<math><msup><mi>𝑓</mi><mo>′</mo></msup><mrow intent=":fenced"><mo>(</mo><mi>𝑥</mi><mo>)</mo></mrow></math>'
         )
         navigator = MathCatNavigator(language="en", auto_zoom_out=True, boundary_stops=True)
         navigator.load(mathml)
@@ -299,4 +308,3 @@ class NavigationRobustnessTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

@@ -22,7 +22,7 @@ class UnicodeMathMLTests(unittest.TestCase):
 
     def test_renderer_inlines_javascript_for_webkit(self) -> None:
         page, _base_url = renderer_page()
-        self.assertNotIn('<script src=', page)
+        self.assertNotIn("<script src=", page)
         self.assertIn("function convertUnicodeMathToMathML", page)
         self.assertIn("window.matexConvert = function", page)
 
@@ -39,9 +39,11 @@ class UnicodeMathMLTests(unittest.TestCase):
         for stray in ("true", "false", json.dumps({"mathml": "<math/>", "error": None, "token": 6})):
             with self.assertRaises(StrayScriptResult):
                 decode_conversion(stray, 7)
-        self.assertIn('{token: 7}', conversion_script("x", 7))
+        self.assertIn("{token: 7}", conversion_script("x", 7))
         self.assertIn('window.matexConvert("x", false)', conversion_script("x", decimal_comma=False))
-        stopped = decode_conversion(json.dumps({"mathml": "<math/>", "error": None, "parseOffset": 3, "parseFound": ")"}))
+        stopped = decode_conversion(
+            json.dumps({"mathml": "<math/>", "error": None, "parseOffset": 3, "parseFound": ")"})
+        )
         self.assertEqual((stopped.parse_offset, stopped.parse_found), (3, ")"))
         # 𝑥 is two UTF-16 units.
         self.assertEqual(code_point_index("𝑥+)", 3), 2)
@@ -66,7 +68,8 @@ class UnicodeMathMLTests(unittest.TestCase):
         # patches/unicodemathml/0002: where parsing stopped, in the source's own offsets.
         results = convert_all(["\\alpha+b)", "a&b", "x+1"])
         self.assertEqual(
-            [result["parseError"] for result in results], [{"offset": 8, "found": ")"}, {"offset": 1, "found": "&"}, None]
+            [result["parseError"] for result in results],
+            [{"offset": 8, "found": ")"}, {"offset": 1, "found": "&"}, None],
         )
 
     @needs_node
@@ -82,13 +85,19 @@ class UnicodeMathMLTests(unittest.TestCase):
             "\\alpha+\\beta": "𝛼",
         }
         results = convert_all(list(cases))
-        missing = [source for (source, needle), result in zip(cases.items(), results, strict=True) if needle not in result["mathml"]]
+        missing = [
+            source
+            for (source, needle), result in zip(cases.items(), results, strict=True)
+            if needle not in result["mathml"]
+        ]
         self.assertEqual(missing, [])
 
     @needs_node
     def test_official_engine_marks_incomplete_input_with_error_color(self) -> None:
         cases = ["a/", "√(", "x_", "(a+b"]
-        unmarked = [source for source, result in zip(cases, convert_all(cases), strict=True) if not has_error(result["mathml"])]
+        unmarked = [
+            source for source, result in zip(cases, convert_all(cases), strict=True) if not has_error(result["mathml"])
+        ]
         self.assertEqual(unmarked, [])
 
     def test_control_words_come_from_the_converter_table(self) -> None:
@@ -102,6 +111,7 @@ class UnicodeMathMLTests(unittest.TestCase):
         self.assertEqual(words["nbsp"], "\u00a0")  # A \\u escape in the JS.
         self.assertNotIn("Bigl", words)  # Empty in the table.
         self.assertNotIn("Faraday", words)  # A playground example, not a symbol.
+
 
 if __name__ == "__main__":
     unittest.main()

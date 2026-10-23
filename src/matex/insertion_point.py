@@ -71,9 +71,7 @@ def describe_insertion_point(
     return ", ".join(pieces)
 
 
-def _left(
-    document: MathMLDocument, inner: MathMLNode, neighbor: MathMLNode | None, anchor: MathMLNode
-) -> list[str]:
+def _left(document: MathMLDocument, inner: MathMLNode, neighbor: MathMLNode | None, anchor: MathMLNode) -> list[str]:
     """`inner`'s regions (innermost first) that `neighbor` is not in: the edges between them.
 
     Inside a role (typing at the end of the numerator), only the regions up

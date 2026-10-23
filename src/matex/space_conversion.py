@@ -156,9 +156,7 @@ def _insert_space(source: str, caret: int) -> SpaceConversion:
     return SpaceConversion(source[:caret] + " " + source[caret:], caret + 1, "space", False)
 
 
-def _control_word_match(
-    source: str, caret: int, control_words: Mapping[str, str] | None
-) -> tuple[int, str] | None:
+def _control_word_match(source: str, caret: int, control_words: Mapping[str, str] | None) -> tuple[int, str] | None:
     # Converted wherever it is typed, like Word: "2\pi" becomes "2π".
     start = caret
     while start > 0 and source[start - 1].isascii() and source[start - 1].isalnum():

@@ -150,7 +150,7 @@ class EditorAssistMixin:
         return find_errors(source, total_failure=total_failure, control_words=table, caret=caret, stopped=stopped)
 
     def _errors_summary(self, total_failure: bool) -> str:
-        """"1 error: unclosed parenthesis, F8 lists errors" for a build that failed."""
+        """ "1 error: unclosed parenthesis, F8 lists errors" for a build that failed."""
         errors = self.current_errors(total_failure)
         if not errors:
             return "no errors found"

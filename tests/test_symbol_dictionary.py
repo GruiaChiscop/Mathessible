@@ -101,7 +101,9 @@ class DictionaryFilesTests(unittest.TestCase):
         info = import_dictionary(source_folder / "symbols.dic", self.directory / "symbols")
         self.assertEqual(info.identifier, "ro")
         self.assertTrue(info.label.startswith("ro (imported "))
-        self.assertEqual(read_provenance(info.path.read_text(encoding="utf-8"))["origin"], str(source_folder / "symbols.dic"))
+        self.assertEqual(
+            read_provenance(info.path.read_text(encoding="utf-8"))["origin"], str(source_folder / "symbols.dic")
+        )
 
     def test_import_does_not_trust_a_file_that_claims_to_be_nvda(self) -> None:
         claimed = self.directory / "fake.dic"
@@ -119,9 +121,10 @@ class DictionaryFilesTests(unittest.TestCase):
 
 class SymbolDownloadTests(unittest.TestCase):
     def test_download_saves_each_language_as_nvda_language(self) -> None:
-        with tempfile.TemporaryDirectory() as directory, mock.patch.object(
-            symbol_download, "_get", return_value=SAMPLE.encode("utf-8")
-        ) as get:
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            mock.patch.object(symbol_download, "_get", return_value=SAMPLE.encode("utf-8")) as get,
+        ):
             path = symbol_download.download_language("ro", Path(directory))
             self.assertEqual(path.name, "nvda-ro.dic")
             provenance = read_provenance(path.read_text(encoding="utf-8"))
@@ -131,7 +134,10 @@ class SymbolDownloadTests(unittest.TestCase):
 
     def test_a_language_without_symbols_is_skipped(self) -> None:
         missing = symbol_download.SymbolDownloadError("HTTP Error 404: Not Found")
-        with tempfile.TemporaryDirectory() as directory, mock.patch.object(symbol_download, "_get", side_effect=missing):
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            mock.patch.object(symbol_download, "_get", side_effect=missing),
+        ):
             self.assertIsNone(symbol_download.download_language("xx", Path(directory)))
 
     def test_only_locales_with_a_symbols_file_are_listed(self) -> None:

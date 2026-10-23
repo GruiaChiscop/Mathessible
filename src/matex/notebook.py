@@ -91,10 +91,7 @@ class Notebook:
             "format": FORMAT_NAME,
             "version": FORMAT_VERSION,
             "title": self.title,
-            "pages": [
-                {"id": page.id, "title": page.title, "file": page.file}
-                for page in self.pages
-            ],
+            "pages": [{"id": page.id, "title": page.title, "file": page.file} for page in self.pages],
         }
         _write_text_atomic(
             self.manifest_path,

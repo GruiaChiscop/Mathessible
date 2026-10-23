@@ -41,7 +41,19 @@ class _LinearStop:
 # Regions that are whole structures: typing at their "start"/"end" stop goes
 # before/after the structure; at a role's ("end numerator") it stays inside.
 _CONTAINER_REGIONS = frozenset(
-    {"fraction", "square root", "root", "matrix", "determinant", "cases", "equations", "absolute value", "norm", "overbrace", "underbrace"}
+    {
+        "fraction",
+        "square root",
+        "root",
+        "matrix",
+        "determinant",
+        "cases",
+        "equations",
+        "absolute value",
+        "norm",
+        "overbrace",
+        "underbrace",
+    }
 )
 
 

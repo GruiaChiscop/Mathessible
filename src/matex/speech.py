@@ -32,4 +32,3 @@ def create_output() -> AssistiveOutput:
         return PrismOutput()
     except (ImportError, RuntimeError, ValueError, OSError):
         return ConsoleOutput()
-

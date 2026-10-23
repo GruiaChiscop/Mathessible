@@ -1,5 +1,4 @@
-"""Structural navigation: the items of one level, framed by "start X"/"end X" stops.
-"""
+"""Structural navigation: the items of one level, framed by "start X"/"end X" stops."""
 
 from __future__ import annotations
 

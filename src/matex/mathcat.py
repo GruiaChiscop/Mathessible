@@ -297,7 +297,7 @@ class MathCatNavigator(LinearStopsMixin, StructuralNavigationMixin, TableNavigat
         if command == "MoveNext":
             return speech or "end of math"
         if speech.startswith("end of "):
-            return "start of " + speech[len("end of "):]
+            return "start of " + speech[len("end of ") :]
         if (
             self.structure is not None
             and not speech.startswith("start of")

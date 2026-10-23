@@ -35,8 +35,7 @@ CONVERTED = {
         "<mo>)</mo></mrow></math>"
     ),
     "{a,b}": (
-        '<math><mrow intent=":fenced"><mo>{</mo><mrow><mi>𝑎</mi><mo>,</mo><mi>𝑏</mi></mrow><mo>}</mo>'
-        "</mrow></math>"
+        '<math><mrow intent=":fenced"><mo>{</mo><mrow><mi>𝑎</mi><mo>,</mo><mi>𝑏</mi></mrow><mo>}</mo></mrow></math>'
     ),
 }
 
@@ -90,7 +89,8 @@ class MathReadingTests(unittest.TestCase):
                 navigator.command("ZoomIn")
                 stops = [navigator.linear_command("MoveNext") for _ in range(6)]
                 self.assertEqual(
-                    stops, [f"lim {word}", "start limit condition", "n", "approaches", "infinity", "end limit condition"]
+                    stops,
+                    [f"lim {word}", "start limit condition", "n", "approaches", "infinity", "end limit condition"],
                 )
 
     def test_lim_sup_without_a_condition_is_applied_to_its_argument(self) -> None:
@@ -102,7 +102,9 @@ class MathReadingTests(unittest.TestCase):
         navigator = MathCatNavigator(language="en", auto_zoom_out=True, boundary_stops=True)
         self.assertEqual(navigator.load(mathml), "limit superior of eigh sub n")
         navigator.command("ZoomIn")
-        self.assertEqual([navigator.linear_command("MoveNext") for _ in range(3)], ["limit superior", "of", "start argument"])
+        self.assertEqual(
+            [navigator.linear_command("MoveNext") for _ in range(3)], ["limit superior", "of", "start argument"]
+        )
 
     def test_an_empty_argument_is_said_empty_in_structural_navigation(self) -> None:
         # Converter output for "lim_(n→∞) 〖〗": MathCAT reads the empty group as nothing.
@@ -160,7 +162,9 @@ class MathReadingTests(unittest.TestCase):
         self.assertIn("d", stops)
         whole, stops = read("max_(x∈A) f")
         # Needs patches/mathcat/0003 (no doubled "of").
-        self.assertEqual(whole.split(), ["the", "max", "over", "x", "is", "an", "element", "of", "cap", "eigh", "of", "f"])
+        self.assertEqual(
+            whole.split(), ["the", "max", "over", "x", "is", "an", "element", "of", "cap", "eigh", "of", "f"]
+        )
         self.assertIn("start condition", stops)
 
     def test_bars_frame_their_content(self) -> None:

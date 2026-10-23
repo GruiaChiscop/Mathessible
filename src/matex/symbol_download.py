@@ -65,7 +65,9 @@ def locales_with_symbols(tree: list[dict]) -> list[str]:
     return sorted(
         entry["path"].split("/")[0]
         for entry in tree
-        if isinstance(entry, dict) and entry.get("type") == "blob" and entry.get("path", "").count("/") == 1
+        if isinstance(entry, dict)
+        and entry.get("type") == "blob"
+        and entry.get("path", "").count("/") == 1
         and entry["path"].endswith("/symbols.dic")
     )
 

@@ -243,8 +243,10 @@ class LinearStopsMixin:
             ),
             None,
         )
-        first = own if own is not None else next(
-            (index for index, stop in enumerate(stops) if stop.node_id in inside), None
+        first = (
+            own
+            if own is not None
+            else next((index for index, stop in enumerate(stops) if stop.node_id in inside), None)
         )
         if first is None:
             return None

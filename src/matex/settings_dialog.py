@@ -45,7 +45,7 @@ if wx is not None:
                 self,
                 label=(
                     "Stop at the start and end of every structure "
-                    "(for example \"start fraction\", \"end numerator\") and of the math"
+                    '(for example "start fraction", "end numerator") and of the math'
                 ),
             )
             self.structure_stops.SetName("Stop at structure start and end")
@@ -317,9 +317,7 @@ if wx is not None:
             self._settings.argument_on_closing_paren = self.argument_on_closing_paren.GetValue()
             self._settings.template_control_words = self.template_control_words.GetValue()
             self._settings.auto_zoom_out = self.auto_zoom_out.GetValue()
-            self._settings.recognized_functions = parse_recognized_functions(
-                self.recognized_functions.GetValue()
-            )
+            self._settings.recognized_functions = parse_recognized_functions(self.recognized_functions.GetValue())
             self._settings.math_autocorrect, self._settings.math_autocorrect_removed = self._autocorrect
             self._settings.removed_words_as_symbols = self.removed_words_as_symbols.GetValue()
 

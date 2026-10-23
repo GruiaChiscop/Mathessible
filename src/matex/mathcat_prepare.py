@@ -56,7 +56,12 @@ def _intent_fixups(mathml: str) -> str:
     for element in root.iter():
         tag = element.tag.rsplit("}", 1)[-1]
         children = list(element)
-        if tag in ("msub", "munder") and children and children[0].text in _LARGE_FUNCTIONS and "intent" not in element.attrib:
+        if (
+            tag in ("msub", "munder")
+            and children
+            and children[0].text in _LARGE_FUNCTIONS
+            and "intent" not in element.attrib
+        ):
             element.set("intent", ":largeop")
             changed = True
         if tag in ("mover", "munder") and len(children) == 2 and "intent" not in element.attrib:
