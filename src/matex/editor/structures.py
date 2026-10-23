@@ -129,26 +129,46 @@ class StructureActionsMixin:
 
     def _show_context_menu(self, position: wx.Point) -> None:
         menu = wx.Menu()
-        if self.mode == "linear":
-            has_content = bool(self.document.source)
-            cut_item = menu.Append(wx.ID_ANY, "Cu&t\tCtrl+X")
-            copy_item = menu.Append(wx.ID_ANY, "&Copy\tCtrl+C")
-            paste_item = menu.Append(wx.ID_ANY, "&Paste\tCtrl+V")
+        self._append_edit_items(menu)
+        self._append_table_menu(menu)
+        self._append_fraction_menu(menu)
+        self._append_root_menu(menu)
+        self._append_nary_menu(menu)
+        self._append_caret_structure_menus(menu)
+        if menu.GetMenuItemCount():
             menu.AppendSeparator()
-            select_all_item = menu.Append(wx.ID_ANY, "Select &All\tCtrl+A")
-            menu.AppendSeparator()
-            insert_menu = wx.Menu()
-            for item_id, entry in append_insert_items(insert_menu).items():
-                self.Bind(wx.EVT_MENU, lambda _e, entry=entry: self.insert_item(entry), id=item_id)
-            menu.AppendSubMenu(insert_menu, "&Insert")
-            cut_item.Enable(has_content)
-            copy_item.Enable(has_content)
-            paste_item.Enable(get_clipboard_text() is not None)
-            select_all_item.Enable(has_content)
-            self.Bind(wx.EVT_MENU, lambda _e: self._cut_equation(), cut_item)
-            self.Bind(wx.EVT_MENU, lambda _e: self._copy_equation(), copy_item)
-            self.Bind(wx.EVT_MENU, lambda _e: self._paste_equation(), paste_item)
-            self.Bind(wx.EVT_MENU, lambda _e: self._select_all(), select_all_item)
+        other_view = "Professional" if self.mode == "linear" else "Linear"
+        view_item = menu.Append(wx.ID_ANY, f"Switch to {other_view} View\tF2")
+        self.Bind(wx.EVT_MENU, lambda _e: self._toggle_mode(), view_item)
+        self.PopupMenu(menu, position)
+        menu.Destroy()
+
+    def _append_edit_items(self, menu: wx.Menu) -> None:
+        """Cut, Copy, Paste, Select All and the Insert submenu, in the linear view."""
+        if self.mode != "linear":
+            return
+        has_content = bool(self.document.source)
+        cut_item = menu.Append(wx.ID_ANY, "Cu&t\tCtrl+X")
+        copy_item = menu.Append(wx.ID_ANY, "&Copy\tCtrl+C")
+        paste_item = menu.Append(wx.ID_ANY, "&Paste\tCtrl+V")
+        menu.AppendSeparator()
+        select_all_item = menu.Append(wx.ID_ANY, "Select &All\tCtrl+A")
+        menu.AppendSeparator()
+        insert_menu = wx.Menu()
+        for item_id, entry in append_insert_items(insert_menu).items():
+            self.Bind(wx.EVT_MENU, lambda _e, entry=entry: self.insert_item(entry), id=item_id)
+        menu.AppendSubMenu(insert_menu, "&Insert")
+        cut_item.Enable(has_content)
+        copy_item.Enable(has_content)
+        paste_item.Enable(get_clipboard_text() is not None)
+        select_all_item.Enable(has_content)
+        self.Bind(wx.EVT_MENU, lambda _e: self._cut_equation(), cut_item)
+        self.Bind(wx.EVT_MENU, lambda _e: self._copy_equation(), copy_item)
+        self.Bind(wx.EVT_MENU, lambda _e: self._paste_equation(), paste_item)
+        self.Bind(wx.EVT_MENU, lambda _e: self._select_all(), select_all_item)
+
+    def _append_table_menu(self, menu: wx.Menu) -> None:
+        """Matrix, Cases or Equations: rows and columns of the table the user is in."""
         # Row/column edits act on the innermost table around the caret
         # (linear) or MathCAT's current cell (professional), so the
         # submenu only exists while one of those is in a table: "Matrix"
@@ -196,62 +216,66 @@ class StructureActionsMixin:
             delete_row.Enable(position_in_matrix.rows > 1)
             delete_column.Enable(position_in_matrix.columns > 1)
             menu.AppendSubMenu(matrix_menu, "Matri&x")
+
+    def _append_fraction_menu(self, menu: wx.Menu) -> None:
+        """Fraction: Word's four styles, for the fraction the user is in."""
         fraction_caret = self._structure_offset(_FRACTIONS)
-        if fraction_caret is not None:
-            fraction_menu = wx.Menu()
-            current_style = in_view(self.document.source, fraction_caret, fraction_at).style
-            for style in FRACTION_STYLES:
-                item = fraction_menu.AppendRadioItem(wx.ID_ANY, f"&{style.capitalize()}")
-                item.Check(style == current_style)
-                self.Bind(
-                    wx.EVT_MENU,
-                    lambda _e, style=style: self._apply_fraction_style(fraction_caret, style),
-                    item,
-                )
-            menu.AppendSubMenu(fraction_menu, "&Fraction")
+        if fraction_caret is None:
+            return
+        fraction_menu = wx.Menu()
+        current_style = in_view(self.document.source, fraction_caret, fraction_at).style
+        for style in FRACTION_STYLES:
+            item = fraction_menu.AppendRadioItem(wx.ID_ANY, f"&{style.capitalize()}")
+            item.Check(style == current_style)
+            self.Bind(
+                wx.EVT_MENU,
+                lambda _e, style=style: self._apply_fraction_style(fraction_caret, style),
+                item,
+            )
+        menu.AppendSubMenu(fraction_menu, "&Fraction")
+
+    def _append_root_menu(self, menu: wx.Menu) -> None:
+        """Root: add or remove the index."""
         root_caret = self._structure_offset(_ROOTS)
-        if root_caret is not None:
-            has_index = in_view(self.document.source, root_caret, root_at).has_index
-            root_menu = wx.Menu()
-            add_item = root_menu.Append(wx.ID_ANY, "&Add Index")
-            remove_item = root_menu.Append(wx.ID_ANY, "&Remove Index")
-            add_item.Enable(not has_index)
-            remove_item.Enable(has_index)
-            self.Bind(wx.EVT_MENU, lambda _e: self._apply_structure_edit(add_root_index, root_caret, _ROOTS), add_item)
-            self.Bind(
-                wx.EVT_MENU, lambda _e: self._apply_structure_edit(remove_root_index, root_caret, _ROOTS), remove_item
-            )
-            menu.AppendSubMenu(root_menu, "&Root")
+        if root_caret is None:
+            return
+        has_index = in_view(self.document.source, root_caret, root_at).has_index
+        root_menu = wx.Menu()
+        add_item = root_menu.Append(wx.ID_ANY, "&Add Index")
+        remove_item = root_menu.Append(wx.ID_ANY, "&Remove Index")
+        add_item.Enable(not has_index)
+        remove_item.Enable(has_index)
+        self.Bind(wx.EVT_MENU, lambda _e: self._apply_structure_edit(add_root_index, root_caret, _ROOTS), add_item)
+        self.Bind(
+            wx.EVT_MENU, lambda _e: self._apply_structure_edit(remove_root_index, root_caret, _ROOTS), remove_item
+        )
+        menu.AppendSubMenu(root_menu, "&Root")
+
+    def _append_nary_menu(self, menu: wx.Menu) -> None:
+        """Integral, Sum, Product…: add or remove the limits."""
         nary_caret = self._structure_offset(_NARY_OPERATORS)
-        if nary_caret is not None:
-            view = view_of(self.document.source)
-            nary = nary_at(view.text, view.to_view(nary_caret))
-            has_limits = nary.has_limits
-            label = NARY_LABELS[view.text[nary.symbol]]
-            nary_menu = wx.Menu()
-            add_item = nary_menu.Append(wx.ID_ANY, "&Add Limits")
-            remove_item = nary_menu.Append(wx.ID_ANY, "&Remove Limits")
-            add_item.Enable(not has_limits)
-            remove_item.Enable(has_limits)
-            self.Bind(
-                wx.EVT_MENU,
-                lambda _e: self._apply_structure_edit(add_nary_limits, nary_caret, _NARY_OPERATORS),
-                add_item,
-            )
-            self.Bind(
-                wx.EVT_MENU,
-                lambda _e: self._apply_structure_edit(remove_nary_limits, nary_caret, _NARY_OPERATORS),
-                remove_item,
-            )
-            menu.AppendSubMenu(nary_menu, f"&{label.capitalize()}")
-        self._append_caret_structure_menus(menu)
-        if menu.GetMenuItemCount():
-            menu.AppendSeparator()
-        other_view = "Professional" if self.mode == "linear" else "Linear"
-        view_item = menu.Append(wx.ID_ANY, f"Switch to {other_view} View\tF2")
-        self.Bind(wx.EVT_MENU, lambda _e: self._toggle_mode(), view_item)
-        self.PopupMenu(menu, position)
-        menu.Destroy()
+        if nary_caret is None:
+            return
+        view = view_of(self.document.source)
+        nary = nary_at(view.text, view.to_view(nary_caret))
+        has_limits = nary.has_limits
+        label = NARY_LABELS[view.text[nary.symbol]]
+        nary_menu = wx.Menu()
+        add_item = nary_menu.Append(wx.ID_ANY, "&Add Limits")
+        remove_item = nary_menu.Append(wx.ID_ANY, "&Remove Limits")
+        add_item.Enable(not has_limits)
+        remove_item.Enable(has_limits)
+        self.Bind(
+            wx.EVT_MENU,
+            lambda _e: self._apply_structure_edit(add_nary_limits, nary_caret, _NARY_OPERATORS),
+            add_item,
+        )
+        self.Bind(
+            wx.EVT_MENU,
+            lambda _e: self._apply_structure_edit(remove_nary_limits, nary_caret, _NARY_OPERATORS),
+            remove_item,
+        )
+        menu.AppendSubMenu(nary_menu, f"&{label.capitalize()}")
 
     def _append_caret_structure_menus(self, menu: wx.Menu) -> None:
         """Word's Script, Brackets, Accent and Bar options for the structure at the caret (or MathCAT's node)."""

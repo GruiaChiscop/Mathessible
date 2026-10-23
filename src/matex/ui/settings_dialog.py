@@ -35,84 +35,72 @@ if wx is not None:
 
             sizer = wx.BoxSizer(wx.VERTICAL)
             heading = wx.StaticText(self, label="Equation editor")
-            self.linear_navigation = wx.CheckBox(
-                self,
-                label="Use linear navigation in exploration mode (F10; writing mode is always linear)",
+            self.linear_navigation = self._checkbox(
+                "Use linear navigation in exploration mode (F10; writing mode is always linear)",
+                "Linear navigation in exploration mode",
+                settings.linear_navigation,
             )
-            self.linear_navigation.SetName("Linear navigation in exploration mode")
-            self.linear_navigation.SetValue(settings.linear_navigation)
-            self.structure_stops = wx.CheckBox(
-                self,
-                label=(
+            self.structure_stops = self._checkbox(
+                (
                     "Stop at the start and end of every structure "
                     '(for example "start fraction", "end numerator") and of the math'
                 ),
+                "Stop at structure start and end",
+                settings.structure_stops,
             )
-            self.structure_stops.SetName("Stop at structure start and end")
-            self.structure_stops.SetValue(settings.structure_stops)
-            self.invisible_operator_stops = wx.CheckBox(
-                self,
-                label="Stop at invisible operators (for example the invisible times in 3x)",
+            self.invisible_operator_stops = self._checkbox(
+                "Stop at invisible operators (for example the invisible times in 3x)",
+                "Stop at invisible operators",
+                settings.invisible_operator_stops,
             )
-            self.invisible_operator_stops.SetName("Stop at invisible operators")
-            self.invisible_operator_stops.SetValue(settings.invisible_operator_stops)
-            self.convert_on_space = wx.CheckBox(
-                self,
-                label="Convert control words (for example \\alpha) when Space or punctuation is typed",
+            self.convert_on_space = self._checkbox(
+                "Convert control words (for example \\alpha) when Space or punctuation is typed",
+                "Convert control words while typing",
+                settings.convert_on_space,
             )
-            self.convert_on_space.SetName("Convert control words while typing")
-            self.convert_on_space.SetValue(settings.convert_on_space)
-            self.complete_control_words = wx.CheckBox(
-                self,
-                label="Suggest control words while one is typed (Up/Down browse, Tab completes)",
+            self.complete_control_words = self._checkbox(
+                "Suggest control words while one is typed (Up/Down browse, Tab completes)",
+                "Suggest control words while typing",
+                settings.complete_control_words,
             )
-            self.complete_control_words.SetName("Suggest control words while typing")
-            self.complete_control_words.SetValue(settings.complete_control_words)
-            self.decimal_comma = wx.CheckBox(
-                self,
-                label=(
+            self.decimal_comma = self._checkbox(
+                (
                     "Decimal comma: 1,5 is a number and a set is written {1, 2, 3}; "
                     "off: decimal point (3.14), and {1,2,3} is a set"
                 ),
+                "Decimal comma",
+                settings.decimal_separator == ",",
             )
-            self.decimal_comma.SetName("Decimal comma")
-            self.decimal_comma.SetValue(settings.decimal_separator == ",")
-            self.convert_shortcuts_immediately = wx.CheckBox(
-                self,
-                label="Convert symbol shortcuts (for example << or ->) as soon as they are typed",
+            self.convert_shortcuts_immediately = self._checkbox(
+                "Convert symbol shortcuts (for example << or ->) as soon as they are typed",
+                "Convert symbol shortcuts immediately",
+                settings.convert_shortcuts_immediately,
             )
-            self.convert_shortcuts_immediately.SetName("Convert symbol shortcuts immediately")
-            self.convert_shortcuts_immediately.SetValue(settings.convert_shortcuts_immediately)
-            self.open_built = wx.CheckBox(
-                self,
-                label="Open equations built (professional view), ready to navigate and type into",
+            self.open_built = self._checkbox(
+                "Open equations built (professional view), ready to navigate and type into",
+                "Open equations built",
+                settings.open_built,
             )
-            self.open_built.SetName("Open equations built")
-            self.open_built.SetValue(settings.open_built)
-            self.build_as_you_type = wx.CheckBox(
-                self,
-                label="Build equations as you type (on Space or a closing bracket, once complete)",
+            self.build_as_you_type = self._checkbox(
+                "Build equations as you type (on Space or a closing bracket, once complete)",
+                "Build equations as you type",
+                settings.build_as_you_type,
             )
-            self.build_as_you_type.SetName("Build equations as you type")
-            self.build_as_you_type.SetValue(settings.build_as_you_type)
-            self.argument_on_closing_paren = wx.CheckBox(
-                self,
-                label="Open a function's argument as soon as its parenthesis is closed (instead of on Space)",
+            self.argument_on_closing_paren = self._checkbox(
+                "Open a function's argument as soon as its parenthesis is closed (instead of on Space)",
+                "Open the argument on the closing parenthesis",
+                settings.argument_on_closing_paren,
             )
-            self.argument_on_closing_paren.SetName("Open the argument on the closing parenthesis")
-            self.argument_on_closing_paren.SetValue(settings.argument_on_closing_paren)
-            self.template_control_words = wx.CheckBox(
-                self,
-                label="Insert templates as control words (for example \\sum and \\sqrt instead of ∑ and √)",
+            self.template_control_words = self._checkbox(
+                "Insert templates as control words (for example \\sum and \\sqrt instead of ∑ and √)",
+                "Insert templates as control words",
+                settings.template_control_words,
             )
-            self.template_control_words.SetName("Insert templates as control words")
-            self.template_control_words.SetValue(settings.template_control_words)
-            self.auto_zoom_out = wx.CheckBox(
-                self,
-                label="Leave a structure automatically at its end (for example, from the numerator to the denominator)",
+            self.auto_zoom_out = self._checkbox(
+                "Leave a structure automatically at its end (for example, from the numerator to the denominator)",
+                "Leave structures automatically",
+                settings.auto_zoom_out,
             )
-            self.auto_zoom_out.SetName("Leave structures automatically")
-            self.auto_zoom_out.SetValue(settings.auto_zoom_out)
             explanation = wx.StaticText(
                 self,
                 label=(
@@ -138,10 +126,11 @@ if wx is not None:
             self._autocorrect = (settings.math_autocorrect, settings.math_autocorrect_removed)
             self.autocorrect_button = wx.Button(self, label="Math &AutoCorrect…")
             self.autocorrect_button.Bind(wx.EVT_BUTTON, lambda _event: self._edit_autocorrect())
-            self.removed_words_as_symbols = wx.CheckBox(
-                self, label="Deleted AutoCorrect control words still show as their symbol"
+            self.removed_words_as_symbols = self._checkbox(
+                "Deleted AutoCorrect control words still show as their symbol",
+                "Deleted AutoCorrect control words still show as their symbol",
+                settings.removed_words_as_symbols,
             )
-            self.removed_words_as_symbols.SetValue(settings.removed_words_as_symbols)
             autocorrect_help = wx.StaticText(
                 self,
                 label=(
@@ -297,6 +286,13 @@ if wx is not None:
                 done(outcome["result"])
 
             wx.CallLater(150, poll)
+
+        def _checkbox(self, label: str, name: str, value: bool) -> wx.CheckBox:
+            """A checkbox for one setting: its label, the name screen readers announce, its value."""
+            checkbox = wx.CheckBox(self, label=label)
+            checkbox.SetName(name)
+            checkbox.SetValue(value)
+            return checkbox
 
         def apply(self) -> None:
             selection = self.symbol_dictionary.GetSelection()
