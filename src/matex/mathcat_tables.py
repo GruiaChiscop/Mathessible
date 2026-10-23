@@ -13,34 +13,6 @@ class TableNavigationMixin:
 
     __slots__ = ()
 
-    def cell_command(self, command: str) -> str:
-        if self.current_table_position is None and self.structure is not None:
-            cell_id = self.structure.nearest_first_cell(self.current_id)
-            if cell_id is not None:
-                # Outside every matrix: jump into the nearest one's first
-                # cell rather than trying to reach it by zooming, which only
-                # ever descends into the node the cursor is already on.
-                self._boundary_stop = None
-                self._go_to(cell_id)
-                return self._navigate("ReadCellCurrent")
-        return self.command(command)
-
-    def move_to_column_boundary(self, end: bool) -> str:
-        position = self.current_table_position
-        speech = ""
-        if position is None:
-            speech = self.cell_command("MoveCellNext")
-            position = self.current_table_position
-        if position is None:
-            return speech
-        steps = position.row_count - position.row if end else position.row - 1
-        command = "MoveCellDown" if end else "MoveCellUp"
-        if steps == 0:
-            return self.command("ReadCellCurrent")
-        for _ in range(steps):
-            speech = self.command(command)
-        return speech
-
     def matrix_location(self) -> tuple[int, int, int] | None:
         """(matrix index in reading order, row, column) of the current cell."""
         position = self.current_table_position

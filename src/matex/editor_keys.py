@@ -2,20 +2,11 @@
 
 from __future__ import annotations
 
-from .unicodemath import control_words
-
 try:
     import wx
 except ImportError:  # The interface is an optional dependency.
     wx = None
 
-
-def converter_control_words() -> dict[str, str] | None:
-    """The converter's control-word table, or None (fallback list) without the submodule."""
-    try:
-        return control_words()
-    except (OSError, ValueError):
-        return None
 
 def word_navigation_down(event: wx.KeyEvent) -> bool:
     """The word-navigation modifier: Option on macOS, Ctrl elsewhere."""

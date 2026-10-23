@@ -120,9 +120,6 @@ if wx is not None:
             self._repair = BuildRepair("", "")
             # Set while a professional-view edit runs its linear handling (no autobuild then).
             self._editing_built = False
-            # True right after typing in professional view: Space keeps typing
-            # (autocorrect, argument boxes) instead of reading; navigation resets it.
-            self._typing_streak = False
             # A whole structure Backspace/Delete was pressed on once: the next
             # press deletes it, any other key forgets it (never by accident).
             self._armed_removal: str | None = None
@@ -271,7 +268,6 @@ if wx is not None:
             self.mathml_current_id = None
             self._highlight_matrix_cell = False
             self._pending_read = False
-            self._typing_streak = False
             self._armed_removal = None
             self._completion = None
             self._inside_leaf = None
@@ -470,7 +466,6 @@ if wx is not None:
                 self._toggle_mode(attempts)
 
         def _enter_professional_mode(self, conversion: ConversionResult, error_prefix: str) -> bool:
-            self._typing_streak = False
             self._clear_selection()  # A linear view selection is not kept: MathCAT starts over.
             self._professional_mathml = conversion.mathml
             try:
@@ -617,7 +612,6 @@ if wx is not None:
             """
             session_log.write("command", "toggle writing mode")
             self.writing_enabled = not self.writing_enabled
-            self._typing_streak = False
             self._armed_removal = None
             self._completion = None
             self._inside_leaf = None
@@ -888,7 +882,6 @@ if wx is not None:
                         return
                     command = commands.get(key)
                     if command is not None:
-                        self._typing_streak = False
                         self._inside_leaf = None
                         self._built_caret = None
                         self._clear_built_selection()

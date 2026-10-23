@@ -19,10 +19,6 @@ class PrismOutput:
         self._context = Context()
         self._backend = self._context.create_best()
 
-    @property
-    def backend_name(self) -> str:
-        return self._backend.name
-
     def announce(self, text: str, interrupt: bool = True) -> None:
         features = self._backend.features
         if features.supports_output:

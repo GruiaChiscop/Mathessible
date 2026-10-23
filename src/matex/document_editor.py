@@ -138,10 +138,6 @@ if wx is not None:
             # Professional view edits the source too, where MathCAT is.
             event.Enable(self.equation.mode == "linear" or self.equation.mathcat is not None)
 
-        @property
-        def active(self) -> bool:
-            return self._on_done is not None
-
         def prepare(self, source: str, display: bool) -> None:
             kind = "display" if display else "inline"
             self.heading.SetLabel(

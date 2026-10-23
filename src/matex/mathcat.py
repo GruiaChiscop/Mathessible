@@ -57,13 +57,9 @@ class MathCatNavigator(LinearStopsMixin, StructuralNavigationMixin, TableNavigat
     _boundary_stop: BoundaryStop | None = field(default=None, init=False, repr=False)
     _ends_announced_at: str | None = field(default=None, init=False, repr=False)
     # Linear navigation's stops, in Right-arrow order (see `linear_command`),
-    # discovered incrementally from the start of the math. `_linear_frontier`
-    # is the simulated cursor state at the last stop found so far.
+    # built from the structure all at once (`_build_bounded_stops`).
     _linear_stops: list[_LinearStop] = field(default_factory=list, init=False, repr=False)
     _linear_done: bool = field(default=False, init=False, repr=False)
-    _linear_frontier: tuple[str, BoundaryStop | None, str | None] | None = field(
-        default=None, init=False, repr=False
-    )
     _linear_index: int | None = field(default=None, init=False, repr=False)
     # "start"/"end" while on a structural level's edge stop; the cursor is
     # then on that level's first/last item.
@@ -94,7 +90,6 @@ class MathCatNavigator(LinearStopsMixin, StructuralNavigationMixin, TableNavigat
         self._ends_announced_at = None
         self._linear_stops = []
         self._linear_done = False
-        self._linear_frontier = None
         self._linear_index = None
         self._native.preference("AutoZoomOut", "true" if self.auto_zoom_out else "false")
         self._native.preference("DecimalSeparator", self.decimal_separator)

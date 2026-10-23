@@ -81,7 +81,6 @@ class EditorAssistMixin:
 
         if self.mode == "professional" and self.mathcat is not None and self.mathcat.structure is not None:
             self._edit_in_built(apply)
-            self._typing_streak = True
             return
         apply()
         self._announce(spoken)

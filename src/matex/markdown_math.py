@@ -122,8 +122,3 @@ def math_zone_at(source: str, start: int, end: int | None = None) -> MathZone | 
             return zone
     return None
 
-
-def replace_math_zone(source: str, zone: MathZone, content: str) -> tuple[str, int]:
-    replacement = f"{zone.delimiter}{content}{zone.delimiter}"
-    updated = source[: zone.start] + replacement + source[zone.end :]
-    return updated, zone.start + len(replacement)

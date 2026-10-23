@@ -122,7 +122,6 @@ class BuiltEditingMixin:
         typed = chr(event.GetUnicodeKey()) if self._is_typed_character(event) else ""
         # A letter, digit, group or control word glued to a structure joins it.
         self._edit_in_built(handle_key, glue=bool(typed) and (typed.isalnum() or typed in '(\\"'))
-        self._typing_streak = True
 
     def _insertion_point(self) -> str:
         assert self.mathcat is not None
@@ -214,11 +213,9 @@ class BuiltEditingMixin:
         if key in (wx.WXK_UP, wx.WXK_DOWN):
             if not self._linear_now:
                 return False  # Structural exploration: Up/Down change level.
-            self._typing_streak = False
             self._inside_leaf = None
             speech = self.mathcat.read_line(-1 if key == wx.WXK_UP else 1)
         elif key in (wx.WXK_LEFT, wx.WXK_RIGHT) and self.writing_enabled:
-            self._typing_streak = False
             step = 1 if key == wx.WXK_RIGHT else -1
             speech = self._node_step(step) if word_navigation_down(event) else self._character_step(step)
         else:
@@ -422,7 +419,6 @@ class BuiltEditingMixin:
             return
         self._clear_selection()
         self.mode = "professional"
-        self._typing_streak = True
         self._update_braille_display()
         self._rebuild_professional_at_caret(announcement, place=self._place_after_caret)
 

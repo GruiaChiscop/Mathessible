@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from .ast import Atom, Binary, Fraction, Group, Node, Operator, Path, Placeholder, Script, children
+from .ast import Atom, Binary, Fraction, Group, Node, Operator, Placeholder, Script, children
 
 
 @dataclass(frozen=True, slots=True)

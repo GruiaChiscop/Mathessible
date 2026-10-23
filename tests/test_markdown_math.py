@@ -1,6 +1,6 @@
 import unittest
 
-from matex.markdown_math import MathZone, find_math_zones, math_zone_at, replace_math_zone
+from matex.markdown_math import find_math_zones, math_zone_at
 
 
 class MarkdownMathTests(unittest.TestCase):
@@ -22,21 +22,6 @@ class MarkdownMathTests(unittest.TestCase):
         zone = math_zone_at(source, start)
         self.assertIsNotNone(zone)
         self.assertEqual(zone.content(source), "a/(b+c)")
-
-    def test_replaces_only_the_math_zone(self) -> None:
-        source = "Înainte $x+1$ după"
-        zone = find_math_zones(source)[0]
-        updated, caret = replace_math_zone(source, zone, "x^2")
-        self.assertEqual(updated, "Înainte $x^2$ după")
-        self.assertEqual(caret, updated.index(" după"))
-
-    def test_new_zone_shape_can_wrap_a_selection(self) -> None:
-        source = "Formula x+1 aici"
-        start = source.index("x")
-        end = start + 3
-        zone = MathZone(start, start, end, end, False)
-        updated, _caret = replace_math_zone(source, zone, source[start:end])
-        self.assertEqual(updated, "Formula $x+1$ aici")
 
 
 if __name__ == "__main__":

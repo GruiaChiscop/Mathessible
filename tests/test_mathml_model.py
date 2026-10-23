@@ -218,7 +218,7 @@ class MathMLModelTests(unittest.TestCase):
     def test_current_context_reports_matrix_cell_position(self) -> None:
         navigator = MathCatNavigator(language="en")
         navigator.load(MATRIX)
-        navigator.cell_command("MoveCellNext")
+        navigator.table_command("MoveCellNext")
         self.assertEqual(navigator.current_context(), "row 1, column 1; inside matrix")
 
     def test_read_current_zone_reports_nearest_structural_region(self) -> None:
@@ -242,7 +242,7 @@ class MathMLModelTests(unittest.TestCase):
     def test_read_current_zone_reports_matrix_cell(self) -> None:
         navigator = MathCatNavigator(language="en")
         navigator.load(MATRIX)
-        navigator.cell_command("MoveCellNext")
+        navigator.table_command("MoveCellNext")
         self.assertEqual(navigator.read_current_zone(), "cell row 1, column 1, a")
 
     def test_linear_navigation_enters_nested_structures_with_right_arrow(self) -> None:
@@ -329,11 +329,11 @@ class MathMLModelTests(unittest.TestCase):
         <mo id="close">)</mo></mrow></mrow></math>""")
         navigator.command("ZoomIn")
         self.assertEqual(navigator.current_id, "x")
-        navigator.cell_command("MoveCellNext")
+        navigator.table_command("MoveCellNext")
         position = navigator.current_table_position
         self.assertIsNotNone(position)
         self.assertEqual((position.row, position.column), (1, 1))
-        navigator.cell_command("MoveCellNext")
+        navigator.table_command("MoveCellNext")
         position = navigator.current_table_position
         self.assertEqual((position.row, position.column), (1, 2))
 
@@ -348,8 +348,8 @@ class MathMLModelTests(unittest.TestCase):
         )
         self.assertIn("2 by 2 determinant", speech)
         navigator.command("ZoomIn")
-        self.assertIn("eigh", navigator.cell_command("MoveCellNext"))
-        self.assertIn("b", navigator.cell_command("MoveCellNext"))
+        self.assertIn("eigh", navigator.table_command("MoveCellNext"))
+        self.assertIn("b", navigator.table_command("MoveCellNext"))
         position = navigator.current_table_position
         self.assertEqual((position.row, position.column), (1, 2))
 
@@ -408,28 +408,18 @@ class MathMLModelTests(unittest.TestCase):
     def test_mathcat_canonical_tree_tracks_matrix_cells(self) -> None:
         navigator = MathCatNavigator(language="en")
         navigator.load(MATRIX)
-        speech = navigator.cell_command("MoveCellNext")
+        speech = navigator.table_command("MoveCellNext")
         position = navigator.current_table_position
         self.assertIsNotNone(position)
         self.assertEqual((position.row, position.column), (1, 1))
         self.assertIn("column 1", speech)
 
-        speech = navigator.cell_command("MoveCellNext")
+        speech = navigator.table_command("MoveCellNext")
         position = navigator.current_table_position
         self.assertEqual((position.row, position.column), (1, 2))
         self.assertIn("column 2", speech)
 
         speech = navigator.command("MoveCellDown")
-        position = navigator.current_table_position
-        self.assertEqual((position.row, position.column), (2, 2))
-        self.assertIn("row 2, column 2", speech)
-
-        speech = navigator.move_to_column_boundary(False)
-        position = navigator.current_table_position
-        self.assertEqual((position.row, position.column), (1, 2))
-        self.assertIn("row 1, column 2", speech)
-
-        speech = navigator.move_to_column_boundary(True)
         position = navigator.current_table_position
         self.assertEqual((position.row, position.column), (2, 2))
         self.assertIn("row 2, column 2", speech)

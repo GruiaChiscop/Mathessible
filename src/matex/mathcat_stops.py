@@ -191,7 +191,6 @@ class LinearStopsMixin:
             return False
         self._linear_stops = list(stops)
         self._linear_done = True
-        self._linear_frontier = None
         return True
 
     def _linear_position(self) -> int | None:
@@ -262,11 +261,10 @@ class LinearStopsMixin:
         return position
 
     def extend_linear_stops(self, steps: int) -> bool:
-        """Discover up to `steps` more linear stops; False once all are known.
+        """Build the linear stops if not done yet; always False (all are known after one call).
 
-        Runs the Right-arrow simulation from the saved frontier and puts the
-        real cursor (and boundary state) back afterwards, so it is safe to
-        call between key presses, e.g. from an idle timer.
+        Kept with its `steps` argument for the worker-thread preparation
+        (`linear_stops_job`), which calls it until it returns False.
         """
         if self._linear_done or self.structure is None or not self.structure.root.identifier:
             self._linear_done = True
@@ -376,7 +374,6 @@ class LinearStopsMixin:
                 pass  # An intent-only node (e.g. "...-fixity-1" after ZoomIn into a sum).
         self._linear_stops = stops
         self._linear_done = True
-        self._linear_frontier = None
 
     def _stop_regions(self, leaf: MathMLNode, leaf_id: str, nodes: dict[int, str]) -> list[tuple[int, str]]:
         """The leaf's regions, innermost first, with matrix rows and cells as regions too.

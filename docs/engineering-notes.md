@@ -759,8 +759,8 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
     `read_line`). Speech: "column 2; 22" sideways, "row 2, column 2; 4"
     up/down; cases say "case 1, value; 1" / "condition; x is greater than
     0", equations "equation 2; ...". From a "start ..." stop, Right
-    enters the cell the cursor is before. `cell_command` and
-    `move_to_column_boundary` are left only for their tests.
+    enters the cell the cursor is before. (MathCAT's own cell commands,
+    `cell_command`/`move_to_column_boundary`, were removed with their tests.)
     **Trap:** MathCAT's ReadCurrent on an *empty* cell of cases raises
     "no speech generated" (the editor then dropped MathCAT: "MathCAT is
     no longer available"), so `_cell_speech` never asks it for one

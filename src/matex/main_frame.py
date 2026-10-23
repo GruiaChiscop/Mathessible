@@ -613,17 +613,6 @@ if wx is not None:
             elif event.CanVeto():
                 event.Veto()
 
-        def _deactivate_notebook(self) -> None:
-            self.notebook = None
-            self.notebook_archive_path = None
-            self.current_page = 0
-            self.page_panel.Hide()
-            self.page_panel.GetParent().Layout()
-
-            if self._portable_workspace is not None:
-                self._portable_workspace.cleanup()
-                self._portable_workspace = None
-
         def _activate_notebook(
             self,
             notebook: Notebook,

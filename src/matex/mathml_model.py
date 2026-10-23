@@ -82,9 +82,6 @@ class MathMLDocument:
     def node(self, identifier: str) -> MathMLNode | None:
         return self.by_id.get(identifier)
 
-    def contains_tag(self, tag: str) -> bool:
-        return self.root.tag == tag or any(node.tag == tag for node in self.by_id.values())
-
     def ancestors(self, identifier: str) -> tuple[MathMLNode, ...]:
         result: list[MathMLNode] = []
         current_id = identifier
