@@ -32,6 +32,9 @@ MathML; what MateX says about the built equation is MathCAT's speech.
 Without the native MathCAT extension, equations can only be edited as
 text, and MateX says so at startup.
 
+To work on MateX, see [CONTRIBUTING.md](CONTRIBUTING.md) and
+[docs/architecture.md](docs/architecture.md).
+
 ## Quick installation with uv
 
 ```shell

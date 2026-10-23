@@ -2,7 +2,8 @@
 
 General rules for coding agents working on MateX. The detailed engineering
 notes (what was built, why, and the traps found on the way) are in
-[docs/engineering-notes.md](docs/engineering-notes.md): read the section
+[docs/engineering-notes.md](docs/engineering-notes.md), with a one-page
+map in [docs/architecture.md](docs/architecture.md): read the section
 for the area you are changing before you change it, and record new traps
 and decisions there, not here. Keep this file to rules; do not mirror
 README.md.
