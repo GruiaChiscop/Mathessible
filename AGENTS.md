@@ -19,8 +19,10 @@ UnicodeMath, and the converter MateX uses is Murray Sargent's own
 (`UnicodeMathML`), so where Word's behaviour is unclear, UnicodeMath's
 specification (Unicode Technical Note #28) is the reference.
 
-Code, identifiers, comments and documentation are in English, British
-spelling.
+Everything in the repository is in English, British spelling: code,
+identifiers, comments, messages, scripts, documentation and test data.
+Other languages belong only in localisation files (none yet); a test
+that needs non-ASCII text may use any language for it.
 
 ## Product Rules
 
