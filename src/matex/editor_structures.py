@@ -8,15 +8,35 @@ from dataclasses import dataclass
 from .clipboard import get_clipboard_text
 from .fraction_styles import FRACTION_STYLES, built_fractions, fraction_at, restyle_fraction
 from .math_templates import NARY_LABELS
+from .source_map import anchor_offset
 from .structure_edits import (
+    ACCENTS,
+    BARS,
+    BRACKET_NAMES,
+    accent_at,
     add_nary_limits,
     add_root_index,
+    add_subscript,
+    add_superscript,
+    bar_at,
+    bracket_at,
+    change_accent,
+    change_brackets,
+    encloses_matrix,
+    hide_bracket,
     nary_at,
     nary_operators,
+    remove_accent,
+    remove_bar,
+    remove_brackets,
     remove_nary_limits,
     remove_root_index,
+    remove_subscript,
+    remove_superscript,
     root_at,
     roots,
+    script_at,
+    switch_bar,
 )
 from .insert_catalog import INSERT_GROUPS, InsertItem
 from .source_view import edit_in_view, in_view, view_of
@@ -216,6 +236,7 @@ class StructureActionsMixin:
                 remove_item,
             )
             menu.AppendSubMenu(nary_menu, f"&{label.capitalize()}")
+        self._append_caret_structure_menus(menu)
         if menu.GetMenuItemCount():
             menu.AppendSeparator()
         other_view = "Professional" if self.mode == "linear" else "Linear"
@@ -223,6 +244,111 @@ class StructureActionsMixin:
         self.Bind(wx.EVT_MENU, lambda _e: self._toggle_mode(), view_item)
         self.PopupMenu(menu, position)
         menu.Destroy()
+
+    def _append_caret_structure_menus(self, menu: wx.Menu) -> None:
+        """Word's Script, Brackets, Accent and Bar options for the structure at the caret (or MathCAT's node)."""
+        span = self._structure_span()
+        if span is None:
+            return
+        caret = span[0]
+        view = view_of(self.document.source)
+        at, end = view.to_view(span[0]), view.to_view(span[1])
+
+        def add(submenu: wx.Menu, label: str, build: Callable[[str, int], TemplateEdit | None], enabled: bool = True):
+            item = submenu.Append(wx.ID_ANY, label)
+            item.Enable(enabled)
+            self.Bind(wx.EVT_MENU, lambda _e: self._apply_caret_edit(build, caret), item)
+
+        script = script_at(view.text, at, end)
+        if script is not None:
+            script_menu = wx.Menu()
+            add(script_menu, "Add &Subscript", add_subscript, script.subscript is None)
+            add(script_menu, "Add Su&perscript", add_superscript, script.superscript is None)
+            add(script_menu, "&Remove Subscript", remove_subscript, script.subscript is not None)
+            add(script_menu, "Remove Superscrip&t", remove_superscript, script.superscript is not None)
+            menu.AppendSubMenu(script_menu, "&Script")
+        bracket = bracket_at(view.text, at, end)
+        if bracket is not None:
+            bracket_menu = wx.Menu()
+            matrix = encloses_matrix(view.text, bracket)
+            current = view.text[bracket.opening]
+            for opening, name in BRACKET_NAMES.items():
+                if matrix and opening not in "([|":
+                    continue  # Other fences leave the matrix loose or misread (‖ is two loose bars).
+                item = bracket_menu.AppendRadioItem(wx.ID_ANY, f"&{name.capitalize()}")
+                item.Check(opening == current)
+                self.Bind(
+                    wx.EVT_MENU,
+                    lambda _e, opening=opening: self._apply_caret_edit(
+                        lambda source, at: change_brackets(source, at, opening), caret
+                    ),
+                    item,
+                )
+            if not matrix and current not in "|‖":
+                bracket_menu.AppendSeparator()
+                opening_hidden = view.text[bracket.opening] == "├"
+                closing_hidden = view.text[bracket.closing] == "┤"
+                add(
+                    bracket_menu,
+                    "Show &Opening Bracket" if opening_hidden else "Hide &Opening Bracket",
+                    lambda source, at: hide_bracket(source, at, closing=False),
+                )
+                add(
+                    bracket_menu,
+                    "Show &Closing Bracket" if closing_hidden else "Hide &Closing Bracket",
+                    lambda source, at: hide_bracket(source, at, closing=True),
+                )
+            if not matrix:
+                bracket_menu.AppendSeparator()
+                add(bracket_menu, "&Remove Brackets", remove_brackets)
+            menu.AppendSubMenu(bracket_menu, "&Brackets")
+        accent = accent_at(view.text, at, end)
+        if accent is not None:
+            accent_menu = wx.Menu()
+            for mark, name in ACCENTS.items():
+                item = accent_menu.AppendRadioItem(wx.ID_ANY, f"&{name.capitalize()}")
+                item.Check(view.text[accent.mark] == mark)
+                self.Bind(
+                    wx.EVT_MENU,
+                    lambda _e, mark=mark: self._apply_caret_edit(lambda source, at: change_accent(source, at, mark), caret),
+                    item,
+                )
+            accent_menu.AppendSeparator()
+            add(accent_menu, "&Remove Accent", remove_accent)
+            menu.AppendSubMenu(accent_menu, "&Accent")
+        bar = bar_at(view.text, at, end)
+        if bar is not None:
+            bar_menu = wx.Menu()
+            other = "Underbar" if view.text[bar[0]] == "¯" else "Overbar"
+            add(bar_menu, f"Change to &{other}", switch_bar)
+            add(bar_menu, "&Remove Bar", remove_bar)
+            menu.AppendSubMenu(bar_menu, f"&{BARS[view.text[bar[0]]].capitalize()}")
+
+    def _structure_span(self) -> tuple[int, int] | None:
+        """Where the user is, in the source: the caret, or MathCAT's node's whole span.
+
+        A whole node, not its start: the "+" right after `(a+b)^2` starts
+        where the script ends, and is not in it, while the linear caret
+        there is (Word's caret right after a structure).
+        """
+        if self.mode == "linear":
+            return self.caret, self.caret
+        structure = self.mathcat.structure if self.mathcat is not None else None
+        # The highlighted node: on an "end X" stop MathCAT is already on the next one.
+        node_id = self.mathcat.display_id if self.mathcat is not None else None
+        if structure is None or not node_id or structure.node(node_id) is None or structure.node(node_id) is structure.root:
+            return None
+        repair = self._built_repair()
+        try:
+            start = anchor_offset(repair.text, structure, node_id, "before", False)
+            end = anchor_offset(repair.text, structure, node_id, "after", False)
+        except (KeyError, ValueError):
+            return None
+        return repair.to_real(start), repair.to_real(max(start, end))
+
+    def _apply_caret_edit(self, build: Callable[[str, int], TemplateEdit | None], caret: int) -> None:
+        """A structure edit found by caret (Script, Brackets, Accent, Bar); MathCAT goes to the caret after it."""
+        self._apply_edit(self._edit(build, caret), None)
 
     def _matrix_caret(self) -> int | None:
         """A source offset in the table cell (matrix, case, equation) the user is on, if any.
@@ -281,7 +407,7 @@ class StructureActionsMixin:
     ) -> None:
         self._apply_edit(self._edit(build, caret), kind)
 
-    def _apply_edit(self, edit: TemplateEdit | None, kind: _StructureKind) -> None:
+    def _apply_edit(self, edit: TemplateEdit | None, kind: _StructureKind | None) -> None:
         if self._writing_off():
             return
         if edit is None:
@@ -304,7 +430,8 @@ class StructureActionsMixin:
             self._announce(f"{edit.announcement}, linear mode")
             self.Refresh()
             return
-        self._rebuild_professional_at_caret(edit.announcement, place=lambda: self._place_on(kind))
+        place = self._place_after_caret if kind is None else (lambda: self._place_on(kind))
+        self._rebuild_professional_at_caret(edit.announcement, place=place)
 
     def _place_on(self, kind: _StructureKind) -> None:
         """Put MathCAT on the structure of `kind` around the caret (a linear fraction has no node)."""

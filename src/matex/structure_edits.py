@@ -1,4 +1,5 @@
-"""Changing an existing root or n-ary operator: its index, its limits.
+"""Changing an existing structure: a root's index, an n-ary operator's limits,
+a script's subscript and superscript, a bracket pair, an accent or a bar.
 
 Like the fraction styles, these rewrite the UnicodeMath source; in
 professional mode the editor maps MathCAT's node back by order (the n-th
@@ -8,9 +9,10 @@ operator), so `roots` and `nary_operators` list them in reading order.
 
 from __future__ import annotations
 
+import unicodedata
 from dataclasses import dataclass
 
-from .math_templates import NARY_LABELS
+from .math_templates import FUNCTION_SCRIPTS, NARY_LABELS
 from .template_source import TemplateEdit, matching_parens, operand_end
 
 ROOT_SIGNS = "√∛∜"
@@ -191,3 +193,321 @@ def _script_end(source: str, start: int, pairs: dict[int, int]) -> int:
     while end < len(source) and source[end].isalnum():
         end += 1
     return end
+
+
+@dataclass(frozen=True, slots=True)
+class Script:
+    """A base with a subscript and/or a superscript: `x_i`, `x^2`, `(a+b)^2`, `x_i^2`.
+
+    `subscript`/`superscript` are (connector offset, argument end) or None;
+    `end` is where the whole script ends.
+    """
+
+    base_start: int
+    base_end: int
+    subscript: tuple[int, int] | None
+    superscript: tuple[int, int] | None
+    end: int
+
+
+def scripts(source: str) -> list[Script]:
+    """Every script in reading order, not the limits of ∑/∫ or lim/log's own (their menus edit those)."""
+    pairs = matching_parens(source)
+    openings = {closing: opening for opening, closing in pairs.items()}
+    found: list[Script] = []
+    taken: set[int] = set()
+    for index, character in enumerate(source):
+        if character not in "_^" or index == 0 or index in taken:
+            continue
+        parts: dict[str, tuple[int, int]] = {}
+        position = index
+        while position < len(source) and source[position] in "_^" and source[position] not in parts:
+            end = _argument_end(source, position + 1, pairs)
+            parts[source[position]] = (position, end)
+            taken.add(position)  # Also for ∑'s limits: `^n` of `∑_(i=1)^n` is not a script of its own.
+            position = end
+        base_start = _base_start(source, index, openings)
+        if base_start is not None:
+            found.append(Script(base_start, index, parts.get("_"), parts.get("^"), position))
+    return found
+
+
+def script_at(source: str, caret: int, end: int | None = None) -> Script | None:
+    """The innermost script whose base or scripts hold the caret (or all of `caret`..`end`, a node's span)."""
+    end = caret if end is None else end
+    around = [script for script in scripts(source) if script.base_start <= caret and end <= script.end]
+    return max(around, key=lambda script: script.base_start, default=None)
+
+
+def add_subscript(source: str, caret: int) -> TemplateEdit | None:
+    """`x^2` → `x_()^2`, caret in the empty subscript (an empty one converts cleanly)."""
+    script = script_at(source, caret)
+    if script is None or script.subscript is not None:
+        return None
+    at = script.base_end
+    return TemplateEdit(source[:at] + "_()" + source[at:], at + 2, "subscript added, empty subscript")
+
+
+def add_superscript(source: str, caret: int) -> TemplateEdit | None:
+    """`x_i` → `x_i^()`, caret in the empty superscript."""
+    script = script_at(source, caret)
+    if script is None or script.superscript is not None:
+        return None
+    at = script.end
+    return TemplateEdit(source[:at] + "^()" + source[at:], at + 2, "superscript added, empty superscript")
+
+
+def remove_subscript(source: str, caret: int) -> TemplateEdit | None:
+    script = script_at(source, caret)
+    if script is None or script.subscript is None:
+        return None
+    start, end = script.subscript
+    return TemplateEdit(source[:start] + source[end:], start, "subscript removed")
+
+
+def remove_superscript(source: str, caret: int) -> TemplateEdit | None:
+    script = script_at(source, caret)
+    if script is None or script.superscript is None:
+        return None
+    start, end = script.superscript
+    return TemplateEdit(source[:start] + source[end:], start, "superscript removed")
+
+
+def _base_start(source: str, connector: int, openings: dict[int, int]) -> int | None:
+    """Where the base of the `_`/`^` at `connector` starts; None for an n-ary sign, lim/log or no base."""
+    index = connector - 1
+    while index >= 0 and unicodedata.combining(source[index]):
+        index -= 1  # An accented base: `x̂_i`.
+    if index < 0:
+        return None
+    character = source[index]
+    if character == ")":
+        return openings.get(index)
+    if character in NARY_LABELS:
+        return None
+    if character.isalpha():
+        start = index
+        while start > 0 and (source[start - 1].isalpha() or source[start - 1] == "\u00a0"):
+            start -= 1
+        word = source[start : index + 1]
+        if word in FUNCTION_SCRIPTS:
+            return None  # lim_(...), log_2, lim inf_(...): their own structures.
+        # A multi-letter ASCII run is a name (`sin^2 x`); otherwise the base is one letter.
+        return start if len(word) > 1 and word.isascii() and word.isalpha() else index
+    if character.isdigit() or character in "∞′″":
+        return index
+    return None
+
+
+def _argument_end(source: str, start: int, pairs: dict[int, int]) -> int:
+    """The end of a script's argument: a "(...)" group, a run of letters and digits, or one other symbol."""
+    end = _script_end(source, start, pairs)
+    if end == start and start < len(source) and source[start] not in " +-−=<>,_^)":
+        end = start + 1  # `x^∞`, `x_π`.
+    while end < len(source) and unicodedata.combining(source[end]):
+        end += 1
+    return end
+
+
+# Visible bracket pairs (opening -> closing); `├`/`┤` are UnicodeMath's invisible ones.
+BRACKETS = {"(": ")", "[": "]", "{": "}", "⟨": "⟩", "⌊": "⌋", "⌈": "⌉", "|": "|", "‖": "‖", "├": "┤"}
+BRACKET_NAMES = {
+    "(": "parentheses",
+    "[": "square brackets",
+    "{": "braces",
+    "⟨": "angle brackets",
+    "⌊": "floor",
+    "⌈": "ceiling",
+    "|": "absolute value",
+    "‖": "norm",
+}
+_OPENERS = "([{⟨⌊⌈├"
+_CLOSERS = ")]}⟩⌋⌉┤"
+
+
+@dataclass(frozen=True, slots=True)
+class Bracket:
+    """A visible bracket pair: `opening`/`closing` offsets (either may be hidden, `├`/`┤`)."""
+
+    opening: int
+    closing: int
+
+
+def brackets(source: str) -> list[Bracket]:
+    """Every visible bracket pair in reading order, not the parens UnicodeMath makes transparent.
+
+    A "(...)" right after `_ ^ √ ▒ ┴ ┬` or a structure sign, or around a
+    fraction's operand, is grouping that does not show (`x_(i)`, `(a)/(b)`).
+    Any opener pairs with any closer, as in UnicodeMath (`[0,1)`, `(a+b┤`).
+    """
+    found: list[Bracket] = []
+    stack: list[int] = []
+    bars: list[int] = []
+    for index, character in enumerate(source):
+        if character in _OPENERS:
+            stack.append(index)
+        elif character in _CLOSERS and stack:
+            opening = stack.pop()
+            if _visible(source, opening, index):
+                found.append(Bracket(opening, index))
+        elif character in "|‖":
+            if bars and source[bars[-1]] == character:
+                found.append(Bracket(bars.pop(), index))
+            else:
+                bars.append(index)
+    return sorted(found, key=lambda bracket: bracket.opening)
+
+
+def bracket_at(source: str, caret: int, end: int | None = None) -> Bracket | None:
+    """The innermost visible bracket pair holding the caret (on a bracket counts as inside), or `caret`..`end`."""
+    end = caret if end is None else end
+    around = [bracket for bracket in brackets(source) if bracket.opening <= caret and end <= bracket.closing + 1]
+    return max(around, key=lambda bracket: bracket.opening, default=None)
+
+
+def change_brackets(source: str, caret: int, opening: str) -> TemplateEdit | None:
+    """The pair around the caret becomes `opening` and its closer (`(a+b)` → `[a+b]`)."""
+    bracket = bracket_at(source, caret)
+    if bracket is None:
+        return None
+    closing = BRACKETS[opening]
+    edited = source[: bracket.opening] + opening + source[bracket.opening + 1 : bracket.closing] + closing
+    edited += source[bracket.closing + 1 :]
+    return TemplateEdit(edited, min(caret, bracket.closing), f"{BRACKET_NAMES.get(opening, 'brackets')}")
+
+
+def encloses_matrix(source: str, bracket: Bracket) -> bool:
+    """A matrix's own fence: hiding or removing it would leave a bare `■(...)`, read as lines."""
+    return source[bracket.opening + 1 : bracket.opening + 2] == "■"
+
+
+def remove_brackets(source: str, caret: int) -> TemplateEdit | None:
+    """Word's "Remove enclosing characters": the content stays, the pair goes."""
+    bracket = bracket_at(source, caret)
+    if bracket is None or encloses_matrix(source, bracket):
+        return None
+    content = source[bracket.opening + 1 : bracket.closing]
+    edited = source[: bracket.opening] + content + source[bracket.closing + 1 :]
+    return TemplateEdit(edited, bracket.opening + len(content), "brackets removed")
+
+
+def hide_bracket(source: str, caret: int, closing: bool) -> TemplateEdit | None:
+    """Hide (or show again) one side: `(a+b)` → `(a+b┤`; a hidden side shows as "(" or ")"."""
+    bracket = bracket_at(source, caret)
+    if bracket is None or source[bracket.opening] in "|‖" or encloses_matrix(source, bracket):
+        return None
+    at = bracket.closing if closing else bracket.opening
+    hidden = source[at] in "├┤"
+    replacement = (")" if closing else "(") if hidden else ("┤" if closing else "├")
+    side = "closing" if closing else "opening"
+    edited = source[:at] + replacement + source[at + 1 :]
+    return TemplateEdit(edited, min(caret, len(edited)), f"{side} bracket {'shown' if hidden else 'hidden'}")
+
+
+def _visible(source: str, opening: int, closing: int) -> bool:
+    if source[opening] != "(" or source[closing] != ")":
+        return True
+    before = source[opening - 1] if opening > 0 else " "
+    after = source[closing + 1] if closing + 1 < len(source) else " "
+    if before in "_^√∛∜▒┴┬▭#⏞⏟¯▁■█/⁄∕⊘¦":
+        return False  # A script, radicand, label, table body or denominator: grouping only.
+    if after in "/⁄∕⊘¦":
+        return False  # A numerator. A script's base keeps its parens: `(a+b)^2` shows them.
+    return not (before == "|" and after == "|")  # `|()|`'s parens are the bars' content.
+
+
+# Accents MateX inserts (structure_gallery), by combining mark.
+ACCENTS = {
+    "\u20d7": "vector arrow",
+    "\u0302": "hat",
+    "\u0305": "bar",
+    "\u0307": "dot",
+    "\u0308": "double dot",
+    "\u0303": "tilde",
+    "\u030c": "check",
+    "\u0301": "acute",
+    "\u0300": "grave",
+    "\u0306": "breve",
+}
+
+
+@dataclass(frozen=True, slots=True)
+class Accent:
+    """A combining accent at `mark` on the base `base_start`..`mark` (a character or a "(...)")."""
+
+    base_start: int
+    mark: int
+
+
+def accents(source: str) -> list[Accent]:
+    pairs = matching_parens(source)
+    openings = {closing: opening for opening, closing in pairs.items()}
+    found: list[Accent] = []
+    for index, character in enumerate(source):
+        if character not in ACCENTS or index == 0:
+            continue
+        base = index - 1
+        while base > 0 and unicodedata.combining(source[base]):
+            base -= 1
+        if source[base] == ")" and base in openings:
+            base = openings[base]
+        found.append(Accent(base, index))
+    return found
+
+
+def accent_at(source: str, caret: int, end: int | None = None) -> Accent | None:
+    end = caret if end is None else end
+    around = [accent for accent in accents(source) if accent.base_start <= caret and end <= accent.mark + 1]
+    return max(around, key=lambda accent: accent.base_start, default=None)
+
+
+def change_accent(source: str, caret: int, mark: str) -> TemplateEdit | None:
+    accent = accent_at(source, caret)
+    if accent is None:
+        return None
+    edited = source[: accent.mark] + mark + source[accent.mark + 1 :]
+    return TemplateEdit(edited, accent.mark + 1, ACCENTS[mark])
+
+
+def remove_accent(source: str, caret: int) -> TemplateEdit | None:
+    accent = accent_at(source, caret)
+    if accent is None:
+        return None
+    edited = source[: accent.mark] + source[accent.mark + 1 :]
+    return TemplateEdit(edited, accent.mark, f"{ACCENTS[source[accent.mark]]} removed")
+
+
+# Bars over or under a group: `¯(x+y)`, `▁(x+y)` (CONTENT_SIGNS in math_templates).
+BARS = {"¯": "overbar", "▁": "underbar"}
+
+
+def bar_at(source: str, caret: int, end: int | None = None) -> tuple[int, int] | None:
+    """(sign offset, closing paren offset) of the innermost bar around the caret (or `caret`..`end`)."""
+    end = caret if end is None else end
+    pairs = matching_parens(source)
+    around = [
+        (index, pairs[index + 1])
+        for index, character in enumerate(source)
+        if character in BARS and index + 1 in pairs and index <= caret and end <= pairs[index + 1] + 1
+    ]
+    return max(around, default=None)
+
+
+def switch_bar(source: str, caret: int) -> TemplateEdit | None:
+    """Overbar ↔ underbar."""
+    bar = bar_at(source, caret)
+    if bar is None:
+        return None
+    sign = "▁" if source[bar[0]] == "¯" else "¯"
+    return TemplateEdit(source[: bar[0]] + sign + source[bar[0] + 1 :], caret, BARS[sign])
+
+
+def remove_bar(source: str, caret: int) -> TemplateEdit | None:
+    """`¯(x+y)` → `x+y`."""
+    bar = bar_at(source, caret)
+    if bar is None:
+        return None
+    sign, closing = bar
+    content = source[sign + 2 : closing]
+    edited = source[:sign] + content + source[closing + 1 :]
+    return TemplateEdit(edited, sign + len(content), f"{BARS[source[sign]]} removed")

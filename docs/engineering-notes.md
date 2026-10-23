@@ -281,6 +281,21 @@ equation language; the gap is entirely in the editing UX layered on top.
    editor_structures.py: n-th node of a kind = n-th source offset). An
    added empty index is a parse error, so in professional mode that edit
    drops to linear view with the caret in the index instead of rebuilding.
+   **Script, Brackets, Accent and Bar submenus** (Word's options for those
+   structures; `_append_caret_structure_menus`, edits in
+   [structure_edits.py](../src/matex/structure_edits.py)): add/remove a
+   subscript or superscript (`scripts`: not ∑'s limits nor lim/log's own,
+   whose menus edit those; a multi-letter name is one base, `sin^2`);
+   change a visible bracket pair to another kind, hide or show either side
+   (UnicodeMath's invisible `├`/`┤`), remove the pair (`brackets` leaves out
+   transparent grouping: after `_ ^ √ ▒`, a structure sign or a fraction's
+   operand; a script's base keeps its parens; a matrix's fence is only
+   changed among `( [ |`, never hidden or removed, since a bare `■(...)` is
+   read as lines); change or remove an accent; switch or remove a bar.
+   They find the structure by caret rather than by node order: in the
+   built view by the highlighted node's whole span (`_structure_span`,
+   `display_id`), which must lie inside the structure, so the "+" after
+   `(a+b)^2` is not in the script while the linear caret there is.
    **Trap:** `(` `)` are not uniformly transparent grouping in UnicodeMath.
    `/` and `√` strip parens on *both* sides of the operator for a single
    token (`(a)/(b)` renders identically to `a/b`), but `_`/`^` only strip
