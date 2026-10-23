@@ -8,13 +8,13 @@ from matex.documents.notebook import Notebook, NotebookError
 class NotebookTests(unittest.TestCase):
     def test_create_write_and_reopen_notebook(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory) / "Algebră"
+            root = Path(directory) / "Algèbre"
             notebook = Notebook.create(root)
-            notebook.write_page(0, "# Ecuații\n\n$x+1=2$")
+            notebook.write_page(0, "# Équations\n\n$x+1=2$")
             notebook.add_page("Matrice", "$$(■(a&b@c&d))$$")
 
             reopened = Notebook.open(root)
-            self.assertEqual(reopened.title, "Algebră")
+            self.assertEqual(reopened.title, "Algèbre")
             self.assertEqual([page.title for page in reopened.pages], ["Page 1", "Matrice"])
             self.assertEqual(reopened.read_page(1), "$$(■(a&b@c&d))$$")
 
@@ -36,7 +36,7 @@ class NotebookTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / "Caiet"
             notebook = Notebook.create(root)
-            removed = notebook.add_page("Temporară")
+            removed = notebook.add_page("Temporary")
             removed_path = root / removed.file
             notebook.delete_page(1)
             self.assertFalse(removed_path.exists())

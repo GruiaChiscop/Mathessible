@@ -7,11 +7,11 @@ from matex.documents.document_io import markdown_path, read_markdown, write_mark
 
 class DocumentIOTests(unittest.TestCase):
     def test_adds_markdown_extension_when_missing(self) -> None:
-        self.assertEqual(markdown_path("caiet").name, "caiet.md")
-        self.assertEqual(markdown_path("caiet.markdown").name, "caiet.markdown")
+        self.assertEqual(markdown_path("notebook").name, "notebook.md")
+        self.assertEqual(markdown_path("notebook.markdown").name, "notebook.markdown")
 
     def test_round_trip_preserves_unicode_math_exactly(self) -> None:
-        source = "# Analiză\r\n\r\n$$∫_0^∞▒f(x)ⅆx$$\r\n"
+        source = "# Analysis\r\n\r\n$$∫_0^∞▒f(x)ⅆx$$\r\n"
         with tempfile.TemporaryDirectory() as directory:
             path = write_markdown(Path(directory) / "analiza", source)
             self.assertEqual(path.name, "analiza.md")

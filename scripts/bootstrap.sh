@@ -16,7 +16,7 @@ apply_patches() {
             continue  # Already applied.
         fi
         if ! git -C "$submodule" apply "$patch"; then
-            printf '%s\n' "Patch-ul $(basename "$patch") nu se aplică pe $submodule." >&2
+            printf '%s\n' "Patch $(basename "$patch") does not apply to $submodule." >&2
             exit 1
         fi
     done
@@ -64,8 +64,8 @@ if [ "$(uname -s)" = "Darwin" ]; then
     done
     if [ -z "$python_request" ]; then
         printf '%s\n' \
-            "Pe macOS, MateX are nevoie de un Python Framework build pentru wxPython." \
-            "Instalați Python din Homebrew sau de la python.org, apoi rulați din nou acest script." >&2
+            "On macOS, MateX needs a Framework build of Python for wxPython." \
+            "Install Python from Homebrew or python.org, then run this script again." >&2
         exit 1
     fi
 else
@@ -75,4 +75,4 @@ fi
 "$uv_cmd" sync --python "$python_request"
 "$uv_cmd" run python -m unittest discover -s tests -v
 
-printf '%s\n' "MateX este pregătit. Porniți aplicația cu: $uv_cmd run matex"
+printf '%s\n' "MateX is ready. Start it with: $uv_cmd run matex"
