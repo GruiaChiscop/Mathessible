@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import time
 
-from .build_repair import BuildRepair, repair_for_build
+from .build_repair import literal_repair, literal_text, repair_for_build
 from .macos_webview import guard_webview_key_equivalents
 from .mathml_sanitize import MathMLModelError, sanitize_mathml
 from .unicodemath import (
@@ -169,6 +169,8 @@ class EquationRendererMixin:
         return self._renderer_ready and self._webview is not None
 
     def convert_unicode_math(self, source: str) -> str:
+        # Control words deleted from Math AutoCorrect stay text, as in Word (every path converts here).
+        source = literal_text(source, self._literal_words())
         if not self._renderer_ready or self._webview is None:
             reason = self._renderer_error or "the UnicodeMathML converter is still loading"
             raise UnicodeMathError(reason)
@@ -224,7 +226,8 @@ class EquationRendererMixin:
         """
         source = self.document.source
         # A professional edit checks the build and then rebuilds: one conversion for both.
-        key = (source, self.caret, self.settings.decimal_separator)
+        literal = self._literal_words()
+        key = (source, self.caret, self.settings.decimal_separator, literal)
         if self._built_conversion is not None and self._built_conversion[0] == key:
             self._repair, mathml = self._built_conversion[1], self._built_conversion[2]
             return ConversionResult(mathml=mathml)
@@ -234,7 +237,9 @@ class EquationRendererMixin:
             converted[text] = self.convert_unicode_math(text)
             return 'mathcolor="#F00"' not in converted[text]
 
-        repair = repair_for_build(source, builds, self.caret)
-        self._repair = repair or BuildRepair(source, source)
+        repair = repair_for_build(source, builds, self.caret, literal)
+        self._repair = repair or literal_repair(source, literal)
+        if self._repair.text not in converted:
+            builds(self._repair.text)
         self._built_conversion = (key, self._repair, converted[self._repair.text])
         return ConversionResult(mathml=converted[self._repair.text])

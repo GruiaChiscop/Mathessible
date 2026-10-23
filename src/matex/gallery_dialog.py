@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Callable
-
 from .insert_catalog import InsertItem
 from .structure_gallery import CATEGORIES, written_form
 
@@ -17,23 +15,20 @@ if wx is not None:
         """Insert > Structures: Word's structure gallery, as two lists.
 
         Categories on one side, their structures on the other; focus starts
-        on the structures. Left/Right there change the category (said
-        through `announce`, since the list's own row is what the screen
-        reader reads), Enter inserts. "Written as" shows how the selected
-        structure is typed in the linear view.
+        on the structures, Enter inserts. Native controls only, no
+        announcements of its own: the screen reader reads them. "Written
+        as" shows how the selected structure is typed in the linear view.
         """
 
         def __init__(
             self,
             parent: wx.Window,
-            announce: Callable[[str], None],
             control_words: bool,
             category: int = 0,
             structure: int = 0,
         ):
             super().__init__(parent, title="Insert Structure", style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
             self.SetName("Insert structure dialog")
-            self._announce = announce
             self._control_words = control_words
 
             sizer = wx.BoxSizer(wx.VERTICAL)
@@ -113,19 +108,10 @@ if wx is not None:
             event.Skip()
 
         def _on_structures_key(self, event: wx.KeyEvent) -> None:
-            key = event.GetKeyCode()
-            if key in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
+            if event.GetKeyCode() in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
                 self._accept()
                 return
-            if key not in (wx.WXK_LEFT, wx.WXK_RIGHT):
-                event.Skip()
-                return
-            step = 1 if key == wx.WXK_RIGHT else -1
-            category = (self.category + step) % len(CATEGORIES)
-            self.categories.SetSelection(category)
-            self._show_category(0)
-            items = CATEGORIES[category].items
-            self._announce(f"{CATEGORIES[category].name}, {len(items)} structures, {items[0].label}, 1 of {len(items)}")
+            event.Skip()
 
         def _accept(self) -> None:
             if self.selected is None:

@@ -95,7 +95,7 @@ class EditorAssistMixin:
         if self.mode != "linear":
             return None
         table = self._control_words() or FALLBACK_CONTROL_WORDS
-        dialog = SymbolDialog(self, table, self.symbols.name, self._announce, self._last_symbol_query)
+        dialog = SymbolDialog(self, table, self.symbols.name, self._last_symbol_query)
         try:
             chosen = dialog.ShowModal() == wx.ID_OK
             self._last_symbol_query = dialog.query
@@ -117,7 +117,7 @@ class EditorAssistMixin:
         if self.mode != "linear":
             return None
         category, structure = self._last_gallery
-        dialog = GalleryDialog(self, self._announce, self.settings.template_control_words, category, structure)
+        dialog = GalleryDialog(self, self.settings.template_control_words, category, structure)
         try:
             chosen = dialog.ShowModal() == wx.ID_OK
             self._last_gallery = (dialog.category, dialog.structure)

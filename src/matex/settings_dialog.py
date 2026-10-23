@@ -4,12 +4,12 @@ import threading
 from collections.abc import Callable
 from pathlib import Path
 
+from .autocorrect import AutoCorrectTable, autocorrect_defaults, differences
+from .autocorrect_dialog import AutoCorrectDialog
 from .settings import (
     BRAILLE_CODES,
     AppSettings,
-    format_math_autocorrect,
     format_recognized_functions,
-    parse_math_autocorrect,
     parse_recognized_functions,
 )
 from .symbol_dictionary import SymbolDictionaryError, available_dictionaries, import_dictionary
@@ -135,20 +135,19 @@ if wx is not None:
                 ),
             )
             functions_help.Wrap(460)
-            autocorrect_label = wx.StaticText(self, label="&Math AutoCorrect entries")
-            self.math_autocorrect = wx.TextCtrl(
-                self,
-                value=format_math_autocorrect(settings.math_autocorrect),
-                style=wx.TE_MULTILINE,
-                size=(-1, 90),
+            self._autocorrect = (settings.math_autocorrect, settings.math_autocorrect_removed)
+            self.autocorrect_button = wx.Button(self, label="Math &AutoCorrect…")
+            self.autocorrect_button.Bind(wx.EVT_BUTTON, lambda _event: self._edit_autocorrect())
+            self.removed_words_as_symbols = wx.CheckBox(
+                self, label="Deleted AutoCorrect control words still show as their symbol"
             )
-            self.math_autocorrect.SetName("Math AutoCorrect entries")
+            self.removed_words_as_symbols.SetValue(settings.removed_words_as_symbols)
             autocorrect_help = wx.StaticText(
                 self,
                 label=(
-                    "One entry per line: what you type, a space, what it becomes, as in Word's "
-                    "Math AutoCorrect. An entry starting with a backslash (\\R ℝ) works like a "
-                    "control word; any other (+- ±) is replaced when you type Space after it."
+                    "Math AutoCorrect is one list, as in Word: the converter's control words, "
+                    "MateX's shortcuts and your own entries, each one can be changed or deleted. "
+                    "Off, a deleted control word (\\alpha) stays the text you typed, as in Word."
                 ),
             )
             autocorrect_help.Wrap(460)
@@ -196,8 +195,8 @@ if wx is not None:
             sizer.Add(functions_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
             sizer.Add(self.recognized_functions, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
             sizer.Add(functions_help, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
-            sizer.Add(autocorrect_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
-            sizer.Add(self.math_autocorrect, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
+            sizer.Add(self.autocorrect_button, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
+            sizer.Add(self.removed_words_as_symbols, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
             sizer.Add(autocorrect_help, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
             sizer.Add(braille_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
             sizer.Add(self.braille_code, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
@@ -321,7 +320,20 @@ if wx is not None:
             self._settings.recognized_functions = parse_recognized_functions(
                 self.recognized_functions.GetValue()
             )
-            self._settings.math_autocorrect = parse_math_autocorrect(self.math_autocorrect.GetValue())
+            self._settings.math_autocorrect, self._settings.math_autocorrect_removed = self._autocorrect
+            self._settings.removed_words_as_symbols = self.removed_words_as_symbols.GetValue()
+
+        def _edit_autocorrect(self) -> None:
+            """Open the Math AutoCorrect list; its differences from the defaults are kept until OK."""
+            defaults = autocorrect_defaults()
+            table = AutoCorrectTable(defaults, *self._autocorrect)
+            dialog = AutoCorrectDialog(self, defaults, table.entries())
+            try:
+                if dialog.ShowModal() == wx.ID_OK:
+                    self._autocorrect = differences(defaults, dialog.entries)
+            finally:
+                dialog.Destroy()
+            self.autocorrect_button.SetFocus()
 
 else:
 

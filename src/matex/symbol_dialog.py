@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
+from collections.abc import Mapping
 
 from .completion import Suggestion, SymbolNamer, search_symbols
 
@@ -18,9 +18,9 @@ if wx is not None:
     class SymbolDialog(wx.Dialog):
         """Insert > Symbol: a search field over control words and symbol names, and the matches.
 
-        Up/Down in the field move through the matches (spoken through
-        `announce`, since the screen reader stays on the field); Enter
-        inserts the selected one.
+        Native controls only, no announcements of its own: the screen
+        reader reads the field and the list (Tab to it). Enter, in either,
+        inserts the selected match.
         """
 
         def __init__(
@@ -28,16 +28,13 @@ if wx is not None:
             parent: wx.Window,
             table: Mapping[str, str],
             name: SymbolNamer,
-            announce: Callable[[str], None],
             query: str = "",
         ):
             super().__init__(parent, title="Insert Symbol", style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
             self.SetName("Insert symbol dialog")
             self._table = table
             self._name = name
-            self._announce = announce
             self._matches: list[Suggestion] = []
-            self._pending: wx.CallLater | None = None
 
             sizer = wx.BoxSizer(wx.VERTICAL)
             search_label = wx.StaticText(self, label="&Search (control word, symbol or name)")
@@ -58,7 +55,6 @@ if wx is not None:
 
             self.search.Bind(wx.EVT_TEXT, self._on_text)
             self.search.Bind(wx.EVT_TEXT_ENTER, lambda _event: self._accept())
-            self.search.Bind(wx.EVT_KEY_DOWN, self._on_search_key)
             self.results.Bind(wx.EVT_LISTBOX_DCLICK, lambda _event: self._accept())
             self._fill()
             self.search.SetFocus()
@@ -81,36 +77,10 @@ if wx is not None:
 
         def _on_text(self, _event: wx.CommandEvent) -> None:
             self._fill()
-            # Said once typing pauses, not on every letter.
-            if self._pending is not None:
-                self._pending.Stop()
-            self._pending = wx.CallLater(400, self._speak_matches)
-
-        def _speak_matches(self) -> None:
-            self._pending = None
-            if not self._matches:
-                self._announce("no matches")
-                return
-            count = len(self._matches)
-            more = "+" if count == MAX_RESULTS else ""
-            self._announce(f"{count}{more} matches, {self._matches[0].speech(self._name)}")
-
-        def _on_search_key(self, event: wx.KeyEvent) -> None:
-            key = event.GetKeyCode()
-            if key not in (wx.WXK_DOWN, wx.WXK_UP) or not self._matches:
-                event.Skip()
-                return
-            index = self.results.GetSelection()
-            step = 1 if key == wx.WXK_DOWN else -1
-            index = max(0, min(len(self._matches) - 1, index + step))
-            self.results.SetSelection(index)
-            self._announce(f"{self._matches[index].speech(self._name)}, {index + 1} of {len(self._matches)}")
 
         def _accept(self) -> None:
-            if self.selected is None:
-                self._announce("no matches")
-                return
-            self.EndModal(wx.ID_OK)
+            if self.selected is not None:
+                self.EndModal(wx.ID_OK)
 
 else:
 

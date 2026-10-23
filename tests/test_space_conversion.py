@@ -5,7 +5,6 @@ from matex.space_conversion import (
     convert_on_space,
     convert_shortcut_on_character,
     convert_word_before,
-    split_autocorrect,
 )
 
 
@@ -114,17 +113,15 @@ class SpaceConversionTests(unittest.TestCase):
         self.assertIsNone(convert_word_before("\\infty", 6, enabled=False, control_words={"infty": "∞"}))
 
 
-    def test_user_entries_split_into_control_words_and_shortcuts(self) -> None:
-        words, shortcuts = split_autocorrect((("\\R", "ℝ"), ("deg", "°"), ("+-", "±")))
-        self.assertEqual(words, {"R": "ℝ"})
-        self.assertEqual(shortcuts, {"deg": "°", "+-": "±"})
-        edit = convert_before_character("x∈\\R", 4, ",", control_words={"R": "ℝ"})
-        self.assertEqual(edit.source, "x∈ℝ,")
-
     def test_user_shortcuts_convert_on_space_as_whole_words(self) -> None:
         self.assertEqual(convert_on_space("90deg", 5, shortcuts={"deg": "°"}).source, "90deg ")  # Not after a letter or digit.
         self.assertEqual(convert_on_space("90 deg", 6, shortcuts={"deg": "°"}).source, "90 °")
         self.assertEqual(convert_on_space("x~~", 3, shortcuts={"~~": "≈"}).source, "x≈")
+        self.assertEqual(convert_on_space("a->", 3, shortcuts={}).source, "a-> ")  # "->" deleted from the list.
+
+    def test_only_symbol_shortcuts_convert_while_typing(self) -> None:
+        self.assertEqual(convert_shortcut_on_character("a~", 2, "~", {"~~": "≈"}).source, "a≈")
+        self.assertIsNone(convert_shortcut_on_character("de", 2, "g", {"deg": "°"}))  # Letters wait for Space.
 
 
 if __name__ == "__main__":

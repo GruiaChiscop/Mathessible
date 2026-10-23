@@ -61,9 +61,10 @@ equation language; the gap is entirely in the editing UX layered on top.
   (Cmd+Shift+S, `SymbolDialog` in [symbol_dialog.py](../src/matex/symbol_dialog.py))
   searches the same table by word, symbol or dictionary name
   (`search_symbols`) and inserts the control word or the symbol, per
-  `template_control_words`; Up/Down in its search field move the
-  selection and speak it through the editor's output, since the screen
-  reader stays on the field.
+  `template_control_words`. Native controls only (the search field, then
+  the list, Tab between them): Up/Down in the field moving the list and
+  speaking through the editor's output were removed (2026-10-23), as
+  dialogs are left to the screen reader.
 - Selection, clipboard (Cmd/Ctrl+C/X/V), word navigation, and a right-click
   context menu in linear mode, all platform-correct (`CmdDown()` for the
   primary modifier, Option-not-Command for word movement on macOS — see
@@ -360,20 +361,37 @@ equation language; the gap is entirely in the editing UX layered on top.
    sign (`FRACTION_SIGNS`) for numerator/denominator slots. Accents put the
    combining mark on the base before the caret and refuse with none (`()⃗`
    does not parse). Two native lists (category, structure), focus on the
-   structures; Left/Right there change category (announced), "Written as"
-   shows the linear form (`written_form`, control words per setting).
+   structures, Shift+Tab to the categories (no announcements of its own:
+   Left/Right changing the category and saying so was removed, dialogs are
+   left to the screen reader), "Written as" shows the linear form (`written_form`, control words per setting).
    tests/test_structure_gallery.py builds every variant with the real
    converter (after `build_repair`, as the editor does), so a variant that
    stops building fails there.
-   **The user's own Math AutoCorrect entries** (Settings, one per line,
-   `math_autocorrect` setting, as Word's list): `split_autocorrect` makes an
-   entry starting with `\` a control word, merged over the converter's
-   table by `EquationEditor._control_words` (so Space/punctuation, Tab,
-   completion and Insert > Symbol all know it), and any other a shortcut,
-   converted on Space only and only as a whole word (`_shortcut_match`:
-   `deg` is not replaced inside `90deg`), never immediately: one made of
-   letters would change words while they are typed. The converter itself
-   does not know a user's `\R`, so with conversion off it stays an error.
+   **Math AutoCorrect is one list, as in Word** ([autocorrect.py](../src/matex/autocorrect.py),
+   Settings > Math AutoCorrect…, [autocorrect_dialog.py](../src/matex/autocorrect_dialog.py)):
+   the defaults are the converter's control words (`\alpha`, read from
+   UnicodeMathML), the Greek letters its table leaves out (TeX's
+   tradition: `\Alpha`, `\Beta`, … `\Chi` and `\omicron`, whose capitals
+   look Latin but are U+0391…; `GREEK_ADDITIONS`, found missing by the
+   user) and `SHORTCUTS`; the user changes, deletes or adds any
+   entry, and only the differences are saved (`math_autocorrect` added or
+   changed, `math_autocorrect_removed` deleted defaults; `differences`), so a
+   converter update still brings new words and Reset to Defaults forgets
+   the differences. `EquationEditor._autocorrect` is the effective
+   `AutoCorrectTable`: `\word` entries are control words (Space,
+   punctuation, Tab, completion, Insert > Symbol), the others shortcuts,
+   converted while typing only when made of symbols (`is_symbol_shortcut`,
+   `->`), else on Space as a whole word (`deg` not inside `90deg`).
+   **A deleted default control word stays text, as in Word** (setting
+   `removed_words_as_symbols`, off): the converter resolves `\word`
+   before anything else, even escaped (`\\alpha`) or quoted, so
+   `literal_insertions` writes it as `"\<ZWNJ>alpha"` (U+200C breaks the
+   word, the quotes make it text) in what is converted, never in the
+   source: in `convert_unicode_math` for every path (preview, export,
+   checks; idempotent) and in `repairs`, so the source map maps the
+   `mtext` back to `\alpha`. On, the converter shows the symbol as before.
+   The dialog is Word's: Replace, With, the list, Add/Replace, Delete,
+   Reset to Defaults; typing in Replace moves the list to its entry.
 4. Do not grow local autocorrect dicts: `space_conversion.py` uses the
    converter's table, and its `FALLBACK_CONTROL_WORDS` (like `parser.py`'s)
    only matters without the submodule.

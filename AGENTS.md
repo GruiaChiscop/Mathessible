@@ -27,6 +27,9 @@ spelling.
   mouse-only UI. MathCAT navigation, the braille strip and plain-text
   UnicodeMath stored in Markdown are MateX's advantages over Word; do not
   trade them away for editing speed.
+- Dialogs use native controls and make no announcements of their own:
+  screen readers read native controls. MateX speaks for itself only in
+  the equation editor, which it draws.
 - Reading the built equation is always MathCAT's, never the symbol
   dictionary's. The dictionary only echoes typing and reads the linear
   view's source. Do not add hard-coded name tables for symbols.

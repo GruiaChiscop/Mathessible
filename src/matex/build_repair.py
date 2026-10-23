@@ -13,7 +13,8 @@ editing keep working in real-source terms.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterator
+import re
+from collections.abc import Callable, Collection, Iterator
 from dataclasses import dataclass
 
 from .source_view import view_of
@@ -45,6 +46,11 @@ class BuildRepair:
         """A real offset in repaired terms; at an insertion point, before what was inserted."""
         shift = sum(len(inserted) for position, inserted in self.insertions if position < offset)
         return offset + shift
+
+
+def literal_repair(source: str, literal: Collection[str]) -> BuildRepair:
+    """No repair, only `literal` words written as text (what is built when no candidate builds)."""
+    return _apply(source, literal_insertions(source, literal))
 
 
 def _apply(source: str, insertions: list[tuple[int, str]]) -> BuildRepair:
@@ -129,13 +135,36 @@ def _escape_insertions(source: str, caret: int | None) -> list[tuple[int, str]]:
     return [(caret, "\\")]
 
 
-def repairs(source: str, caret: int | None = None) -> Iterator[BuildRepair]:
+# Breaks a control word for the converter, which resolves `\\word` before anything
+# else, even escaped or quoted: `"\\<ZWNJ>alpha"` is the text "\\alpha".
+_WORD_BREAK = "\u200c"
+_CONTROL_WORD = re.compile(r"\\([A-Za-z0-9]+)")
+
+
+def literal_insertions(source: str, words: Collection[str]) -> list[tuple[int, str]]:
+    """Each `\\word` of `words` (deleted from Math AutoCorrect) as quoted text, as Word leaves it."""
+    if not words:
+        return []
+    insertions: list[tuple[int, str]] = []
+    for match in _CONTROL_WORD.finditer(source):
+        if match.group(1) in words:
+            insertions += [(match.start(), '"'), (match.start() + 1, _WORD_BREAK), (match.end(), '"')]
+    return insertions
+
+
+def literal_text(source: str, words: Collection[str]) -> str:
+    """`source` with `words` written as text, for the converter (idempotent: a broken word stays broken)."""
+    return _apply(source, literal_insertions(source, words)).text
+
+
+def repairs(source: str, caret: int | None = None, literal: Collection[str] = ()) -> Iterator[BuildRepair]:
     """Candidate repairs, least invasive first: none, missing arguments, then closing what is open.
 
     With `caret`, a backslash just typed there is built as a literal one
-    in every candidate (`_escape_insertions`).
+    in every candidate (`_escape_insertions`); `literal` words are text in
+    every candidate (`literal_insertions`).
     """
-    escape = _escape_insertions(source, caret)
+    escape = _escape_insertions(source, caret) + literal_insertions(source, literal)
     yield _apply(source, escape) if escape else BuildRepair(source, source)
     arguments = escape + _missing_arguments(source)
     if len(arguments) > len(escape):
@@ -146,10 +175,10 @@ def repairs(source: str, caret: int | None = None) -> Iterator[BuildRepair]:
 
 
 def repair_for_build(
-    source: str, builds: Callable[[str], bool], caret: int | None = None
+    source: str, builds: Callable[[str], bool], caret: int | None = None, literal: Collection[str] = ()
 ) -> BuildRepair | None:
     """The first candidate `builds` accepts (no total failure), or None if none does."""
-    for candidate in repairs(source, caret):
+    for candidate in repairs(source, caret, literal):
         if builds(candidate.text):
             return candidate
     return None

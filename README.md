@@ -100,10 +100,13 @@ the start and end). Up/Down read the source; with Shift they select to its
 start or end. A control word is converted when you type Space or a
 punctuation mark after it (`\alpha` becomes α), and while you type one the
 matching words are offered: Up/Down browse them, Tab takes one, Escape
-closes the list. Tab and Shift+Tab move between a template's slots. Your
-own entries go in `Settings → Math AutoCorrect entries`, one per line, as
-in Word: `\R ℝ` works like a control word, and `+- ±` is replaced when you
-type Space after it.
+closes the list. Tab and Shift+Tab move between a template's slots. Math
+AutoCorrect is one list, as in Word (`Settings → Math AutoCorrect…`): the
+control words, MateX's shortcuts and your own entries, each of which can
+be changed or deleted. `\R ℝ` works like a control word, and `deg °` is
+replaced when you type Space after it. A deleted control word stays the
+text you typed, unless "Deleted AutoCorrect control words still show as
+their symbol" is on.
 
 With **Build equations as you type** (on by default), as in Word, the
 equation is built as soon as it is complete, on Space or an operator or
@@ -146,8 +149,8 @@ The **Insert** menu has the templates, each with its shortcut where Word
 has one, the matrix and symbol dialogs, and the **Structure Gallery**
 (`Cmd+Shift+G`): Word's structure categories (Fraction, Script, Radical,
 Integral, Large Operator, Bracket, Function, Accent, Limit and Log,
-Operator, Matrix), each a list of variants. Left/Right in the list change
-the category, Enter inserts, and "Written as" shows how the structure is
+Operator, Matrix), each a list of variants. Shift+Tab goes to the
+categories, Enter inserts, and "Written as" shows how the structure is
 typed in the linear view.
 
 ## Markdown and equations

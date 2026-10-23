@@ -109,9 +109,14 @@ class AppSettings:
     auto_zoom_out: bool = False
     show_preview: bool = False
     recognized_functions: tuple[str, ...] = DEFAULT_RECOGNIZED_FUNCTIONS
-    # The user's own Math AutoCorrect entries, as Word's: (what is typed, what
-    # it becomes). `\R` -> ℝ acts as a control word; others convert on Space.
+    # Math AutoCorrect, as Word's one list (autocorrect.py): what the user
+    # added or changed, (what is typed, what it becomes), and the defaults
+    # they deleted; only these differences are saved.
     math_autocorrect: tuple[tuple[str, str], ...] = ()
+    math_autocorrect_removed: tuple[str, ...] = ()
+    # A deleted default control word (`\alpha`) still shows as its symbol in
+    # the built equation; off, as in Word, it stays the text typed.
+    removed_words_as_symbols: bool = False
 
 
 def default_settings_path() -> Path:
@@ -142,6 +147,8 @@ def load_settings(path: Path | None = None) -> AppSettings:
         show_preview=bool(data.get("show_preview", False)),
         recognized_functions=_normalize_functions(data.get("recognized_functions")),
         math_autocorrect=_normalize_autocorrect(data.get("math_autocorrect")),
+        math_autocorrect_removed=_normalize_removed(data.get("math_autocorrect_removed")),
+        removed_words_as_symbols=bool(data.get("removed_words_as_symbols", False)),
     )
 
 
@@ -184,20 +191,6 @@ def _normalize_functions(value: object) -> tuple[str, ...]:
     return tuple(result) or DEFAULT_RECOGNIZED_FUNCTIONS
 
 
-def parse_math_autocorrect(text: str) -> tuple[tuple[str, str], ...]:
-    """One entry per line: what is typed, a space, what it becomes (`\\R ℝ`, `+- ±`)."""
-    entries = []
-    for line in text.splitlines():
-        parts = line.strip().split(maxsplit=1)
-        if len(parts) == 2:
-            entries.append((parts[0], parts[1].strip()))
-    return _normalize_autocorrect(entries)
-
-
-def format_math_autocorrect(entries: tuple[tuple[str, str], ...]) -> str:
-    return "\n".join(f"{typed} {replacement}" for typed, replacement in entries)
-
-
 def _normalize_autocorrect(value: object) -> tuple[tuple[str, str], ...]:
     """Valid (typed, replacement) pairs, the last one for a typed text winning."""
     if not isinstance(value, (list, tuple)):
@@ -215,3 +208,9 @@ def _normalize_autocorrect(value: object) -> tuple[tuple[str, str], ...]:
         entries.pop(typed, None)
         entries[typed] = replacement
     return tuple(entries.items())
+
+
+def _normalize_removed(value: object) -> tuple[str, ...]:
+    if not isinstance(value, (list, tuple)):
+        return ()
+    return tuple(sorted({item.strip() for item in value if isinstance(item, str) and item.strip()}))

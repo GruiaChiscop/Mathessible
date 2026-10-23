@@ -3,6 +3,8 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass
 
+from .autocorrect import is_symbol_shortcut
+
 
 # Typed shortcuts that are not control words (a subset of Word's math
 # AutoCorrect list). Some extend others: "<-" then ">" is "<->".
@@ -46,23 +48,6 @@ FALLBACK_CONTROL_WORDS = {
     "le": "≤",
     "ge": "≥",
 }
-
-
-def split_autocorrect(entries: tuple[tuple[str, str], ...]) -> tuple[dict[str, str], dict[str, str]]:
-    """The user's Math AutoCorrect entries as (control words without "\\", shortcuts).
-
-    `\\R` is a control word (Space or punctuation converts it, completion
-    offers it); anything else is a shortcut, converted on Space only, as in
-    Word: one made of letters must not change words while they are typed.
-    """
-    words: dict[str, str] = {}
-    shortcuts: dict[str, str] = {}
-    for typed, replacement in entries:
-        if typed.startswith("\\") and typed[1:].isascii() and typed[1:].isalnum():
-            words[typed[1:]] = replacement
-        else:
-            shortcuts[typed] = replacement
-    return words, shortcuts
 
 
 @dataclass(frozen=True, slots=True)
@@ -138,24 +123,31 @@ def convert_word_before(
     return SpaceConversion(updated, token_start + len(replacement), replacement, True)
 
 
-def convert_shortcut_on_character(source: str, caret: int, character: str) -> SpaceConversion | None:
+def convert_shortcut_on_character(
+    source: str, caret: int, character: str, shortcuts: Mapping[str, str] | None = None
+) -> SpaceConversion | None:
     """The typed character completes a shortcut: convert it at once (`<` + `<` is `≪`).
 
     A shortcut that extends an already converted one replaces its symbol:
     `←` (from "<-") followed by ">" becomes `↔`. None when nothing completes.
+    Only shortcuts made of symbols: one with a letter or digit waits for
+    Space (autocorrect.is_symbol_shortcut). `shortcuts` is the effective
+    Math AutoCorrect list's; SHORTCUTS without one.
     """
     caret = max(0, min(caret, len(source)))
-    for token in sorted(SHORTCUTS, key=len, reverse=True):
+    table = SHORTCUTS if shortcuts is None else shortcuts
+    table = {typed: replacement for typed, replacement in table.items() if is_symbol_shortcut(typed)}
+    for token in sorted(table, key=len, reverse=True):
         if token[-1] != character:
             continue
         prefix = token[:-1]
         candidates = [prefix]
-        if prefix in SHORTCUTS:
-            candidates.append(SHORTCUTS[prefix])  # Already converted on the way.
+        if prefix in table:
+            candidates.append(table[prefix])  # Already converted on the way.
         for typed in candidates:
             start = caret - len(typed)
             if start >= 0 and source[start:caret] == typed:
-                replacement = SHORTCUTS[token]
+                replacement = table[token]
                 updated = source[:start] + replacement + source[caret:]
                 return SpaceConversion(updated, start + len(replacement), replacement, True)
     return None
@@ -200,8 +192,8 @@ def _function_spelling_match(source: str, caret: int) -> tuple[int, str] | None:
     return start, spelled
 
 
-def _shortcut_match(source: str, caret: int, extra: Mapping[str, str] | None = None) -> tuple[int, str] | None:
-    table = {**SHORTCUTS, **(extra or {})}
+def _shortcut_match(source: str, caret: int, shortcuts: Mapping[str, str] | None = None) -> tuple[int, str] | None:
+    table = SHORTCUTS if shortcuts is None else shortcuts
     for token in sorted(table, key=len, reverse=True):
         token_start = caret - len(token)
         if token_start < 0 or source[token_start:caret] != token:
