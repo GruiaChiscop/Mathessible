@@ -82,9 +82,14 @@ if wx is not None:
                 settings.open_built,
             )
             self.build_as_you_type = self._checkbox(
-                "Build equations as you type (on Space or a closing bracket, once complete)",
+                "Build equations as you type (on Space or an operator, what is complete; the rest stays linear)",
                 "Build equations as you type",
                 settings.build_as_you_type,
+            )
+            self.announce_built = self._checkbox(
+                "Say what was built while typing (for example, built fraction)",
+                "Say what was built",
+                settings.announce_built,
             )
             self.argument_on_closing_paren = self._checkbox(
                 "Open a function's argument as soon as its parenthesis is closed (instead of on Space)",
@@ -177,6 +182,7 @@ if wx is not None:
             sizer.Add(self.convert_shortcuts_immediately, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.open_built, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.build_as_you_type, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
+            sizer.Add(self.announce_built, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.argument_on_closing_paren, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.template_control_words, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.auto_zoom_out, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
@@ -310,6 +316,7 @@ if wx is not None:
             self._settings.convert_shortcuts_immediately = self.convert_shortcuts_immediately.GetValue()
             self._settings.open_built = self.open_built.GetValue()
             self._settings.build_as_you_type = self.build_as_you_type.GetValue()
+            self._settings.announce_built = self.announce_built.GetValue()
             self._settings.argument_on_closing_paren = self.argument_on_closing_paren.GetValue()
             self._settings.template_control_words = self.template_control_words.GetValue()
             self._settings.auto_zoom_out = self.auto_zoom_out.GetValue()

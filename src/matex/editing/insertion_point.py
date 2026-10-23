@@ -19,7 +19,7 @@ from matex.mathcat.lone import lone_speech
 from matex.mathcat.mathml_model import MathMLDocument, MathMLNode
 
 _INVISIBLE = frozenset("⁡⁢⁣⁤")
-_STRUCTURE_NAMES = {
+STRUCTURE_NAMES = {
     "mfrac": "fraction",
     "msqrt": "square root",
     "mroot": "root",
@@ -143,7 +143,7 @@ def node_name(node: MathMLNode, read: Callable[[str], str] | None = None) -> str
     only echoes typing.
     """
     if node.children:
-        return f"the {_STRUCTURE_NAMES.get(node.tag, 'group')}"
+        return f"the {STRUCTURE_NAMES.get(node.tag, 'group')}"
     if _is_empty(node):
         return "empty slot"
     text = "".join(

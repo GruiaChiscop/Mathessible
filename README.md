@@ -113,9 +113,15 @@ you type Space after it. A deleted control word stays the
 text you typed, unless "Deleted AutoCorrect control words still show as
 their symbol" is on.
 
-With **Build equations as you type** (on by default), as in Word, the
-equation is built as soon as it is complete, on Space or an operator or
-punctuation mark, and typing goes on in the professional view. With
+With **Build equations as you type** (on by default), as in Word, what
+you type is built as soon as it is complete, on Space or an operator or
+punctuation mark, and typing goes on in the professional view. What is
+not complete yet stays linear text inside the built equation: in
+`a/b+c/`, a/b is a fraction and `c/` is still read as "c divided by"
+until `d` and Space build it. Linear text stays linear when you move
+away from it; Undo right after a build takes it back. **Say what was
+built** (on by default) adds "built fraction" when typing builds a
+structure. With
 **Open equations built**, equations open straight in the professional
 view (an empty one still opens linear).
 

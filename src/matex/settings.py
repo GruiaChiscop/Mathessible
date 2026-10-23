@@ -97,9 +97,11 @@ class AppSettings:
     # Open equations straight in professional view (built), where they can
     # be typed into too; an empty equation still opens linear.
     open_built: bool = False
-    # Word's autobuild: in linear view, Space or a closing bracket builds the
-    # equation (professional view) once it converts with no error.
+    # Word's autobuild: Space or an operator builds what has become complete
+    # of what was typed; the rest stays linear text in the equation.
     build_as_you_type: bool = True
+    # Say what was built ("built fraction") when typing builds a structure.
+    announce_built: bool = True
     # Closing lim_(...)/log_(...) opens the argument (and builds) at once,
     # instead of on the Space after it, as Word does.
     argument_on_closing_paren: bool = False
@@ -140,6 +142,7 @@ def load_settings(path: Path | None = None) -> AppSettings:
         template_control_words=bool(data.get("template_control_words", True)),
         open_built=bool(data.get("open_built", False)),
         build_as_you_type=bool(data.get("build_as_you_type", True)),
+        announce_built=bool(data.get("announce_built", True)),
         argument_on_closing_paren=bool(data.get("argument_on_closing_paren", False)),
         symbol_dictionary=str(data.get("symbol_dictionary", "matex-en")),
         auto_zoom_out=bool(data.get("auto_zoom_out", False)),

@@ -17,6 +17,7 @@ import re
 from collections.abc import Callable, Collection, Iterator
 from dataclasses import dataclass
 
+from matex.editing.linear_runs import Runs, escape_insertions, inside
 from matex.editing.source_view import view_of
 
 PLACEHOLDER = "​"
@@ -48,9 +49,9 @@ class BuildRepair:
         return offset + shift
 
 
-def literal_repair(source: str, literal: Collection[str]) -> BuildRepair:
-    """No repair, only `literal` words written as text (what is built when no candidate builds)."""
-    return _apply(source, literal_insertions(source, literal))
+def literal_repair(source: str, literal: Collection[str], runs: Runs = ()) -> BuildRepair:
+    """No repair, only `literal` words and linear `runs` as text (what is built when no candidate builds)."""
+    return _apply(source, literal_insertions(source, literal) + escape_insertions(source, runs))
 
 
 def _apply(source: str, insertions: list[tuple[int, str]]) -> BuildRepair:
@@ -65,12 +66,17 @@ def _apply(source: str, insertions: list[tuple[int, str]]) -> BuildRepair:
     return BuildRepair(source, "".join(parts), ordered)
 
 
-def _missing_arguments(source: str) -> list[tuple[int, str]]:
-    """Placeholders where an argument is still empty: after a bare `▒`, in `√(&x)`/`√(x&)`."""
+def _missing_arguments(source: str, runs: Runs = ()) -> list[tuple[int, str]]:
+    """Placeholders where an argument is still empty: after a bare `▒`, in `√(&x)`/`√(x&)`.
+
+    Not in linear runs: their characters are escaped, never structures.
+    """
     view = view_of(source)
     text = view.text
     insertions: list[tuple[int, str]] = []
     for index, character in enumerate(text):
+        if inside(runs, view.to_source(index)):
+            continue
         following = text[index + 1 : index + 2]
         if character == "▒" and following in ("", " ", ")", "&", "@"):
             insertions.append((view.to_source(index + 1), PLACEHOLDER))
@@ -99,8 +105,13 @@ def _in_root(text: str, index: int) -> bool:
     return False
 
 
-def _closers(source: str) -> str:
-    """What closes everything left open at the end: a quote, then ")" per open "(", then "|"."""
+def _closers(source: str, runs: Runs = ()) -> str:
+    """What closes everything left open at the end: a quote, then ")" per open "(", then "|".
+
+    Linear runs open nothing: their characters are escaped.
+    """
+    if runs:
+        source = "".join(character for index, character in enumerate(source) if not inside(runs, index))
     quoted = source.count('"') % 2 == 1
     depth = 0
     inside_quote = False
@@ -157,28 +168,35 @@ def literal_text(source: str, words: Collection[str]) -> str:
     return _apply(source, literal_insertions(source, words)).text
 
 
-def repairs(source: str, caret: int | None = None, literal: Collection[str] = ()) -> Iterator[BuildRepair]:
+def repairs(
+    source: str, caret: int | None = None, literal: Collection[str] = (), runs: Runs = ()
+) -> Iterator[BuildRepair]:
     """Candidate repairs, least invasive first: none, missing arguments, then closing what is open.
 
     With `caret`, a backslash just typed there is built as a literal one
     in every candidate (`_escape_insertions`); `literal` words are text in
-    every candidate (`literal_insertions`).
+    every candidate (`literal_insertions`), and so are the linear `runs`
+    (`linear_runs.escape_insertions`).
     """
-    escape = _escape_insertions(source, caret) + literal_insertions(source, literal)
+    escape = _escape_insertions(source, caret) + literal_insertions(source, literal) + escape_insertions(source, runs)
     yield _apply(source, escape) if escape else BuildRepair(source, source)
-    arguments = escape + _missing_arguments(source)
+    arguments = escape + _missing_arguments(source, runs)
     if len(arguments) > len(escape):
         yield _apply(source, arguments)
-    closers = _closers(source)
+    closers = _closers(source, runs)
     if closers:
         yield _apply(source, arguments + [(len(source), closers)])
 
 
 def repair_for_build(
-    source: str, builds: Callable[[str], bool], caret: int | None = None, literal: Collection[str] = ()
+    source: str,
+    builds: Callable[[str], bool],
+    caret: int | None = None,
+    literal: Collection[str] = (),
+    runs: Runs = (),
 ) -> BuildRepair | None:
     """The first candidate `builds` accepts (no total failure), or None if none does."""
-    for candidate in repairs(source, caret, literal):
+    for candidate in repairs(source, caret, literal, runs):
         if builds(candidate.text):
             return candidate
     return None

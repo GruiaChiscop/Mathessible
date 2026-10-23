@@ -35,6 +35,7 @@ with F2, as in Word:
 ```
 UnicodeMath source
   │  editing/build_repair.py      fill in what a half-typed equation lacks (only for building)
+  │  editing/linear_runs.py       keep what was typed and is not complete yet linear (escaped)
   ▼
 UnicodeMathML (JS, in the editor's WebView, which never takes the focus: editor/renderer.py, unicodemath.py)
   │                                converter output, with error markers mathcolor="#F00"/"#F01"

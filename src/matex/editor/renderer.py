@@ -220,13 +220,15 @@ class EquationRendererMixin:
     def _convert_source(self):
         """Convert the source for building, repaired if it cannot be built as it is (build_repair).
 
+        The linear runs (`self._linear_runs`) are built as linear text.
         `self._repair` records which text was built, so offsets from the
         built equation can be mapped back to the real source.
         """
         source = self.document.source
         # A professional edit checks the build and then rebuilds: one conversion for both.
         literal = self._literal_words()
-        key = (source, self.caret, self.settings.decimal_separator, literal)
+        runs = self._linear_runs
+        key = (source, self.caret, self.settings.decimal_separator, literal, runs)
         if self._built_conversion is not None and self._built_conversion[0] == key:
             self._repair, mathml = self._built_conversion[1], self._built_conversion[2]
             return ConversionResult(mathml=mathml)
@@ -236,8 +238,8 @@ class EquationRendererMixin:
             converted[text] = self.convert_unicode_math(text)
             return 'mathcolor="#F00"' not in converted[text]
 
-        repair = repair_for_build(source, builds, self.caret, literal)
-        self._repair = repair or literal_repair(source, literal)
+        repair = repair_for_build(source, builds, self.caret, literal, runs)
+        self._repair = repair or literal_repair(source, literal, runs)
         if self._repair.text not in converted:
             builds(self._repair.text)
         self._built_conversion = (key, self._repair, converted[self._repair.text])

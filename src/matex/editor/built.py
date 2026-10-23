@@ -7,9 +7,10 @@ from __future__ import annotations
 import re
 from collections.abc import Callable
 
-from matex.editing.build_repair import BuildRepair
+from matex.editing.build_repair import BuildRepair, literal_repair
 from matex.editing.character_speech import character_name
 from matex.editing.insertion_point import describe_insertion_point, node_name
+from matex.editing.linear_runs import Run, Runs, build_run, built_structure, edit_between, run_at, shift_runs, typed
 from matex.editing.node_edits import removal
 from matex.editing.source_map import (
     anchor_offset,
@@ -25,7 +26,7 @@ from matex.editing.space_conversion import convert_word_before
 from matex.editor.keys import word_navigation_down
 from matex.templates.math_templates import move_to_slot
 from matex.ui.clipboard import set_clipboard_text
-from matex.unicodemath import UnicodeMathError, mathml_has_parse_error
+from matex.unicodemath import UnicodeMathError
 
 try:
     import wx
@@ -88,6 +89,8 @@ class BuiltEditingMixin:
         caret = start + (1 if replacement else 0)
         self._clear_selection()
         self._replace_linear(source[:start] + replacement + source[end:], caret)
+        self._linear_runs = shift_runs(self._linear_runs, start, end - start, len(replacement))
+        self.history.set_runs(self._linear_runs)
         self._finish_built_edit(announcement)
 
     def _cut_node(self) -> None:
@@ -120,9 +123,11 @@ class BuiltEditingMixin:
         def handle_key() -> None:
             self._on_char(event)  # Announces the character itself.
 
-        typed = chr(event.GetUnicodeKey()) if self._is_typed_character(event) else ""
+        character = chr(event.GetUnicodeKey()) if self._is_typed_character(event) else ""
         # A letter, digit, group or control word glued to a structure joins it.
-        self._edit_in_built(handle_key, glue=bool(typed) and (typed.isalnum() or typed in '(\\"'))
+        self._edit_in_built(
+            handle_key, glue=bool(character) and (character.isalnum() or character in '(\\"'), typing=True
+        )
 
     def _insertion_point(self) -> str:
         assert self.mathcat is not None
@@ -396,31 +401,63 @@ class BuiltEditingMixin:
         return speech
 
     def _build_as_you_type(self, announcement: str = "built") -> None:
-        """Word's autobuild: build the equation once its source converts with no error.
+        """Word's autobuild: build what has become complete; the rest stays linear.
 
-        Called after Space or a closing bracket in linear view. An incomplete
-        source ("a/") stays linear; typing goes on in professional view.
+        Called after Space or another trigger character. In linear view the
+        whole source is one linear run: typing at its end, once part of it
+        builds ("a/b+c/" builds "a/b+c"), the equation goes to professional
+        view with the rest ("/") still linear; editing inside it, only once
+        all of it builds, as before (an error left elsewhere must not take a
+        correction typed after F2 out of the linear view). During a
+        professional-view edit it only asks `_edit_in_built` to build the
+        run typed into, once the edit is done.
         """
         source = self.document.source
-        if (
-            not self.settings.build_as_you_type
-            or self._editing_built
-            or self.mode != "linear"
-            or self.mathcat is None
-            or not source.strip()
-            or self._converting
-        ):
+        if not self.settings.build_as_you_type or self.mathcat is None or not source.strip() or self._converting:
             return
-        try:
-            mathml = self.convert_unicode_math(source)
-        except (UnicodeMathError, RuntimeError):
+        if self._editing_built:
+            self._build_requested = announcement
             return
-        if mathml_has_parse_error(mathml):
+        if self.mode != "linear":
             return
+        whole: Runs = ((0, len(source)),)
+        runs, structure = self._build_linear_run(whole, whole[0])
+        if runs == whole or (runs and self.caret < len(source)):
+            return  # Nothing is complete yet ("(a+", "x^"), or not all of it while editing inside.
+        if runs and structure is None:
+            announcement = ""  # Built in part, no structure ("a/" builds a plain "a"): nothing to say.
+        elif runs:
+            announcement = f"built {structure}" if self.settings.announce_built else "built"
+        self._linear_runs = runs
+        self.history.set_runs(whole)
+        self.history.push(source, self.caret, runs)  # Undo right after takes the build back, as in Word.
         self._clear_selection()
         self.mode = "professional"
         self._update_braille_display()
         self._rebuild_professional_at_caret(announcement, place=self._place_after_caret)
+
+    def _build_linear_run(self, runs: Runs, run: Run) -> tuple[Runs, str | None]:
+        """`runs` with `run` built as far as it builds (`linear_runs.build_run`), and what it built.
+
+        Judged on the source as it is (literal words as text), never a
+        repaired one: a repair closing "(a+" would make it look complete.
+        """
+        source = self.document.source
+        literal = self._literal_words()
+        converted: dict[Runs, str] = {}
+
+        def convert(candidate: Runs) -> str:
+            if candidate not in converted:
+                try:
+                    converted[candidate] = self.convert_unicode_math(literal_repair(source, literal, candidate).text)
+                except (UnicodeMathError, RuntimeError):
+                    converted[candidate] = 'mathcolor="#F00"' * 1000  # Never better than keeping it linear.
+            return converted[candidate]
+
+        built = build_run(source, runs, run, convert)
+        if built == runs:
+            return runs, None
+        return built, built_structure(converted[runs], converted[built])
 
     def _built_offset(self, glue: bool = False) -> int:
         """The source offset of MathCAT's position (`edit_anchor`, `source_map`).
@@ -509,11 +546,14 @@ class BuiltEditingMixin:
             return True
         return bool(structure.region_entries(edge.identifier or ""))
 
-    def _edit_in_built(self, action: Callable[[], str | None], glue: bool = False) -> None:
+    def _edit_in_built(self, action: Callable[[], str | None], glue: bool = False, typing: bool = False) -> None:
         """Run a linear-mode edit at MathCAT's position, then rebuild the equation.
 
         `action` runs in linear mode with the caret on that offset and may
         announce on its own or return what to announce after rebuilding.
+        What is `typing` (a character, Space, Backspace, Delete) goes into
+        a linear run, built as far as it builds after a trigger character
+        (`_build_as_you_type`); any other edit only moves the runs.
         """
         source = self.document.source
         if self._built_selection() is None:
@@ -523,6 +563,8 @@ class BuiltEditingMixin:
         self._selected_ids = ()
         self.mode = "linear"
         self._editing_built = True
+        self._build_requested = None
+        self._last_spoken = ""
         try:
             announcement = action() or ""
         finally:
@@ -533,6 +575,21 @@ class BuiltEditingMixin:
                 self._announce(announcement)
             self.Refresh()
             return
+        position, removed, inserted = edit_between(source, self.document.source, self.caret)
+        update = typed if typing else shift_runs
+        self._linear_runs = update(self._linear_runs, position, removed, inserted)
+        self.history.set_runs(self._linear_runs)
+        requested = self._build_requested
+        run = run_at(self._linear_runs, self.caret) if typing and requested is not None else None
+        if run is not None:
+            runs, structure = self._build_linear_run(self._linear_runs, run)
+            if runs != self._linear_runs:
+                self._linear_runs = runs
+                self.history.push(self.document.source, self.caret, runs)  # Undo takes the build back.
+                # Not when the edit said what it built itself ("log, empty argument": Space opened it).
+                if structure is not None and self.settings.announce_built and requested == "built":
+                    spoken = announcement or self._last_spoken
+                    announcement = f"{spoken}, built {structure}" if spoken else f"built {structure}"
         self._finish_built_edit(announcement)
 
     def _finish_built_edit(self, announcement: str, attempts: int = 30) -> None:
@@ -546,6 +603,7 @@ class BuiltEditingMixin:
         """
         if not self.document.source.strip():
             self.mode = "linear"
+            self._linear_runs = ()
             self._update_braille_display()
             self._announce(f"{announcement}, empty, linear mode" if announcement else "empty, linear mode")
             self.Refresh()
@@ -562,6 +620,7 @@ class BuiltEditingMixin:
         if 'mathcolor="#F00"' in mathml:
             # Not even a repair builds (an extra ")"): keep typing in linear view.
             self.mode = "linear"
+            self._linear_runs = ()
             self._update_braille_display()
             summary = self._errors_summary(total_failure=True)
             self._announce(f"{announcement}, linear mode, {summary}" if announcement else f"linear mode, {summary}")
@@ -591,7 +650,7 @@ class BuiltEditingMixin:
                 self.caret = edit.caret
                 return f"{converted}, {edit.announcement}"
 
-            self._edit_in_built(convert_and_move)
+            self._edit_in_built(convert_and_move, typing=True)
             return
         edit = self._edit(
             lambda source, caret: move_to_slot(source, caret, reverse, self.settings.recognized_functions)
@@ -613,6 +672,7 @@ class BuiltEditingMixin:
             return
         self.document.source = state.source
         self.caret = state.caret
+        self._linear_runs = state.runs
         self._finish_built_edit(action)
 
     def _place_after_caret(self) -> None:

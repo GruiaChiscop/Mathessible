@@ -9,6 +9,7 @@ from matex.editing.character_speech import character_name, deleted_character, in
 from matex.editing.completion import Completion
 from matex.editing.edit_history import EditHistory, EditState
 from matex.editing.equation_source import EquationSource
+from matex.editing.linear_runs import Runs
 from matex.editing.source_view import view_of
 from matex.editing.space_conversion import (
     convert_before_character,
@@ -140,6 +141,12 @@ if wx is not None:
             self._repair = BuildRepair("", "")
             # Set while a professional-view edit runs its linear handling (no autobuild then).
             self._editing_built = False
+            # What was typed into the built equation and is not built yet
+            # (linear_runs), as source ranges; a trigger typed during the
+            # edit sets `_build_requested` (its announcement). `_last_spoken` is the edit's own speech.
+            self._linear_runs: Runs = ()
+            self._build_requested: str | None = None
+            self._last_spoken = ""
             # A whole structure Backspace/Delete was pressed on once: the next
             # press deletes it, any other key forgets it (never by accident).
             self._armed_removal: str | None = None
@@ -255,6 +262,7 @@ if wx is not None:
             )
 
         def _announce(self, text: str) -> None:
+            self._last_spoken = text
             if session_log.enabled():
                 session_log.write("say", text)
                 caret = self.caret
@@ -292,6 +300,7 @@ if wx is not None:
             self._completion = None
             self._inside_leaf = None
             self._built_caret = None
+            self._linear_runs = ()
             self.history.reset(source, self.caret)
             self._update_braille_display()
             self.Refresh()
@@ -463,6 +472,8 @@ if wx is not None:
             if self.mode == "linear" and self.mathcat is None:
                 self._announce(MATHCAT_MISSING)
                 return
+            # Professional builds everything, linear shows everything linear, as in Word.
+            self._linear_runs = ()
             if self.mode == "linear" and not self.document.source.strip():
                 # Nothing to build (and MathCAT cannot even zoom into empty math).
                 self._announce("empty equation")

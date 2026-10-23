@@ -429,9 +429,9 @@ stopped the user from typing. With Stage 2 done the user asked for it
 again: `_build_as_you_type` (setting `build_as_you_type`, on by default)
 builds after Space or any typed character that is not an ASCII letter or
 digit — the same trigger as control-word conversion (`convert_before_character`),
-as the user pointed out Word does — in linear view, when the source then
-converts with no error marker at all (no repair: `a+` builds, `a/` and
-`x^` wait),
+as the user pointed out Word does — in linear view, once part of the
+source builds with no error marker (no repair: `a+` builds whole, `a/`
+builds `a` and keeps `/` linear; see "Partial build" below),
 says "built", and puts MathCAT on the node before the caret; typing goes
 on in professional view. In writing mode Space there
 *types* (a text field; it used to read after any navigation, so no space
@@ -465,12 +465,49 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   logic in Python. This is an internal/undocumented convention of the
   vendored JS library, not a public API — flag it with a test that would
   catch a silent behaviour change on a `UnicodeMathML` submodule update.
-- **Architecture gap**: linear and professional mode are currently two
-  mutually exclusive views of the *whole* equation (`F2` toggles between
-  them in `EquationEditor._toggle_mode`). Word mixes built and still-linear
-  runs within one equation, built incrementally. Closing that gap is a
-  separate, larger project (the equation becomes a sequence of linear/built
-  runs — touches `editor/equation_editor.py`, layout, and cursor tracking).
+- **Partial build: linear runs (2026-10-23).** Word builds only what has
+  become unambiguous (UTN #28 sec. 2.3) and keeps the rest as linear text
+  in the same equation. MateX keeps one source and, beside it,
+  `EquationEditor._linear_runs`: source ranges typed and not built yet
+  ([editing/linear_runs.py](../src/matex/editing/linear_runs.py)). For
+  building, each build-up operator in a run is escaped (`c\/`, `\(c`;
+  the parser's `opBuildup` plus `]` and `"`) as `BuildRepair` insertions:
+  the converter gives `<mo intent=":text">`, an ordinary token that looks
+  like Word's linear text and that MathCAT reads as the character ("c
+  divided by", "open paren"), and `map_leaves` skips the backslashes.
+  Typing in professional view (`_edit_in_built(typing=True)`: characters,
+  Space, Backspace/Delete, completion, Tab's word conversion) grows or
+  shrinks the run it touches (`typed`) or starts one; any other edit
+  (templates, paste, node removal) moves runs (`shift_runs`) and drops the
+  ones it touches, which then build as they are. A trigger
+  (`_build_as_you_type`, the same characters as before) asks for the typed
+  run to build: `build_run` tries its end, then before each operator from
+  the right, and keeps the longest built part that adds no error marker
+  to keeping the whole run linear (so an error elsewhere never blocks
+  it). It is judged on the unrepaired source: a repair closing `(a+` would
+  make it look complete. In linear view the whole source is one run, and
+  typing at its end goes to professional view once part of it builds;
+  editing inside it, only once all of it builds, as before (an error left
+  elsewhere must not take a correction typed after F2 out of linear view). Runs stay
+  linear when the caret leaves them; F2 either way clears them (Word's
+  Professional/Linear for all). Each build is its own history state
+  (`EditState.runs`), so Undo right after it brings the linear text back,
+  as in Word. `announce_built` adds "built fraction" (`built_structure`:
+  a structure tag there is more of), but not when the edit says what it
+  built itself (Space opening `log_2`'s argument: "log, empty argument",
+  not "built subscript"; `_build_requested` carries the edit's own
+  announcement and only a plain "built" is named). Leaving linear view, "built" is said
+  only when all of it built or a structure did: `a/` builds a plain `a`
+  and says nothing more than the typed slash. **Trap:** a text starting `\(` or
+  `\[` is LaTeX's `\( ... \)` to the converter, which then throws
+  (`TeX2UnicodeMath` is not loaded): a zero-width space goes first.
+  **Trap:** after a name (`log\_`, `sin \(`), the converter makes the
+  escaped character the function's argument ("the log of under bar",
+  start/end argument stops) though nothing was built: an invisible times
+  (U+2062) goes before the backslash after two or more letters; MathCAT
+  says nothing for it and `map_leaves` gives it an empty span. Runs
+  live only in the editor; the document gets the plain source, so a
+  reopened equation builds as before.
 - **Proposed staged approach**:
   1. ~~On a trigger character, if the whole source converts cleanly, switch
      to professional mode.~~ Tried and removed (see above): it takes the
@@ -914,7 +951,7 @@ modules as they were then, without their package):
 | --- | --- | --- |
 | top level | `app` (entry point), `settings`, `unicodemath` (the converter bridge), `session_log`, `patch_check` | no |
 | `editor/` | `EquationEditor` (`equation_editor`) and its mixins: `renderer`, `built`, `structures`, `assist`, `drawing`, `keys` (were `editor_*`) | yes |
-| `editing/` | editing logic: `autocorrect`, `space_conversion`, `completion`, `source_map`, `source_view`, `build_repair`, `insertion_point`, `node_edits`, `edit_history`, `equation_errors`, `equation_source`, `character_speech`, `word_navigation` | no |
+| `editing/` | editing logic: `autocorrect`, `space_conversion`, `completion`, `source_map`, `source_view`, `build_repair`, `linear_runs`, `insertion_point`, `node_edits`, `edit_history`, `equation_errors`, `equation_source`, `character_speech`, `word_navigation` | no |
 | `templates/` | `template_source`, `math_templates`, `matrix_templates`, `fraction_styles`, `structure_edits`, `insert_catalog`, `structure_gallery` | no |
 | `mathcat/` | `navigator` (`MathCatNavigator`, was `mathcat`), `stops`, `structural`, `tables`, `common`, `prepare`, `lone` (were `mathcat_*`), `mathml_model` | no |
 | `documents/` | `markdown_math`, `document_io`, `notebook`, `portable_notebook`, `html_export`, `mathml_sanitize` | no |
