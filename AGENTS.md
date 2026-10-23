@@ -56,16 +56,20 @@ spelling.
   A new Insert entry is added to `insert_catalog`, not as a key handler.
 - `EquationEditor` and `MathCatNavigator` are split into mixins that only
   add methods; all state lives in their `__init__`/dataclass fields.
-- Style, matched by hand (no linter is configured):
-  `from __future__ import annotations`, frozen/slotted dataclasses for
-  values, explicit exception tuples (bare `except Exception` only where
-  assistive output must never crash the editor).
+- Style: `uv run ruff check` and `uv run ruff format` (configured in
+  pyproject.toml) must pass. Beyond them: `from __future__ import
+  annotations`, frozen/slotted dataclasses for values, explicit exception
+  tuples (bare `except Exception` only where assistive output must never
+  crash the editor). A formatting-only commit goes in
+  `.git-blame-ignore-revs`.
 - Colours come from [theme.py](src/matex/theme.py), whose tests enforce
   WCAG contrast in light and dark appearance.
 
 ## Validation
 
 - `uv run python -m unittest discover -s tests -v` after every change.
+  Tests that need the real converter use `tests/converter_harness.py`
+  (Node), not a copy of its runner.
 - To probe the converter without the GUI, load the dist JS under `node`
   (see "Probing the converter" in the engineering notes).
 - GUI code has no automated tests: GUI changes are tested by hand in the
