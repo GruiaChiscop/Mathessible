@@ -586,6 +586,7 @@ class BuiltEditingMixin:
         # Else the linear handling replaces the selection (typing, Backspace, paste, cut).
         self._selected_ids = ()
         self.mode = "linear"
+        start_caret = self.caret
         self._editing_built = True
         self._build_requested = None
         self._last_spoken = ""
@@ -595,6 +596,10 @@ class BuiltEditingMixin:
             self._editing_built = False
         if self.document.source == source:
             self.mode = "professional"
+            if self.caret != start_caret:
+                # Only the caret moved (Normal Text off at a text's end: past its quote): typing goes on there.
+                self._place_after_caret()
+                self._sync_mathcat_cursor()
             if announcement:
                 self._announce(announcement)
             self.Refresh()

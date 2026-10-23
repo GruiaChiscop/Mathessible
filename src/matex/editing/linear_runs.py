@@ -19,6 +19,7 @@ import re
 from collections.abc import Callable
 
 from matex.editing.insertion_point import STRUCTURE_NAMES
+from matex.editing.normal_text import text_spans
 from matex.templates.math_templates import NARY_LABELS
 
 Run = tuple[int, int]
@@ -40,12 +41,20 @@ def _escaped(source: str, index: int) -> bool:
     return count % 2 == 1
 
 
-def operator_positions(source: str, start: int, end: int) -> list[int]:
-    """The unescaped build-up operators in `source[start:end]`."""
+def operator_positions(source: str, start: int, end: int, runs: Runs = ()) -> list[int]:
+    """The unescaped build-up operators in `source[start:end]`, not inside a normal text.
+
+    In `"a/b"` the slash is text already, and a backslash there would be
+    text too. The quotes of a text count unless typed in a linear run
+    (`runs`), where they are linear themselves.
+    """
+    texts = text_spans(source, runs)
     return [
         index
         for index in range(start, min(end, len(source)))
-        if source[index] in BUILD_OPERATORS and not _escaped(source, index)
+        if source[index] in BUILD_OPERATORS
+        and not _escaped(source, index)
+        and not any(text_start <= index < text_end for text_start, text_end in texts)
     ]
 
 
@@ -67,7 +76,7 @@ def escape_insertions(source: str, runs: Runs) -> list[tuple[int, str]]:
     first = len(source) - len(source.lstrip(" "))
     insertions: list[tuple[int, str]] = []
     for start, end in runs:
-        for index in operator_positions(source, start, end):
+        for index in operator_positions(source, start, end, runs):
             if index == first and source[index] in "([":
                 insertions.append((index, _ZERO_WIDTH_SPACE + "\\"))
             elif _NAME.search(source, 0, index):
@@ -145,10 +154,10 @@ def run_at(runs: Runs, offset: int) -> Run | None:
     return None
 
 
-def split_candidates(source: str, run: Run) -> list[int]:
+def split_candidates(source: str, run: Run, runs: Runs = ()) -> list[int]:
     """Where a run may be cut, longest built part first: its end, before each operator, its start."""
     start, end = run
-    cuts = [end] + [index for index in reversed(operator_positions(source, start, end)) if index > start]
+    cuts = [end] + [index for index in reversed(operator_positions(source, start, end, runs)) if index > start]
     return [*cuts, start] if start not in cuts else cuts
 
 
@@ -168,7 +177,7 @@ def build_run(source: str, runs: Runs, run: Run, convert: Callable[[Runs], str])
     others = tuple(other for other in runs if other != run)
     start, end = run
     baseline = errors(convert(runs))
-    for cut in split_candidates(source, run):
+    for cut in split_candidates(source, run, runs):
         if cut == start:
             break
         rest = ((cut, end),) if cut < end else ()

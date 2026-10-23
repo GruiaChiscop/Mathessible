@@ -146,10 +146,16 @@ def _match(text: str, start: int, spelling: str) -> int | None:
 def _normalize(text: str) -> str:
     """Math italic and other styled letters and digits to plain ones (𝑥 → x), as typed in the source.
 
-    Only letters and digits: NFKC would also split operators (∬ → ∫∫).
+    Only letters and digits: NFKC would also split operators (∬ → ∫∫). A
+    no-break space is a space: the converter writes a normal text's spaces
+    so (`"for all "` is the mtext "for\\u00a0all\\u00a0").
     """
     return "".join(
-        unicodedata.normalize("NFKC", character) if unicodedata.category(character)[0] in "LN" else character
+        " "
+        if character == " "
+        else unicodedata.normalize("NFKC", character)
+        if unicodedata.category(character)[0] in "LN"
+        else character
         for character in text
     )
 

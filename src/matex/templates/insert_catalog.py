@@ -138,6 +138,10 @@ INSERT_GROUPS = (
         # Word's structure gallery: every template by category (structure_gallery.py).
         InsertItem("Structure Gallery…", None, "G", "command", shift=True, dialog="gallery"),
     ),
+    (
+        # Word's Normal Text: starts or ends quoted text, or quotes the selection (normal_text.py).
+        InsertItem("Normal &Text", None, "T", "command", shift=True, dialog="normal_text"),
+    ),
 )
 
 # Keys that arrive as another character with Shift held ("+" for Shift+=).

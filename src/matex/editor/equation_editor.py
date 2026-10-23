@@ -10,6 +10,7 @@ from matex.editing.completion import Completion
 from matex.editing.edit_history import EditHistory, EditState
 from matex.editing.equation_source import EquationSource
 from matex.editing.linear_runs import Runs
+from matex.editing.normal_text import in_text, toggle_normal_text
 from matex.editing.source_view import view_of
 from matex.editing.space_conversion import (
     convert_before_character,
@@ -681,6 +682,8 @@ if wx is not None:
 
         def _insert_linear(self, item: InsertItem) -> str | None:
             """Insert in the linear source; returns what to announce (the matrix dialog speaks itself)."""
+            if item.dialog == "normal_text":
+                return self._toggle_normal_text()
             if item.dialog == "symbol":
                 return self._insert_symbol()
             if item.dialog == "gallery":
@@ -693,6 +696,19 @@ if wx is not None:
             edit = self._edit(item.insert)
             self._replace_linear(edit.source, edit.caret)
             return edit.announcement
+
+        def _toggle_normal_text(self) -> str:
+            """Normal Text (Cmd+Shift+T): text starts, ends, or the selection changes over (normal_text.py)."""
+            edit = toggle_normal_text(self.document.source, self.caret, self._selection_range())
+            self._clear_selection()
+            self._replace_linear(edit.source, edit.caret)
+            return edit.announcement
+
+        def _typing_text(self) -> bool:
+            """The caret is in a normal text and Math AutoCorrect stays out of it (the setting)."""
+            return not self.settings.autocorrect_in_text and in_text(
+                self.document.source, self.caret, self._linear_runs
+            )
 
         def edit_command(self, command: str) -> None:
             """An Edit-menu command, acting as its shortcut does (only Copy outside linear view)."""
@@ -976,6 +992,13 @@ if wx is not None:
 
         def _linear_space(self) -> None:
             """Space in the linear view: an argument box opened, or a control word or shortcut converted, or a space."""
+            if self._typing_text():
+                # In normal text Space is a space: nothing converts, opens or builds.
+                if not self._replace_selection(" "):
+                    source = self.document.source
+                    self._replace_linear(source[: self.caret] + " " + source[self.caret :], self.caret + 1)
+                self._announce(inserted_character(" ", self.symbols))
+                return
             if self.settings.convert_on_space and self._selection_range() is None:
                 # Space after lim_(...)/log_(...) opens the argument box, as in Word.
                 functions = self.settings.recognized_functions
@@ -1070,6 +1093,15 @@ if wx is not None:
                 # Word's autobuild fires on the same characters as control-word
                 # conversion: anything but a space or an ASCII letter/digit.
                 builds = not value.isspace() and not (value.isascii() and value.isalnum())
+                if self._typing_text():
+                    # Normal text is text: no AutoCorrect, completion or building while typing it.
+                    if not self._replace_selection(value):
+                        self._replace_linear(
+                            self.document.source[: self.caret] + value + self.document.source[self.caret :],
+                            self.caret + len(value),
+                        )
+                    self._announce(inserted_character(value, self.symbols))
+                    return
                 if self._selection_range() is None:
                     edit = convert_before_character(
                         self.document.source,

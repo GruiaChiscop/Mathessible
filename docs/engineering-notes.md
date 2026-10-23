@@ -479,6 +479,23 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   logic in Python. This is an internal/undocumented convention of the
   vendored JS library, not a public API — flag it with a test that would
   catch a silent behaviour change on a `UnicodeMathML` submodule update.
+- **Normal text (2026-10-24), Word's Normal Text button:** UnicodeMath's
+  quoted text (`"for all "x`, an `mtext`; MathCAT reads it as words).
+  [editing/normal_text.py](../src/matex/editing/normal_text.py)
+  `toggle_normal_text` (Insert > Normal Text, Cmd+Shift+T, an `InsertItem`
+  with `dialog="normal_text"`) puts a quote at each end of the selection,
+  or a pair at the caret, then drops empty pairs and joins texts that
+  touch: one rule starts a text, leaves one at its end (the caret just
+  moves past the quote: `_edit_in_built` then re-places MathCAT, or typing
+  went back inside), splits one, or turns a selection either way. In a
+  text (`_typing_text`, unless `autocorrect_in_text`) typing and Space
+  insert as typed: no AutoCorrect, completion, argument box or build.
+  Linear runs never escape inside a text (`operator_positions`: the
+  backslash would be text), and quotes typed in a run delimit nothing.
+  An empty `""` is a total failure: build_repair puts U+200B in it.
+  **Trap:** the converter writes a text's spaces as no-break spaces
+  (`for\u00a0all\u00a0`), so `map_leaves` found no text leaf until
+  `_normalize` took U+00A0 for a space.
 - **Partial build: linear runs (2026-10-23).** Word builds only what has
   become unambiguous (UTN #28 sec. 2.3) and keeps the rest as linear text
   in the same equation. MateX keeps one source and, beside it,

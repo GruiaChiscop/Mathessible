@@ -102,6 +102,8 @@ class AppSettings:
     build_as_you_type: bool = True
     # Say what was built ("built fraction") when typing builds a structure.
     announce_built: bool = True
+    # Math AutoCorrect (control words, shortcuts, argument boxes) in normal text too.
+    autocorrect_in_text: bool = False
     # Closing lim_(...)/log_(...) opens the argument (and builds) at once,
     # instead of on the Space after it, as Word does.
     argument_on_closing_paren: bool = False
@@ -143,6 +145,7 @@ def load_settings(path: Path | None = None) -> AppSettings:
         open_built=bool(data.get("open_built", False)),
         build_as_you_type=bool(data.get("build_as_you_type", True)),
         announce_built=bool(data.get("announce_built", True)),
+        autocorrect_in_text=bool(data.get("autocorrect_in_text", False)),
         argument_on_closing_paren=bool(data.get("argument_on_closing_paren", False)),
         symbol_dictionary=str(data.get("symbol_dictionary", "matex-en")),
         auto_zoom_out=bool(data.get("auto_zoom_out", False)),

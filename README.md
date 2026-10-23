@@ -159,6 +159,15 @@ the current row or column), cases or an equation array, a fraction's style
 (stacked, skewed, linear, small), a root's index and an integral's or a
 sum's limits.
 
+**Normal Text** (`Cmd+Shift+T`, `Ctrl+Shift+T` elsewhere; Insert menu),
+as Word's button: text such as "if" or "for all" written upright, with
+its spaces, as UnicodeMath's quoted text (`"for all "x`). In math it
+starts a text, at the end of a text it goes back to math, in the middle
+it splits it, and on a selection it turns it into text or back into
+math. In normal text nothing converts or builds; **Use Math AutoCorrect
+in normal text** (off by default) lets control words and shortcuts
+convert there too.
+
 The **Insert** menu has the templates, each with its shortcut where Word
 has one (an integral's, sum's or product's operand is a box, as in Word:
 `+` typed in it stays inside; Space after `\int_0^1` typed by hand opens

@@ -91,6 +91,11 @@ if wx is not None:
                 "Say what was built",
                 settings.announce_built,
             )
+            self.autocorrect_in_text = self._checkbox(
+                "Use Math AutoCorrect in normal text (control words and shortcuts convert there too)",
+                "Use Math AutoCorrect in normal text",
+                settings.autocorrect_in_text,
+            )
             self.argument_on_closing_paren = self._checkbox(
                 "Open a function's argument as soon as its parenthesis is closed (instead of on Space)",
                 "Open the argument on the closing parenthesis",
@@ -183,6 +188,7 @@ if wx is not None:
             sizer.Add(self.open_built, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.build_as_you_type, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.announce_built, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
+            sizer.Add(self.autocorrect_in_text, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.argument_on_closing_paren, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.template_control_words, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.auto_zoom_out, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
@@ -317,6 +323,7 @@ if wx is not None:
             self._settings.open_built = self.open_built.GetValue()
             self._settings.build_as_you_type = self.build_as_you_type.GetValue()
             self._settings.announce_built = self.announce_built.GetValue()
+            self._settings.autocorrect_in_text = self.autocorrect_in_text.GetValue()
             self._settings.argument_on_closing_paren = self.argument_on_closing_paren.GetValue()
             self._settings.template_control_words = self.template_control_words.GetValue()
             self._settings.auto_zoom_out = self.auto_zoom_out.GetValue()

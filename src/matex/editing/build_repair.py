@@ -18,6 +18,7 @@ from collections.abc import Callable, Collection, Iterator
 from dataclasses import dataclass
 
 from matex.editing.linear_runs import Runs, escape_insertions, inside
+from matex.editing.normal_text import text_spans
 from matex.editing.source_view import view_of
 
 PLACEHOLDER = "​"
@@ -90,6 +91,8 @@ def _missing_arguments(source: str, runs: Runs = ()) -> list[tuple[int, str]]:
                 insertions.append((view.to_source(index), PLACEHOLDER))
             if following in ("", ")", "&", "@"):
                 insertions.append((view.to_source(index + 1), PLACEHOLDER))
+    # An empty normal text `""` (Normal Text just turned on) is a total failure; `"​"` is clean.
+    insertions += [(start, PLACEHOLDER) for start, end in text_spans(source, runs) if start == end]
     return insertions
 
 
