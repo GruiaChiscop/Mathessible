@@ -373,15 +373,22 @@ equation language; the gap is entirely in the editing UX layered on top.
    UnicodeMathML), the Greek letters its table leaves out (TeX's
    tradition: `\Alpha`, `\Beta`, … `\Chi` and `\omicron`, whose capitals
    look Latin but are U+0391…; `GREEK_ADDITIONS`, found missing by the
-   user) and `SHORTCUTS`; the user changes, deletes or adds any
+   user), Word's math alphabet entries (`math_alphabet_entries`:
+   `\doubleR`, `\scriptL`, `\frakturg`, and `\mathbb{R}` for every
+   letter and digit, as Word's Math AutoCorrect lists them; the converter
+   computes `\doubleR`/`\BbbR`/`\mscrH` itself but keeps no table of them,
+   and knows no `\mathbb{...}` or `\fraktur…`, so only a converted entry
+   builds; characters by Unicode name, which also finds the Letterlike
+   ones, ℝ ℂ ℋ ℭ ℯ) and `SHORTCUTS`; the user changes, deletes or adds any
    entry, and only the differences are saved (`math_autocorrect` added or
    changed, `math_autocorrect_removed` deleted defaults; `differences`), so a
    converter update still brings new words and Reset to Defaults forgets
    the differences. `EquationEditor._autocorrect` is the effective
    `AutoCorrectTable`: `\word` entries are control words (Space,
    punctuation, Tab, completion, Insert > Symbol), the others shortcuts,
-   converted while typing only when made of symbols (`is_symbol_shortcut`,
-   `->`), else on Space as a whole word (`deg` not inside `90deg`).
+   converted while typing only when made of symbols or closed by a brace
+   (`is_symbol_shortcut`: `->`, `\mathbb{R}` on its "}", as in Word), else
+   on Space as a whole word (`deg` not inside `90deg`).
    **A deleted default control word stays text, as in Word** (setting
    `removed_words_as_symbols`, off): the converter resolves `\word`
    before anything else, even escaped (`\\alpha`) or quoted, so

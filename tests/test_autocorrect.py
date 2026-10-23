@@ -1,8 +1,16 @@
 import unittest
 
 from converter_harness import convert, needs_node
-from matex.editing.autocorrect import AutoCorrectTable, default_entries, differences, is_symbol_shortcut
+from matex.editing.autocorrect import (
+    AutoCorrectTable,
+    default_entries,
+    differences,
+    is_symbol_shortcut,
+    math_alphabet_character,
+    math_alphabet_entries,
+)
 from matex.editing.build_repair import literal_repair, literal_text, repairs
+from matex.editing.space_conversion import convert_shortcut_on_character
 
 DEFAULTS = {
     typed: symbol
@@ -43,6 +51,31 @@ class AutoCorrectTableTests(unittest.TestCase):
         self.assertTrue(is_symbol_shortcut("->"))
         self.assertFalse(is_symbol_shortcut("deg"))
         self.assertFalse(is_symbol_shortcut("\\R"))
+
+
+class MathAlphabetTests(unittest.TestCase):
+    def test_unicode_names_give_the_letterlike_exceptions_too(self) -> None:
+        self.assertEqual(math_alphabet_character("DOUBLE-STRUCK", "R"), "ℝ")  # U+211D, not in the math block.
+        self.assertEqual(math_alphabet_character("DOUBLE-STRUCK", "k"), "\U0001d55c")
+        self.assertEqual(math_alphabet_character("SCRIPT", "H"), "ℋ")
+        self.assertEqual(math_alphabet_character("SCRIPT", "e"), "ℯ")
+        self.assertEqual(math_alphabet_character("FRAKTUR", "C"), "ℭ")
+        self.assertEqual(math_alphabet_character("DOUBLE-STRUCK", "1"), "𝟙")
+        self.assertIsNone(math_alphabet_character("DOUBLE-STRUCK", "α"))
+
+    def test_words_math_alphabet_entries_are_defaults(self) -> None:
+        entries = math_alphabet_entries()
+        self.assertEqual(entries["\\doubleC"], "ℂ")
+        self.assertEqual(entries["\\frakturg"], "𝔤")
+        self.assertEqual(entries["\\mathbb{N}"], "ℕ")
+        self.assertEqual(len([typed for typed in entries if typed.startswith("\\mathbb{")]), 62)
+        self.assertEqual(default_entries({}, {})["\\mathbb{Z}"], "ℤ")
+
+    def test_mathbb_converts_when_its_brace_closes(self) -> None:
+        shortcuts = AutoCorrectTable(default_entries({}, {})).shortcuts()
+        edit = convert_shortcut_on_character("x∈\\mathbb{R", 11, "}", shortcuts)
+        self.assertEqual((edit.source, edit.caret), ("x∈ℝ", 3))
+        self.assertTrue(is_symbol_shortcut("\\mathbb{R}"))
 
 
 class LiteralWordTests(unittest.TestCase):
