@@ -47,6 +47,27 @@ except ImportError:  # The interface is an optional dependency.
     wx = None
 
 
+# Keys key-down hands to _on_char in the linear view (they arrive there as no character).
+_KEYS_HANDLED_ON_KEY_DOWN = (
+    frozenset(
+        {
+            wx.WXK_F2,
+            wx.WXK_TAB,
+            wx.WXK_LEFT,
+            wx.WXK_RIGHT,
+            wx.WXK_UP,
+            wx.WXK_DOWN,
+            wx.WXK_HOME,
+            wx.WXK_END,
+            wx.WXK_BACK,
+            wx.WXK_DELETE,
+            wx.WXK_SPACE,
+        }
+    )
+    if wx is not None
+    else frozenset()
+)
+
 if wx is not None:
 
     class EquationEditor(
@@ -519,69 +540,57 @@ if wx is not None:
             if self.mode == "linear" and key in (wx.WXK_LEFT, wx.WXK_RIGHT) and word_navigation_down(event):
                 self._word_step(-1 if key == wx.WXK_LEFT else 1, extend=event.ShiftDown())
                 return
-            if self.mode == "professional" and self.mathcat is not None and command_modifier:
-                if key in (ord("X"), ord("x")):
-                    self._cut_node()
-                    return
-                if key in (ord("V"), ord("v")):
-                    self._edit_in_built(self._paste_equation, glue=True)
-                    return
-                if key in (ord("Z"), ord("z")):
-                    self._built_history("redo" if event.ShiftDown() else "undo")
-                    return
-                if key in (ord("Y"), ord("y")):
-                    self._built_history("redo")
-                    return
-                if key in (ord("A"), ord("a")) and self.writing_enabled:
-                    self._select_all_built()
-                    return
-                if self._insert_for_key(event, "command"):
-                    return
+            built = self.mode == "professional" and self.mathcat is not None
+            if built and command_modifier and self._built_command_shortcut(event, key):
+                return
             # Control+I/S/P/R/L/O (Alt elsewhere): the variants of Cmd+I/S/P/R/L/Shift+O.
             variant_view = self.mode == "linear" or (self.mode == "professional" and self.mathcat is not None)
             if variant_view and template_variant_down(event) and self._insert_for_key(event, "variant"):
                 return
-            if self.mode == "linear" and command_modifier:
-                if key in (ord("X"), ord("x")):
-                    self._cut_equation()
-                    return
-                if key in (ord("V"), ord("v")):
-                    self._paste_equation()
-                    return
-                if key in (ord("A"), ord("a")):
-                    self._select_all()
-                    return
-                if key in (ord("Z"), ord("z")):
-                    action = "redo" if event.ShiftDown() else "undo"
-                    state = self.history.redo() if event.ShiftDown() else self.history.undo()
-                    self._restore_history(state, action)
-                    return
-                if key in (ord("Y"), ord("y")):
-                    self._restore_history(self.history.redo(), "redo")
-                    return
-                if self._insert_for_key(event, "command"):
-                    return
-            handled_keys = {
-                wx.WXK_F2,
-                wx.WXK_TAB,
-                wx.WXK_LEFT,
-                wx.WXK_RIGHT,
-                wx.WXK_UP,
-                wx.WXK_DOWN,
-                wx.WXK_HOME,
-                wx.WXK_END,
-                wx.WXK_BACK,
-                wx.WXK_DELETE,
-                wx.WXK_SPACE,
-            }
+            if self.mode == "linear" and command_modifier and self._linear_command_shortcut(event, key):
+                return
             if self.mode == "professional" and self._types_into_built_equation(event, key):
                 # The character arrives as EVT_CHAR, with its real case.
                 event.Skip()
                 return
-            if self.mode == "professional" or key in handled_keys:
+            if self.mode == "professional" or key in _KEYS_HANDLED_ON_KEY_DOWN:
                 self._on_char(event)
                 return
             event.Skip()
+
+        def _built_command_shortcut(self, event: wx.KeyEvent, key: int) -> bool:
+            """Cmd/Ctrl shortcuts in the built equation (cut, paste, undo, redo, select all, templates)."""
+            if key in (ord("X"), ord("x")):
+                self._cut_node()
+            elif key in (ord("V"), ord("v")):
+                self._edit_in_built(self._paste_equation, glue=True)
+            elif key in (ord("Z"), ord("z")):
+                self._built_history("redo" if event.ShiftDown() else "undo")
+            elif key in (ord("Y"), ord("y")):
+                self._built_history("redo")
+            elif key in (ord("A"), ord("a")) and self.writing_enabled:
+                self._select_all_built()
+            else:
+                return self._insert_for_key(event, "command")
+            return True
+
+        def _linear_command_shortcut(self, event: wx.KeyEvent, key: int) -> bool:
+            """Cmd/Ctrl shortcuts in the linear view (cut, paste, select all, undo, redo, templates)."""
+            if key in (ord("X"), ord("x")):
+                self._cut_equation()
+            elif key in (ord("V"), ord("v")):
+                self._paste_equation()
+            elif key in (ord("A"), ord("a")):
+                self._select_all()
+            elif key in (ord("Z"), ord("z")):
+                action = "redo" if event.ShiftDown() else "undo"
+                state = self.history.redo() if event.ShiftDown() else self.history.undo()
+                self._restore_history(state, action)
+            elif key in (ord("Y"), ord("y")):
+                self._restore_history(self.history.redo(), "redo")
+            else:
+                return self._insert_for_key(event, "command")
+            return True
 
         def _insert_for_key(self, event: wx.KeyEvent, modifier: str) -> bool:
             # With the physical Control key the key code can be a control
@@ -818,117 +827,140 @@ if wx is not None:
                 self._toggle_mode()
                 return
             if self.mode == "professional":
-                if (
-                    self._preparing
-                    and key in (wx.WXK_LEFT, wx.WXK_RIGHT)
-                    and not cell_navigation_down(event)
-                    and self.mathcat is not None
-                    and not self.mathcat.linear_position_known
-                    and self._current_inside() is None
-                ):
-                    self._preparing_announced = True
-                    self._announce("still preparing the equation, please wait")
-                    return
-                if self.mathcat is not None:
-                    if key == wx.WXK_SPACE and event.AltDown() and event.ShiftDown() and not event.CmdDown():
-                        # Where typing would go ("after a, before plus").
-                        self._announce(self._insertion_point())
-                        return
-                    if key == wx.WXK_SPACE and event.AltDown() and not event.CmdDown():
-                        self._announce(self.mathcat.read_current_zone())
-                        return
-                    if key == wx.WXK_SPACE and event.ShiftDown() and not event.CmdDown():
-                        self._announce(self.mathcat.current_context())
-                        return
-                    if cell_navigation_down(event):
-                        commands = {
-                            wx.WXK_LEFT: "MoveCellPrevious",
-                            wx.WXK_RIGHT: "MoveCellNext",
-                            wx.WXK_UP: "MoveCellUp",
-                            wx.WXK_DOWN: "MoveCellDown",
-                            wx.WXK_HOME: "MoveColumnStart",
-                            wx.WXK_END: "MoveColumnEnd",
-                            wx.WXK_SPACE: "ReadCellCurrent",
-                        }
-                        cell_navigation = True
-                    else:
-                        commands = {
-                            wx.WXK_LEFT: "MovePrevious",
-                            wx.WXK_RIGHT: "MoveNext",
-                            wx.WXK_DOWN: "ZoomIn",
-                            wx.WXK_UP: "ZoomOut",
-                            wx.WXK_HOME: "MoveStart",
-                            wx.WXK_END: "MoveEnd",
-                            wx.WXK_SPACE: "ReadCurrent",
-                        }
-                        cell_navigation = False
-                    plain_space = key == wx.WXK_SPACE and not (event.AltDown() or event.ShiftDown() or event.CmdDown())
-                    if plain_space and self.writing_enabled and not cell_navigation:
-                        # Writing mode: Space types, as in a text field (it once read
-                        # after any navigation, so no space could be added once built).
-                        # Exploration mode (F10) is for reading: Space reads there.
-                        self._edit_built_equation(event)
-                        return
-                    if not cell_navigation and self._mode_arrow(event, key):
-                        return
-                    command = commands.get(key)
-                    if command is not None:
-                        self._inside_leaf = None
-                        self._built_caret = None
-                        self._clear_built_selection()
-                    if command in ("ZoomIn", "ZoomOut") and self._linear_now:
-                        # Flat reading has no levels: a stray Up/Down only
-                        # threw MathCAT off the linear stops. Ignored, silently.
-                        return
-                    if command is not None:
-                        try:
-                            self._highlight_matrix_cell = cell_navigation
-                            if cell_navigation:
-                                speech = self.mathcat.table_command(command)
-                            elif self._linear_now:
-                                speech = self.mathcat.linear_command(command)
-                            else:
-                                # MateX's own levels with structure stops or without
-                                # (MathCAT's own Left/Right failed in sums and integrals).
-                                speech = self.mathcat.structural_command(command)
-                            self._sync_mathcat_cursor()
-                            if speech:
-                                self._announce(speech)
-                            self.Refresh()
-                        except (OSError, RuntimeError, ValueError):
-                            self._recover_navigation()
-                        return
-                    if key == wx.WXK_TAB:
-                        self._built_slot(reverse=event.ShiftDown())
-                        return
-                    if (
-                        key in (wx.WXK_BACK, wx.WXK_DELETE)
-                        and self._built_selection() is None
-                        and self._removes_whole_structure()
-                    ):
-                        return
-                    if key in (wx.WXK_BACK, wx.WXK_DELETE) or self._is_typed_character(event):
-                        self._edit_built_equation(event)
-                        return
+                self._on_built_char(event, key)
                 return
-
             if key == wx.WXK_TAB:
-                self._clear_selection()
-                converted = self._convert_word_before_caret()
-                edit = self._edit(
-                    lambda source, caret: move_to_slot(
-                        source, caret, event.ShiftDown(), self.settings.recognized_functions
-                    )
-                )
-                if edit is None:
-                    self._announce(f"{converted}, no slot" if converted else "no slot")
-                    self.Refresh()
+                self._linear_tab(event.ShiftDown())
+                return
+            if key == wx.WXK_SPACE:
+                self._linear_space()
+                return
+            if key in (wx.WXK_LEFT, wx.WXK_RIGHT, wx.WXK_UP, wx.WXK_DOWN, wx.WXK_HOME, wx.WXK_END):
+                self._linear_move(event, key)
+            elif key in (wx.WXK_BACK, wx.WXK_DELETE):
+                self._linear_delete(backward=key == wx.WXK_BACK)
+            else:
+                self._linear_type(event)  # Refreshes as it edits, or lets the key through.
+                return
+            self.Refresh()
+
+        def _on_built_char(self, event: wx.KeyEvent, key: int) -> None:
+            """A key in the built equation: readings, navigation, Tab, and typing into it."""
+            if (
+                self._preparing
+                and key in (wx.WXK_LEFT, wx.WXK_RIGHT)
+                and not cell_navigation_down(event)
+                and self.mathcat is not None
+                and not self.mathcat.linear_position_known
+                and self._current_inside() is None
+            ):
+                self._preparing_announced = True
+                self._announce("still preparing the equation, please wait")
+                return
+            if self.mathcat is not None:
+                if key == wx.WXK_SPACE and event.AltDown() and event.ShiftDown() and not event.CmdDown():
+                    # Where typing would go ("after a, before plus").
+                    self._announce(self._insertion_point())
                     return
-                self.caret = edit.caret
-                self._announce(f"{converted}, {edit.announcement}" if converted else edit.announcement)
+                if key == wx.WXK_SPACE and event.AltDown() and not event.CmdDown():
+                    self._announce(self.mathcat.read_current_zone())
+                    return
+                if key == wx.WXK_SPACE and event.ShiftDown() and not event.CmdDown():
+                    self._announce(self.mathcat.current_context())
+                    return
+                if cell_navigation_down(event):
+                    commands = {
+                        wx.WXK_LEFT: "MoveCellPrevious",
+                        wx.WXK_RIGHT: "MoveCellNext",
+                        wx.WXK_UP: "MoveCellUp",
+                        wx.WXK_DOWN: "MoveCellDown",
+                        wx.WXK_HOME: "MoveColumnStart",
+                        wx.WXK_END: "MoveColumnEnd",
+                        wx.WXK_SPACE: "ReadCellCurrent",
+                    }
+                    cell_navigation = True
+                else:
+                    commands = {
+                        wx.WXK_LEFT: "MovePrevious",
+                        wx.WXK_RIGHT: "MoveNext",
+                        wx.WXK_DOWN: "ZoomIn",
+                        wx.WXK_UP: "ZoomOut",
+                        wx.WXK_HOME: "MoveStart",
+                        wx.WXK_END: "MoveEnd",
+                        wx.WXK_SPACE: "ReadCurrent",
+                    }
+                    cell_navigation = False
+                plain_space = key == wx.WXK_SPACE and not (event.AltDown() or event.ShiftDown() or event.CmdDown())
+                if plain_space and self.writing_enabled and not cell_navigation:
+                    # Writing mode: Space types, as in a text field (it once read
+                    # after any navigation, so no space could be added once built).
+                    # Exploration mode (F10) is for reading: Space reads there.
+                    self._edit_built_equation(event)
+                    return
+                if not cell_navigation and self._mode_arrow(event, key):
+                    return
+                command = commands.get(key)
+                if command is not None:
+                    self._inside_leaf = None
+                    self._built_caret = None
+                    self._clear_built_selection()
+                if command in ("ZoomIn", "ZoomOut") and self._linear_now:
+                    # Flat reading has no levels: a stray Up/Down only
+                    # threw MathCAT off the linear stops. Ignored, silently.
+                    return
+                if command is not None:
+                    self._run_navigation_command(command, cell_navigation)
+                    return
+                if key == wx.WXK_TAB:
+                    self._built_slot(reverse=event.ShiftDown())
+                    return
+                if (
+                    key in (wx.WXK_BACK, wx.WXK_DELETE)
+                    and self._built_selection() is None
+                    and self._removes_whole_structure()
+                ):
+                    return
+                if key in (wx.WXK_BACK, wx.WXK_DELETE) or self._is_typed_character(event):
+                    self._edit_built_equation(event)
+                    return
+
+        def _run_navigation_command(self, command: str, cell_navigation: bool) -> None:
+            """A MathCAT move in the built equation: by cell, along the linear stops, or by level."""
+            try:
+                self._highlight_matrix_cell = cell_navigation
+                if cell_navigation:
+                    speech = self.mathcat.table_command(command)
+                elif self._linear_now:
+                    speech = self.mathcat.linear_command(command)
+                else:
+                    # MateX's own levels with structure stops or without
+                    # (MathCAT's own Left/Right failed in sums and integrals).
+                    speech = self.mathcat.structural_command(command)
+                self._sync_mathcat_cursor()
+                if speech:
+                    self._announce(speech)
+                self.Refresh()
+            except (OSError, RuntimeError, ValueError):
+                self._recover_navigation()
+
+        def _linear_tab(self, reverse: bool) -> None:
+            """Tab/Shift+Tab in the linear view: a typed control word converted, then the next slot."""
+            self._clear_selection()
+            converted = self._convert_word_before_caret()
+            edit = self._edit(
+                lambda source, caret: move_to_slot(source, caret, reverse, self.settings.recognized_functions)
+            )
+            if edit is None:
+                self._announce(f"{converted}, no slot" if converted else "no slot")
                 self.Refresh()
                 return
-            if key == wx.WXK_SPACE and self.settings.convert_on_space and self._selection_range() is None:
+            self.caret = edit.caret
+            self._announce(f"{converted}, {edit.announcement}" if converted else edit.announcement)
+            self.Refresh()
+
+        def _linear_space(self) -> None:
+            """Space in the linear view: an argument box opened, or a control word or shortcut converted, or a space."""
+            if self.settings.convert_on_space and self._selection_range() is None:
                 # Space after lim_(...)/log_(...) opens the argument box, as in Word.
                 functions = self.settings.recognized_functions
                 group = self._edit(lambda source, caret: group_function_argument(source, caret, functions))
@@ -955,25 +987,26 @@ if wx is not None:
                     self._announce(group.announcement)
                     self._build_as_you_type(f"built, {group.announcement}")
                     return
-            if key == wx.WXK_SPACE:
-                selection = self._selection_range()
-                if selection is not None:
-                    source = self.document.source[: selection[0]] + self.document.source[selection[1] :]
-                    caret = selection[0]
-                    self._clear_selection()
-                else:
-                    source, caret = self.document.source, self.caret
-                edit = convert_on_space(
-                    source,
-                    caret,
-                    enabled=self.settings.convert_on_space,
-                    control_words=self._control_words(),
-                    shortcuts=self._shortcuts(),
-                )
-                self._replace_linear(edit.source, edit.caret)
-                self._announce(edit.announcement)
-                self._build_as_you_type()
-                return
+            selection = self._selection_range()
+            if selection is not None:
+                source = self.document.source[: selection[0]] + self.document.source[selection[1] :]
+                caret = selection[0]
+                self._clear_selection()
+            else:
+                source, caret = self.document.source, self.caret
+            edit = convert_on_space(
+                source,
+                caret,
+                enabled=self.settings.convert_on_space,
+                control_words=self._control_words(),
+                shortcuts=self._shortcuts(),
+            )
+            self._replace_linear(edit.source, edit.caret)
+            self._announce(edit.announcement)
+            self._build_as_you_type()
+
+        def _linear_move(self, event: wx.KeyEvent, key: int) -> None:
+            """Arrows, Home and End in the linear view (Shift extends the selection)."""
             if key == wx.WXK_LEFT:
                 self._step_caret(-1, extend=event.ShiftDown())
             elif key == wx.WXK_RIGHT:
@@ -990,7 +1023,10 @@ if wx is not None:
                 self._jump_caret(0, "start", extend=event.ShiftDown())
             elif key == wx.WXK_END:
                 self._jump_caret(len(self.document.source), "end", extend=event.ShiftDown())
-            elif key == wx.WXK_BACK:
+
+        def _linear_delete(self, backward: bool) -> None:
+            """Backspace (backward) or Delete in the linear view, a whole control word in the built one."""
+            if backward:
                 if self._replace_selection(""):
                     self._announce("selection deleted")
                 elif self.caret:
@@ -1001,7 +1037,7 @@ if wx is not None:
                         self._announce(deleted_character(view_of(deleted).text, self.symbols))
                     else:
                         self._announce(self._offer_completion(deleted_character(deleted, self.symbols)))
-            elif key == wx.WXK_DELETE:
+            else:
                 if self._replace_selection(""):
                     self._announce("selection deleted")
                 elif self.caret < len(self.document.source):
@@ -1009,53 +1045,52 @@ if wx is not None:
                     deleted = self.document.source[start:end]
                     self._replace_linear(self.document.source[:start] + self.document.source[end:], start)
                     self._announce(deleted_character(view_of(deleted).text, self.symbols))
-            else:
-                codepoint = event.GetUnicodeKey()
-                if codepoint not in (wx.WXK_NONE, 0) and codepoint >= 32:
-                    value = chr(codepoint)
-                    # Word's autobuild fires on the same characters as control-word
-                    # conversion: anything but a space or an ASCII letter/digit.
-                    builds = not value.isspace() and not (value.isascii() and value.isalnum())
-                    if self._selection_range() is None:
-                        edit = convert_before_character(
-                            self.document.source,
-                            self.caret,
-                            value,
-                            enabled=self.settings.convert_on_space,
-                            control_words=self._control_words(),
-                        )
+
+        def _linear_type(self, event: wx.KeyEvent) -> None:
+            """A typed character in the linear view, with autocorrect, scripts on function names and shortcuts."""
+            codepoint = event.GetUnicodeKey()
+            if codepoint not in (wx.WXK_NONE, 0) and codepoint >= 32:
+                value = chr(codepoint)
+                # Word's autobuild fires on the same characters as control-word
+                # conversion: anything but a space or an ASCII letter/digit.
+                builds = not value.isspace() and not (value.isascii() and value.isalnum())
+                if self._selection_range() is None:
+                    edit = convert_before_character(
+                        self.document.source,
+                        self.caret,
+                        value,
+                        enabled=self.settings.convert_on_space,
+                        control_words=self._control_words(),
+                    )
+                    if edit is not None:
+                        self._replace_linear(edit.source, edit.caret)
+                        self._announce(f"{edit.announcement}, {inserted_character(value, self.symbols)}")
+                        self._after_typed(value, builds)
+                        return
+                    functions = self.settings.recognized_functions
+                    script = script_on_function(self.document.source, self.caret, value, functions)
+                    if script is not None:
+                        self._replace_linear(script.source, script.caret)
+                        self._announce(self._offer_completion(inserted_character(value, self.symbols)))
+                        self._after_typed(value, builds)
+                        return
+                    if self.settings.convert_shortcuts_immediately:
+                        edit = convert_shortcut_on_character(self.document.source, self.caret, value, self._shortcuts())
                         if edit is not None:
                             self._replace_linear(edit.source, edit.caret)
-                            self._announce(f"{edit.announcement}, {inserted_character(value, self.symbols)}")
+                            self._announce(edit.announcement)
                             self._after_typed(value, builds)
                             return
-                        functions = self.settings.recognized_functions
-                        script = script_on_function(self.document.source, self.caret, value, functions)
-                        if script is not None:
-                            self._replace_linear(script.source, script.caret)
-                            self._announce(self._offer_completion(inserted_character(value, self.symbols)))
-                            self._after_typed(value, builds)
-                            return
-                        if self.settings.convert_shortcuts_immediately:
-                            edit = convert_shortcut_on_character(
-                                self.document.source, self.caret, value, self._shortcuts()
-                            )
-                            if edit is not None:
-                                self._replace_linear(edit.source, edit.caret)
-                                self._announce(edit.announcement)
-                                self._after_typed(value, builds)
-                                return
-                    if not self._replace_selection(value):
-                        self._replace_linear(
-                            self.document.source[: self.caret] + value + self.document.source[self.caret :],
-                            self.caret + len(value),
-                        )
-                    self._announce(self._offer_completion(inserted_character(value, self.symbols)))
-                    self._after_typed(value, builds)
-                    return
-                event.Skip()
+                if not self._replace_selection(value):
+                    self._replace_linear(
+                        self.document.source[: self.caret] + value + self.document.source[self.caret :],
+                        self.caret + len(value),
+                    )
+                self._announce(self._offer_completion(inserted_character(value, self.symbols)))
+                self._after_typed(value, builds)
                 return
-            self.Refresh()
+            event.Skip()
+            return
 
         @staticmethod
         def _is_typed_character(event: wx.KeyEvent) -> bool:
