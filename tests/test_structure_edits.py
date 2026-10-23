@@ -1,6 +1,3 @@
-import json
-import shutil
-import subprocess
 import unittest
 
 from matex.structure_edits import (
@@ -29,7 +26,8 @@ from matex.structure_edits import (
     root_at,
     roots,
 )
-from matex.unicodemath import distribution_directory
+
+from converter_harness import convert_all, has_error, needs_node
 
 
 class RootEditTests(unittest.TestCase):
@@ -132,7 +130,7 @@ class AccentAndBarEditTests(unittest.TestCase):
         self.assertEqual(remove_bar("▁(x+y)", 3).source, "x+y")
 
 
-@unittest.skipUnless(shutil.which("node"), "Node is used only for the official converter test")
+@needs_node
 class EditsBuildTests(unittest.TestCase):
     def test_every_edit_gives_a_source_the_converter_builds(self) -> None:
         sources = [
@@ -146,26 +144,8 @@ class EditsBuildTests(unittest.TestCase):
             change_accent("x\u0302", 1, "\u0308").source,
             switch_bar("¯(x+y)", 3).source,
         ]
-        distribution = distribution_directory()
-        program = """
-const fs = require('fs'), vm = require('vm');
-const context = { performance: require('perf_hooks').performance, console: {log() {}, warn() {}, error() {}} };
-vm.createContext(context);
-vm.runInContext(fs.readFileSync(process.argv[1], 'utf8'), context);
-vm.runInContext(fs.readFileSync(process.argv[2], 'utf8'), context);
-const sources = JSON.parse(fs.readFileSync(0, 'utf8'));
-process.stdout.write(JSON.stringify(sources.map(source =>
-  /mathcolor="#F0[01]"/.test(context.convertUnicodeMathToMathML(source, {resolveControlWords: true}).mathml))));
-"""
-        completed = subprocess.run(
-            ["node", "-e", program, str(distribution / "unicodemathml-parser.js"), str(distribution / "unicodemathml.js")],
-            input=json.dumps(sources),
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        failed = [source for source, error in zip(sources, json.loads(completed.stdout)) if error]
-        self.assertEqual(failed, [])
+        errors = [source for source, result in zip(sources, convert_all(sources), strict=True) if has_error(result["mathml"])]
+        self.assertEqual(errors, [])
 
 
 if __name__ == "__main__":

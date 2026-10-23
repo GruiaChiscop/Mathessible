@@ -1,6 +1,3 @@
-import json
-import shutil
-import subprocess
 import unittest
 
 from matex.build_repair import repairs
@@ -8,7 +5,8 @@ from matex.math_templates import move_to_slot
 from matex.settings import DEFAULT_RECOGNIZED_FUNCTIONS
 from matex.source_view import edit_in_view
 from matex.structure_gallery import CATEGORIES, written_form
-from matex.unicodemath import distribution_directory
+
+from converter_harness import builds, convert_all, needs_node
 
 
 def _items():
@@ -60,33 +58,16 @@ class StructureGalleryTests(unittest.TestCase):
         for item in functions.items:
             self.assertIn(item.label, DEFAULT_RECOGNIZED_FUNCTIONS)
 
-    @unittest.skipUnless(shutil.which("node"), "Node este folosit numai pentru testul parserului oficial")
+    @needs_node
     def test_every_structure_builds_with_the_real_converter(self) -> None:
         # Fresh templates may be half-typed (an empty integrand or index):
         # some repair (build_repair) must build them, as the editor does.
-        candidates = []
+        failed = []
         for _name, item in _items():
-            if item.insert is not None:
-                source = edit_in_view("x+", 2, item.insert, False).source
-                candidates.append([repair.text for repair in repairs(source)])
-        distribution = distribution_directory()
-        program = """
-const fs = require('fs'), vm = require('vm');
-const context = { performance: require('perf_hooks').performance, console: {log() {}, warn() {}, error() {}} };
-vm.createContext(context);
-vm.runInContext(fs.readFileSync(process.argv[1], 'utf8'), context);
-vm.runInContext(fs.readFileSync(process.argv[2], 'utf8'), context);
-const sources = JSON.parse(fs.readFileSync(0, 'utf8'));
-process.stdout.write(JSON.stringify(sources.map(options => options.some(source =>
-  !/mathcolor="#F00"/.test(context.convertUnicodeMathToMathML(source, {resolveControlWords: true}).mathml)))));
-"""
-        completed = subprocess.run(
-            ["node", "-e", program, str(distribution / "unicodemathml-parser.js"), str(distribution / "unicodemathml.js")],
-            input=json.dumps(candidates),
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        built = json.loads(completed.stdout)
-        failed = [options[0] for options, ok in zip(candidates, built) if not ok]
+            if item.insert is None:
+                continue
+            source = edit_in_view("x+", 2, item.insert, False).source
+            candidates = [repair.text for repair in repairs(source)]
+            if not any(builds(result["mathml"]) for result in convert_all(candidates)):
+                failed.append(source)
         self.assertEqual(failed, [])

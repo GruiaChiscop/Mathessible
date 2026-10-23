@@ -1,6 +1,4 @@
 import json
-import shutil
-import subprocess
 import unittest
 
 from matex.unicodemath import (
@@ -13,6 +11,8 @@ from matex.unicodemath import (
     mathml_has_parse_error,
     renderer_page,
 )
+
+from converter_harness import convert, convert_all, has_error, needs_node
 
 
 class UnicodeMathMLTests(unittest.TestCase):
@@ -51,145 +51,46 @@ class UnicodeMathMLTests(unittest.TestCase):
         self.assertTrue(mathml_has_parse_error('<math><mo mathcolor="#F01">/</mo></math>'))
         self.assertFalse(mathml_has_parse_error("<math><mi>x</mi></math>"))
 
-    @unittest.skipUnless(shutil.which("node"), "Node este folosit numai pentru testul parserului oficial")
+    @needs_node
     def test_decimal_comma_is_an_option(self) -> None:
         # patches/unicodemathml/0001: without decimalComma, "{1,2,3}" is a list of three.
-        distribution = distribution_directory()
-        program = """
-const fs = require('fs'), vm = require('vm');
-const context = { performance: require('perf_hooks').performance };
-vm.createContext(context);
-vm.runInContext(fs.readFileSync(process.argv[1], 'utf8'), context);
-vm.runInContext(fs.readFileSync(process.argv[2], 'utf8'), context);
-const out = {};
-for (const comma of [true, false]) {
-  out[comma] = context.convertUnicodeMathToMathML('{1,2,3}', {resolveControlWords: true, decimalComma: comma}).mathml;
-}
-// patches/unicodemathml/0002: where parsing stopped, in the source's own offsets.
-context.console = {log() {}};
-// patches/unicodemathml/0003: a function applied to "qa_n" threw in preprocess.
-out.functionArgument = context.convertUnicodeMathToMathML('sin qa_n', {resolveControlWords: true}).mathml;
-out.stopped = ['\\\\alpha+b)', 'a&b', 'x+1'].map(
-  source => context.convertUnicodeMathToMathML(source, {resolveControlWords: true}).parseError || null);
-process.stdout.write(JSON.stringify(out));
-"""
-        completed = subprocess.run(
-            ["node", "-e", program, str(distribution / "unicodemathml-parser.js"), str(distribution / "unicodemathml.js")],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        results = json.loads(completed.stdout)
-        self.assertIn("<mn>1,2</mn>", results["true"])
-        self.assertIn("<msub>", results["functionArgument"])
-        self.assertEqual(results["stopped"], [{"offset": 8, "found": ")"}, {"offset": 1, "found": "&"}, None])
-        self.assertIn("<mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn>", results["false"])
+        self.assertIn("<mn>1,2</mn>", convert("{1,2,3}", decimalComma=True))
+        self.assertIn("<mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn>", convert("{1,2,3}", decimalComma=False))
 
-    @unittest.skipUnless(shutil.which("node"), "Node este folosit numai pentru testul parserului oficial")
+    @needs_node
+    def test_a_function_applied_to_a_subscripted_letter_converts(self) -> None:
+        # patches/unicodemathml/0003: "sin qa_n" threw in preprocess.
+        self.assertIn("<msub>", convert("sin qa_n"))
+
+    @needs_node
+    def test_the_parser_says_where_it_stopped(self) -> None:
+        # patches/unicodemathml/0002: where parsing stopped, in the source's own offsets.
+        results = convert_all(["\\alpha+b)", "a&b", "x+1"])
+        self.assertEqual(
+            [result["parseError"] for result in results], [{"offset": 8, "found": ")"}, {"offset": 1, "found": "&"}, None]
+        )
+
+    @needs_node
     def test_official_engine_covers_major_syntax_families(self) -> None:
-        distribution = distribution_directory()
         cases = {
             "a/(b+c)": "<mfrac",
             "√(n&a+b)": "<mroot",
             "x_i^2": "<msubsup",
-            "∫_0^∞▒f(x)ⅆx": 'intent=\":nary',
+            "∫_0^∞▒f(x)ⅆx": 'intent=":nary',
             "(■(a&b@c&d))": "<mtable",
             "f̂(x)": "<mover",
-            "sin⁡θ": 'intent=\":function',
+            "sin⁡θ": 'intent=":function',
             "\\alpha+\\beta": "𝛼",
         }
-        program = """
-const fs = require('fs');
-const vm = require('vm');
-const { performance } = require('perf_hooks');
-const context = { performance };
-vm.createContext(context);
-vm.runInContext(fs.readFileSync(process.argv[1], 'utf8'), context);
-vm.runInContext(fs.readFileSync(process.argv[2], 'utf8'), context);
-const cases = JSON.parse(process.argv[3]);
-const results = {};
-for (const [source, needle] of Object.entries(cases)) {
-  const conversion = context.convertUnicodeMathToMathML(source, {
-    splitInput: true,
-    resolveControlWords: true,
-    displaystyle: true,
-    debug: false,
-    caching: true,
-    tracing: false,
-    forceMathJax: false,
-    defaultIntents: true,
-    speakSelectionEnds: false,
-    doubleStruckMode: 'us-tech',
-    transposeChar: 'T'
-  });
-  results[source] = conversion.mathml.includes(needle);
-}
-process.stdout.write(JSON.stringify(results));
-"""
-        completed = subprocess.run(
-            [
-                "node",
-                "-e",
-                program,
-                str(distribution / "unicodemathml-parser.js"),
-                str(distribution / "unicodemathml.js"),
-                json.dumps(cases),
-            ],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        results = json.loads(completed.stdout)
-        self.assertEqual([source for source, passed in results.items() if not passed], [])
+        results = convert_all(list(cases))
+        missing = [source for (source, needle), result in zip(cases.items(), results, strict=True) if needle not in result["mathml"]]
+        self.assertEqual(missing, [])
 
-    @unittest.skipUnless(shutil.which("node"), "Node este folosit numai pentru testul parserului oficial")
+    @needs_node
     def test_official_engine_marks_incomplete_input_with_error_color(self) -> None:
-        distribution = distribution_directory()
         cases = ["a/", "√(", "x_", "(a+b"]
-        program = """
-const fs = require('fs');
-const vm = require('vm');
-const { performance } = require('perf_hooks');
-const context = { performance };
-vm.createContext(context);
-vm.runInContext(fs.readFileSync(process.argv[1], 'utf8'), context);
-vm.runInContext(fs.readFileSync(process.argv[2], 'utf8'), context);
-const cases = JSON.parse(process.argv[3]);
-const results = {};
-for (const source of cases) {
-  const conversion = context.convertUnicodeMathToMathML(source, {
-    splitInput: true,
-    resolveControlWords: true,
-    displaystyle: true,
-    debug: false,
-    caching: true,
-    tracing: false,
-    forceMathJax: false,
-    defaultIntents: true,
-    speakSelectionEnds: false,
-    doubleStruckMode: 'us-tech',
-    transposeChar: 'T'
-  });
-  results[source] = conversion.mathml.includes('mathcolor="#F0');
-}
-process.stdout.write(JSON.stringify(results));
-"""
-        completed = subprocess.run(
-            [
-                "node",
-                "-e",
-                program,
-                str(distribution / "unicodemathml-parser.js"),
-                str(distribution / "unicodemathml.js"),
-                json.dumps(cases),
-            ],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        results = json.loads(completed.stdout)
-        self.assertEqual([source for source, passed in results.items() if not passed], [])
-
+        unmarked = [source for source, result in zip(cases, convert_all(cases), strict=True) if not has_error(result["mathml"])]
+        self.assertEqual(unmarked, [])
 
     def test_control_words_come_from_the_converter_table(self) -> None:
         words = control_words()

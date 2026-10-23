@@ -1,11 +1,9 @@
-import json
-import shutil
-import subprocess
 import unittest
 
 from matex.autocorrect import AutoCorrectTable, default_entries, differences, is_symbol_shortcut
 from matex.build_repair import literal_repair, literal_text, repairs
-from matex.unicodemath import distribution_directory
+
+from converter_harness import convert, needs_node
 
 DEFAULTS = {
     typed: symbol
@@ -60,25 +58,8 @@ class LiteralWordTests(unittest.TestCase):
         for candidate in repairs("√(&\\alpha", literal=("alpha",)):
             self.assertIn('"\\‌alpha"', candidate.text)
 
-    @unittest.skipUnless(shutil.which("node"), "Node is used only for the official converter test")
+    @needs_node
     def test_the_converter_shows_the_text_typed(self) -> None:
-        distribution = distribution_directory()
-        program = """
-const fs = require('fs'), vm = require('vm');
-const context = { performance: require('perf_hooks').performance, console: {log() {}, warn() {}, error() {}} };
-vm.createContext(context);
-vm.runInContext(fs.readFileSync(process.argv[1], 'utf8'), context);
-vm.runInContext(fs.readFileSync(process.argv[2], 'utf8'), context);
-const source = JSON.parse(fs.readFileSync(0, 'utf8'));
-process.stdout.write(JSON.stringify(context.convertUnicodeMathToMathML(source, {resolveControlWords: true}).mathml));
-"""
-        completed = subprocess.run(
-            ["node", "-e", program, str(distribution / "unicodemathml-parser.js"), str(distribution / "unicodemathml.js")],
-            input=json.dumps(literal_text("x+\\alpha", ("alpha",))),
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        mathml = json.loads(completed.stdout)
-        self.assertIn("<mtext>\\‌alpha</mtext>", mathml)
+        mathml = convert(literal_text("x+\\alpha", ("alpha",)))
+        self.assertIn("<mtext>\\\u200calpha</mtext>", mathml)
         self.assertNotIn("α", mathml)
