@@ -1,0 +1,112 @@
+"""Math AutoCorrect as one list, as in Word: the defaults and the user's changes together.
+
+The defaults are the converter's control words (`\\alpha` → α, read from
+UnicodeMathML, so they follow the submodule) and MateX's symbol shortcuts
+(`->` → →, space_conversion.SHORTCUTS). The user can change or delete any
+entry and add new ones; only the differences are saved (entries added or
+changed, defaults deleted), so a converter update still brings its new
+words, and "Reset to defaults" just forgets the differences.
+
+An entry typed as `\\word` is a control word (Space, punctuation, Tab and
+completion know it); any other is a shortcut. A shortcut made only of
+symbols (`->`) may convert as soon as it is typed; one with letters or
+digits only on Space, as a whole word, so it never changes a word while
+it is being typed.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Mapping
+from dataclasses import dataclass
+from functools import cache
+
+
+@dataclass(frozen=True, slots=True)
+class AutoCorrectTable:
+    """The effective list: `defaults`, less `removed`, with `overrides` added or replacing."""
+
+    defaults: Mapping[str, str]
+    overrides: tuple[tuple[str, str], ...] = ()
+    removed: tuple[str, ...] = ()
+
+    def entries(self) -> dict[str, str]:
+        removed = set(self.removed)
+        table = {typed: replacement for typed, replacement in self.defaults.items() if typed not in removed}
+        table.update(self.overrides)
+        return table
+
+    def control_words(self) -> dict[str, str]:
+        """Control words without their backslash ("alpha": "α")."""
+        return {typed[1:]: replacement for typed, replacement in self.entries().items() if is_control_word(typed)}
+
+    def shortcuts(self) -> dict[str, str]:
+        return {typed: replacement for typed, replacement in self.entries().items() if not is_control_word(typed)}
+
+    def removed_words(self) -> tuple[str, ...]:
+        """Default control words the user deleted and did not add back ("alpha"), for literal text."""
+        entries = self.entries()
+        return tuple(typed[1:] for typed in self.removed if is_control_word(typed) and typed not in entries)
+
+
+def is_control_word(typed: str) -> bool:
+    return typed.startswith("\\") and len(typed) > 1 and typed[1:].isascii() and typed[1:].isalnum()
+
+
+def is_symbol_shortcut(typed: str) -> bool:
+    """A shortcut that may convert as soon as its last character is typed (no letter or digit in it)."""
+    return not is_control_word(typed) and not any(character.isalnum() for character in typed)
+
+
+# Greek letters the converter's table leaves out (TeX's tradition: capitals that
+# look like Latin ones, and omicron). They are other characters (Α is U+0391,
+# not A): MathCAT reads "cap alpha", and the converter builds them.
+GREEK_ADDITIONS = {
+    "Alpha": "Α",
+    "Beta": "Β",
+    "Epsilon": "Ε",
+    "Zeta": "Ζ",
+    "Eta": "Η",
+    "Iota": "Ι",
+    "Kappa": "Κ",
+    "Mu": "Μ",
+    "Nu": "Ν",
+    "Omicron": "Ο",
+    "Rho": "Ρ",
+    "Tau": "Τ",
+    "Chi": "Χ",
+    "omicron": "ο",
+}
+
+
+def default_entries(control_words: Mapping[str, str] | None, shortcuts: Mapping[str, str]) -> dict[str, str]:
+    words = {**GREEK_ADDITIONS, **(control_words or {})}  # The converter's own spelling wins.
+    table = {f"\\{word}": symbol for word, symbol in words.items()}
+    table.update(shortcuts)
+    return table
+
+
+def differences(
+    defaults: Mapping[str, str], entries: Mapping[str, str]
+) -> tuple[tuple[tuple[str, str], ...], tuple[str, ...]]:
+    """What to save for an edited list: (entries added or changed, defaults deleted), both sorted."""
+    overrides = tuple(
+        sorted((typed, replacement) for typed, replacement in entries.items() if defaults.get(typed) != replacement)
+    )
+    removed = tuple(sorted(typed for typed in defaults if typed not in entries))
+    return overrides, removed
+
+
+@cache
+def autocorrect_defaults() -> Mapping[str, str]:
+    """The default list: the converter's control words (a small fallback without it) and MateX's shortcuts.
+
+    Built once (every key press asks); read-only, the dialog edits a copy.
+    """
+    from matex.editing.space_conversion import FALLBACK_CONTROL_WORDS, SHORTCUTS
+    from matex.unicodemath import control_words
+
+    try:
+        words = control_words()
+    except (OSError, ValueError):
+        words = FALLBACK_CONTROL_WORDS
+    return default_entries(words, SHORTCUTS)

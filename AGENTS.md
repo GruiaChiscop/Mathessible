@@ -37,7 +37,7 @@ spelling.
   operand-ending spaces (the ones its own lineariser writes), and never
   removes the user's spaces.
 - Converter-output fixes for MathCAT go through `prepare_for_mathcat`
-  ([mathcat_prepare.py](src/matex/mathcat_prepare.py)); the converter's
+  ([mathcat/prepare.py](src/matex/mathcat/prepare.py)); the converter's
   own markers (`mathcolor="#F00"`/`"#F01"`) are the only test of whether a
   source builds.
 - Equations are understood only by the converter (UnicodeMathML in a
@@ -48,6 +48,10 @@ spelling.
 
 ## Code Rules
 
+- Code lives by concern in `src/matex/`: `editor/` and `ui/` are the wx
+  code, `editing/`, `templates/`, `mathcat/`, `documents/` and `symbols/`
+  the logic (the table is in the engineering notes, "Code Organisation").
+  Imports are absolute (`from matex.editing.source_map import ...`).
 - New logic goes in a wx-free module with unit tests. GUI modules guard
   `import wx` and expose a stub class without it, so the package stays
   importable for tests.
@@ -62,7 +66,7 @@ spelling.
   tuples (bare `except Exception` only where assistive output must never
   crash the editor). A formatting-only commit goes in
   `.git-blame-ignore-revs`.
-- Colours come from [theme.py](src/matex/theme.py), whose tests enforce
+- Colours come from [ui/theme.py](src/matex/ui/theme.py), whose tests enforce
   WCAG contrast in light and dark appearance.
 
 ## Validation
@@ -95,11 +99,11 @@ spelling.
 
 ## Security-Sensitive Code
 
-- [mathml_sanitize.py](src/matex/mathml_sanitize.py) `sanitize_mathml` is
+- [documents/mathml_sanitize.py](src/matex/documents/mathml_sanitize.py) `sanitize_mathml` is
   the allow-list before converter output is embedded in exported HTML.
   Adding a tag or attribute is a security decision.
-- [notebook.py](src/matex/notebook.py) `_validate_page_path` and
-  [portable_notebook.py](src/matex/portable_notebook.py)
+- [documents/notebook.py](src/matex/documents/notebook.py) `_validate_page_path` and
+  [documents/portable_notebook.py](src/matex/documents/portable_notebook.py)
   `_safe_archive_path` guard against path traversal and symlinks; route
   every new page or file field through them.
 

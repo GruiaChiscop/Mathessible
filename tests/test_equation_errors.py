@@ -1,6 +1,6 @@
 import unittest
 
-from matex.equation_errors import find_errors
+from matex.editing.equation_errors import find_errors
 
 TABLE = {"alpha": "α", "sqrt": "√", "of": "▒", "int": "∫"}
 

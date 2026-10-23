@@ -1,11 +1,11 @@
 import unittest
 
 from converter_harness import builds, convert_all, needs_node
-from matex.build_repair import repairs
-from matex.math_templates import move_to_slot
+from matex.editing.build_repair import repairs
+from matex.editing.source_view import edit_in_view
 from matex.settings import DEFAULT_RECOGNIZED_FUNCTIONS
-from matex.source_view import edit_in_view
-from matex.structure_gallery import CATEGORIES, written_form
+from matex.templates.math_templates import move_to_slot
+from matex.templates.structure_gallery import CATEGORIES, written_form
 
 
 def _items():

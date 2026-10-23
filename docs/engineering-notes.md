@@ -6,7 +6,7 @@ this file is the long memory. Paths are relative to the repository root.
 
 ## Product Direction: a Word-style Equation Editor, but Better
 
-The working goal for `EquationEditor` ([editor.py](../src/matex/editor.py)) is to
+The working goal for `EquationEditor` ([editor/equation_editor.py](../src/matex/editor/equation_editor.py)) is to
 match — then exceed — Microsoft Word's built-in equation editor, on three
 axes: **editing power** (Word's structure gallery and matrix tools),
 **speed** (Word's linear-format autocorrect and keyboard-only workflow), and
@@ -32,9 +32,9 @@ equation language; the gap is entirely in the editing UX layered on top.
 - `F2` toggling linear/professional view (Word literally calls this
   "Linear"/"Professional" in its own equation right-click menu).
 - Tab-to-empty-slot template navigation
-  ([math_templates.py](../src/matex/math_templates.py)).
+  ([templates/math_templates.py](../src/matex/templates/math_templates.py)).
 - Math AutoCorrect while typing
-  ([space_conversion.py](../src/matex/space_conversion.py)): a control word
+  ([editing/space_conversion.py](../src/matex/editing/space_conversion.py)): a control word
   converts on Space (the space is consumed — it can change the grouping,
   `1/\pi x` vs `1/π x`) or on punctuation/operators (kept: `\int_` →
   `∫_`), using the converter's own table (`unicodemath.control_words()`,
@@ -45,7 +45,7 @@ equation language; the gap is entirely in the editing UX layered on top.
   is typed (`convert_shortcuts_immediately` setting), a longer one
   replacing an already converted prefix (`←` + `>` → `↔`).
 - Control-word completion, as Word's autocomplete list
-  ([completion.py](../src/matex/completion.py), setting
+  ([editing/completion.py](../src/matex/editing/completion.py), setting
   `complete_control_words`, on by default): while `\` + letters is typed
   (`\al`), the matching words of the converter's table are spoken after
   the character ("l, alef, 1 of 3"; the word typed in full first, then
@@ -58,7 +58,7 @@ equation language; the gap is entirely in the editing UX layered on top.
   or the linear caret moves. It is computed in the linear typing/Backspace
   path, so professional-view typing (which runs that path) gets it too,
   and Tab there goes through `_edit_in_built`. Insert > Symbol…
-  (Cmd+Shift+S, `SymbolDialog` in [symbol_dialog.py](../src/matex/symbol_dialog.py))
+  (Cmd+Shift+S, `SymbolDialog` in [ui/symbol_dialog.py](../src/matex/ui/symbol_dialog.py))
   searches the same table by word, symbol or dictionary name
   (`search_symbols`) and inserts the control word or the symbol, per
   `template_control_words`. Native controls only (the search field, then
@@ -68,8 +68,8 @@ equation language; the gap is entirely in the editing UX layered on top.
 - Selection, clipboard (Cmd/Ctrl+C/X/V), word navigation, and a right-click
   context menu in linear mode, all platform-correct (`CmdDown()` for the
   primary modifier, Option-not-Command for word movement on macOS — see
-  `_word_navigation_down` in [editor.py](../src/matex/editor.py)).
-- Key map conventions ([editor.py](../src/matex/editor.py)): Home/End go to
+  `_word_navigation_down` in [editor/equation_editor.py](../src/matex/editor/equation_editor.py)).
+- Key map conventions ([editor/equation_editor.py](../src/matex/editor/equation_editor.py)): Home/End go to
   start/end in both modes, and on macOS Command+Left/Right does the same
   (`_effective_key` rewrites them to Home/End). Matrix cell navigation is
   therefore Command+Option+arrows on macOS / Ctrl+Alt+arrows elsewhere
@@ -82,7 +82,7 @@ equation language; the gap is entirely in the editing UX layered on top.
    Radical, Integral, Large Operator, Bracket, Function, Accent, Limit/Log,
    Operator, Matrix), each with several visual variants, inserted as
    Tab-able placeholders. Done so far, all in
-   [math_templates.py](../src/matex/math_templates.py): fraction (Ctrl+/),
+   [templates/math_templates.py](../src/matex/templates/math_templates.py): fraction (Ctrl+/),
    square root (Ctrl+R), subscript/superscript (Ctrl+=/Ctrl+Shift+=,
    mirroring Word's own character-formatting shortcuts), absolute value
    (Ctrl+\\), integral/sum/product (Ctrl+I/Ctrl+S/Ctrl+P bare `∫▒`, caret
@@ -100,7 +100,7 @@ equation language; the gap is entirely in the editing UX layered on top.
    `"∫▒"` with nothing typed after it is a total parse failure until
    filled in, same as any other empty template, not a bug.
    Matrix (Ctrl+Shift+M, or Insert > Matrix…)
-   opens `MatrixDialog` ([matrix_dialog.py](../src/matex/matrix_dialog.py):
+   opens `MatrixDialog` ([ui/matrix_dialog.py](../src/matex/ui/matrix_dialog.py):
    rows, columns, fence) and inserts `insert_matrix_template`'s output,
    e.g. `(■(&@&))`. Cells are left genuinely empty, not filled with "()":
    the real converter keeps "()" inside an `mtd` as visible parens, while
@@ -202,7 +202,7 @@ equation language; the gap is entirely in the editing UX layered on top.
    dictionary only echoes typing, and the linear view's source): where a
    character, not a node, is read (an interval's fence, inside "4345", a
    selection, the insertion point, a node's name on copy/delete),
-   [mathcat_lone.py](../src/matex/mathcat_lone.py) has MathCAT read it alone
+   [mathcat/lone.py](../src/matex/mathcat/lone.py) has MathCAT read it alone
    as `<math><mo>(</mo></math>`, on one long-lived worker thread
    (MathCAT's state is per thread, so the equation being read is
    untouched), cached per language/style. Starting MathCAT there costs
@@ -219,7 +219,7 @@ equation language; the gap is entirely in the editing UX layered on top.
    into the numbers `1,2` and `,3` (a decimal comma), read "12 3".
    **Slot model:** a Tab-able slot is any template argument, *filled or
    empty* — a "(...)" group classified by `_detect_group`, or any matrix
-   cell (`_slots` in math_templates.py). Filled slots must stay reachable:
+   cell (`_slots` in templates/math_templates.py). Filled slots must stay reachable:
    Shift+Tab back into a slot after typing in it was the bug that drove
    this. `move_to_slot` goes by content start in source order (an
    enclosing slot before the ones nested in it), lands at the *end* of the
@@ -241,13 +241,13 @@ equation language; the gap is entirely in the editing UX layered on top.
 2. **Matrix row/column editing** — done for linear mode: the context
    menu's "Matrix" submenu (only present while the caret is in a cell)
    calls `insert_matrix_row`/`insert_matrix_column`/`delete_matrix_row`/
-   `delete_matrix_column` in [matrix_templates.py](../src/matex/matrix_templates.py),
+   `delete_matrix_column` in [templates/matrix_templates.py](../src/matex/templates/matrix_templates.py),
    which rebuild the innermost matrix's body from `matrix_cells` (MathCAT
    is read-only, so this is pure source rewriting). Ragged rows are padded
    with empty cells on column insert; deleting the last row/column returns
    `None` (menu item disabled). The menu also opens with Shift+F10 / the
    Menu key, and works in professional mode too: `_matrix_caret` in
-   editor_structures.py maps MathCAT's cell back to source by table order
+   editor/structures.py maps MathCAT's cell back to source by table order
    (the n-th `mtable` in `MathMLDocument.tables()` is the n-th `■(` or
    `█(`: `TABLE_SIGNS`, `matrix_cell_caret(..., signs=)`) and refuses when
    the counts differ. Cases and equation arrays get "Cases"/"Equations"
@@ -267,7 +267,7 @@ equation language; the gap is entirely in the editing UX layered on top.
    while in a fraction) switching Word's styles: stacked `/`, skewed `⁄`
    (`bevelled`), linear `∕` (an inline `<mo>/</mo>`), small `⊘`
    (`displaystyle="false"`) — `restyle_fraction` in
-   [fraction_styles.py](../src/matex/fraction_styles.py).
+   [templates/fraction_styles.py](../src/matex/templates/fraction_styles.py).
    Linear drops the parens around its operands, so a multi-token "(...)"
    operand is doubled (`((a+b))∕c`) and undoubled on the way back.
    Professional mode maps MathCAT's innermost `mfrac` to the n-th
@@ -276,15 +276,15 @@ equation language; the gap is entirely in the editing UX layered on top.
    for every built style, "divided by" for linear.
    "Root" (Add/Remove Index: `√(x)` ↔ `√(&x)`, `∛`/`∜` → `√`) and
    "Integral"/"Sum"/"Product" (Add/Remove Limits: `∫▒x` ↔ `∫_()^()▒x`)
-   submenus, in [structure_edits.py](../src/matex/structure_edits.py). All
+   submenus, in [templates/structure_edits.py](../src/matex/templates/structure_edits.py). All
    structure submenus share one source↔MathCAT mapping
    (`_StructureKind`/`_structure_offset`/`_place_on` in
-   editor_structures.py: n-th node of a kind = n-th source offset). An
+   editor/structures.py: n-th node of a kind = n-th source offset). An
    added empty index is a parse error, so in professional mode that edit
    drops to linear view with the caret in the index instead of rebuilding.
    **Script, Brackets, Accent and Bar submenus** (Word's options for those
    structures; `_append_caret_structure_menus`, edits in
-   [structure_edits.py](../src/matex/structure_edits.py)): add/remove a
+   [templates/structure_edits.py](../src/matex/templates/structure_edits.py)): add/remove a
    subscript or superscript (`scripts`: not ∑'s limits nor lim/log's own,
    whose menus edit those; a multi-letter name is one base, `sin^2`);
    change a visible bracket pair to another kind, hide or show either side
@@ -302,7 +302,7 @@ equation language; the gap is entirely in the editing UX layered on top.
    token (`(a)/(b)` renders identically to `a/b`), but `_`/`^` only strip
    them on the *argument* side — `(x)_(i)` keeps visible parens around `x`.
    `insert_subscript_template`/`insert_superscript_template` in
-   [math_templates.py](../src/matex/math_templates.py) work around this by
+   [templates/math_templates.py](../src/matex/templates/math_templates.py) work around this by
    reusing an existing preceding token as the base instead of wrapping an
    empty one; check the real MathML output (`EquationEditor.convert_unicode_math`)
    for stray `intent=":fenced"` wrappers whenever a new template is added,
@@ -344,8 +344,8 @@ equation language; the gap is entirely in the editing UX layered on top.
    function application, the name with `intent="limit-superior"` (as a
    bare `<mi>` MathCAT read "limsup").
    **The gallery itself** (Insert > Structure Gallery…, Cmd+Shift+G;
-   [structure_gallery.py](../src/matex/structure_gallery.py), dialog in
-   [gallery_dialog.py](../src/matex/gallery_dialog.py)): Word's 11 categories
+   [templates/structure_gallery.py](../src/matex/templates/structure_gallery.py), dialog in
+   [ui/gallery_dialog.py](../src/matex/ui/gallery_dialog.py)): Word's 11 categories
    plus "Other", each a list of `InsertItem`s, so a gallery pick goes through
    `insert_item` like a menu entry (`_insert_linear` → `_choose_from_gallery`,
    then the chosen item; built view included). Menu entries are reused by
@@ -367,8 +367,8 @@ equation language; the gap is entirely in the editing UX layered on top.
    tests/test_structure_gallery.py builds every variant with the real
    converter (after `build_repair`, as the editor does), so a variant that
    stops building fails there.
-   **Math AutoCorrect is one list, as in Word** ([autocorrect.py](../src/matex/autocorrect.py),
-   Settings > Math AutoCorrect…, [autocorrect_dialog.py](../src/matex/autocorrect_dialog.py)):
+   **Math AutoCorrect is one list, as in Word** ([editing/autocorrect.py](../src/matex/editing/autocorrect.py),
+   Settings > Math AutoCorrect…, [ui/autocorrect_dialog.py](../src/matex/ui/autocorrect_dialog.py)):
    the defaults are the converter's control words (`\alpha`, read from
    UnicodeMathML), the Greek letters its table leaves out (TeX's
    tradition: `\Alpha`, `\Beta`, … `\Chi` and `\omicron`, whose capitals
@@ -392,7 +392,7 @@ equation language; the gap is entirely in the editing UX layered on top.
    `mtext` back to `\alpha`. On, the converter shows the symbol as before.
    The dialog is Word's: Replace, With, the list, Add/Replace, Delete,
    Reset to Defaults; typing in Replace moves the list to its entry.
-4. Do not grow local autocorrect dicts: `space_conversion.py` uses the
+4. Do not grow local autocorrect dicts: `editing/space_conversion.py` uses the
    converter's table, and its `FALLBACK_CONTROL_WORDS` only matters
    without the submodule.
 
@@ -405,7 +405,7 @@ to Nemeth. There is no Romanian maths braille code in MathCAT.
 
 **Where MateX should stay ahead of Word, not just catch up:** MathCAT
 structural navigation/speech, the braille strip
-(`_update_braille_display` in [editor.py](../src/matex/editor.py)), and
+(`_update_braille_display` in [editor/equation_editor.py](../src/matex/editor/equation_editor.py)), and
 plain-text UnicodeMath stored directly in Markdown (no binary/XML equation
 object, no MathType lock-in) are already real advantages over Word's own
 equation editor. Don't trade these away for editing-speed features — any
@@ -463,7 +463,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   them in `EquationEditor._toggle_mode`). Word mixes built and still-linear
   runs within one equation, built incrementally. Closing that gap is a
   separate, larger project (the equation becomes a sequence of linear/built
-  runs — touches `editor.py`, layout, and cursor tracking).
+  runs — touches `editor/equation_editor.py`, layout, and cursor tracking).
 - **Proposed staged approach**:
   1. ~~On a trigger character, if the whole source converts cleanly, switch
      to professional mode.~~ Tried and removed (see above): it takes the
@@ -474,7 +474,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      (2) typing/Backspace/Delete in professional mode, done (below);
      (3) a caret between nodes, done (below); (4) incomplete source while typing, done (below);
      (5) open equations built, done (below).
-     **Step 1, [source_map.py](../src/matex/source_map.py):** the converter
+     **Step 1, [editing/source_map.py](../src/matex/editing/source_map.py):** the converter
      keeps no source positions, and its Ⓐ/Ⓕ selection markers are no help
      (they attach to the *next* node, vanish at the end, and break parsing
      inside parens: `√(xⒶ())` is an error). `map_leaves(source,
@@ -488,7 +488,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      symbols, and NFKC (used for 𝑥 → x) must only touch letters/digits or
      `∬` becomes `∫∫`. A stress run over ~50 forms leaves no visible leaf
      unmatched.
-     **Step 2, `_edit_built_equation` in editor.py:** in professional mode a
+     **Step 2, `_edit_built_equation` in editor/equation_editor.py:** in professional mode a
      printable key (no Cmd/Ctrl, not Space, which reads) or Backspace/Delete
      edits the source at `anchor_offset` of `MathCatNavigator.edit_anchor()`
      (after the current item; before it on a "start X"/"start of math"
@@ -516,7 +516,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      structural level edges and "start/end of math" are outside too.
      `anchor_offset(..., outside=True)` widens over the structure's own
      parens and sign (`√`, `■`). Shift+Option+Space (Shift+Alt+Space) reads
-     the point ([insertion_point.py](../src/matex/insertion_point.py): "after
+     the point ([editing/insertion_point.py](../src/matex/editing/insertion_point.py): "after
      1, end of numerator, before 2", "start of denominator, before 2",
      "after the fraction, before plus", "after 1, end of column 1, before
      2"); it describes the anchor, not an offset, since one offset can be
@@ -535,7 +535,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      (2026-10-22, "let me decide when a space goes in"), restored the same
      day once the user saw that Word keeps x outside the fraction this way.
      No other space is ever added, and the user's own are never removed.
-     **Step 4, [build_repair.py](../src/matex/build_repair.py):** sources the
+     **Step 4, [editing/build_repair.py](../src/matex/editing/build_repair.py):** sources the
      converter cannot build at all while half-typed (a bare `▒`, `√(&x)`,
      `√(&)`, an open quote, `|` or `■(`) are built from a *repaired* text
      instead: U+200B (a clean empty argument to the converter) where an
@@ -562,7 +562,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      was no node at all; the stop builder now speaks such an empty leaf as
      "empty" instead of skipping it like an invisible operator, and "index"
      is a region (so "in empty index").
-     **Whole nodes ([node_edits.py](../src/matex/node_edits.py)):** in
+     **Whole nodes ([editing/node_edits.py](../src/matex/editing/node_edits.py)):** in
      professional view Cmd+C/X copy/cut MathCAT's current node (its source
      widened over its own parens and sign) and Cmd+V pastes at the
      insertion point. Backspace/Delete still delete *one character* on a
@@ -591,7 +591,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      it. The renderer highlights its leaves (`_selected_ids`;
      `matexHighlight` takes space-separated ids).
      **Errors, like a code editor's problem list** (F8, Equation >
-     Errors…): [equation_errors.py](../src/matex/equation_errors.py)
+     Errors…): [editing/equation_errors.py](../src/matex/editing/equation_errors.py)
      `find_errors` scans the source itself, on the control-word view, since
      the converter gives no position (`#F01` on a dangling token, `#F00`
      around everything): unbalanced brackets (any opener pairs with any
@@ -649,11 +649,11 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      `_enter_professional_mode` used to answer that by dropping MathCAT
      altogether — so F2 on an empty source now just says "empty equation",
      and deleting everything in professional view goes back to linear.
-- **Where it plugs in**: the completeness check must run from `editor.py`
+- **Where it plugs in**: the completeness check must run from `editor/equation_editor.py`
   (only place with WebView access); trigger-character detection (which
   keystrokes/positions qualify — mind that `.`/`,` are also decimal points
   and matrix cell separators, not always sentence punctuation) should stay
-  pure/testable, in the same style as `space_conversion.py`.
+  pure/testable, in the same style as `editing/space_conversion.py`.
 
 ## Two Separate Maths Representations — Do Not Conflate Them
 
@@ -662,12 +662,12 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   official `UnicodeMathML` JS engine (loaded in a `wx.html2.WebView`, see
   [unicodemath.py](../src/matex/unicodemath.py)) to get
   real MathML, then hands that MathML to the native `matex_mathcat` PyO3
-  binding ([mathcat.py](../src/matex/mathcat.py)) for speech, structural
-  navigation, and braille. [mathml_model.py](../src/matex/mathml_model.py)
+  binding ([mathcat/navigator.py](../src/matex/mathcat/navigator.py)) for speech, structural
+  navigation, and braille. [mathcat/mathml_model.py](../src/matex/mathcat/mathml_model.py)
   re-parses that MathML into a `MathMLDocument` used for semantic regions,
   table/matrix position.
 - **The same WebView is the visible renderer** (`_sync_renderer` in
-  editor_renderer.py): in linear mode it is a live preview under the source, in
+  editor/renderer.py): in linear mode it is a live preview under the source, in
   professional mode it fills the editor and shows *MathCAT's* canonical
   MathML, so `mathml_current_id` is a real DOM id and `matexHighlight`
   marks exactly what MathCAT is on; a click posts the clicked node's id
@@ -699,7 +699,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   checking focus, and AppKit offers key equivalents to every view in the key
   window — so the document preview stole Cmd+A from the Markdown editor and
   the equation renderer stole it from the equation editor.
-  [macos_webview.py](../src/matex/macos_webview.py) replaces that one method
+  [ui/macos_webview.py](../src/matex/ui/macos_webview.py) replaces that one method
   (ctypes, Objective-C runtime) to act only when the web view has the focus.
   Separately, the stock Edit ids `wxID_CUT/COPY/PASTE/SELECTALL` are native
   actions only a native text view can perform, so the equation window's
@@ -707,7 +707,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   Markdown editor keeps the stock ids. Verified by the user with a key log,
   not by synthetic events (CGEventPostToPid results were inconsistent here).
 - **The equation editor is a window, not a modal dialog**
-  (`EquationWindow` in [document_editor.py](../src/matex/document_editor.py)):
+  (`EquationWindow` in [ui/document_editor.py](../src/matex/ui/document_editor.py)):
   a macOS modal session disables every other window's menu bar, so a
   modal dialog could never offer an Insert menu (confirmed by the user:
   the main frame's Insert stayed dimmed). It is a `wx.Frame` with its own
@@ -723,7 +723,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   off by default): a second WebView in a splitter beside the Markdown
   editor, filled via `html_export.preview_update_script` (same sanitised
   rendering as HTML export) with a 350 ms debounce.
-- Colours for the custom-drawn editor come from [theme.py](../src/matex/theme.py);
+- Colours for the custom-drawn editor come from [ui/theme.py](../src/matex/ui/theme.py);
   its tests enforce WCAG contrast (4.5:1 text, 3:1 focus ring) in both
   light and dark appearance — keep new colours in that palette.
 - **No fallback system any more** (removed 2026-10-23, the user's
@@ -732,7 +732,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   editor when the native extension or the WebView was missing, with a
   grammar too small for real use, and parsed the source on every key even
   when MathCAT was there. Now the editor keeps only the text
-  ([equation_source.py](../src/matex/equation_source.py)); without MathCAT
+  ([editing/equation_source.py](../src/matex/editing/equation_source.py)); without MathCAT
   professional view refuses with `MATHCAT_MISSING`, a reading failure drops
   to linear view, and `MainFrame` warns at startup (`mathcat_load_error`,
   `WebView.IsBackendAvailable`, the patch check).
@@ -743,7 +743,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
     wrong cell. The matrix dialog therefore offers no "no brackets" option.
   - The converter's `|■(...)|` output (`intent="determinant($a)"` +
     `arg="a"`) has the same problem; `prepare_for_mathcat` in
-    [mathcat.py](../src/matex/mathcat.py) rewrites it to a plain `:fenced`
+    [mathcat/navigator.py](../src/matex/mathcat/navigator.py) rewrites it to a plain `:fenced`
     mrow, which MathCAT reads as "the 2 by 2 determinant". Route any future
     converter-output fixups for MathCAT through that function.
   - Cell commands issued while MathCAT's cursor sits on an `mtd` itself
@@ -773,7 +773,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   - `AutoZoomOut` (setting `auto_zoom_out`, default off; forced on for
     linear navigation) only makes MathCAT stop at the edge of a *whole* 2D
     structure — from the last item inside a numerator, Right still lands in
-    the denominator. `_hold_inside_zoomed_group` in mathcat.py reverts that
+    the denominator. `_hold_inside_zoomed_group` in mathcat/navigator.py reverts that
     move with `set_navigation` and says "end of numerator". With it off,
     MathCAT's en rules also say nothing at the end of the maths and "end of"
     on Left at a group's start; `_edge_speech` patches both rather than
@@ -791,10 +791,10 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
     (`intent_from_mathml` in navigate.rs), but that is now cheap.
   - **Linear navigation** (`linear_navigation` setting) walks a list of
     stops found by simulating Right from the start of the maths
-    (`extend_linear_stops` in mathcat.py); Right/Left move along that list,
+    (`extend_linear_stops` in mathcat/navigator.py); Right/Left move along that list,
     so Left retraces Right exactly. The list is computed on a worker
     thread (`linear_stops_job` / `adopt_linear_stops`;
-    `_start_linear_preparation` in editor.py) with its *own* MathCAT:
+    `_start_linear_preparation` in editor/equation_editor.py) with its *own* MathCAT:
     MathCAT keeps all state in thread-locals and the binding releases the
     GIL (`py.detach`) on every call, so the UI stays responsive. Since the
     Unicode-reload fix it takes ~0.1 s even on long `=` chains (it took
@@ -866,7 +866,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
       (the "end limit condition" stop, or after its last item) is still
       inside the `)`: it now opens the argument there too, or goes into
       the one already open (`_at_condition_end`, `_existing_argument` in
-      editor.py; only while `_editing_built`, the linear view keeps plain
+      editor/equation_editor.py; only while `_editing_built`, the linear view keeps plain
       text editing). The user's report: after fixing `llim` to `lim`,
       Space never opened the argument. The insertion point after a typed space names the next
       leaf in the source ("after space, before lim", `_next_in_source`).
@@ -900,12 +900,23 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
 
 ## Code Organisation
 
-Pure-logic modules (mathml_model,
-  mathml_sanitize, symbol_dictionary, notebook, portable_notebook, settings,
-  space_conversion, completion, equation_errors, template_source, math_templates, matrix_templates,
-  fraction_styles, structure_edits, source_view, source_map, insert_catalog, structure_gallery, character_speech, edit_history,
-  html_export, markdown_math, document_io, unicodemath) import `wx`
-  nowhere and are unit tested. Templates: `template_source` holds
+`src/matex/` is split by concern (2026-10-23; the notes above name
+modules as they were then, without their package):
+
+| Package | What is in it | wx? |
+| --- | --- | --- |
+| top level | `app` (entry point), `settings`, `unicodemath` (the converter bridge), `session_log`, `patch_check` | no |
+| `editor/` | `EquationEditor` (`equation_editor`) and its mixins: `renderer`, `built`, `structures`, `assist`, `drawing`, `keys` (were `editor_*`) | yes |
+| `editing/` | editing logic: `autocorrect`, `space_conversion`, `completion`, `source_map`, `source_view`, `build_repair`, `insertion_point`, `node_edits`, `edit_history`, `equation_errors`, `equation_source`, `character_speech`, `word_navigation` | no |
+| `templates/` | `template_source`, `math_templates`, `matrix_templates`, `fraction_styles`, `structure_edits`, `insert_catalog`, `structure_gallery` | no |
+| `mathcat/` | `navigator` (`MathCatNavigator`, was `mathcat`), `stops`, `structural`, `tables`, `common`, `prepare`, `lone` (were `mathcat_*`), `mathml_model` | no |
+| `documents/` | `markdown_math`, `document_io`, `notebook`, `portable_notebook`, `html_export`, `mathml_sanitize` | no |
+| `symbols/` | `dictionary`, `download` (were `symbol_*`) and the built-in `matex-en.dic` | no |
+| `ui/` | `main_frame`, `document_editor`, the dialogs, `macos_webview`, `speech`, `clipboard`, `theme` | yes |
+
+Imports are absolute (`from matex.templates.math_templates import ...`).
+Everything outside `editor/` and `ui/` imports `wx` nowhere and is unit
+tested. Templates: `template_source` holds
   `TemplateEdit` and the paren scan, `math_templates` the inserters and
   Tab slots, `matrix_templates`/`fraction_styles` their structures'
   edits, and `insert_catalog` the one list of Insert entries and their
@@ -917,7 +928,7 @@ Pure-logic modules (mathml_model,
   (default), symbols otherwise. The scanners stay symbol-based: the editor
   never calls them on the raw source but through `source_view`
   (`edit_in_view` for edits and Tab, `in_view`/`view_of` for queries, the
-  `_edit` helper in editor_structures.py), which resolves control words
+  `_edit` helper in editor/structures.py), which resolves control words
   exactly as the converter's `resolveCW` does (`\\[A-Za-z0-9]+` plus one
   optional space, so `\of  x` with two spaces is an error) and writes only
   the changed span back. A word needs a trailing space before a letter or
@@ -930,7 +941,7 @@ Pure-logic modules (mathml_model,
   in the built equation: insertion point, character/node steps, selection,
   whole-node edits, rebuilding), `editor_assist` (completion, symbol
   search, error list); `editor_keys` holds the platform modifier helpers
-  they share. `editor.py` keeps state, key dispatch, linear editing and
+  they share. `editor/equation_editor.py` keeps state, key dispatch, linear editing and
   view switching. The mixins only add methods, all state lives in
   `EquationEditor.__init__`. `MathCatNavigator` likewise: `mathcat_stops`
   (linear stops), `mathcat_structural`, `mathcat_tables` (cells, rows) are
@@ -941,8 +952,8 @@ Pure-logic modules (mathml_model,
   character ~30 ms, mostly the WebView conversion; `_convert_source`
   reuses its last result (an edit checked the build, then converted again
   to rebuild) and `MathCatNavigator.load(speak=False)` skips the whole
-  expression's speech where nothing reads it. GUI modules (`editor.py`, `document_editor.py`, `main_frame.py`,
-  `settings_dialog.py`, `app.py`) guard `import wx` in a `try/except
+  expression's speech where nothing reads it. GUI modules (`editor/equation_editor.py`, `ui/document_editor.py`, `ui/main_frame.py`,
+  `ui/settings_dialog.py`, `app.py`) guard `import wx` in a `try/except
   ImportError` and expose a stub class that raises `RuntimeError` when wx is
   absent, so the whole package stays importable (and the logic modules
   testable) without wxPython installed. Keep this split when adding code —
@@ -1038,13 +1049,13 @@ Pure-logic modules (mathml_model,
   symbol dictionaries can be used). NVDA's `symbols.dic` files are never
   committed: Settings > "Download NVDA dictionaries…" (for users of a
   binary, no `uv`) and `matex-fetch-symbols` both call
-  `download_languages` in [symbol_download.py](../src/matex/symbol_download.py),
+  `download_languages` in [symbols/download.py](../src/matex/symbols/download.py),
   into `~/.matex/symbols/nvda-<lang>.dic`. In Settings the network calls
   run on a worker thread behind a pulsing `wx.ProgressDialog`
   (`_in_background`); the thread only writes files, results go back
   through a `wx.CallLater` poll. Typed-character echo and the
   linear view's source reading (never the built equation, see
-  `mathcat_lone`) name symbols only from dictionaries ([symbol_dictionary.py](../src/matex/symbol_dictionary.py),
+  `mathcat_lone`) name symbols only from dictionaries ([symbols/dictionary.py](../src/matex/symbols/dictionary.py),
   the `symbol_dictionary` setting, built-in `src/matex/symbols/matex-en.dic`);
   do not add hardcoded name tables. Only the `symbols:` section is parsed;
   layers: chosen → the downloaded NVDA English one (for another NVDA

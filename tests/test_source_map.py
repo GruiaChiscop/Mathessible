@@ -1,7 +1,7 @@
 import unittest
 
-from matex.mathcat import MathCatNavigator
-from matex.source_map import anchor_offset, inside_leaf, leaf_at, leaf_characters, leaf_nodes, map_leaves
+from matex.editing.source_map import anchor_offset, inside_leaf, leaf_at, leaf_characters, leaf_nodes, map_leaves
+from matex.mathcat.navigator import MathCatNavigator
 
 # Converter output for each source (UnicodeMathML with MateX's options).
 CONVERTED = {

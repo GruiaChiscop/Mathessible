@@ -1,6 +1,6 @@
 import unittest
 
-from matex.character_speech import character_name, deleted_character, inserted_character
+from matex.editing.character_speech import character_name, deleted_character, inserted_character
 
 
 class CharacterSpeechTests(unittest.TestCase):

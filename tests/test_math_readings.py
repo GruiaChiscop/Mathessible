@@ -2,7 +2,7 @@
 
 import unittest
 
-from matex.mathcat import MathCatNavigator
+from matex.mathcat.navigator import MathCatNavigator
 
 # Converter output for each source.
 CONVERTED = {

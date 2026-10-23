@@ -7,8 +7,8 @@ def main() -> None:
     except ImportError as error:
         raise SystemExit("wxPython is not installed. Run: uv sync") from error
 
-    from . import session_log
-    from .main_frame import MainFrame
+    from matex import session_log
+    from matex.ui.main_frame import MainFrame
 
     session_log.start()
     app = wx.App(False)

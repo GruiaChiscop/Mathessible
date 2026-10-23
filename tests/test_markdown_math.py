@@ -1,6 +1,6 @@
 import unittest
 
-from matex.markdown_math import find_math_zones, math_zone_at
+from matex.documents.markdown_math import find_math_zones, math_zone_at
 
 
 class MarkdownMathTests(unittest.TestCase):

@@ -1,6 +1,6 @@
 import unittest
 
-from matex.matrix_templates import (
+from matex.templates.matrix_templates import (
     MatrixPosition,
     delete_matrix_column,
     delete_matrix_row,

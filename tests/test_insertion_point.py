@@ -1,8 +1,8 @@
 import unittest
 
-from matex.insertion_point import describe_insertion_point
-from matex.mathcat import MathCatNavigator
-from matex.source_map import anchor_offset
+from matex.editing.insertion_point import describe_insertion_point
+from matex.editing.source_map import anchor_offset
+from matex.mathcat.navigator import MathCatNavigator
 
 # Converter output for each source.
 CONVERTED = {

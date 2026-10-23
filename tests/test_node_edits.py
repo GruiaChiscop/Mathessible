@@ -1,7 +1,7 @@
 import unittest
 
-from matex.mathcat import MathCatNavigator
-from matex.node_edits import NodeSpan, node_span, removal
+from matex.editing.node_edits import NodeSpan, node_span, removal
+from matex.mathcat.navigator import MathCatNavigator
 
 # Converter output for each source.
 CONVERTED = {

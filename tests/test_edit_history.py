@@ -1,6 +1,6 @@
 import unittest
 
-from matex.edit_history import EditHistory
+from matex.editing.edit_history import EditHistory
 
 
 class EditHistoryTests(unittest.TestCase):

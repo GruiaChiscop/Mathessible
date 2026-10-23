@@ -1,6 +1,6 @@
 import unittest
 
-from matex.insert_catalog import all_items, item_for_key
+from matex.templates.insert_catalog import all_items, item_for_key
 
 
 class InsertCatalogTests(unittest.TestCase):

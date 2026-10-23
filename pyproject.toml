@@ -18,7 +18,7 @@ dependencies = [
 
 [project.scripts]
 matex = "matex.app:main"
-matex-fetch-symbols = "matex.symbol_download:main"
+matex-fetch-symbols = "matex.symbols.download:main"
 
 [dependency-groups]
 dev = ["ruff>=0.6"]

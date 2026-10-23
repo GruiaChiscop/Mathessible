@@ -3,8 +3,8 @@ import unittest
 import zipfile
 from pathlib import Path
 
-from matex.notebook import Notebook, NotebookError
-from matex.portable_notebook import extract_mtex, save_mtex
+from matex.documents.notebook import Notebook, NotebookError
+from matex.documents.portable_notebook import extract_mtex, save_mtex
 
 
 class PortableNotebookTests(unittest.TestCase):

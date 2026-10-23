@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from matex.notebook import Notebook, NotebookError
+from matex.documents.notebook import Notebook, NotebookError
 
 
 class NotebookTests(unittest.TestCase):

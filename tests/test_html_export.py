@@ -2,7 +2,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from matex.html_export import ExportPage, notebook_html, preview_update_script, render_markdown, write_notebook_html
+from matex.documents.html_export import (
+    ExportPage,
+    notebook_html,
+    preview_update_script,
+    render_markdown,
+    write_notebook_html,
+)
 
 
 def fake_mathml(source: str) -> str:

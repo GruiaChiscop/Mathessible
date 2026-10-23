@@ -1,7 +1,7 @@
 import unittest
 
-from matex.mathcat import MathCatNavigator
-from matex.mathcat_lone import lone_speech, lone_speeches
+from matex.mathcat.lone import lone_speech, lone_speeches
+from matex.mathcat.navigator import MathCatNavigator
 
 
 class LoneSpeechTests(unittest.TestCase):

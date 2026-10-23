@@ -1,7 +1,7 @@
 import unittest
 
 from converter_harness import convert_all, has_error, needs_node
-from matex.structure_edits import (
+from matex.templates.structure_edits import (
     accent_at,
     add_nary_limits,
     add_root_index,

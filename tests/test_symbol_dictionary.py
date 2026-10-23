@@ -3,9 +3,9 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from matex import symbol_download
-from matex.character_speech import character_name
-from matex.symbol_dictionary import (
+from matex.editing.character_speech import character_name
+from matex.symbols import download as symbol_download
+from matex.symbols.dictionary import (
     BUILTIN_ID,
     SymbolDictionaryError,
     available_dictionaries,
