@@ -4,10 +4,12 @@ from converter_harness import convert, has_error, needs_node
 from matex.editing.build_repair import literal_repair, repairs
 from matex.editing.edit_history import EditHistory
 from matex.editing.linear_runs import (
+    build_on_space,
     build_run,
     built_structure,
     edit_between,
     escape_insertions,
+    script_steps,
     shift_runs,
     split_candidates,
     toggle_selection,
@@ -158,7 +160,7 @@ class TypingTests(unittest.TestCase):
             caret = len(source)
             source += character
             runs = typed(runs, caret, 0, 1)
-            if character == " " or not (character.isascii() and character.isalnum()):
+            if character == " " or not (character.isascii() and character.isalnum() or character in "^_"):
                 run = next(run for run in runs if run[0] <= len(source) <= run[1])
                 runs = build_run(source, runs, run, lambda candidate, s=source: convert(linear_text(s, candidate)))
             steps.append((source, runs))
@@ -181,8 +183,44 @@ class TypingTests(unittest.TestCase):
 
     def test_a_script_builds_one_space_at_a_time(self) -> None:
         steps = dict(self.type_text("x^2 "))
-        self.assertEqual(steps["x^"], ((1, 2),))
+        self.assertEqual(steps["x^"], ((0, 2),))  # "^" builds nothing: it binds what comes after.
         self.assertEqual(steps["x^2 "], ())
+
+
+class ScriptStepTests(unittest.TestCase):
+    def test_a_chain_of_the_same_script_builds_innermost_first(self) -> None:
+        self.assertEqual(script_steps("a^b^c ", (0, 6)), [3])
+        self.assertEqual(script_steps("a^b^c^d ", (0, 8)), [5, 3])
+        self.assertEqual(script_steps("x_i_j ", (0, 6)), [3])
+
+    def test_a_subscript_with_a_superscript_is_one_structure(self) -> None:
+        self.assertEqual(script_steps("a_1^2 ", (0, 6)), [])
+        self.assertEqual(script_steps("a^(b+1)^c ", (0, 10)), [])
+
+
+@needs_node
+class SpaceBuildTests(unittest.TestCase):
+    """Space builds one script of a chain at a time, as Word does (UTN #28 sec. 2.3)."""
+
+    def space(self, source: str, runs, run, below=None):
+        return build_on_space(source, runs, run, lambda candidate: convert(linear_text(source, candidate)), below)
+
+    def test_two_spaces_build_a_to_the_b_to_the_c(self) -> None:
+        runs, step = self.space("a^b^c ", ((0, 6),), (0, 6))
+        self.assertEqual((runs, step), (((0, 3),), 3))  # b^c built, "a^" still linear.
+        self.assertIn("<msup><mi>𝑏</mi><mi>𝑐</mi></msup>", convert(linear_text("a^b^c ", runs)))
+        # The second Space goes on from the chain's start: all of it builds.
+        runs, step = self.space("a^b^c  ", ((0, 7),), (0, 7), below=3)
+        self.assertEqual((runs, step), ((), None))
+
+    def test_one_script_builds_whole(self) -> None:
+        self.assertEqual(self.space("x^2 ", ((0, 4),), (0, 4)), ((), None))
+        self.assertEqual(self.space("a_1^2 ", ((0, 6),), (0, 6)), ((), None))
+
+    def test_an_operator_builds_the_whole_chain(self) -> None:
+        source = "a^b^c+"
+        built = build_run(source, ((0, 6),), (0, 6), lambda candidate: convert(linear_text(source, candidate)))
+        self.assertEqual(built, ())
 
 
 @needs_node

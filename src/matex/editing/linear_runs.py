@@ -210,6 +210,48 @@ def built_structure(before: str, after: str) -> str | None:
     return None
 
 
+def script_steps(source: str, run: Run, runs: Runs = ()) -> list[int]:
+    """Where a Space builds one script of a chain (`a^b^c`: at the second `^`), innermost first.
+
+    UTN #28 sec. 2.3: in a nested subscript or superscript the space builds
+    up one script at a time (`a^b^c` needs two). A step is a `^` or `_`
+    whose previous script operator in the run is the same one, with one
+    plain operand between; `a_1^2` is one structure, not a chain.
+    """
+    start, end = run
+    scripts = [index for index in operator_positions(source, start, end, runs) if source[index] in "^_"]
+    others = set(operator_positions(source, start, end, runs)) - set(scripts)
+    steps = [
+        current
+        for previous, current in zip(scripts, scripts[1:], strict=False)
+        if source[previous] == source[current]
+        and current > previous + 1
+        and not any(previous < index < current for index in others)
+        and not any(character.isspace() for character in source[previous + 1 : current])
+    ]
+    return list(reversed(steps))
+
+
+def build_on_space(
+    source: str, runs: Runs, run: Run, convert: Callable[[Runs], str], below: int | None = None
+) -> tuple[Runs, int | None]:
+    """Space: one script of a chain built (`script_steps`), else the run as far as it builds (`build_run`).
+
+    Returns the runs and the step used, if any: the next Space goes on from
+    a step before it (`below`), and when none is left builds the rest.
+    """
+    others = tuple(other for other in runs if other != run)
+    start, _end = run
+    baseline = errors(convert(runs))
+    for cut in script_steps(source, run, runs):
+        if below is not None and cut >= below:
+            continue
+        candidate = tuple(sorted((*others, (start, cut))))
+        if errors(convert(candidate)) <= baseline:
+            return candidate, cut
+    return build_run(source, runs, run, convert), None
+
+
 def toggle_selection(runs: Runs, start: int, end: int) -> tuple[Runs, bool]:
     """F2 on a selection in the built equation, as Word's Linear/Professional on one: (runs, made linear).
 

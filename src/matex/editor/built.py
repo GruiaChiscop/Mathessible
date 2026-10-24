@@ -13,6 +13,7 @@ from matex.editing.insertion_point import describe_insertion_point, node_name
 from matex.editing.linear_runs import (
     Run,
     Runs,
+    build_on_space,
     build_run,
     built_structure,
     edit_between,
@@ -410,7 +411,7 @@ class BuiltEditingMixin:
             return self._read_character(characters[0])
         return speech
 
-    def _build_as_you_type(self, announcement: str = "built") -> None:
+    def _build_as_you_type(self, announcement: str = "built", space: bool = False) -> None:
         """Word's autobuild: build what has become complete; the rest stays linear.
 
         Called after Space or another trigger character. In linear view the
@@ -420,18 +421,20 @@ class BuiltEditingMixin:
         all of it builds, as before (an error left elsewhere must not take a
         correction typed after F2 out of the linear view). During a
         professional-view edit it only asks `_edit_in_built` to build the
-        run typed into, once the edit is done.
+        run typed into, once the edit is done. A `space` builds one script
+        of a chain at a time (`a^b^c` needs two, UTN #28 sec. 2.3).
         """
         source = self.document.source
         if not self.settings.build_as_you_type or self.mathcat is None or not source.strip() or self._converting:
             return
         if self._editing_built:
             self._build_requested = announcement
+            self._build_on_space = space
             return
         if self.mode != "linear":
             return
         whole: Runs = ((0, len(source)),)
-        runs, structure = self._build_linear_run(whole, whole[0])
+        runs, structure, step = self._build_linear_run(whole, whole[0], space)
         if runs == whole or (runs and self.caret < len(source)):
             return  # Nothing is complete yet ("(a+", "x^"), or not all of it while editing inside.
         if runs and structure is None:
@@ -439,6 +442,7 @@ class BuiltEditingMixin:
         elif runs:
             announcement = f"built {structure}" if self.settings.announce_built else "built"
         self._linear_runs = runs
+        self._script_chain = (source, self.caret, 0, step) if step is not None else None
         self.history.set_runs(whole)
         self.history.push(source, self.caret, runs)  # Undo right after takes the build back, as in Word.
         self._clear_selection()
@@ -460,8 +464,11 @@ class BuiltEditingMixin:
         self.history.push(self.document.source, self.caret, runs)
         self._finish_built_edit(f"linear, {linear_text}" if linear else "built")
 
-    def _build_linear_run(self, runs: Runs, run: Run) -> tuple[Runs, str | None]:
-        """`runs` with `run` built as far as it builds (`linear_runs.build_run`), and what it built.
+    def _build_linear_run(
+        self, runs: Runs, run: Run, space: bool = False, below: int | None = None
+    ) -> tuple[Runs, str | None, int | None]:
+        """`runs` with `run` built as far as it builds (`linear_runs.build_run`), what it built, and
+        on a `space` the script-chain step it stopped at (`build_on_space`, steps before `below`).
 
         Judged on the source as it is (literal words as text), never a
         repaired one: a repair closing "(a+" would make it look complete.
@@ -478,10 +485,14 @@ class BuiltEditingMixin:
                     converted[candidate] = 'mathcolor="#F00"' * 1000  # Never better than keeping it linear.
             return converted[candidate]
 
-        built = build_run(source, runs, run, convert)
+        step = None
+        if space:
+            built, step = build_on_space(source, runs, run, convert, below)
+        else:
+            built = build_run(source, runs, run, convert)
         if built == runs:
-            return runs, None
-        return built, built_structure(converted[runs], converted[built])
+            return runs, None, None
+        return built, built_structure(converted[runs], converted[built]), step
 
     def _built_offset(self, glue: bool = False) -> int:
         """The source offset of MathCAT's position (`edit_anchor`, `source_map`).
@@ -589,6 +600,7 @@ class BuiltEditingMixin:
         start_caret = self.caret
         self._editing_built = True
         self._build_requested = None
+        self._build_on_space = False
         self._last_spoken = ""
         try:
             announcement = action() or ""
@@ -607,11 +619,25 @@ class BuiltEditingMixin:
         position, removed, inserted = edit_between(source, self.document.source, self.caret)
         update = typed if typing else shift_runs
         self._linear_runs = update(self._linear_runs, position, removed, inserted)
-        self.history.set_runs(self._linear_runs)
         requested = self._build_requested
+        chain, self._script_chain = self._script_chain, None
+        below = None
+        if typing and chain is not None and chain[0] == source and chain[1] == position:
+            # Typing on right after a chain's built script (`a^b^c` + Space): a trigger
+            # builds from the chain's start again, the next script or all of it.
+            if requested is None:
+                self._script_chain = (self.document.source, self.caret, chain[2], chain[3])
+            else:
+                start = chain[2]
+                kept = tuple(other for other in self._linear_runs if not start <= other[0] < self.caret)
+                self._linear_runs = tuple(sorted((*kept, (start, self.caret))))
+                below = chain[3]
+        self.history.set_runs(self._linear_runs)
         run = run_at(self._linear_runs, self.caret) if typing and requested is not None else None
         if run is not None:
-            runs, structure = self._build_linear_run(self._linear_runs, run)
+            runs, structure, step = self._build_linear_run(self._linear_runs, run, self._build_on_space, below)
+            if step is not None:
+                self._script_chain = (self.document.source, self.caret, run[0], step)
             if runs != self._linear_runs:
                 self._linear_runs = runs
                 self.history.push(self.document.source, self.caret, runs)  # Undo takes the build back.

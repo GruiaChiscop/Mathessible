@@ -532,7 +532,21 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   a run of its own, or every run it touches builds; the source is
   unchanged and the step undoable. Each build is its own history state
   (`EditState.runs`), so Undo right after it brings the linear text back,
-  as in Word. `announce_built` adds "built fraction" (`built_structure`:
+  as in Word. **Space builds one script of a chain at a time** (UTN #28
+  sec. 2.3, 2026-10-24): `script_steps` finds the `^`/`_` whose previous
+  script operator is the same one with one plain operand between
+  (`a^b^c` at the second `^`; `a_1^2` is one msubsup, no chain), and
+  `build_on_space` leaves the run linear up to that step, so `a\^b^c`
+  shows `a`, `^`, then b^c built. `_script_chain` (source, end, run start,
+  step) lets typing right after it go on: a later trigger there rebuilds
+  from the chain's start, Space taking the next step before the last one
+  (`below`) or all, an operator all of it. Any other edit drops it.
+  **Trap:** `^`/`_` are no build triggers (`_linear_type`'s `builds`):
+  typed after `a^b` the second `^` built `a^b`, and the `^c` after it went
+  linear *inside* a's superscript (`a^b\^c` is a to the "b ^ c"), so the
+  first Space built everything. A script operator binds tighter than
+  anything before it and is right-associative: it ends no operand.
+  `announce_built` adds "built fraction" (`built_structure`:
   a structure tag there is more of), but not when the edit says what it
   built itself (Space opening `log_2`'s argument: "log, empty argument",
   not "built subscript"; `_build_requested` carries the edit's own

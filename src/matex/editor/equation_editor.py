@@ -152,6 +152,10 @@ if wx is not None:
             # edit sets `_build_requested` (its announcement). `_last_spoken` is the edit's own speech.
             self._linear_runs: Runs = ()
             self._build_requested: str | None = None
+            self._build_on_space = False
+            # A script chain built one script at a time by Space (`a^b^c`):
+            # (source, its end, its run's start, the step built last).
+            self._script_chain: tuple[str, int, int, int] | None = None
             self._last_spoken = ""
             # A whole structure Backspace/Delete was pressed on once: the next
             # press deletes it, any other key forgets it (never by accident).
@@ -309,6 +313,7 @@ if wx is not None:
             self._inside_leaf = None
             self._built_caret = None
             self._linear_runs = ()
+            self._script_chain = None
             self.history.reset(source, self.caret)
             self._update_braille_display()
             self.Refresh()
@@ -487,6 +492,7 @@ if wx is not None:
                 return
             # Professional builds everything, linear shows everything linear, as in Word.
             self._linear_runs = ()
+            self._script_chain = None
             if self.mode == "linear" and not self.document.source.strip():
                 # Nothing to build (and MathCAT cannot even zoom into empty math).
                 self._announce("empty equation")
@@ -1049,7 +1055,7 @@ if wx is not None:
             )
             self._replace_linear(edit.source, edit.caret)
             self._announce(edit.announcement)
-            self._build_as_you_type()
+            self._build_as_you_type(space=True)
 
         def _linear_move(self, event: wx.KeyEvent, key: int) -> None:
             """Arrows, Home and End in the linear view (Shift extends the selection)."""
@@ -1098,8 +1104,10 @@ if wx is not None:
             if codepoint not in (wx.WXK_NONE, 0) and codepoint >= 32:
                 value = chr(codepoint)
                 # Word's autobuild fires on the same characters as control-word
-                # conversion: anything but a space or an ASCII letter/digit.
-                builds = not value.isspace() and not (value.isascii() and value.isalnum())
+                # conversion: anything but a space or an ASCII letter/digit. Not a
+                # script's "^"/"_": it binds tighter than anything before it
+                # (`a^b^c`, `a/b^2`), so it ends no operand (UTN #28 sec. 2.3).
+                builds = not value.isspace() and not (value.isascii() and value.isalnum()) and value not in "^_"
                 if self._typing_text():
                     # Normal text is text: no AutoCorrect, completion or building while typing it.
                     if not self._replace_selection(value):

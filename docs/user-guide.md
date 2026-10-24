@@ -72,7 +72,10 @@ punctuation mark, and typing goes on in the professional view. What is
 not complete yet stays linear text inside the built equation: in
 `a/b+c/`, a/b is a fraction and `c/` is still read as "c divided by"
 until `d` and Space build it. Linear text stays linear when you move
-away from it; Undo right after a build takes it back. As with Word's
+away from it; Undo right after a build takes it back. As in Word, Space
+builds a chain of scripts one at a time: in `a^b^c` the first Space
+builds b to the c, the second builds a to that power, while an operator
+such as `+` builds the whole chain at once. As with Word's
 Linear and Professional on a selection, `F2` with a selection in the
 professional view (Shift with the arrows) turns only that part linear,
 and `F2` on a selection holding linear text builds it again. **Say what was
