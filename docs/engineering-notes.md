@@ -1128,6 +1128,19 @@ tested. Templates: `template_source` holds
     `\of`). Still missing, built or not: real symbols MathCAT's tables
     lack (Nemeth ∐ ∯ ⨃ ⅅ; UEB also ∬ ∭ ⌈ ⌊ ⋃ ⋂ ∛ and more), which need
     their official signs, not invented ones.
+  - The same two files (patch 0007): official signs MathCAT lacked. Every
+    named character of the maths blocks (letterlike, arrows, operators,
+    technical, geometric, miscellaneous A/B, supplemental) was sent
+    through MathCAT, 736 came out as hex in Nemeth and 1036 in UEB, and
+    each was looked up in Nemeth Code 2022's Appendix D (which gives the
+    print character only for some entries) and in the UEB Rulebook 2024's
+    Appendix 3 and the 2014 Technical Guidelines (which give Unicode
+    values or the character). Found: Nemeth ⩽ ⩾ ⪕ ⪖ ⪛ ⪜ ⫹ ⫺ (print variants of
+    ≤ ≥ ⋜ ⋝ ⪙ ⪚ ≦ ≧), the half brackets ˹ ˺ ˻ ˼ / ⎡ ⎤ ⎣ ⎦, ◺ ⏢ ◼ ℞; UEB ⦀ ⦜.
+    Everything else has no sign in either code: both say to use a
+    transcriber-defined symbol explained in a note, so MathCAT's hex code
+    stays. The block sits at the end of each file, away from 0006's
+    context lines, or 0006's reverse check (`patch_check`) fails.
 - **Startup patch check** ([patch_check.py](../src/matex/patch_check.py)):
   `git apply --reverse --check` per patch file, on a worker thread from
   the first `MainFrame`; a warning dialog lists the missing ones (a

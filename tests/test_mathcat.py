@@ -65,6 +65,19 @@ class MathCatTests(unittest.TestCase):
         self.assertEqual(braille(naryand, "Nemeth"), "⠭⠸⠡⠕⠋")
         self.assertEqual(braille(naryand, "UEB"), "⠭⠸⠡⠕⠋")
 
+    def test_official_signs_the_tables_lacked(self) -> None:
+        # Patch 0007: Nemeth Code 2022 Appendix D and the ICEB references, not a hex code.
+        def braille(character: str, code: str) -> str:
+            navigator = MathCatNavigator(language="en")
+            navigator.braille_code = code
+            navigator.load(f"<math><mi>a</mi><mo>{character}</mo><mi>b</mi></math>")
+            cells = navigator._native.braille(navigator.structure.root.identifier)
+            return "".join(chr(0x2800 + ((ord(cell) - 0x2800) & 0x3F)) for cell in cells)
+
+        self.assertEqual(braille("⩽", "Nemeth"), braille("≤", "Nemeth"))  # A print variant of ≤.
+        self.assertEqual(braille("˹", "Nemeth"), "⠁⠈⠘⠷⠃")  # Upper left half bracket.
+        self.assertEqual(braille("⦀", "UEB"), "⠁⠼⠸⠇⠃")  # Triple vertical bar.
+
     def test_a_final_period_is_its_own_stop_not_the_whole_line(self) -> None:
         # MathCAT groups everything before a final "." and read it all on the period.
         mathml = "<math><mi>x</mi><mo>+</mo><mn>1</mn><mo>.</mo></math>"
