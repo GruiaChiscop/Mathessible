@@ -1,0 +1,113 @@
+MathCAT (braille): the user's own signs over a braille code's table
+
+MateX lets a user give their own braille sign for a symbol, over an
+existing code: where Nemeth and UEB define no sign they leave it to the
+transcriber, and a school or a teacher has its own conventions. MathCAT
+reads its rules only from the archive compiled in (include-zip), so the
+signs come through the API instead of a file:
+
+- `set_braille_user_signs(text)` (interface.rs) takes unicode.yaml
+  entries (` - "⊏": [t: "⠈⠸⠣"]`); "" clears them. A change invalidates the
+  braille caches, as a new BrailleCode does.
+- `read_files` reads them right after the code's short unicode table, so
+  each replaces the code's sign for that character (the short table is
+  looked up first). A mistake in them is logged and ignored: braille goes
+  on with the code's own signs.
+
+Applied by scripts/bootstrap.sh on top of upstream 85c89a37. Only for
+callers that want it; not proposed upstream as it is.
+
+diff --git a/src/interface.rs b/src/interface.rs
+index 823d8943..311315b4 100644
+--- a/src/interface.rs
++++ b/src/interface.rs
+@@ -318,6 +318,17 @@ pub fn get_preference(name: impl AsRef<str>) -> Result<String> {
+ /// A value can be overwritten by calling this function again with a different value.
+ ///
+ /// Be careful setting preferences -- these potentially override user settings, so only preferences that really need setting should be set.
++/// MateX: the user's own braille signs, as unicode.yaml entries (` - "⊏": [t: "⠈⠸⠣"]`), which replace
++/// the braille code's signs for those characters; an empty string clears them.
++pub fn set_braille_user_signs(signs: impl AsRef<str>) -> Result<()> {
++    let signs = signs.as_ref().to_string();
++    let result = catch_unwind(AssertUnwindSafe(|| {
++        crate::speech::set_braille_user_signs(&signs);
++        return Ok( () );
++    }));
++    return report_any_panic(result);
++}
++
+ pub fn set_preference(name: impl AsRef<str>, value: impl AsRef<str>) -> Result<()> {
+     enable_logs();
+     let name = name.as_ref().to_string();
+diff --git a/src/speech.rs b/src/speech.rs
+index fde95d5f..48ddb2e2 100644
+--- a/src/speech.rs
++++ b/src/speech.rs
+@@ -2227,6 +2227,26 @@ pub fn invalidate_speech_style_caches() {
+     SPEECH_RULES.with(|rules| rules.borrow_mut().rule_files.invalidate());
+ }
+ 
++thread_local!{
++    /// MateX: the user's own braille signs, as unicode.yaml entries (`set_braille_user_signs`).
++    static BRAILLE_USER_SIGNS: RefCell<String> = RefCell::new(String::new());
++}
++
++/// MateX: set the user's own braille signs (unicode.yaml entries, ` - "⊏": [t: "⠈⠸⠣"]`), read after
++/// the braille code's short table so they replace its signs; "" clears them. Braille reloads on a change.
++pub fn set_braille_user_signs(signs: &str) {
++    let changed = BRAILLE_USER_SIGNS.with(|current| {
++        if *current.borrow() == signs {
++            return false;
++        }
++        *current.borrow_mut() = signs.to_string();
++        return true;
++    });
++    if changed {
++        invalidate_braille_caches();
++    }
++}
++
+ /// Invalidate braille caches whose paths change when `BrailleCode` changes.
+ pub fn invalidate_braille_caches() {
+     BRAILLE_DEFINITION_FILES_AND_TIMES.with(|files| files.borrow_mut().invalidate());
+@@ -2308,6 +2328,12 @@ impl SpeechRules {
+         if !self.unicode_short_files.borrow().is_file_up_to_date(unicode_pref_files.0, should_ignore_file_time) {
+             self.unicode_short.borrow_mut().clear();
+             self.unicode_short_files.borrow_mut().set_files_and_times(self.read_unicode(None, true)?);
++            if self.name == RulesFor::Braille {
++                // MateX: the user's own signs replace the code's; a mistake in them must not stop braille.
++                if let Err(e) = self.read_user_braille_signs() {
++                    error!("MateX user braille signs ignored: {:#}", e);
++                }
++            }
+         }
+ 
+         if self.definitions_files.borrow().ft.is_empty() || !self.definitions_files.borrow().is_file_up_to_date(
+@@ -2319,6 +2345,27 @@ impl SpeechRules {
+         return Ok( () );
+     }
+ 
++    /// MateX: read the user's braille signs (`set_braille_user_signs`) into the short table just read,
++    /// so each one replaces the braille code's own sign for that character.
++    fn read_user_braille_signs(&self) -> Result<()> {
++        let signs = BRAILLE_USER_SIGNS.with(|signs| signs.borrow().clone());
++        if signs.trim().is_empty() {
++            return Ok( () );
++        }
++        let path = PathBuf::from("MateX user braille signs");
++        let build_fn = |unicode_def_list: &Yaml| {
++            let Some(unicode_defs) = unicode_def_list.as_vec() else {
++                bail!("The user's braille signs do not begin with an array");
++            };
++            for unicode_def in unicode_defs {
++                UnicodeDef::build(unicode_def, &path, self, true)?;
++            }
++            return Ok(vec![]);
++        };
++        compile_rule(&signs, build_fn)?;
++        return Ok( () );
++    }
++
+     fn read_patterns(&mut self, path: &Path) -> Result<Vec<PathBuf>> {
+         // info!("Reading rule file: {}", p.to_str().unwrap());
+         let rule_file_contents = read_to_string_shim(path).with_context(|| format!("cannot read file '{}'", path.to_str().unwrap()))?;

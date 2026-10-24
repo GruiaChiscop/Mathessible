@@ -1,7 +1,7 @@
 use libmathcat::{
     do_navigate_command, errors_to_string, get_braille, get_navigation_braille,
-    get_navigation_mathml_id, get_spoken_text, set_mathml, set_navigation_node,
-    set_preference, set_rules_dir,
+    get_navigation_mathml_id, get_spoken_text, set_braille_user_signs, set_mathml,
+    set_navigation_node, set_preference, set_rules_dir,
 };
 use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
@@ -31,6 +31,12 @@ fn initialize(py: Python<'_>, language: &str, speech_style: &str, verbosity: &st
 #[pyfunction]
 fn preference(py: Python<'_>, name: &str, value: &str) -> PyResult<()> {
     py.detach(|| convert_error(set_preference(name, value)))
+}
+
+/// The user's own braille signs, as unicode.yaml entries (MathCAT patch 0008); "" clears them.
+#[pyfunction]
+fn braille_signs(py: Python<'_>, signs: &str) -> PyResult<()> {
+    py.detach(|| convert_error(set_braille_user_signs(signs)))
 }
 
 #[pyfunction]
@@ -73,6 +79,7 @@ fn navigation_braille(py: Python<'_>) -> PyResult<String> {
 fn matex_mathcat(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(initialize, module)?)?;
     module.add_function(wrap_pyfunction!(preference, module)?)?;
+    module.add_function(wrap_pyfunction!(braille_signs, module)?)?;
     module.add_function(wrap_pyfunction!(set_expression, module)?)?;
     module.add_function(wrap_pyfunction!(speak_expression, module)?)?;
     module.add_function(wrap_pyfunction!(navigate, module)?)?;

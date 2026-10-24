@@ -11,6 +11,17 @@ announced through the running screen reader (or printed to the console
 when there is none). Without the native MathCAT extension, equations can
 only be edited as text, and MateX says so at startup.
 
+## Settings
+
+`Settings…` (`Command+,` on macOS, in the Edit menu elsewhere) groups the
+settings in five tabs: Typing (Math AutoCorrect and what converts while
+typing), Building (building as you type, recognised functions),
+Navigation, Speech (symbol dictionaries, unknown symbols) and Braille
+(the braille code and your own braille signs). On macOS it is a window,
+as in Mac apps: every change applies and is saved at once, and Escape or
+`Command+W` closes it. On Windows and Linux it is a dialog with OK,
+Cancel and Apply.
+
 ## Markdown and equations
 
 The main window is a native Markdown editor. Inline equations are written
@@ -155,6 +166,28 @@ Integral, Large Operator, Bracket, Function, Accent, Limit and Log,
 Operator, Matrix), each a list of variants. Shift+Tab goes to the
 categories, Enter inserts, and "Written as" shows how the structure is
 typed in the linear view.
+
+## Braille
+
+The braille strip under the equation shows MathCAT's braille for the
+built equation, in the code chosen in `Settings → Braille code` (Nemeth,
+UEB, CMU, French, Russian, Swedish, Vietnamese, or ASCIIMath and LaTeX
+as text). A symbol the code defines no sign for comes out as a hex code;
+Nemeth and UEB leave such symbols to the transcriber.
+
+`Settings → Braille signs…` gives your own sign for a symbol, over the
+code chosen above; it replaces the code's own sign too. Type the symbol
+as itself, as a control word (`\sqsubset`) or as its code (`U+228F`),
+and the braille as cells or as dot numbers with hyphens between cells
+(`4-456-126`). The signs are kept per code in `~/.matex/braille/`, one
+plain text file each (`Nemeth.txt`), a symbol and its braille per line,
+so a class can share one file:
+
+```
+# Square image of and original of: the class's signs.
+⊏ ⠈⠸⠣
+⊐ 4-456-28
+```
 
 ## Notebooks and pages
 

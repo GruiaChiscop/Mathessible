@@ -40,6 +40,7 @@ from matex.editor.structures import StructureActionsMixin
 from matex.mathcat.mathml_model import MathMLDocument
 from matex.mathcat.navigator import MATHCAT_MISSING, MathCatNavigator, create_mathcat_navigator
 from matex.settings import AppSettings
+from matex.symbols.braille_signs import load_signs, signs_yaml
 from matex.symbols.dictionary import load_dictionary
 from matex.templates.insert_catalog import InsertItem, item_for_key
 from matex.templates.math_templates import group_function_argument, move_to_slot, script_on_function
@@ -119,6 +120,7 @@ if wx is not None:
             if self.mathcat is not None:
                 self.mathcat.decimal_separator = self.settings.decimal_separator
                 self.mathcat.braille_code = self.settings.braille_code
+                self.mathcat.braille_signs = signs_yaml(load_signs(self.settings.braille_code))
             self.mode = "linear"
             self.caret = len(source)
             self.selection_anchor: int | None = None
@@ -348,6 +350,7 @@ if wx is not None:
                 self.mathcat.invisible_operator_stops = self.settings.invisible_operator_stops
                 self.mathcat.decimal_separator = self.settings.decimal_separator
                 self.mathcat.braille_code = self.settings.braille_code
+                self.mathcat.braille_signs = signs_yaml(load_signs(self.settings.braille_code))
                 if self.mathcat.mathml:
                     try:
                         self.mathcat.load(self.mathcat.mathml, keep_position=True, speak=False)

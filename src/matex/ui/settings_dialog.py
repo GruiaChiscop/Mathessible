@@ -1,3 +1,11 @@
+"""Settings: one panel of tabs, in a window on macOS and a dialog elsewhere.
+
+On macOS settings are a window, as in Mac apps: a change applies (and is
+saved) at once, and the window has no OK or Cancel. Elsewhere it is a
+dialog with OK, Cancel and Apply. Both hold the same `SettingsPanel`,
+its settings grouped in native tabs that screen readers announce.
+"""
+
 from __future__ import annotations
 
 import threading
@@ -11,214 +19,331 @@ from matex.settings import (
     format_recognized_functions,
     parse_recognized_functions,
 )
+from matex.symbols.braille_signs import load_signs, save_signs
 from matex.symbols.dictionary import SymbolDictionaryError, available_dictionaries, import_dictionary
 from matex.symbols.download import SymbolDownloadError, download_languages, nvda_languages
 from matex.ui.autocorrect_dialog import AutoCorrectDialog
+from matex.ui.braille_signs_dialog import BrailleSignsDialog
+from matex.unicodemath import control_words
 
 try:
     import wx
 except ImportError:
     wx = None
 
+_WRAP = 460
+
+
+def applies_at_once() -> bool:
+    """macOS settings are a window whose changes apply at once; elsewhere a dialog with OK/Cancel/Apply."""
+    return wx is not None and wx.Platform == "__WXMAC__"
+
 
 if wx is not None:
 
-    class SettingsDialog(wx.Dialog):
-        def __init__(self, parent: wx.Window, settings: AppSettings):
-            super().__init__(
-                parent,
-                title="Settings",
-                style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER,
-            )
-            self.SetName("Settings dialog")
-            self._settings = settings
+    class SettingsPanel(wx.Panel):
+        """Every setting, in tabs: Typing, Building, Navigation, Speech, Braille.
 
+        `apply()` writes the controls into the settings. With `on_change`,
+        every change calls it straight away (the macOS window); a text field
+        does when it loses focus or Enter is pressed.
+        """
+
+        def __init__(self, parent: wx.Window, settings: AppSettings, on_change: Callable[[], None] | None = None):
+            super().__init__(parent)
+            self._settings = settings
+            self._on_change = on_change
+            self._autocorrect = (settings.math_autocorrect, settings.math_autocorrect_removed)
+            # The user's own braille signs, per code, until applied (symbols/braille_signs.py).
+            self._braille_signs: dict[str, dict[str, str]] = {}
+
+            self.notebook = wx.Notebook(self)
+            self.notebook.SetName("Settings categories")
+            self._typing_page(self._page("Typing"), settings)
+            self._building_page(self._page("Building"), settings)
+            self._navigation_page(self._page("Navigation"), settings)
+            self._speech_page(self._page("Speech"), settings)
+            self._braille_page(self._page("Braille"), settings)
             sizer = wx.BoxSizer(wx.VERTICAL)
-            heading = wx.StaticText(self, label="Equation editor")
-            self.linear_navigation = self._checkbox(
-                "Use linear navigation in exploration mode (F10; writing mode is always linear)",
-                "Linear navigation in exploration mode",
-                settings.linear_navigation,
-            )
-            self.structure_stops = self._checkbox(
-                (
-                    "Stop at the start and end of every structure "
-                    '(for example "start fraction", "end numerator") and of the math'
-                ),
-                "Stop at structure start and end",
-                settings.structure_stops,
-            )
-            self.invisible_operator_stops = self._checkbox(
-                "Stop at invisible operators (for example the invisible times in 3x)",
-                "Stop at invisible operators",
-                settings.invisible_operator_stops,
-            )
+            sizer.Add(self.notebook, 1, wx.EXPAND)
+            self.SetSizer(sizer)
+
+        # Pages
+
+        def _page(self, title: str) -> wx.Panel:
+            page = wx.Panel(self.notebook)
+            page.SetName(title)
+            page.SetSizer(wx.BoxSizer(wx.VERTICAL))
+            self.notebook.AddPage(page, title)
+            return page
+
+        def _typing_page(self, page: wx.Panel, settings: AppSettings) -> None:
             self.convert_on_space = self._checkbox(
+                page,
                 "Convert control words (for example \\alpha) when Space or punctuation is typed",
                 "Convert control words while typing",
                 settings.convert_on_space,
             )
             self.complete_control_words = self._checkbox(
+                page,
                 "Suggest control words while one is typed (Up/Down browse, Tab completes)",
                 "Suggest control words while typing",
                 settings.complete_control_words,
             )
-            self.decimal_comma = self._checkbox(
-                (
-                    "Decimal comma: 1,5 is a number and a set is written {1, 2, 3}; "
-                    "off: decimal point (3.14), and {1,2,3} is a set"
-                ),
-                "Decimal comma",
-                settings.decimal_separator == ",",
-            )
             self.convert_shortcuts_immediately = self._checkbox(
+                page,
                 "Convert symbol shortcuts (for example << or ->) as soon as they are typed",
                 "Convert symbol shortcuts immediately",
                 settings.convert_shortcuts_immediately,
             )
-            self.open_built = self._checkbox(
-                "Open equations built (professional view), ready to navigate and type into",
-                "Open equations built",
-                settings.open_built,
+            self.autocorrect_button = wx.Button(page, label="Math &AutoCorrect…")
+            self.autocorrect_button.Bind(wx.EVT_BUTTON, lambda _event: self._edit_autocorrect())
+            page.GetSizer().Add(self.autocorrect_button, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
+            self._help(
+                page,
+                "Math AutoCorrect is one list, as in Word: the converter's control words, "
+                "MateX's shortcuts and your own entries, each one can be changed or deleted.",
             )
+            self.removed_words_as_symbols = self._checkbox(
+                page,
+                "Deleted AutoCorrect control words still show as their symbol (off: they stay the text typed, as in Word)",
+                "Deleted AutoCorrect control words still show as their symbol",
+                settings.removed_words_as_symbols,
+            )
+            self.autocorrect_in_text = self._checkbox(
+                page,
+                "Use Math AutoCorrect in normal text (control words and shortcuts convert there too)",
+                "Use Math AutoCorrect in normal text",
+                settings.autocorrect_in_text,
+            )
+            self.template_control_words = self._checkbox(
+                page,
+                "Insert templates as control words (for example \\sum and \\sqrt instead of ∑ and √)",
+                "Insert templates as control words",
+                settings.template_control_words,
+            )
+            self.decimal_comma = self._checkbox(
+                page,
+                "Decimal comma: 1,5 is a number and a set is written {1, 2, 3}; "
+                "off: decimal point (3.14), and {1,2,3} is a set",
+                "Decimal comma",
+                settings.decimal_separator == ",",
+            )
+            self.remove_extra_spaces = self._checkbox(
+                page,
+                "Remove spaces that change nothing when saving the equation or switching to linear view",
+                "Remove extra spaces",
+                settings.remove_extra_spaces,
+            )
+
+        def _building_page(self, page: wx.Panel, settings: AppSettings) -> None:
             self.build_as_you_type = self._checkbox(
+                page,
                 "Build equations as you type (on Space or an operator, what is complete; the rest stays linear)",
                 "Build equations as you type",
                 settings.build_as_you_type,
             )
             self.announce_built = self._checkbox(
+                page,
                 "Say what was built while typing (for example, built fraction)",
                 "Say what was built",
                 settings.announce_built,
             )
-            self.autocorrect_in_text = self._checkbox(
-                "Use Math AutoCorrect in normal text (control words and shortcuts convert there too)",
-                "Use Math AutoCorrect in normal text",
-                settings.autocorrect_in_text,
-            )
-            self.name_unknown_symbols = self._checkbox(
-                "Say symbols MathCAT does not know by their Unicode name (for example, alchemical symbol for air)",
-                "Name unknown symbols",
-                settings.name_unknown_symbols,
-            )
-            self.remove_extra_spaces = self._checkbox(
-                "Remove spaces that change nothing when saving the equation or switching to linear view",
-                "Remove extra spaces",
-                settings.remove_extra_spaces,
+            self.open_built = self._checkbox(
+                page,
+                "Open equations built (professional view), ready to navigate and type into",
+                "Open equations built",
+                settings.open_built,
             )
             self.argument_on_closing_paren = self._checkbox(
+                page,
                 "Open a function's argument as soon as its parenthesis is closed (instead of on Space)",
                 "Open the argument on the closing parenthesis",
                 settings.argument_on_closing_paren,
             )
-            self.template_control_words = self._checkbox(
-                "Insert templates as control words (for example \\sum and \\sqrt instead of ∑ and √)",
-                "Insert templates as control words",
-                settings.template_control_words,
+            label = wx.StaticText(page, label="&Recognized functions")
+            self.recognized_functions = wx.TextCtrl(
+                page, value=format_recognized_functions(settings.recognized_functions), style=wx.TE_PROCESS_ENTER
+            )
+            self.recognized_functions.SetName("Recognized functions")
+            self.recognized_functions.Bind(wx.EVT_KILL_FOCUS, self._on_text_done)
+            self.recognized_functions.Bind(wx.EVT_TEXT_ENTER, self._on_text_done)
+            page.GetSizer().Add(label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
+            page.GetSizer().Add(self.recognized_functions, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 12)
+            self._help(
+                page,
+                "Comma-separated function names: Space after one opens its argument, "
+                "and they are navigated as function name and argument, as in Word.",
+            )
+
+        def _navigation_page(self, page: wx.Panel, settings: AppSettings) -> None:
+            self.linear_navigation = self._checkbox(
+                page,
+                "Use linear navigation in exploration mode (F10; writing mode is always linear)",
+                "Linear navigation in exploration mode",
+                settings.linear_navigation,
+            )
+            self.structure_stops = self._checkbox(
+                page,
+                'Stop at the start and end of every structure (for example "start fraction", '
+                '"end numerator") and of the math',
+                "Stop at structure start and end",
+                settings.structure_stops,
+            )
+            self.invisible_operator_stops = self._checkbox(
+                page,
+                "Stop at invisible operators (for example the invisible times in 3x)",
+                "Stop at invisible operators",
+                settings.invisible_operator_stops,
             )
             self.auto_zoom_out = self._checkbox(
+                page,
                 "Leave a structure automatically at its end (for example, from the numerator to the denominator)",
                 "Leave structures automatically",
                 settings.auto_zoom_out,
             )
-            explanation = wx.StaticText(
-                self,
-                label=(
-                    "When enabled, the right arrow enters structures such as fractions "
-                    "automatically, so you can read more of an expression without pressing Down."
-                ),
+            self._help(
+                page,
+                "When enabled, the right arrow enters structures such as fractions "
+                "automatically, so you can read more of an expression without pressing Down.",
             )
-            explanation.Wrap(460)
-            functions_label = wx.StaticText(self, label="Recognized functions")
-            self.recognized_functions = wx.TextCtrl(
-                self,
-                value=format_recognized_functions(settings.recognized_functions),
+
+        def _speech_page(self, page: wx.Panel, settings: AppSettings) -> None:
+            label = wx.StaticText(page, label="&Symbol dictionary (names spoken for symbols while typing)")
+            self.symbol_dictionary = wx.Choice(page)
+            self.symbol_dictionary.SetName("Symbol dictionary")
+            self._fill_dictionaries(settings.symbol_dictionary)
+            self.symbol_dictionary.Bind(wx.EVT_CHOICE, lambda _event: self._changed())
+            import_button = wx.Button(page, label="&Import dictionary…")
+            import_button.Bind(wx.EVT_BUTTON, self._on_import_dictionary)
+            download_button = wx.Button(page, label="&Download NVDA dictionaries…")
+            download_button.Bind(wx.EVT_BUTTON, self._on_download_dictionaries)
+            row = wx.BoxSizer(wx.HORIZONTAL)
+            row.Add(self.symbol_dictionary, 1, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 8)
+            row.Add(import_button, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 8)
+            row.Add(download_button, 0, wx.ALIGN_CENTER_VERTICAL)
+            page.GetSizer().Add(label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
+            page.GetSizer().Add(row, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 12)
+            self._help(
+                page,
+                "Any file in NVDA's symbols.dic format can be imported. NVDA's own dictionaries "
+                "are downloaded from the NVDA project on GitHub. The built equation is always read by MathCAT.",
             )
-            self.recognized_functions.SetName("Recognized functions")
-            functions_help = wx.StaticText(
-                self,
-                label=(
-                    "Comma-separated function names. These are used for Word-like "
-                    "navigation through function names and arguments."
-                ),
+            self.name_unknown_symbols = self._checkbox(
+                page,
+                "Say symbols MathCAT does not know by their Unicode name (for example, alchemical symbol for air)",
+                "Name unknown symbols",
+                settings.name_unknown_symbols,
             )
-            functions_help.Wrap(460)
-            self._autocorrect = (settings.math_autocorrect, settings.math_autocorrect_removed)
-            self.autocorrect_button = wx.Button(self, label="Math &AutoCorrect…")
-            self.autocorrect_button.Bind(wx.EVT_BUTTON, lambda _event: self._edit_autocorrect())
-            self.removed_words_as_symbols = self._checkbox(
-                "Deleted AutoCorrect control words still show as their symbol",
-                "Deleted AutoCorrect control words still show as their symbol",
-                settings.removed_words_as_symbols,
-            )
-            autocorrect_help = wx.StaticText(
-                self,
-                label=(
-                    "Math AutoCorrect is one list, as in Word: the converter's control words, "
-                    "MateX's shortcuts and your own entries, each one can be changed or deleted. "
-                    "Off, a deleted control word (\\alpha) stays the text you typed, as in Word."
-                ),
-            )
-            autocorrect_help.Wrap(460)
-            braille_label = wx.StaticText(self, label="&Braille code (the braille strip under the equation)")
-            self.braille_code = wx.Choice(self, choices=[label for _code, label in BRAILLE_CODES])
+
+        def _braille_page(self, page: wx.Panel, settings: AppSettings) -> None:
+            label = wx.StaticText(page, label="&Braille code (the braille strip under the equation)")
+            self.braille_code = wx.Choice(page, choices=[label for _code, label in BRAILLE_CODES])
             self.braille_code.SetName("Braille code")
             codes = [code for code, _label in BRAILLE_CODES]
             self.braille_code.SetSelection(codes.index(settings.braille_code) if settings.braille_code in codes else 0)
-            symbols_label = wx.StaticText(self, label="Symbol dictionary (names spoken for symbols)")
-            self.symbol_dictionary = wx.Choice(self)
-            self.symbol_dictionary.SetName("Symbol dictionary")
-            self._fill_dictionaries(settings.symbol_dictionary)
-            import_button = wx.Button(self, label="&Import dictionary…")
-            import_button.Bind(wx.EVT_BUTTON, self._on_import_dictionary)
-            download_button = wx.Button(self, label="&Download NVDA dictionaries…")
-            download_button.Bind(wx.EVT_BUTTON, self._on_download_dictionaries)
-            symbols_help = wx.StaticText(
-                self,
-                label=(
-                    "Any file in NVDA's symbols.dic format can be imported. NVDA's own "
-                    "dictionaries are downloaded from the NVDA project on GitHub."
-                ),
+            self.braille_code.Bind(wx.EVT_CHOICE, lambda _event: self._changed())
+            self.braille_signs_button = wx.Button(page, label="Braille si&gns…")
+            self.braille_signs_button.Bind(wx.EVT_BUTTON, lambda _event: self._edit_braille_signs())
+            page.GetSizer().Add(label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
+            page.GetSizer().Add(self.braille_code, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 12)
+            page.GetSizer().Add(self.braille_signs_button, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
+            self._help(
+                page,
+                "Braille signs are your own braille for symbols in the code chosen above, "
+                "for symbols it has no sign for, or to replace its own.",
             )
-            symbols_help.Wrap(460)
-            symbols_row = wx.BoxSizer(wx.HORIZONTAL)
-            symbols_row.Add(self.symbol_dictionary, 1, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 8)
-            symbols_row.Add(import_button, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 8)
-            symbols_row.Add(download_button, 0, wx.ALIGN_CENTER_VERTICAL)
-            buttons = self.CreateSeparatedButtonSizer(wx.OK | wx.CANCEL)
 
-            sizer.Add(heading, 0, wx.ALL, 12)
-            sizer.Add(self.linear_navigation, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
-            sizer.Add(self.structure_stops, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
-            sizer.Add(self.invisible_operator_stops, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
-            sizer.Add(self.convert_on_space, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
-            sizer.Add(self.complete_control_words, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
-            sizer.Add(self.decimal_comma, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
-            sizer.Add(self.convert_shortcuts_immediately, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
-            sizer.Add(self.open_built, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
-            sizer.Add(self.build_as_you_type, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
-            sizer.Add(self.announce_built, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
-            sizer.Add(self.autocorrect_in_text, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
-            sizer.Add(self.name_unknown_symbols, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
-            sizer.Add(self.remove_extra_spaces, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
-            sizer.Add(self.argument_on_closing_paren, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
-            sizer.Add(self.template_control_words, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
-            sizer.Add(self.auto_zoom_out, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
-            sizer.Add(explanation, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
-            sizer.Add(functions_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
-            sizer.Add(self.recognized_functions, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
-            sizer.Add(functions_help, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
-            sizer.Add(self.autocorrect_button, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
-            sizer.Add(self.removed_words_as_symbols, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
-            sizer.Add(autocorrect_help, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
-            sizer.Add(braille_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
-            sizer.Add(self.braille_code, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
-            sizer.Add(symbols_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
-            sizer.Add(symbols_row, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
-            sizer.Add(symbols_help, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 12)
-            if buttons is not None:
-                sizer.Add(buttons, 0, wx.ALL | wx.EXPAND, 12)
-            self.SetSizerAndFit(sizer)
+        # Controls
+
+        def _checkbox(self, page: wx.Panel, label: str, name: str, value: bool) -> wx.CheckBox:
+            """A checkbox for one setting: its label, the name screen readers announce, its value."""
+            checkbox = wx.CheckBox(page, label=label)
+            checkbox.SetName(name)
+            checkbox.SetValue(value)
+            checkbox.Bind(wx.EVT_CHECKBOX, lambda _event: self._changed())
+            page.GetSizer().Add(checkbox, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
+            return checkbox
+
+        def _help(self, page: wx.Panel, text: str) -> None:
+            label = wx.StaticText(page, label=text)
+            label.Wrap(_WRAP)
+            page.GetSizer().Add(label, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 12)
+
+        def _changed(self) -> None:
+            if self._on_change is not None:
+                self._on_change()
+
+        def _on_text_done(self, event: wx.Event) -> None:
+            self._changed()
+            event.Skip()
+
+        # Applying
+
+        def apply(self) -> None:
+            selection = self.symbol_dictionary.GetSelection()
+            if selection != wx.NOT_FOUND:
+                self._settings.symbol_dictionary = self._dictionaries[selection].identifier
+            braille = self.braille_code.GetSelection()
+            if braille != wx.NOT_FOUND:
+                self._settings.braille_code = BRAILLE_CODES[braille][0]
+            for code, signs in self._braille_signs.items():
+                save_signs(code, signs)
+            self._braille_signs.clear()
+            self._settings.linear_navigation = self.linear_navigation.GetValue()
+            self._settings.structure_stops = self.structure_stops.GetValue()
+            self._settings.invisible_operator_stops = self.invisible_operator_stops.GetValue()
+            self._settings.convert_on_space = self.convert_on_space.GetValue()
+            self._settings.complete_control_words = self.complete_control_words.GetValue()
+            self._settings.decimal_separator = "," if self.decimal_comma.GetValue() else "."
+            self._settings.convert_shortcuts_immediately = self.convert_shortcuts_immediately.GetValue()
+            self._settings.open_built = self.open_built.GetValue()
+            self._settings.build_as_you_type = self.build_as_you_type.GetValue()
+            self._settings.announce_built = self.announce_built.GetValue()
+            self._settings.autocorrect_in_text = self.autocorrect_in_text.GetValue()
+            self._settings.name_unknown_symbols = self.name_unknown_symbols.GetValue()
+            self._settings.remove_extra_spaces = self.remove_extra_spaces.GetValue()
+            self._settings.argument_on_closing_paren = self.argument_on_closing_paren.GetValue()
+            self._settings.template_control_words = self.template_control_words.GetValue()
+            self._settings.auto_zoom_out = self.auto_zoom_out.GetValue()
+            self._settings.recognized_functions = parse_recognized_functions(self.recognized_functions.GetValue())
+            self._settings.math_autocorrect, self._settings.math_autocorrect_removed = self._autocorrect
+            self._settings.removed_words_as_symbols = self.removed_words_as_symbols.GetValue()
+
+        # Lists edited in their own dialogs
+
+        def _edit_braille_signs(self) -> None:
+            """Open the user's signs for the braille code chosen; they are saved when the settings apply."""
+            index = self.braille_code.GetSelection()
+            code, label = BRAILLE_CODES[index if index != wx.NOT_FOUND else 0]
+            signs = self._braille_signs.get(code, load_signs(code))
+            try:
+                words = control_words()
+            except (OSError, ValueError):
+                words = {}
+            dialog = BrailleSignsDialog(self, label, signs, words)
+            try:
+                if dialog.ShowModal() == wx.ID_OK:
+                    self._braille_signs[code] = dialog.signs
+                    self._changed()
+            finally:
+                dialog.Destroy()
+            self.braille_signs_button.SetFocus()
+
+        def _edit_autocorrect(self) -> None:
+            """Open the Math AutoCorrect list; its differences from the defaults are kept until applied."""
+            defaults = autocorrect_defaults()
+            table = AutoCorrectTable(defaults, *self._autocorrect)
+            dialog = AutoCorrectDialog(self, defaults, table.entries())
+            try:
+                if dialog.ShowModal() == wx.ID_OK:
+                    self._autocorrect = differences(defaults, dialog.entries)
+                    self._changed()
+            finally:
+                dialog.Destroy()
+            self.autocorrect_button.SetFocus()
+
+        # Symbol dictionaries
 
         def _fill_dictionaries(self, selected: str) -> None:
             self._dictionaries = available_dictionaries()
@@ -242,6 +367,7 @@ if wx is not None:
                 wx.MessageBox(str(error), "Import failed", wx.OK | wx.ICON_ERROR, self)
                 return
             self._fill_dictionaries(info.identifier)
+            self._changed()
             self.symbol_dictionary.SetFocus()
 
         def _on_download_dictionaries(self, _event: wx.CommandEvent) -> None:
@@ -273,6 +399,7 @@ if wx is not None:
                 # Select the first one fetched; a language NVDA has no file for is reported.
                 selected = report.saved[0].stem
             self._fill_dictionaries(selected)
+            self._changed()
             message = f"{len(report.saved)} dictionaries downloaded."
             if report.missing:
                 message += f" NVDA has no symbol dictionary for: {', '.join(report.missing)}."
@@ -311,54 +438,105 @@ if wx is not None:
 
             wx.CallLater(150, poll)
 
-        def _checkbox(self, label: str, name: str, value: bool) -> wx.CheckBox:
-            """A checkbox for one setting: its label, the name screen readers announce, its value."""
-            checkbox = wx.CheckBox(self, label=label)
-            checkbox.SetName(name)
-            checkbox.SetValue(value)
-            return checkbox
+    class SettingsWindow(wx.Frame):
+        """macOS: Settings as a window, as Mac apps have; every change applies and is saved at once.
 
-        def apply(self) -> None:
-            selection = self.symbol_dictionary.GetSelection()
-            if selection != wx.NOT_FOUND:
-                self._settings.symbol_dictionary = self._dictionaries[selection].identifier
-            braille = self.braille_code.GetSelection()
-            if braille != wx.NOT_FOUND:
-                self._settings.braille_code = BRAILLE_CODES[braille][0]
-            self._settings.linear_navigation = self.linear_navigation.GetValue()
-            self._settings.structure_stops = self.structure_stops.GetValue()
-            self._settings.invisible_operator_stops = self.invisible_operator_stops.GetValue()
-            self._settings.convert_on_space = self.convert_on_space.GetValue()
-            self._settings.complete_control_words = self.complete_control_words.GetValue()
-            self._settings.decimal_separator = "," if self.decimal_comma.GetValue() else "."
-            self._settings.convert_shortcuts_immediately = self.convert_shortcuts_immediately.GetValue()
-            self._settings.open_built = self.open_built.GetValue()
-            self._settings.build_as_you_type = self.build_as_you_type.GetValue()
-            self._settings.announce_built = self.announce_built.GetValue()
-            self._settings.autocorrect_in_text = self.autocorrect_in_text.GetValue()
-            self._settings.name_unknown_symbols = self.name_unknown_symbols.GetValue()
-            self._settings.remove_extra_spaces = self.remove_extra_spaces.GetValue()
-            self._settings.argument_on_closing_paren = self.argument_on_closing_paren.GetValue()
-            self._settings.template_control_words = self.template_control_words.GetValue()
-            self._settings.auto_zoom_out = self.auto_zoom_out.GetValue()
-            self._settings.recognized_functions = parse_recognized_functions(self.recognized_functions.GetValue())
-            self._settings.math_autocorrect, self._settings.math_autocorrect_removed = self._autocorrect
-            self._settings.removed_words_as_symbols = self.removed_words_as_symbols.GetValue()
+        `on_apply` saves the settings and tells the open windows. Escape or
+        Command+W hides it, kept for next time (`show_settings`); it belongs
+        to the window it was opened from, so a hidden one never keeps the
+        app open after the last document window closes.
+        """
 
-        def _edit_autocorrect(self) -> None:
-            """Open the Math AutoCorrect list; its differences from the defaults are kept until OK."""
-            defaults = autocorrect_defaults()
-            table = AutoCorrectTable(defaults, *self._autocorrect)
-            dialog = AutoCorrectDialog(self, defaults, table.entries())
-            try:
-                if dialog.ShowModal() == wx.ID_OK:
-                    self._autocorrect = differences(defaults, dialog.entries)
-            finally:
-                dialog.Destroy()
-            self.autocorrect_button.SetFocus()
+        def __init__(self, parent: wx.Window, settings: AppSettings, on_apply: Callable[[], None]):
+            super().__init__(parent, title="Settings", style=wx.DEFAULT_FRAME_STYLE & ~wx.MAXIMIZE_BOX)
+            self.SetName("Settings")
+            self._on_apply = on_apply
+            self.panel = SettingsPanel(self, settings, on_change=self._apply)
+            sizer = wx.BoxSizer(wx.VERTICAL)
+            sizer.Add(self.panel, 1, wx.EXPAND)
+            self.SetSizerAndFit(sizer)
+            close = wx.NewIdRef()
+            self.Bind(wx.EVT_MENU, lambda _event: self.Close(), id=close)
+            self.SetAcceleratorTable(wx.AcceleratorTable([(wx.ACCEL_CMD, ord("W"), close)]))
+            self.Bind(wx.EVT_CHAR_HOOK, self._on_char_hook)
+            self.Bind(wx.EVT_CLOSE, self._on_close)
+
+        def _apply(self) -> None:
+            self.panel.apply()
+            self._on_apply()
+
+        def _on_char_hook(self, event: wx.KeyEvent) -> None:
+            if event.GetKeyCode() == wx.WXK_ESCAPE:
+                self.Close()
+                return
+            event.Skip()
+
+        def _on_close(self, event: wx.CloseEvent) -> None:
+            if not event.CanVeto():
+                event.Skip()  # The app is quitting.
+                return
+            self._apply()  # A text field still focused has not applied yet.
+            self.Hide()
+            event.Veto()  # Kept for next time, where the user left it.
+
+    class SettingsDialog(wx.Dialog):
+        """Windows and Linux: Settings as a dialog with OK, Cancel and Apply.
+
+        Apply (and OK) apply the panel and call `on_apply`, which saves and
+        tells the open windows; Cancel keeps what was last applied.
+        """
+
+        def __init__(self, parent: wx.Window, settings: AppSettings, on_apply: Callable[[], None]):
+            super().__init__(parent, title="Settings", style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+            self.SetName("Settings dialog")
+            self._on_apply = on_apply
+            self.panel = SettingsPanel(self, settings)
+            buttons = wx.StdDialogButtonSizer()
+            buttons.AddButton(wx.Button(self, wx.ID_OK))
+            buttons.AddButton(wx.Button(self, wx.ID_CANCEL))
+            buttons.AddButton(wx.Button(self, wx.ID_APPLY))
+            buttons.Realize()
+            sizer = wx.BoxSizer(wx.VERTICAL)
+            sizer.Add(self.panel, 1, wx.EXPAND)
+            sizer.Add(buttons, 0, wx.ALL | wx.EXPAND, 12)
+            self.SetSizerAndFit(sizer)
+            self.Bind(wx.EVT_BUTTON, self._on_ok, id=wx.ID_OK)
+            self.Bind(wx.EVT_BUTTON, lambda _event: self._apply(), id=wx.ID_APPLY)
+
+        def _apply(self) -> None:
+            self.panel.apply()
+            self._on_apply()
+
+        def _on_ok(self, event: wx.CommandEvent) -> None:
+            self._apply()
+            event.Skip()  # Closes the dialog with wx.ID_OK.
+
+    _window: SettingsWindow | None = None
+
+    def show_settings(parent: wx.Window, settings: AppSettings, on_apply: Callable[[], None]) -> None:
+        """Settings, as the platform has them: the one window on macOS, a modal dialog elsewhere."""
+        global _window
+        if applies_at_once():
+            if _window is None or not _window:  # Never opened, or gone with the window it belonged to.
+                _window = SettingsWindow(parent, settings, on_apply)
+                _window.CentreOnScreen()
+            _window.Show()
+            _window.Raise()
+            _window.panel.notebook.SetFocus()
+            return
+        dialog = SettingsDialog(parent, settings, on_apply)
+        try:
+            dialog.ShowModal()
+        finally:
+            dialog.Destroy()
 
 else:
 
-    class SettingsDialog:  # type: ignore[no-redef]
+    class SettingsPanel:  # type: ignore[no-redef]
         def __init__(self, *args: object, **kwargs: object):
             raise RuntimeError("wxPython is not installed. Run: uv sync")
+
+    SettingsDialog = SettingsWindow = SettingsPanel  # type: ignore[misc,assignment]
+
+    def show_settings(*args: object, **kwargs: object) -> None:  # type: ignore[misc]
+        raise RuntimeError("wxPython is not installed. Run: uv sync")

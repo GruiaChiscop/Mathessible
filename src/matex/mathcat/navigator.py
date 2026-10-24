@@ -51,6 +51,8 @@ class MathCatNavigator(LinearStopsMixin, StructuralNavigationMixin, TableNavigat
     decimal_separator: str = ","
     # MathCAT's BrailleCode for the braille strip ("Nemeth", "UEB", ...).
     braille_code: str = "Nemeth"
+    # The user's own signs over that code, as unicode.yaml entries (symbols/braille_signs.py).
+    braille_signs: str = ""
     _native: object = field(init=False, repr=False)
     mathml: str = field(default="", init=False)
     structure: MathMLDocument | None = field(default=None, init=False)
@@ -94,6 +96,7 @@ class MathCatNavigator(LinearStopsMixin, StructuralNavigationMixin, TableNavigat
         self._native.preference("AutoZoomOut", "true" if self.auto_zoom_out else "false")
         self._native.preference("DecimalSeparator", self.decimal_separator)
         self._native.preference("BrailleCode", self.braille_code)
+        self._native.braille_signs(self.braille_signs)  # MathCAT reloads braille only when they change.
         self.mathml = self._native.set_expression(prepare_for_mathcat(mathml))
         self.structure = MathMLDocument.parse(
             self.mathml,

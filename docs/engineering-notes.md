@@ -479,6 +479,19 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   logic in Python. This is an internal/undocumented convention of the
   vendored JS library, not a public API — flag it with a test that would
   catch a silent behaviour change on a `UnicodeMathML` submodule update.
+- **Settings (2026-10-24, the user's request):** one `SettingsPanel`
+  ([ui/settings_dialog.py](../src/matex/ui/settings_dialog.py)) with the
+  settings in native `wx.Notebook` tabs (Typing, Building, Navigation,
+  Speech, Braille), hosted as macOS has it, a `SettingsWindow` frame
+  whose every change applies and saves at once (a text field when it
+  loses focus or on Enter; Escape/Command+W hide it), and elsewhere a
+  `SettingsDialog` with OK, Cancel and Apply. `show_settings` keeps the
+  one window, a child of the frame it was opened from so a hidden one
+  cannot keep the app alive; `MainFrame._settings_applied` saves and
+  re-applies every equation editor. A new setting goes on its tab with
+  `_checkbox(page, ...)` and a line in `apply()`. wxOSX's notebook moves
+  the focus into the page it shows on a tab change; that is wx's own
+  behaviour and stays (the user's choice).
 - **Extra spaces (2026-10-24, setting `remove_extra_spaces`, on).** The
   user asked for it as an option, Word's linear format having no space
   that changes nothing. [editing/space_tidy.py](../src/matex/editing/space_tidy.py)
@@ -1166,6 +1179,19 @@ tested. Templates: `template_source` holds
     transcriber-defined symbol explained in a note, so MathCAT's hex code
     stays. The block sits at the end of each file, away from 0006's
     context lines, or 0006's reverse check (`patch_check`) fails.
+  - `src/speech.rs`, `src/interface.rs` (patch 0008): the user's own
+    braille signs. MathCAT reads rules only from the archive compiled in
+    (include-zip: `read_to_string_shim` never looks on disk), so they come
+    through `set_braille_user_signs(text)`, unicode.yaml entries, which
+    `read_files` reads right after the code's short table: the short table
+    is looked up first, so each replaces the code's sign. A change calls
+    `invalidate_braille_caches`; a mistake in them is logged and ignored.
+    MateX side: [symbols/braille_signs.py](../src/matex/symbols/braille_signs.py)
+    (`~/.matex/braille/<code>.txt`, a symbol and its cells or dot numbers
+    per line), `MathCatNavigator.braille_signs` sent on every `load` (MathCAT
+    reloads only on a change, so each thread's own MathCAT gets them too),
+    and Settings > Braille signs… (`BrailleSignsDialog`, saved on the
+    Settings dialog's OK).
 - **Startup patch check** ([patch_check.py](../src/matex/patch_check.py)):
   `git apply --reverse --check` per patch file, on a worker thread from
   the first `MainFrame`; a warning dialog lists the missing ones (a

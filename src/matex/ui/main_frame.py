@@ -14,7 +14,7 @@ from matex.patch_check import missing_patches
 from matex.settings import AppSettings, load_settings, save_settings
 from matex.ui.document_editor import DocumentEditor
 from matex.ui.macos_webview import guard_webview_key_equivalents
-from matex.ui.settings_dialog import SettingsDialog
+from matex.ui.settings_dialog import show_settings
 
 try:
     import wx
@@ -400,18 +400,18 @@ if wx is not None:
             return result == wx.ID_NO
 
         def _open_settings(self, _event: wx.CommandEvent | None = None) -> None:
-            dialog = SettingsDialog(self, self.settings)
+            # A window applying each change at once on macOS, a dialog with OK, Cancel and Apply elsewhere.
+            show_settings(self, self.settings, self._settings_applied)
+
+        def _settings_applied(self) -> None:
+            """Settings changed (applied in the window or the dialog): save them and tell every window."""
             try:
-                if dialog.ShowModal() == wx.ID_OK:
-                    dialog.apply()
-                    save_settings(self.settings)
-                    for window in self._application_windows():
-                        window.editor.equation_window.equation.apply_settings()
-                        window.Refresh()
+                save_settings(self.settings)
             except OSError as error:
                 self._show_error("save settings", error)
-            finally:
-                dialog.Destroy()
+            for window in self._application_windows():
+                window.editor.equation_window.equation.apply_settings()
+                window.Refresh()
 
         def _spawn_window(self) -> MainFrame:
             frame = MainFrame(settings=self.settings)
