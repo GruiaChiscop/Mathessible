@@ -446,6 +446,8 @@ class MathCatNavigator(LinearStopsMixin, StructuralNavigationMixin, TableNavigat
             return self.display_id, "after", False
         # After a whole structure (structural navigation stands on one): outside it.
         node = self.structure.node(self.current_id) if self.structure is not None else None
+        if node is not None and self.structure.equation_number(self.current_id):
+            return self.current_id, "after", False  # On the number: typing goes into it, at its end.
         return self.current_id, "after", bool(node is not None and node.children)
 
     def move_to(self, identifier: str) -> None:

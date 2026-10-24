@@ -479,6 +479,24 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   logic in Python. This is an internal/undocumented convention of the
   vendored JS library, not a public API — flag it with a test that would
   catch a silent behaviour change on a `UnicodeMathML` submodule update.
+- **Numbered equations (2026-10-24).** The converter writes
+  `E=mc^2#(1)` as a one-row `mtable` whose first cell is the number
+  (`intent=":equation-label"`) and the second the equation: MathML has the
+  number first, the source last. Traps it hid: navigation read a matrix
+  ("start matrix, start row 1, start column 1, open paren, 1, ..."), and
+  `map_leaves`, aligning in MathML order, matched the number and then
+  nothing, so typing anywhere in the built equation went to its end.
+  `table_kind` "numbered" (no region, no row/column stops), `number_last`
+  (the row's children in source order) in `leaf_nodes` and the stop
+  builder, one stop `equation number(...)` ("equation number 1") after
+  the equation, typing on it inside its parens (`edit_anchor` not
+  outside, `_fills_a_slot`), `describe_insertion_point` naming it
+  ("before equation number 1"), and in structural navigation the table,
+  its row and the equation's cell give one level: the equation's items,
+  then the number. MathCAT's whole reading ("1 equation, with label 1;
+  ...") is unchanged. Not supported by the converter (total failure): a
+  number per line of an equation array (`█(a=b#(1)@c=d#(2))`), and lines
+  aligned with `&` outside an array (UTN #28 sec. 3.23).
 - **Settings (2026-10-24, the user's request):** one `SettingsPanel`
   ([ui/settings_dialog.py](../src/matex/ui/settings_dialog.py)) with the
   settings in native `wx.Notebook` tabs (Typing, Building, Navigation,

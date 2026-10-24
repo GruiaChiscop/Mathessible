@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from matex.mathcat.common import _INVISIBLE_OPERATOR_NAMES, BoundaryStop, _table_names
-from matex.mathcat.mathml_model import MathMLNode
+from matex.mathcat.mathml_model import MathMLNode, is_equation_label, number_last
 from matex.templates.math_templates import ARROWS, function_script
 
 
@@ -102,6 +102,9 @@ class StructuralNavigationMixin:
         self._structural_edge = None
         self._boundary_stop = None
         self._go_to(node.identifier)
+        number = self.structure.equation_number(node.identifier)
+        if number is not None:
+            return number  # "equation number 1", as the linear stops say it.
         position = self.structure.table_position(node.identifier) if node.tag == "mtd" else None
         table = self.structure.node(position.table_id) if position is not None and position.table_id else None
         if position is not None and table is not None:
@@ -147,7 +150,14 @@ class StructuralNavigationMixin:
             "munderover": "script",
         }.get(node.tag)
         if named == "matrix":
-            return structure.table_kind(node)  # "cases", "equations", "determinant" or "matrix".
+            kind = structure.table_kind(node)  # "cases", "equations", "determinant", "numbered" or "matrix".
+            return "numbered equation" if kind == "numbered" else kind
+        if node.identifier and (number := structure.equation_number(node.identifier)):
+            return number
+        if named in ("row", "cell") and node.identifier:
+            table = structure.enclosing(node.identifier, lambda candidate: candidate.tag == "mtable")
+            if table is not None and structure.table_kind(table) == "numbered":
+                return "equation"  # The equation's own row and cell, beside its number.
         if named == "row" and node.identifier:
             table = structure.parent_by_id.get(node.identifier)
             rows = [child for child in table.children if child.tag == "mtr"] if table is not None else []
@@ -183,6 +193,16 @@ class StructuralNavigationMixin:
         """
         structure = self.structure
         assert structure is not None
+        table = self._numbered_table(node)
+        if table is not None:
+            # `E=mc^2#(1)`: the equation's own items, then its number. The converter's table, its row
+            # and the equation's cell all give this one level, so none of them is a level of its own.
+            row = table.children[0] if table.children else None
+            cells = number_last(row) if row is not None else ()
+            equation = [cell for cell in cells if not is_equation_label(cell)]
+            label = [cell for cell in cells if is_equation_label(cell)]
+            inner = [item for cell in equation for item in self._plain_level_items(cell)]
+            return inner + label
         fenced_table = any(child.tag == "mtable" for child in node.children)
         items = [
             child
@@ -192,12 +212,32 @@ class StructuralNavigationMixin:
         ]
         if node.tag == "mroot" and len(items) == 2:
             items.reverse()  # The index first, as it is said and written.
-        if (
-            len(items) == 1
-            and items[0].children
-            and items[0].tag in {"mrow", "mstyle", "mpadded", "semantics"}
-            and not structure.semantic_role(items[0].identifier or "")
+        if len(items) == 1 and (
+            (
+                items[0].children
+                and items[0].tag in {"mrow", "mstyle", "mpadded", "semantics"}
+                and not structure.semantic_role(items[0].identifier or "")
+            )
+            or self._numbered_table(items[0]) is not None
         ):
+            return self._level_items(items[0])
+        return items
+
+    def _numbered_table(self, node: MathMLNode) -> MathMLNode | None:
+        """The numbered equation's table if `node` is it, its row or the equation's cell (not the number's)."""
+        structure = self.structure
+        assert structure is not None
+        if node.tag not in {"mtable", "mtr", "mtd"} or is_equation_label(node) or not node.identifier:
+            return None
+        table = structure.enclosing(node.identifier, lambda candidate: candidate.tag == "mtable")
+        if table is None or structure.table_kind(table) != "numbered":
+            return None
+        return table
+
+    def _plain_level_items(self, cell: MathMLNode) -> list[MathMLNode]:
+        """The equation cell's items, looked through as any lone wrapper row is."""
+        items = [child for child in cell.children if child.identifier]
+        if len(items) == 1 and items[0].children and items[0].tag in {"mrow", "mstyle", "mpadded", "semantics"}:
             return self._level_items(items[0])
         return items
 

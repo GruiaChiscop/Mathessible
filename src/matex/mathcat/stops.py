@@ -18,7 +18,7 @@ from matex.mathcat.common import (
     BoundaryStop,
     _LinearStop,
 )
-from matex.mathcat.mathml_model import MathMLNode
+from matex.mathcat.mathml_model import MathMLNode, is_equation_label, number_last
 from matex.templates.math_templates import FUNCTION_SCRIPTS
 
 
@@ -303,7 +303,7 @@ class LinearStopsMixin:
                 # "start matrix"/"end matrix" stand for them instead.
                 fenced_table = any(child.tag == "mtable" for child in node.children)
                 bars = structure.bar_pair_name(node) is not None
-                children = node.children
+                children = number_last(node)  # A numbered equation: its number after it, as typed.
                 if node.tag == "mroot" and len(children) == 2:
                     # The index first, as it is said ("cube root of") and written (`√(3&x)`).
                     children = (children[1], children[0])
@@ -334,10 +334,27 @@ class LinearStopsMixin:
                 edge = (structure.root.identifier, True)
             return _LinearStop(node_id, speech, stop, display_id, edge)
 
+        numbers_said: set[str] = set()
         try:
             for leaf in leaves:
                 leaf_id = leaf.identifier
                 assert leaf_id is not None
+                label = structure.enclosing(leaf_id, is_equation_label)
+                if label is not None:
+                    # The number is one stop, "equation number 1", not its parens and digits.
+                    if label.identifier in numbers_said or not label.identifier:
+                        continue
+                    numbers_said.add(label.identifier)
+                    entries = tuple(self._stop_regions(leaf, leaf_id, region_nodes))
+                    previous = set(previous_entries)
+                    left = (entry for entry in previous_entries if entry not in set(entries))
+                    stops.extend(boundary(f"end {entry[1]}", leaf_id, last_id or leaf_id, entry) for entry in left)
+                    entered = (entry for entry in reversed(entries) if entry not in previous)
+                    stops.extend(boundary(f"start {entry[1]}", leaf_id, leaf_id, entry) for entry in entered)
+                    number = structure.equation_number(leaf_id) or "equation number"
+                    stops.append(_LinearStop(label.identifier, number, None, label.identifier))
+                    previous_entries, last_id = entries, leaf_id
+                    continue
                 try:
                     self._go_to(leaf_id)
                     speech = self._navigate("ReadCurrent")
@@ -442,6 +459,8 @@ class LinearStopsMixin:
         while table is not None and table.tag != "mtable":
             table = structure.parent_by_id.get(table.identifier or "")
         kind = structure.table_kind(table) if table is not None else "matrix"
+        if kind == "numbered":
+            return None  # The table only places the number: no rows or columns to tell.
         if part.tag == "mtr":
             return {"equations": f"equation {index}", "cases": f"case {index}"}.get(kind, f"row {index}")
         if kind == "equations":

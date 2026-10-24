@@ -248,7 +248,9 @@ class MathMLDocument:
 
     def _structural_region_name(self, node: MathMLNode) -> str | None:
         if node.tag == "mtable":
-            return self.table_kind(node)
+            kind = self.table_kind(node)
+            # `E=mc^2#(1)`: the converter's table only places the number; no region for it.
+            return None if kind == "numbered" else kind
         bars = self.bar_pair_name(node)
         if bars is not None:
             return bars
@@ -276,9 +278,12 @@ class MathMLDocument:
         return None
 
     def table_kind(self, table: MathMLNode) -> str:
-        """ "equations" (an equation array `█(...)`), "cases" (`{■(...)┤`) or "matrix"."""
+        """ "equations" (an equation array `█(...)`), "cases" (`{■(...)┤`), "numbered" (an equation
+        with its number, `E=mc^2#(1)`: a row of the number's cell and the equation's) or "matrix"."""
         if ":equations" in table.attributes.get("intent", ""):
             return "equations"
+        if any(is_equation_label(cell) for row in table.children for cell in row.children):
+            return "numbered"
         parent = self.parent_by_id.get(table.identifier or "")
         siblings = parent.children if parent is not None else ()
         index = next((i for i, child in enumerate(siblings) if child is table), 0)
@@ -524,6 +529,16 @@ class MathMLDocument:
             return None
         return next((candidate for candidate in (node,) + self.ancestors(identifier) if predicate(candidate)), None)
 
+    def equation_number(self, identifier: str) -> str | None:
+        """ "equation number 1" for the number of a numbered equation (`#(1)`) or anything in it, else None."""
+        label = self.enclosing(identifier, is_equation_label)
+        if label is None:
+            return None
+        number = "".join(_texts(label)).strip()
+        if number.startswith("(") and number.endswith(")"):
+            number = number[1:-1]
+        return f"equation number {number}" if number else "equation number"
+
     def table_index(self, table_id: str) -> int | None:
         for index, table in enumerate(self.tables()):
             if table.identifier == table_id:
@@ -578,3 +593,21 @@ class MathMLDocument:
             table_id=table.identifier,
             cell_id=cell.identifier,
         )
+
+
+def is_equation_label(node: MathMLNode) -> bool:
+    """The cell of an equation's number (`#(1)`), as the converter writes it."""
+    return node.tag == "mtd" and ":equation-label" in node.attributes.get("intent", "")
+
+
+def number_last(node: MathMLNode) -> tuple[MathMLNode, ...]:
+    """A node's children in source order: a numbered equation's row has its number first in
+    MathML (the label cell) but last in the source (`E=mc^2#(1)`)."""
+    children = node.children
+    if node.tag == "mtr" and children and is_equation_label(children[0]):
+        return (*children[1:], children[0])
+    return children
+
+
+def _texts(node: MathMLNode) -> list[str]:
+    return [node.text] if not node.children else [text for child in node.children for text in _texts(child)]

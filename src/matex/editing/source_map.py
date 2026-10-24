@@ -19,7 +19,7 @@ import unicodedata
 from dataclasses import dataclass
 
 from matex.editing.source_view import view_of
-from matex.mathcat.mathml_model import MathMLDocument, MathMLNode
+from matex.mathcat.mathml_model import MathMLDocument, MathMLNode, is_equation_label, number_last
 
 _INVISIBLE = frozenset("⁡⁢⁣⁤")
 # Empty template slots ("()") come back as a non-breaking space or nothing.
@@ -62,13 +62,15 @@ def leaf_nodes(document: MathMLDocument) -> list[MathMLNode]:
     """The leaves MathCAT can stand on, in source order.
 
     That is MathML order except in an `mroot`, whose index comes last in
-    MathML (base, index) but first in the source (`√(3&x)`, `∛x`).
+    MathML (base, index) but first in the source (`√(3&x)`, `∛x`), and in a
+    numbered equation, whose number comes first in MathML but last in the
+    source (`E=mc^2#(1)`, `number_last`).
     """
     leaves: list[MathMLNode] = []
 
     def walk(node: MathMLNode) -> None:
         if node.children:
-            children = node.children
+            children = number_last(node)
             if node.tag == "mroot" and len(children) == 2:
                 children = (children[1], children[0])
             for child in children:
@@ -233,6 +235,8 @@ def _fills_a_slot(document: MathMLDocument, node: MathMLNode) -> bool:
         current = parent  # A lone wrapper mrow: the slot is around it.
     if not node.identifier:
         return False
+    if is_equation_label(node):
+        return True  # The number's `(...)` is its slot: typing on it goes inside.
     # An argument's or integrand's box `〖...〗` is a slot too: "end integrand" types inside it.
     boxed = node.attributes.get("intent", "").startswith(":fenced") and bool(document.regions(node.identifier))
     return boxed or bool(document.semantic_role(node.identifier))

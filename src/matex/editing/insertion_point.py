@@ -41,6 +41,11 @@ def describe_insertion_point(
     read: Callable[[str], str] | None = None,
 ) -> str:
     """Where typing goes, for an edit anchor (`MathCatNavigator.edit_anchor`)."""
+
+    def named(node: MathMLNode, read: Callable[[str], str] | None = None) -> str:
+        # The number of a numbered equation is named as one ("before equation number 1").
+        return (node.identifier and document.equation_number(node.identifier)) or node_name(node, read)
+
     leaves = [leaf for leaf in leaf_nodes(document) if leaf.text not in _INVISIBLE]
     node = document.node(node_id)
     if node is None or node is document.root or not leaves:
@@ -58,16 +63,16 @@ def describe_insertion_point(
         edge = inside[-1]
         index = leaves.index(edge)
         neighbor = leaves[index + 1] if index + 1 < len(leaves) else None
-        pieces = [f"after {node_name(node if outside or not node.children else edge, read)}"]
+        pieces = [f"after {named(node if outside or not node.children else edge, read)}"]
         pieces += [f"end of {label}" for label in _left(document, node if outside else edge, neighbor, node)]
-        pieces.append(f"before {node_name(neighbor, read)}" if neighbor is not None else "end of math")
+        pieces.append(f"before {named(neighbor, read)}" if neighbor is not None else "end of math")
         return ", ".join(pieces)
     edge = inside[0]
     index = leaves.index(edge)
     neighbor = leaves[index - 1] if index > 0 else None
-    pieces = [f"after {node_name(neighbor, read)}" if neighbor is not None else "start of math"]
+    pieces = [f"after {named(neighbor, read)}" if neighbor is not None else "start of math"]
     pieces += [f"start of {label}" for label in reversed(_left(document, node if outside else edge, neighbor, node))]
-    pieces.append(f"before {node_name(node if outside or not node.children else edge, read)}")
+    pieces.append(f"before {named(node if outside or not node.children else edge, read)}")
     return ", ".join(pieces)
 
 
@@ -95,6 +100,9 @@ def _cell_edges(document: MathMLDocument, inner: MathMLNode, neighbor: MathMLNod
     here = document.table_position(inner.identifier or "")
     if here is None:
         return []
+    table = document.node(here.table_id) if here.table_id else None
+    if table is not None and document.table_kind(table) == "numbered":
+        return []  # Its table only places the number: no cells to tell.
     there = document.table_position(neighbor.identifier or "") if neighbor is not None else None
     if there is not None and there.cell_id == here.cell_id:
         return []

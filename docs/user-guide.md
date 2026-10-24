@@ -155,6 +155,16 @@ screen reader as itself; with **Name unknown symbols** (on by default)
 MateX says its Unicode name instead (🜁, "alchemical symbol for air").
 Letters (ș, 中) and a text's punctuation are left as they are.
 
+### Equation numbers and equation arrays
+
+An equation's number goes after it, as in Word: `E=mc^2#(1)` (Insert →
+Equation Number puts `#()` at the end). Moving through the built
+equation, the number is one stop, "equation number 1", after the
+equation; typing on it goes into the number. An equation array lines up
+equations at `&` (`█(x+y&=1@x-y&=3)`, Insert → Equation Array), read as
+"equation 1", "equation 2"; the whole array can have one number,
+`█(...)#(2)`, but not one per line.
+
 ### Templates and the Structure Gallery
 
 The **Insert** menu has the templates, each with its shortcut where Word
