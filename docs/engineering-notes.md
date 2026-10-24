@@ -496,7 +496,11 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   then the number. MathCAT's whole reading ("1 equation, with label 1;
   ...") is unchanged. Not supported by the converter (total failure): a
   number per line of an equation array (`█(a=b#(1)@c=d#(2))`), and lines
-  aligned with `&` outside an array (UTN #28 sec. 3.23).
+  aligned with `&` outside an array (UTN #28 sec. 3.23). Per-line numbers
+  are not UnicodeMath either: UTN #28 v3.3 (2025) sec. 3.21 gives one
+  number per equation (`E=mc^2#(30)`, `█(E=mc^2#(30))`), and sec. 3.19 and
+  Appendix A have none per line, so they are not added (the user's rule:
+  only what UnicodeMath specifies).
 - **Settings (2026-10-24, the user's request):** one `SettingsPanel`
   ([ui/settings_dialog.py](../src/matex/ui/settings_dialog.py)) with the
   settings in native `wx.Notebook` tabs (Typing, Building, Navigation,
