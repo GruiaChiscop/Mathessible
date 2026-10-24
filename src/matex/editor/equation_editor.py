@@ -23,6 +23,7 @@ from matex.editing.space_conversion import (
     convert_shortcut_on_character,
     convert_word_before,
 )
+from matex.editing.space_tidy import caret_after_tidy, tidy_spaces
 from matex.editing.word_navigation import next_word_boundary, previous_word_boundary
 from matex.editor.assist import EditorAssistMixin
 from matex.editor.built import BuiltEditingMixin
@@ -510,6 +511,7 @@ if wx is not None:
                 self._enter_professional_mode(conversion, error_prefix="Professional mode could not be built")
             else:
                 self.mode = "linear"
+                self.remove_extra_spaces()  # As Word's linear format: no space that changes nothing.
                 self._update_braille_display()
                 self._announce("linear mode")
             self.Refresh()
@@ -756,6 +758,22 @@ if wx is not None:
                 self._paste_equation()
             elif command == "select_all":
                 self._select_all()
+
+        def remove_extra_spaces(self) -> None:
+            """Remove the spaces that change nothing (`space_tidy`), when the setting asks: on save, F2 to linear."""
+            if not self.settings.remove_extra_spaces or not self.converter_ready or self._converting:
+                return
+
+            def convert(text: str) -> str | None:
+                try:
+                    return self.convert_unicode_math(text)
+                except (UnicodeMathError, RuntimeError):
+                    return None
+
+            tidied, removed = tidy_spaces(self.document.source, convert)
+            if removed:
+                session_log.write("command", f"removed {len(removed)} extra spaces")
+                self._replace_linear(tidied, caret_after_tidy(self.caret, removed))
 
         def toggle_mode(self) -> None:
             """F2 / View > Professional View: switch between linear and professional view."""

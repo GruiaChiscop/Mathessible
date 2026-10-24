@@ -160,6 +160,8 @@ if wx is not None:
             on_done, self._on_done = self._on_done, None
             if on_done is None:
                 return
+            if saved:
+                self.equation.remove_extra_spaces()
             session_log.write("close", f"{'saved' if saved else 'cancelled'}: {self.equation.source!r}")
             self._enable_others()
             self.Hide()

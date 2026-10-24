@@ -479,6 +479,17 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   logic in Python. This is an internal/undocumented convention of the
   vendored JS library, not a public API — flag it with a test that would
   catch a silent behaviour change on a `UnicodeMathML` submodule update.
+- **Extra spaces (2026-10-24, setting `remove_extra_spaces`, on).** The
+  user asked for it as an option, Word's linear format having no space
+  that changes nothing. [editing/space_tidy.py](../src/matex/editing/space_tidy.py)
+  `tidy_spaces` lets the converter decide: a space goes when the MathML
+  without it is the original's, tried from the last to the first against
+  the whole original. Kept: escaped `\ `, spaces in a normal text, and a
+  space after a word of two letters or more before something (`sin x`:
+  the converter reads `sinx` the same, the linear view would not).
+  `EquationEditor.remove_extra_spaces` runs on save (`finish(True)`) and
+  on F2 to linear, never while typing: there a space is the build
+  trigger, and the linear runs and script chains hold source offsets.
 - **Normal text (2026-10-24), Word's Normal Text button:** UnicodeMath's
   quoted text (`"for all "x`, an `mtext`; MathCAT reads it as words).
   [editing/normal_text.py](../src/matex/editing/normal_text.py)

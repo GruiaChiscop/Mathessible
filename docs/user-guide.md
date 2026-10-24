@@ -75,7 +75,14 @@ until `d` and Space build it. Linear text stays linear when you move
 away from it; Undo right after a build takes it back. As in Word, Space
 builds a chain of scripts one at a time: in `a^b^c` the first Space
 builds b to the c, the second builds a to that power, while an operator
-such as `+` builds the whole chain at once. As with Word's
+such as `+` builds the whole chain at once.
+
+With **Remove extra spaces** (on by default), as Word's linear format
+has none, the spaces that change nothing are removed when the equation
+is saved or shown in the linear view: `a^b^c  ` is saved as `a^b^c`,
+`x + y = 1` as `x+y=1`. A space that ends an operand stays (`a_1 b`: b is
+not in the subscript), and so does one after a word (`sin x`) and every
+space in a normal text. As with Word's
 Linear and Professional on a selection, `F2` with a selection in the
 professional view (Shift with the arrows) turns only that part linear,
 and `F2` on a selection holding linear text builds it again. **Say what was

@@ -101,6 +101,11 @@ if wx is not None:
                 "Name unknown symbols",
                 settings.name_unknown_symbols,
             )
+            self.remove_extra_spaces = self._checkbox(
+                "Remove spaces that change nothing when saving the equation or switching to linear view",
+                "Remove extra spaces",
+                settings.remove_extra_spaces,
+            )
             self.argument_on_closing_paren = self._checkbox(
                 "Open a function's argument as soon as its parenthesis is closed (instead of on Space)",
                 "Open the argument on the closing parenthesis",
@@ -195,6 +200,7 @@ if wx is not None:
             sizer.Add(self.announce_built, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.autocorrect_in_text, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.name_unknown_symbols, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
+            sizer.Add(self.remove_extra_spaces, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.argument_on_closing_paren, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.template_control_words, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
             sizer.Add(self.auto_zoom_out, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
@@ -331,6 +337,7 @@ if wx is not None:
             self._settings.announce_built = self.announce_built.GetValue()
             self._settings.autocorrect_in_text = self.autocorrect_in_text.GetValue()
             self._settings.name_unknown_symbols = self.name_unknown_symbols.GetValue()
+            self._settings.remove_extra_spaces = self.remove_extra_spaces.GetValue()
             self._settings.argument_on_closing_paren = self.argument_on_closing_paren.GetValue()
             self._settings.template_control_words = self.template_control_words.GetValue()
             self._settings.auto_zoom_out = self.auto_zoom_out.GetValue()
