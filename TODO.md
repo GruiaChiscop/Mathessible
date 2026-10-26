@@ -14,7 +14,7 @@ GitHub, and the Help menu opens it in the browser.
   menu on macOS). The addresses are in `src/mathessible/help_links.py`.
 - [x] `docs/quick-start.md` and `docs/keyboard-shortcuts.md`, linked from
   the README and the user guide.
-- [ ] The Help menu in the equation editor's window too, which has its own
+- [x] The Help menu in the equation editor's window too, which has its own
   menu bar.
 - [ ] Keep `docs/keyboard-shortcuts.md` up to date with every new shortcut.
 - [ ] A GitHub wiki, once there is more documentation than a few pages in

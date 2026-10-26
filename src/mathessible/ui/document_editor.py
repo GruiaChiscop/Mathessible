@@ -11,6 +11,7 @@ from mathessible.editor.equation_editor import EquationEditor
 from mathessible.editor.structures import append_insert_items
 from mathessible.settings import AppSettings
 from mathessible.ui.clipboard import set_clipboard_text
+from mathessible.ui.help_menu import append_help_menu
 from mathessible.ui.speech import AssistiveOutput, create_output
 
 try:
@@ -145,6 +146,7 @@ if wx is not None:
                 professional_item,
             )
             menu_bar.Append(view_menu, "&View")
+            append_help_menu(self, menu_bar)
             self.SetMenuBar(menu_bar)
 
         def _enable_in_linear_view(self, event: wx.UpdateUIEvent) -> None:
@@ -330,12 +332,12 @@ if wx is not None:
             caret = self.markdown.GetInsertionPoint()
             new_source, new_zone = result
             session_log.write("command", f"document: change to {'display' if new_zone.display else 'inline'}")
-            self._replace_source(new_source)
+            self.replace_source(new_source)
             offset = min(max(caret - zone.content_start, 0), new_zone.content_end - new_zone.content_start)
             self.markdown.SetInsertionPoint(new_zone.content_start + offset)
             self._announce("display equation" if new_zone.display else "inline equation")
 
-        def _replace_source(self, new_source: str) -> None:
+        def replace_source(self, new_source: str) -> None:
             """Replace only the text that changed, as an edit of the Markdown editor, not a new document."""
             old = self.markdown.GetValue()
             start = 0
@@ -399,7 +401,7 @@ if wx is not None:
                     zone = math_zone_at(self.markdown.GetValue(), session.zone.start + 1)
                     toggled = toggle_display(self.markdown.GetValue(), zone) if zone is not None else None
                     if toggled is not None:
-                        self._replace_source(toggled[0])
+                        self.replace_source(toggled[0])
                         caret = toggled[1].end
                 self.markdown.SetSelection(caret, caret)
                 if new_line:

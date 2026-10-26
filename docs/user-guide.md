@@ -57,6 +57,13 @@ a double click selects a word. View → Zoom In and Zoom Out
 `Command+=` is the subscript template) enlarge both views; Actual Size
 (`Command+Option+0`) goes back to 100%.
 
+Edit → Find (`Command+F`, `Ctrl+F` elsewhere) and Replace
+(`Command+Option+F`, `Ctrl+H`) search the Markdown, equations' source
+included; Find Next and Find Previous (`Command+G` and
+`Command+Shift+G`, `F3` and `Shift+F3`) go on from the selection and
+wrap around. The Find dialog stays open beside the document, and Escape
+closes it. Replace replaces the selected match and finds the next one.
+
 Documents are saved as UTF-8 Markdown files from the File menu, with New,
 Open, Save and Save As and the standard shortcuts `Ctrl/Command+N`,
 `Ctrl/Command+O`, `Ctrl/Command+S` and `Ctrl/Command+Shift+S`. The `.md`

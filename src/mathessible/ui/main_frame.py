@@ -1,25 +1,26 @@
 from __future__ import annotations
 
+import sys
 import tempfile
 import threading
 from pathlib import Path
 
 from mathessible.documents.document_io import read_markdown, write_markdown
+from mathessible.documents.find_text import FindOptions, find, is_match, replace_all
 from mathessible.documents.html_export import PREVIEW_PAGE, ExportPage, preview_update_script, write_notebook_html
 from mathessible.documents.markdown_math import find_math_zones
 from mathessible.documents.notebook import Notebook, NotebookError
 from mathessible.documents.portable_notebook import extract_portable, save_portable
-from mathessible.help_links import ABOUT, HELP_PAGES, ISSUES, page_url, version
 from mathessible.mathcat.navigator import mathcat_load_error
 from mathessible.patch_check import missing_patches
 from mathessible.settings import AppSettings, load_settings, save_settings
 from mathessible.ui.document_editor import DocumentEditor
+from mathessible.ui.help_menu import append_help_menu
 from mathessible.ui.macos_webview import guard_webview_key_equivalents
 from mathessible.ui.settings_dialog import show_settings
 
 try:
     import wx
-    import wx.adv
     import wx.html2
 except ImportError:
     wx = None
@@ -65,6 +66,9 @@ if wx is not None:
             self.preview: wx.html2.WebView | None = None
             self._preview_ready = False
             self._preview_timer: wx.CallLater | None = None
+            # Find and Replace: what was last searched for, and the dialog while it is open.
+            self._find_data = wx.FindReplaceData(wx.FR_DOWN)
+            self._find_dialog: wx.FindReplaceDialog | None = None
             self.splitter.Initialize(self.editor)
             content_sizer.Add(self.page_panel, 0, wx.EXPAND)
             content_sizer.Add(self.splitter, 1, wx.EXPAND)
@@ -146,6 +150,15 @@ if wx is not None:
             edit_menu.AppendSeparator()
             edit_menu.Append(wx.ID_SELECTALL, "Select &All\tCtrl+A")
             edit_menu.AppendSeparator()
+            # The platform's own keys: Command+G/Shift+G and Command+Option+F on macOS, F3 and Ctrl+H elsewhere.
+            mac = sys.platform == "darwin"
+            self._find_id, self._find_next_id = wx.NewIdRef(), wx.NewIdRef()
+            self._find_previous_id, self._replace_id = wx.NewIdRef(), wx.NewIdRef()
+            edit_menu.Append(self._find_id, "&Find…\tCtrl+F")
+            edit_menu.Append(self._find_next_id, f"Find &Next\t{'Ctrl+G' if mac else 'F3'}")
+            edit_menu.Append(self._find_previous_id, f"Find Pre&vious\t{'Ctrl+Shift+G' if mac else 'Shift+F3'}")
+            edit_menu.Append(self._replace_id, f"R&eplace…\t{'Ctrl+Alt+F' if mac else 'Ctrl+H'}")
+            edit_menu.AppendSeparator()
             self._display_id = wx.NewIdRef()
             edit_menu.Append(self._display_id, "Change Equation to &Display")
             edit_menu.AppendSeparator()
@@ -189,17 +202,7 @@ if wx is not None:
             window_menu.Append(self._bring_all_to_front_id, "Bring All to &Front")
             menu_bar.Append(window_menu, "&Window")
             # Help opens the documentation on GitHub; Mathessible has none inside it.
-            help_menu = wx.Menu()
-            for label, path in HELP_PAGES:
-                item = help_menu.Append(wx.ID_ANY, label)
-                self.Bind(wx.EVT_MENU, lambda _event, path=path: wx.LaunchDefaultBrowser(page_url(path)), item)
-            help_menu.AppendSeparator()
-            report_item = help_menu.Append(wx.ID_ANY, "&Report a Problem")
-            self.Bind(wx.EVT_MENU, lambda _event: wx.LaunchDefaultBrowser(ISSUES), report_item)
-            help_menu.AppendSeparator()
-            help_menu.Append(wx.ID_ABOUT, "&About Mathessible")  # In the application menu on macOS.
-            self.Bind(wx.EVT_MENU, self._show_about, id=wx.ID_ABOUT)
-            menu_bar.Append(help_menu, "&Help")
+            append_help_menu(self, menu_bar)
             self.SetMenuBar(menu_bar)
 
             self.Bind(wx.EVT_MENU, self._new_document, id=wx.ID_NEW)
@@ -221,6 +224,15 @@ if wx is not None:
                 self.Bind(wx.EVT_MENU, self._on_edit_command, id=command_id)
                 self.Bind(wx.EVT_UPDATE_UI, self._on_update_edit_menu, id=command_id)
             self.Bind(wx.EVT_MENU, lambda _event: self.editor.toggle_equation_display(), id=self._display_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._show_find(replace=False), id=self._find_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._show_find(replace=True), id=self._replace_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._find_again(forward=True), id=self._find_next_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._find_again(forward=False), id=self._find_previous_id)
+            self.Bind(wx.EVT_FIND, self._on_find)
+            self.Bind(wx.EVT_FIND_NEXT, self._on_find)
+            self.Bind(wx.EVT_FIND_REPLACE, self._on_replace)
+            self.Bind(wx.EVT_FIND_REPLACE_ALL, self._on_replace_all)
+            self.Bind(wx.EVT_FIND_CLOSE, self._on_find_close)
             self.Bind(wx.EVT_UPDATE_UI, self._on_update_display_item, id=self._display_id)
             self.Bind(wx.EVT_MENU, self._open_settings, id=wx.ID_PREFERENCES)
             self.Bind(wx.EVT_MENU, self._toggle_preview, id=self._preview_id)
@@ -357,15 +369,80 @@ if wx is not None:
             }
             event.Enable(availability.get(event.GetId(), True))
 
-        def _show_about(self, _event: wx.CommandEvent) -> None:
-            # Name, version, description and copyright only: on macOS that is
-            # the native About panel (a website or licence would make it wx's own).
-            info = wx.adv.AboutDialogInfo()
-            info.SetName("Mathessible")
-            info.SetVersion(version())
-            info.SetDescription(ABOUT)
-            info.SetCopyright("GNU General Public License, version 2 or later")
-            wx.adv.AboutBox(info, self)
+        # Find and Replace
+
+        def _show_find(self, replace: bool) -> None:
+            """Open Find (or Replace), a dialog of native controls that stays open beside the document."""
+            if self._find_dialog is not None:
+                self._find_dialog.Destroy()
+            start, end = self.editor.markdown.GetSelection()
+            selected = self.editor.markdown.GetValue()[start:end]
+            if selected and "\n" not in selected:
+                self._find_data.SetFindString(selected)
+            style = wx.FR_REPLACEDIALOG if replace else 0
+            self._find_dialog = wx.FindReplaceDialog(self, self._find_data, "Replace" if replace else "Find", style)
+            self._find_dialog.Show()
+
+        def _find_options(self) -> FindOptions:
+            flags = self._find_data.GetFlags()
+            return FindOptions(match_case=bool(flags & wx.FR_MATCHCASE), whole_word=bool(flags & wx.FR_WHOLEWORD))
+
+        def _find_again(self, forward: bool) -> None:
+            if not self._find_data.GetFindString():
+                self._show_find(replace=False)
+                return
+            self._find(forward)
+
+        def _find(self, forward: bool) -> bool:
+            """Select the next (or previous) match, wrapping around; say so in a message when there is none."""
+            control = self.editor.markdown
+            query = self._find_data.GetFindString()
+            start, end = control.GetSelection()
+            span = find(control.GetValue(), query, end if forward else start, forward, self._find_options())
+            if span is None:
+                wx.MessageBox(
+                    f"“{query}” was not found.", "Find", wx.OK | wx.ICON_INFORMATION, self._find_dialog or self
+                )
+                return False
+            control.SetSelection(*span)
+            control.ShowPosition(span[0])
+            self._update_status()
+            return True
+
+        def _on_find(self, event: wx.FindDialogEvent) -> None:
+            self._find(forward=bool(event.GetFlags() & wx.FR_DOWN))
+
+        def _on_replace(self, event: wx.FindDialogEvent) -> None:
+            """Replace the selected match, as Word does, then find the next one."""
+            control = self.editor.markdown
+            start, end = control.GetSelection()
+            selected = control.GetValue()[start:end]
+            if is_match(selected, self._find_data.GetFindString(), self._find_options()):
+                control.WriteText(self._find_data.GetReplaceString())
+            self._find(forward=True)
+
+        def _on_replace_all(self, event: wx.FindDialogEvent) -> None:
+            control = self.editor.markdown
+            text, count = replace_all(
+                control.GetValue(),
+                self._find_data.GetFindString(),
+                self._find_data.GetReplaceString(),
+                self._find_options(),
+            )
+            if count:
+                self.editor.replace_source(text)
+            wx.MessageBox(
+                f"{count} replacement{'' if count == 1 else 's'} made.",
+                "Replace All",
+                wx.OK | wx.ICON_INFORMATION,
+                self._find_dialog or self,
+            )
+
+        def _on_find_close(self, event: wx.FindDialogEvent) -> None:
+            if self._find_dialog is not None:
+                self._find_dialog.Destroy()
+                self._find_dialog = None
+            self.editor.markdown.SetFocus()
 
         def _on_update_display_item(self, event: wx.UpdateUIEvent) -> None:
             zone = self.editor.equation_at_caret()

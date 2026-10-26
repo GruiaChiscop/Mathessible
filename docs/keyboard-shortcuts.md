@@ -16,6 +16,9 @@ both are given. What each command does is explained in the
 | Close window | `Command+W` | `Ctrl+W` |
 | Quit | `Command+Q` | `Ctrl+Q` |
 | Settings | `Command+,` | Edit menu |
+| Find | `Command+F` | `Ctrl+F` |
+| Find next, find previous | `Command+G`, `Command+Shift+G` | `F3`, `Shift+F3` |
+| Replace | `Command+Option+F` | `Ctrl+H` |
 | Document preview | `Command+Shift+P` | `Ctrl+Shift+P` |
 | Next window | ``Command+` `` | ``Ctrl+` `` |
 | Previous window | ``Command+Shift+` `` | ``Ctrl+Shift+` `` |
