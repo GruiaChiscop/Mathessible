@@ -194,6 +194,13 @@ selection with equations is copied the same way, its text formatted and
 its equations as MathML, so it pastes into Word as text with built
 equations. An equation that does not build is copied as text only.
 
+Pasting into the equation editor works the other way round. Word's
+equations paste as their UnicodeMath, which is what Word copies as text;
+with Word's "Copy MathML to the clipboard as plain text" option, or from
+a web page that shows an equation as MathML, MateX converts the MathML
+to UnicodeMath, its letters as you would type them (`x`, not `𝑥`). A
+selection of a web page with several equations pastes as its text.
+
 ### Templates and the Structure Gallery
 
 The **Insert** menu has the templates, each with its shortcut where Word

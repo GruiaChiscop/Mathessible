@@ -23,6 +23,19 @@ def set_clipboard_text(text: str, html: str | None = None) -> bool:
     return True
 
 
+def get_clipboard_html() -> str | None:
+    """The clipboard's HTML (a web page's equation as MathML), or None without any."""
+    if not wx.TheClipboard.Open():
+        return None
+    try:
+        data = wx.HTMLDataObject()
+        if not wx.TheClipboard.IsSupported(data.GetFormat()) or not wx.TheClipboard.GetData(data):
+            return None
+    finally:
+        wx.TheClipboard.Close()
+    return data.GetHTML() or None
+
+
 def get_clipboard_text() -> str | None:
     if not wx.TheClipboard.Open():
         return None

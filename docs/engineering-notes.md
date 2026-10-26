@@ -916,6 +916,17 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   as plain text, OMML in HTML (not MathML), and RTF; with Word's "Copy
   MathML to the clipboard as plain text" option the plain text is MathML
   instead. Nothing that does not build cleanly (#F00/#F01) goes as MathML.
+  Pasting into the equation editor (`editing/pasted_math.py`): MathML as
+  plain text (Word's option, `<mml:math>` included), or the one `<math>`
+  in the clipboard's HTML (a web page; several mean a page of text, so
+  the text) goes through the converter's own `MathMLtoUnicodeMath`
+  (`matexFromMathML`, `unicode_math_from_mathml`, sharing
+  `_run_converter`'s RunScript loop with conversions), then
+  `plain_letters` turns its maths-italic letters back into typed ones
+  (only italic: bold, script and double-struck mean something). MateX's
+  own copy is recognised by `alttext` equal to the text, and pasted as
+  that text. The lineariser's known losses (tested 2026-10-26): an
+  integral's `▒` (`∫₀¹〖𝑥²𝑑𝑥〗`) and cases' closing `┤`.
 - Colours for the custom-drawn editor come from [ui/theme.py](../src/matex/ui/theme.py);
   its tests enforce WCAG contrast (4.5:1 text, 3:1 focus ring) in both
   light and dark appearance — keep new colours in that palette.

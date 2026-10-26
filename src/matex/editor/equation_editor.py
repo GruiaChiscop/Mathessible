@@ -18,6 +18,7 @@ from matex.editing.edit_history import EditHistory, EditState
 from matex.editing.equation_source import EquationSource
 from matex.editing.linear_runs import Runs
 from matex.editing.normal_text import in_text, toggle_normal_text
+from matex.editing.pasted_math import pasted_mathml, plain_letters
 from matex.editing.source_view import view_of
 from matex.editing.space_conversion import (
     convert_before_character,
@@ -46,7 +47,7 @@ from matex.symbols.braille_signs import load_signs, signs_yaml
 from matex.symbols.dictionary import load_dictionary
 from matex.templates.insert_catalog import InsertItem, item_for_key
 from matex.templates.math_templates import group_function_argument, move_to_slot, script_on_function
-from matex.ui.clipboard import get_clipboard_text, set_clipboard_text
+from matex.ui.clipboard import get_clipboard_html, get_clipboard_text, set_clipboard_text
 from matex.ui.speech import AssistiveOutput, create_output
 from matex.ui.theme import Palette, palette
 from matex.unicodemath import ConversionResult, UnicodeMathError
@@ -932,6 +933,14 @@ if wx is not None:
 
         def _paste_equation(self) -> None:
             text = get_clipboard_text()
+            mathml = pasted_mathml(text, get_clipboard_html())
+            if mathml is not None:
+                # A web page's or Word's MathML: its UnicodeMath, in the letters typed.
+                try:
+                    text = plain_letters(self.unicode_math_from_mathml(mathml))
+                except (UnicodeMathError, RuntimeError):
+                    self._announce("the pasted MathML could not be converted")
+                    return
             if not text:
                 self._announce("clipboard is empty")
                 return

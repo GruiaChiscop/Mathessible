@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import time
+from collections.abc import Callable
 
 from matex.documents.mathml_sanitize import MathMLModelError, sanitize_mathml
 from matex.editing.build_repair import literal_repair, literal_text, repair_for_build
@@ -15,6 +16,8 @@ from matex.unicodemath import (
     caret_script,
     conversion_script,
     decode_conversion,
+    decode_from_mathml,
+    from_mathml_script,
     highlight_script,
     render_script,
     renderer_page,
@@ -182,6 +185,21 @@ class EquationRendererMixin:
     def convert_unicode_math(self, source: str) -> str:
         # Control words deleted from Math AutoCorrect stay text, as in Word (every path converts here).
         source = literal_text(source, self._literal_words())
+        decimal_comma = self.settings.decimal_separator == ","
+        conversion = self._run_converter(
+            lambda token: conversion_script(source, token, decimal_comma=decimal_comma), decode_conversion
+        )
+        self._last_conversion = (source, conversion)  # Its parse error position, for the error list.
+        if conversion.error:
+            raise UnicodeMathError(conversion.error)
+        return conversion.mathml
+
+    def unicode_math_from_mathml(self, mathml: str) -> str:
+        """Pasted MathML as UnicodeMath, by the converter's own lineariser; raises `UnicodeMathError`."""
+        return self._run_converter(lambda token: from_mathml_script(mathml, token), decode_from_mathml)
+
+    def _run_converter[T](self, script: Callable[[int], str], decode: Callable[[str, int], T]) -> T:
+        """Run one converter script synchronously and decode its own result (`script(token)`)."""
         if not self._renderer_ready or self._webview is None:
             reason = self._renderer_error or "the UnicodeMathML converter is still loading"
             raise UnicodeMathError(reason)
@@ -200,18 +218,17 @@ class EquationRendererMixin:
             # can also hand this conversion's own result to a pending
             # RunScriptAsync: once only our own "null"s come back, it is lost
             # (that dropped correct equations to linear view), so send it again.
-            decimal_comma = self.settings.decimal_separator == ","
             conversion = None
             for _send in range(3):
                 self._conversion_token += 1
                 token = self._conversion_token
-                success, value = self._webview.RunScript(conversion_script(source, token, decimal_comma=decimal_comma))
+                success, value = self._webview.RunScript(script(token))
                 own_nulls = 0
                 deadline = time.monotonic() + 2.0
                 while time.monotonic() < deadline:
                     if success:
                         try:
-                            conversion = decode_conversion(value, token)
+                            conversion = decode(value, token)
                             break
                         except StrayScriptResult:
                             own_nulls = own_nulls + 1 if value.strip() == "null" else 0
@@ -224,10 +241,7 @@ class EquationRendererMixin:
                 raise UnicodeMathError("the UnicodeMathML converter could not run")
         finally:
             self._converting = False
-        self._last_conversion = (source, conversion)  # Its parse error position, for the error list.
-        if conversion.error:
-            raise UnicodeMathError(conversion.error)
-        return conversion.mathml
+        return conversion
 
     def _convert_source(self):
         """Convert the source for building, repaired if it cannot be built as it is (build_repair).

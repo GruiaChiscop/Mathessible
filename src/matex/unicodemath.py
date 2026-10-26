@@ -173,6 +173,14 @@ def renderer_page() -> tuple[str, str]:
         parseFound: parseError ? parseError.found : null
       };
     };
+    // Pasted MathML (a web page's, Word's) back to UnicodeMath, by the converter's own lineariser.
+    window.matexFromMathML = function(mathml) {
+      try {
+        return {unicodemath: MathMLtoUnicodeMath(mathml)};
+      } catch (error) {
+        return {error: String(error)};
+      }
+    };
     window.matexRender = function(mathml, preview) {
       document.body.classList.toggle("preview", !!preview);
       const equation = document.getElementById("equation");
@@ -309,12 +317,13 @@ def conversion_script(source: str, token: int | None = None, decimal_comma: bool
     return f"JSON.stringify(Object.assign({call}, {{token: {int(token)}}}))"
 
 
-def decode_conversion(value: str, token: int | None = None) -> ConversionResult:
-    """Decode RunScript's result across the WebKit, Edge and WebView2 backends.
+def from_mathml_script(mathml: str, token: int) -> str:
+    """The script turning pasted MathML into UnicodeMath (`matexFromMathML`)."""
+    return f"JSON.stringify(Object.assign(window.matexFromMathML({json.dumps(mathml)}), {{token: {int(token)}}}))"
 
-    With a `token`, a result that is not that conversion's own raises
-    `StrayScriptResult`.
-    """
+
+def _decoded(value: str, token: int | None) -> dict:
+    """RunScript's JSON result as a dict; another script's result raises `StrayScriptResult`."""
     decoded: object = value
     for _ in range(2):
         if not isinstance(decoded, str):
@@ -327,6 +336,25 @@ def decode_conversion(value: str, token: int | None = None) -> ConversionResult:
         raise StrayScriptResult("The UnicodeMathML converter returned another script's result")
     if not isinstance(decoded, dict):
         raise UnicodeMathError("The UnicodeMathML converter returned an unknown result")
+    return decoded
+
+
+def decode_from_mathml(value: str, token: int) -> str:
+    """The UnicodeMath `matexFromMathML` gave; its failure raises `UnicodeMathError`."""
+    decoded = _decoded(value, token)
+    unicodemath = decoded.get("unicodemath")
+    if not isinstance(unicodemath, str):
+        raise UnicodeMathError(str(decoded.get("error") or "the MathML could not be converted"))
+    return unicodemath
+
+
+def decode_conversion(value: str, token: int | None = None) -> ConversionResult:
+    """Decode RunScript's result across the WebKit, Edge and WebView2 backends.
+
+    With a `token`, a result that is not that conversion's own raises
+    `StrayScriptResult`.
+    """
+    decoded = _decoded(value, token)
     mathml = decoded.get("mathml")
     error = decoded.get("error")
     if not isinstance(mathml, str):
