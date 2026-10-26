@@ -26,7 +26,8 @@ else is in the [documentation](#documentation).
   view.
 - **Markdown documents and notebooks**: equations as `$...$` and
   `$$...$$`, notebooks of pages saved as a folder or a single `.msnb`
-  file, and export to accessible HTML with native MathML.
+  file, and export to accessible HTML with native MathML, and to BRF
+  (braille ready to emboss or read on a braille display).
 - **Keyboard first**: everything works from the keyboard, and the
   equation editor speaks for itself, so VoiceOver never wanders into web
   content.
@@ -79,6 +80,8 @@ For working on Mathessible:
   speech, navigation and braille for MathML.
 - [UnicodeMathML](https://github.com/MurrayIII/UnicodeMathML) (Murray
   Sargent III): the UnicodeMath to MathML converter.
+- [liblouis](https://liblouis.io): the document's text in braille, for
+  BRF export, built from its submodule as NVDA builds it.
 - [wxPython](https://wxpython.org): the native interface.
 - Prism (the `prismatoid` package): speech through the running screen
   reader.
@@ -89,5 +92,6 @@ For working on Mathessible:
 
 Mathessible is distributed under the GNU General Public License, version 2 or
 (at your option) any later version. MathCAT and UnicodeMathML keep their
-own MIT licences, in their submodules; NVDA's dictionaries are not part of
-the repository and are under NVDA's licence (GPL-2.0).
+own MIT licences, and liblouis its LGPL 2.1 or later, in their
+submodules; NVDA's dictionaries are not part of the repository and are
+under NVDA's licence (GPL-2.0).

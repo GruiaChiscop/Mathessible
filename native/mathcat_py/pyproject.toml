@@ -26,4 +26,9 @@ cache-keys = [
     { file = "../../MathCAT/Cargo.toml" },
     { file = "../../MathCAT/src/**/*.rs" },
     { file = "../../MathCAT/Rules/**/*.yaml" },
+    # liblouis is compiled in too (build.rs); its tables are read at run time.
+    { file = "build.rs" },
+    { file = "../../liblouis/liblouis/*.c" },
+    { file = "../../liblouis/liblouis/*.h" },
+    { file = "../../liblouis/liblouis/liblouis.h.in" },
 ]

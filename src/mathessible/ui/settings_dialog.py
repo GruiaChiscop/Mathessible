@@ -8,15 +8,17 @@ its settings grouped in native tabs that screen readers announce.
 
 from __future__ import annotations
 
+import locale
 import threading
 from collections.abc import Callable
 from pathlib import Path
 
 from mathessible.editing.autocorrect import AutoCorrectTable, autocorrect_defaults, differences
-from mathessible.settings import BRAILLE_CODES, AppSettings
+from mathessible.settings import BRAILLE_CODES, BRF_CELLS, BRF_LINES, AppSettings
 from mathessible.symbols.braille_signs import load_signs, save_signs
 from mathessible.symbols.dictionary import SymbolDictionaryError, available_dictionaries, import_dictionary
 from mathessible.symbols.download import SymbolDownloadError, download_languages, nvda_languages
+from mathessible.symbols.text_braille import default_table, text_tables
 from mathessible.ui.autocorrect_dialog import AutoCorrectDialog
 from mathessible.ui.braille_signs_dialog import BrailleSignsDialog
 from mathessible.ui.functions_dialog import RecognizedFunctionsDialog
@@ -252,6 +254,33 @@ if wx is not None:
                 "Braille signs are your own braille for symbols in the code chosen above, "
                 "for symbols it has no sign for, or to replace its own.",
             )
+            text_label = wx.StaticText(page, label="&Text braille table (BRF export; equations use the code above)")
+            self._text_tables = text_tables()
+            self.braille_text_table = wx.Choice(page, choices=[table.name for table in self._text_tables])
+            self.braille_text_table.SetName("Text braille table")
+            files = [table.file for table in self._text_tables]
+            chosen = settings.braille_text_table or default_table(locale.getlocale()[0] or "en", self._text_tables)
+            if chosen in files:
+                self.braille_text_table.SetSelection(files.index(chosen))
+            self.braille_text_table.Bind(wx.EVT_CHOICE, lambda _event: self._changed())
+            page.GetSizer().Add(text_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
+            page.GetSizer().Add(self.braille_text_table, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 12)
+            size = wx.FlexGridSizer(cols=2, vgap=8, hgap=12)
+            cells_label = wx.StaticText(page, label="&Cells per line")
+            self.brf_cells_per_line = wx.SpinCtrl(
+                page, min=BRF_CELLS[0], max=BRF_CELLS[1], initial=settings.brf_cells_per_line
+            )
+            self.brf_cells_per_line.SetName("Cells per line")
+            lines_label = wx.StaticText(page, label="&Lines per page")
+            self.brf_lines_per_page = wx.SpinCtrl(
+                page, min=BRF_LINES[0], max=BRF_LINES[1], initial=settings.brf_lines_per_page
+            )
+            self.brf_lines_per_page.SetName("Lines per page")
+            for spin in (self.brf_cells_per_line, self.brf_lines_per_page):
+                spin.Bind(wx.EVT_SPINCTRL, lambda _event: self._changed())
+            size.AddMany([(cells_label, 0, wx.ALIGN_CENTER_VERTICAL), (self.brf_cells_per_line, 0)])
+            size.AddMany([(lines_label, 0, wx.ALIGN_CENTER_VERTICAL), (self.brf_lines_per_page, 0)])
+            page.GetSizer().Add(size, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
 
         # Controls
 
@@ -279,6 +308,11 @@ if wx is not None:
             selection = self.symbol_dictionary.GetSelection()
             if selection != wx.NOT_FOUND:
                 self._settings.symbol_dictionary = self._dictionaries[selection].identifier
+            text_table = self.braille_text_table.GetSelection()
+            if text_table != wx.NOT_FOUND:
+                self._settings.braille_text_table = self._text_tables[text_table].file
+            self._settings.brf_cells_per_line = self.brf_cells_per_line.GetValue()
+            self._settings.brf_lines_per_page = self.brf_lines_per_page.GetValue()
             braille = self.braille_code.GetSelection()
             if braille != wx.NOT_FOUND:
                 self._settings.braille_code = BRAILLE_CODES[braille][0]

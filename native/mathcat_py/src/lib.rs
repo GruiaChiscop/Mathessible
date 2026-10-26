@@ -5,6 +5,8 @@ use libmathcat::{
 };
 use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
+use std::ffi::{CString, c_char, c_int};
+use std::sync::Mutex;
 
 // MathCAT keeps all of its state in thread-locals, so each Python thread
 // that calls in gets an independent instance. Every call releases the GIL
@@ -75,9 +77,66 @@ fn navigation_braille(py: Python<'_>) -> PyResult<String> {
     py.detach(|| convert_error(get_navigation_braille()))
 }
 
+// liblouis (build.rs), for the document's text: widechar is 32 bits (UCS-4).
+unsafe extern "system" {
+    fn lou_translateString(
+        table_list: *const c_char,
+        inbuf: *const u32,
+        inlen: *mut c_int,
+        outbuf: *mut u32,
+        outlen: *mut c_int,
+        typeform: *mut u16,
+        spacing: *mut c_char,
+        mode: c_int,
+    ) -> c_int;
+}
+
+// liblouis keeps its compiled tables in globals and is not thread-safe.
+static LOUIS: Mutex<()> = Mutex::new(());
+const DOTS_IO: c_int = 4;
+const UC_BRL: c_int = 64;
+
+/// `text` in braille by the liblouis `table` (a full path, or a comma-separated list), as Unicode braille cells.
+#[pyfunction]
+fn text_braille(py: Python<'_>, table: &str, text: &str) -> PyResult<String> {
+    let table = CString::new(table).map_err(|_| PyRuntimeError::new_err("the table path holds a NUL"))?;
+    let input: Vec<u32> = text.chars().map(u32::from).collect();
+    py.detach(|| {
+        let _guard = LOUIS.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        let mut capacity = input.len() * 4 + 64;
+        loop {
+            let mut output = vec![0u32; capacity];
+            let mut inlen = input.len() as c_int;
+            let mut outlen = capacity as c_int;
+            let ok = unsafe {
+                lou_translateString(
+                    table.as_ptr(),
+                    input.as_ptr(),
+                    &mut inlen,
+                    output.as_mut_ptr(),
+                    &mut outlen,
+                    std::ptr::null_mut(),
+                    std::ptr::null_mut(),
+                    DOTS_IO | UC_BRL,
+                )
+            };
+            if ok == 0 {
+                return Err(PyRuntimeError::new_err("liblouis could not translate with this table"));
+            }
+            if (inlen as usize) < input.len() {
+                capacity *= 2; // The output filled up before the input ended.
+                continue;
+            }
+            output.truncate(outlen as usize);
+            return Ok(output.into_iter().filter_map(char::from_u32).collect());
+        }
+    })
+}
+
 #[pymodule]
 fn mathessible_mathcat(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(initialize, module)?)?;
+    module.add_function(wrap_pyfunction!(text_braille, module)?)?;
     module.add_function(wrap_pyfunction!(preference, module)?)?;
     module.add_function(wrap_pyfunction!(braille_signs, module)?)?;
     module.add_function(wrap_pyfunction!(set_expression, module)?)?;

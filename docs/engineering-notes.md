@@ -1209,6 +1209,36 @@ tested. Templates: `template_source` holds
   them. Treat this as a known prototype limitation, not something to
   silently "fix" by hardcoding a different path.
 
+## liblouis and BRF Export
+
+BRF export (2026-10-26, `documents/brf_export.py`) puts the text through
+liblouis and the equations through MathCAT. liblouis is the `liblouis`
+submodule at a release tag (`v3.39.0`), built as NVDA builds it
+(nvdaHelper/liblouis/sconscript): `native/mathcat_py/build.rs` compiles
+its eight C files with the `cc` crate into the same extension as MathCAT,
+no autotools; `liblouis.h` from `liblouis.h.in` with a 32-bit `widechar`
+(`WIDECHARS_ARE_UCS4`), `PACKAGE_VERSION` from `configure.ac`'s
+`AC_INIT`, an empty `config.h` (the build's settings are `-D` flags) and
+`TABLESDIR ""`: tables are always given by full path, from
+`liblouis/tables` (`symbols/text_braille.tables_directory`, the checkout
+layout again). On MSVC it needs `clang-cl`, as NVDA says MSVC cannot
+build liblouis's C99 (not tried yet). `text_braille(table, text)` calls
+`lou_translateString` with `dotsIO | ucBrl`, so the output is Unicode
+braille with no display table, behind a mutex (liblouis keeps compiled
+tables in globals); `extern "system"` for its `__stdcall` on 32-bit
+Windows. Its errors go to stderr.
+
+The tables offered are the literary ones with an `#-index-name` (their
+own English names, "Romanian, uncontracted") and not `#+dots: 8`; the
+default is the system language's uncontracted table, UEB where English
+has a choice. Equations: the editor's own `MathCatNavigator` (its braille
+code and signs) loads each converted equation and gives
+`expression_braille()`; the editor reloads its equation when opened.
+The layout (cells 3/1 for paragraphs, 1/3 for list items, 5/7 for
+display equations, a centred main heading, a blank line between blocks)
+and Braille ASCII with CR LF and a form feed per page are in
+`brf_export`, tested with stand-in translators.
+
 ## Newer UnicodeMathML Versions
 
 Checked 2026-10-26 against upstream `636dc8f` (2026-10-06; the submodule

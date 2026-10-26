@@ -11,6 +11,10 @@ crate-type = ["cdylib"]
 mathcat = { path = "../../MathCAT", features = ["include-zip"] }
 pyo3 = { version = "0.27", features = ["extension-module", "abi3-py312"] }
 
+[build-dependencies]
+# liblouis (the submodule) is compiled in by build.rs.
+cc = "1"
+
 [profile.release]
 lto = true
 strip = true

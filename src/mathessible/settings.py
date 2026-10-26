@@ -89,6 +89,10 @@ class AppSettings:
     decimal_separator: str = ","
     # MathCAT's braille code for the braille strip (BRAILLE_CODES).
     braille_code: str = "Nemeth"
+    # BRF export: liblouis's table for the text ("" is the system language's), and the page.
+    braille_text_table: str = ""
+    brf_cells_per_line: int = 40
+    brf_lines_per_page: int = 25
     # Symbol shortcuts (<<, ->, <=) as soon as their last character is typed.
     convert_shortcuts_immediately: bool = True
     # Templates and structure edits write control words (\sum, \sqrt, \of)
@@ -148,6 +152,9 @@ def load_settings(path: Path | None = None) -> AppSettings:
         complete_control_words=bool(data.get("complete_control_words", True)),
         decimal_separator="." if data.get("decimal_separator") == "." else ",",
         braille_code=_braille_code(data.get("braille_code")),
+        braille_text_table=str(data.get("braille_text_table", "")),
+        brf_cells_per_line=_bounded(data.get("brf_cells_per_line"), 40, BRF_CELLS),
+        brf_lines_per_page=_bounded(data.get("brf_lines_per_page"), 25, BRF_LINES),
         convert_shortcuts_immediately=bool(data.get("convert_shortcuts_immediately", True)),
         template_control_words=bool(data.get("template_control_words", True)),
         open_built=bool(data.get("open_built", False)),
@@ -235,6 +242,18 @@ def _normalize_removed(value: object) -> tuple[str, ...]:
 
 # The zoom steps of the equation editor, in percent, as a browser has them.
 ZOOM_LEVELS = (50, 67, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300)
+
+
+# The BRF page sizes Settings allows: cells per line, lines per page.
+BRF_CELLS = (10, 100)
+BRF_LINES = (5, 100)
+
+
+def _bounded(value: object, default: int, bounds: tuple[int, int]) -> int:
+    """A saved number within `bounds`, or `default`."""
+    if isinstance(value, int) and not isinstance(value, bool) and bounds[0] <= value <= bounds[1]:
+        return value
+    return default
 
 
 def _zoom(value: object) -> int:

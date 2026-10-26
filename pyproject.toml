@@ -37,7 +37,7 @@ mathessible-mathcat = { path = "native/mathcat_py" }
 line-length = 120
 target-version = "py312"
 src = ["src", "tests"]
-extend-exclude = ["MathCAT", "UnicodeMathML", "native/mathcat_py/target", ".tools", ".uv-cache"]
+extend-exclude = ["MathCAT", "UnicodeMathML", "liblouis", "native/mathcat_py/target", ".tools", ".uv-cache"]
 
 [tool.ruff.lint]
 select = [

@@ -1,23 +1,27 @@
 from __future__ import annotations
 
+import locale
 import sys
 import tempfile
 import threading
 from pathlib import Path
 
+from mathessible.documents.brf_export import BrfLayout, notebook_brf
 from mathessible.documents.document_io import read_markdown, write_markdown
 from mathessible.documents.find_text import FindOptions, find, is_match, replace_all
 from mathessible.documents.html_export import PREVIEW_PAGE, ExportPage, preview_update_script, write_notebook_html
 from mathessible.documents.markdown_math import find_math_zones
 from mathessible.documents.notebook import Notebook, NotebookError
 from mathessible.documents.portable_notebook import extract_portable, save_portable
-from mathessible.mathcat.navigator import mathcat_load_error
+from mathessible.mathcat.navigator import MATHCAT_MISSING, mathcat_load_error
 from mathessible.patch_check import missing_patches
 from mathessible.settings import AppSettings, load_settings, save_settings
+from mathessible.symbols.text_braille import default_table, tables_directory, text_tables
 from mathessible.ui.document_editor import DocumentEditor
 from mathessible.ui.help_menu import append_help_menu
 from mathessible.ui.macos_webview import guard_webview_key_equivalents
 from mathessible.ui.settings_dialog import show_settings
+from mathessible.unicodemath import UnicodeMathError
 
 try:
     import wx
@@ -128,12 +132,17 @@ if wx is not None:
         def _create_menu(self) -> None:
             file_menu = wx.Menu()
             self._export_html_id = wx.NewIdRef()
+            self._export_brf_id = wx.NewIdRef()
             file_menu.Append(wx.ID_NEW, "&New Window\tCtrl+N")
             file_menu.Append(wx.ID_OPEN, "&Open…\tCtrl+O")
             file_menu.AppendSeparator()
             file_menu.Append(wx.ID_SAVE, "&Save\tCtrl+S")
             file_menu.Append(wx.ID_SAVEAS, "Save &As…\tCtrl+Shift+S")
-            file_menu.Append(self._export_html_id, "Export as &HTML…")
+            # Export, one item per format (PDF and DOCX are to come).
+            export_menu = wx.Menu()
+            export_menu.Append(self._export_html_id, "&HTML…")
+            export_menu.Append(self._export_brf_id, "&BRF (Braille)…")
+            file_menu.AppendSubMenu(export_menu, "&Export")
             file_menu.AppendSeparator()
             file_menu.Append(wx.ID_CLOSE, "&Close Window\tCtrl+W")
             file_menu.Append(wx.ID_EXIT, "&Quit\tCtrl+Q")
@@ -209,7 +218,8 @@ if wx is not None:
             self.Bind(wx.EVT_MENU, self._open_document, id=wx.ID_OPEN)
             self.Bind(wx.EVT_MENU, self._save_document_event, id=wx.ID_SAVE)
             self.Bind(wx.EVT_MENU, self._save_as_document_event, id=wx.ID_SAVEAS)
-            self.Bind(wx.EVT_MENU, self._export_html, id=self._export_html_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._export("html"), id=self._export_html_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._export("brf"), id=self._export_brf_id)
             self.Bind(wx.EVT_MENU, lambda _event: self.Close(), id=wx.ID_CLOSE)
             self.Bind(wx.EVT_MENU, self._quit_application, id=wx.ID_EXIT)
             for command_id in (
@@ -650,7 +660,12 @@ if wx is not None:
         def _save_as_document_event(self, _event: wx.CommandEvent) -> None:
             self.save_document(save_as=True)
 
-        def _export_html(self, _event: wx.CommandEvent | None = None) -> None:
+        def _export(self, kind: str) -> None:
+            """File > Export: the document, or every page of the notebook, as HTML or BRF."""
+            label, extension, wildcard = {
+                "html": ("HTML", "html", "HTML document (*.html)|*.html"),
+                "brf": ("BRF", "brf", "Braille ready file (*.brf)|*.brf"),
+            }[kind]
             self.editor.commit_active_equation()
             if self.notebook is not None:
                 title = self.notebook.title
@@ -665,9 +680,7 @@ if wx is not None:
                 except (OSError, UnicodeError) as error:
                     self._show_error("read the notebook for export", error)
                     return
-                default_file = (
-                    f"{self.notebook_archive_path.stem if self.notebook_archive_path else self.notebook.root.name}.html"
-                )
+                stem = self.notebook_archive_path.stem if self.notebook_archive_path else self.notebook.root.name
                 default_directory = (
                     str(self.notebook_archive_path.parent)
                     if self.notebook_archive_path is not None
@@ -676,23 +689,23 @@ if wx is not None:
             else:
                 title = self.document_path.stem if self.document_path is not None else "Mathessible document"
                 pages = [ExportPage(title, self.editor.source)]
-                default_file = f"{self.document_path.stem if self.document_path else 'mathessible-document'}.html"
+                stem = self.document_path.stem if self.document_path else "mathessible-document"
                 default_directory = str(self.document_path.parent) if self.document_path else ""
 
             equation_editor = self.editor.equation_window.equation
             if any(find_math_zones(page.source) for page in pages) and not equation_editor.converter_ready:
                 self._show_error(
-                    "export the HTML document",
+                    f"export the {label} document",
                     RuntimeError("The UnicodeMath converter is not ready yet. Please try again."),
                 )
                 return
 
             dialog = wx.FileDialog(
                 self,
-                message="Export as HTML",
+                message=f"Export as {label}",
                 defaultDir=default_directory,
-                defaultFile=default_file,
-                wildcard="HTML document (*.html)|*.html",
+                defaultFile=f"{stem}.{extension}",
+                wildcard=wildcard,
                 style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,
             )
             try:
@@ -703,21 +716,48 @@ if wx is not None:
                 dialog.Destroy()
 
             try:
-                exported_path = write_notebook_html(
-                    destination,
-                    title,
-                    pages,
-                    equation_editor.convert_unicode_math,
-                )
-            except (OSError, UnicodeError, RuntimeError, ValueError) as error:
-                self._show_error("export the HTML document", error)
+                if kind == "html":
+                    exported_path = write_notebook_html(destination, title, pages, equation_editor.convert_unicode_math)
+                else:
+                    exported_path = self._write_brf(destination, pages)
+            except (OSError, UnicodeError, RuntimeError, ValueError, ImportError) as error:
+                self._show_error(f"export the {label} document", error)
                 return
             wx.MessageBox(
-                f"The HTML document was exported to:\n{exported_path}",
+                f"The {label} document was exported to:\n{exported_path}",
                 "Export Complete",
                 wx.OK | wx.ICON_INFORMATION,
                 self,
             )
+
+        def _write_brf(self, destination: Path, pages: list[ExportPage]) -> Path:
+            """The text through liblouis (Settings → Braille), the equations through MathCAT in the braille code chosen."""
+            import mathessible_mathcat
+
+            equation_editor = self.editor.equation_window.equation
+            navigator = equation_editor.mathcat
+            if navigator is None:
+                raise RuntimeError(MATHCAT_MISSING)
+            tables = text_tables()
+            table = self.settings.braille_text_table or default_table(locale.getlocale()[0] or "en", tables)
+            table_path = str(tables_directory() / table)
+
+            def text_braille(text: str) -> str:
+                return mathessible_mathcat.text_braille(table_path, text)
+
+            def math_braille(source: str) -> str:
+                # The editor's own MathCAT, with its braille code and signs; it reloads its equation when opened.
+                try:
+                    navigator.load(equation_editor.convert_unicode_math(source), speak=False)
+                    return navigator.expression_braille()
+                except (UnicodeMathError, RuntimeError, ValueError):
+                    return text_braille(source)  # An equation that does not build: its source.
+
+            layout = BrfLayout(self.settings.brf_cells_per_line, self.settings.brf_lines_per_page)
+            brf = notebook_brf(pages, text_braille, math_braille, layout)
+            path = destination if destination.suffix.lower() == ".brf" else destination.with_suffix(".brf")
+            path.write_bytes(brf.encode("ascii", errors="replace"))
+            return path
 
         def _on_close(self, event: wx.CloseEvent) -> None:
             if self._closing_application or self._confirm_changes():

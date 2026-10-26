@@ -258,6 +258,24 @@ so a class can share one file:
 ⊐ 4-456-28
 ```
 
+### BRF export
+
+`File → Export → BRF (Braille)…` writes the document, or every page of
+the notebook, as a BRF file, ready to emboss or to read on a braille
+display. The text is in braille by the **text braille table** chosen in
+`Settings → Braille` (liblouis's tables: Romanian uncontracted, English
+UEB uncontracted or contracted, and many more; by default the one for the
+system's language), and every equation is in the braille code chosen
+above (Nemeth by default), your own braille signs included. The page has
+40 cells per line and 25 lines per page, both changeable there.
+
+A paragraph starts in cell 3, a list item in cell 1 with its runovers in
+cell 3, a display equation in cell 5 with its runovers in cell 7, and a
+main heading is centred; a blank line separates them, and lines break
+between words. An equation that does not build is written as its
+UnicodeMath, in text braille. Each notebook page starts a new braille
+page, under its title.
+
 ## Notebooks and pages
 
 A Mathessible notebook is an ordinary folder. `mathessible.json` keeps the title and
@@ -276,7 +294,7 @@ creates, opens and edits `.msnb` notebooks directly, and saving repacks
 the archive atomically. Unsafe paths, symbolic links and archives that
 would unpack to an excessive size are refused on opening.
 
-`File → Export as HTML…` exports the current document, or every page of
+`File → Export → HTML…` exports the current document, or every page of
 the notebook, as a single HTML file: a table of contents, Markdown
 formatting, tables, and the UnicodeMath equations converted to native
 MathML, so the result stays accessible and needs neither JavaScript nor

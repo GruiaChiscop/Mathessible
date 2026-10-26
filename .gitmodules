@@ -4,3 +4,6 @@
 [submodule "UnicodeMathML"]
 	path = UnicodeMathML
 	url = https://github.com/MurrayIII/UnicodeMathML/
+[submodule "liblouis"]
+	path = liblouis
+	url = https://github.com/liblouis/liblouis.git

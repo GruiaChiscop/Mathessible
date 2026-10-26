@@ -482,6 +482,12 @@ class MathCatNavigator(LinearStopsMixin, StructuralNavigationMixin, TableNavigat
     def current_braille(self) -> str:
         return self._native.navigation_braille()
 
+    def expression_braille(self) -> str:
+        """The whole expression's braille (the BRF export)."""
+        if self.structure is None:
+            return ""
+        return self._native.braille(self.structure.root.identifier)
+
 
 # Said when professional view is asked for without the native MathCAT extension.
 MATHCAT_MISSING = "Professional view needs MathCAT, which could not be loaded. Run scripts/bootstrap.sh"
