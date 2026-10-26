@@ -19,6 +19,13 @@ class PastedMathmlTests(unittest.TestCase):
         html = f"<html><body><span>{FRACTION}</span></body></html>"
         self.assertEqual(pasted_mathml("a\nb", html), FRACTION)
 
+    def test_comments_and_indentation_are_dropped(self) -> None:
+        wikipedia = '<p><math xmlns="http://www.w3.org/1998/Math/MathML">\n  <mrow>\n    <mo>−<!-- − --></mo>\n    <mi>b</mi>\n  </mrow>\n</math></p>'
+        self.assertEqual(
+            pasted_mathml("−\nb", wikipedia),
+            '<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mo>−</mo><mi>b</mi></mrow></math>',
+        )
+
     def test_several_equations_or_mathessible_own_copy_paste_the_text(self) -> None:
         self.assertIsNone(pasted_mathml("a b", f"<p>{FRACTION} and {FRACTION}</p>"))
         own = '<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline" alttext="a/b&lt;c"><mi>a</mi></math>'

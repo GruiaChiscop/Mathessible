@@ -17,6 +17,16 @@ from html import unescape
 _MATH = re.compile(r"<((?:\w+:)?math)\b[^>]*>.*?</\1\s*>", re.DOTALL | re.IGNORECASE)
 _ALTTEXT = re.compile(r'^<(?:\w+:)?math\b[^>]*?\salttext\s*=\s*"([^"]*)"', re.IGNORECASE)
 _XML_DECLARATION = re.compile(r"^<\?xml[^>]*\?>\s*")
+_COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
+_BETWEEN_TAGS = re.compile(r">\s+<")
+
+
+def _clean(mathml: str) -> str:
+    """Comments and the indentation between tags dropped: the converter's lineariser keeps both as text.
+
+    Wikipedia's MathML has `<mo>−<!-- − --></mo>` and is indented.
+    """
+    return _BETWEEN_TAGS.sub("><", _COMMENT.sub("", mathml))
 
 
 def pasted_mathml(text: str | None, html: str | None) -> str | None:
@@ -24,7 +34,7 @@ def pasted_mathml(text: str | None, html: str | None) -> str | None:
     plain = _XML_DECLARATION.sub("", (text or "").strip())
     if plain.lower().startswith(("<math", "<mml:math", "<m:math")):
         found = _MATH.match(plain)
-        return found.group(0) if found else None
+        return _clean(found.group(0)) if found else None
     if not html:
         return None
     elements = _MATH.findall(html)
@@ -35,7 +45,7 @@ def pasted_mathml(text: str | None, html: str | None) -> str | None:
     alttext = _ALTTEXT.match(element.group(0))
     if alttext is not None and unescape(alttext.group(1)) == plain:
         return None  # Mathessible's own copy: its text is the source.
-    return element.group(0)
+    return _clean(element.group(0))
 
 
 def plain_letters(source: str) -> str:

@@ -927,6 +927,12 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   own copy is recognised by `alttext` equal to the text, and pasted as
   that text. The lineariser's known losses (tested 2026-10-26): an
   integral's `▒` (`∫₀¹〖𝑥²𝑑𝑥〗`) and cases' closing `┤`.
+  **Trap:** the lineariser keeps XML comments and the indentation between
+  tags as text; Wikipedia's MathML (`<mo>−<!-- − --></mo>`, indented)
+  pasted as `x=(−<!--− -->b±...`, so `pasted_math._clean` drops both
+  first. Its `<semantics>` and TeX `<annotation>` are ignored by the
+  lineariser. Checked with a real WebKit copy from Wikipedia: one
+  `<math>` in the HTML, the plain text one character per line.
 - Colours for the custom-drawn editor come from [ui/theme.py](../src/mathessible/ui/theme.py);
   its tests enforce WCAG contrast (4.5:1 text, 3:1 focus ring) in both
   light and dark appearance — keep new colours in that palette.
