@@ -185,21 +185,60 @@ def braille_lines(markdown: str, text_braille: BrailleOf, math_braille: BrailleO
     return lines
 
 
-def brf_pages(lines: Sequence[str], layout: BrfLayout) -> str:
-    """Lines as a BRF file: Braille ASCII, CR LF line ends, a form feed after each page."""
-    pages = [lines[start : start + layout.lines_per_page] for start in range(0, len(lines), layout.lines_per_page)]
-    return "".join("\r\n".join(ascii_braille(line).rstrip(" ") for line in page) + "\r\n\f" for page in pages or [[]])
+# Nemeth within UEB text (UEB rule 14.6, BANA's Nemeth guidance): the opening
+# Nemeth Code indicator and a space before the maths, a space and the
+# Nemeth Code terminator after it; their spaces stand for nothing in print.
+OPEN_NEMETH = "⠸⠩"
+CLOSE_NEMETH = "⠸⠱"
+
+
+def nemeth_in_ueb(cells: str) -> str:
+    """An equation's Nemeth cells between the switch indicators UEB text needs around them."""
+    return f"{OPEN_NEMETH}{BLANK}{cells}{BLANK}{CLOSE_NEMETH}"
+
+
+def _paginate(lines: Sequence[str], layout: BrfLayout, first: int, page_number: BrailleOf | None) -> list[list[str]]:
+    """Lines in pages; with `page_number`, each page's number at the right of its last line (BANA Braille
+    Formats 1.15.1: at least three blank cells before it), a line it does not leave room on moving on."""
+    pages: list[list[str]] = []
+    queue = list(lines)
+    width, height = layout.cells_per_line, layout.lines_per_page
+    while queue or not pages:
+        page = queue[:height]
+        del queue[: len(page)]
+        if page_number is not None:
+            number = page_number(str(first + len(pages)))
+            page += [""] * (height - len(page))
+            last = page[-1].rstrip(BLANK)
+            if len(last) + 3 + len(number) > width and height > 1:
+                queue.insert(0, last)  # The number's line: the text goes on the next page.
+                last = ""
+            page[-1] = last + BLANK * (width - len(last) - len(number)) + number
+        pages.append(page)
+    return pages
+
+
+def brf_pages(sections: Sequence[Sequence[str]], layout: BrfLayout, page_number: BrailleOf | None = None) -> str:
+    """Sections of lines as a BRF file, each starting a new page: Braille ASCII, CR LF line ends, a form
+    feed after each page; `page_number` (the text's braille for "12") numbers the pages from 1."""
+    pages: list[list[str]] = []
+    for section in sections:
+        pages.extend(_paginate(section, layout, len(pages) + 1, page_number))
+    return "".join("\r\n".join(ascii_braille(line).rstrip(" ") for line in page) + "\r\n\f" for page in pages)
 
 
 def notebook_brf(
-    pages: Sequence[ExportPage], text_braille: BrailleOf, math_braille: BrailleOf, layout: BrfLayout = STANDARD
+    pages: Sequence[ExportPage],
+    text_braille: BrailleOf,
+    math_braille: BrailleOf,
+    layout: BrfLayout = STANDARD,
+    page_numbers: bool = True,
 ) -> str:
-    """Every page, its title as a main heading, each starting on a new braille page."""
-    lines: list[str] = []
-    for page in pages:
-        title = f"# {page.title}\n\n" if len(pages) > 1 else ""
-        page_lines = braille_lines(title + page.source, text_braille, math_braille, layout)
-        if lines:
-            lines.extend([""] * (-len(lines) % layout.lines_per_page))  # The page's end.
-        lines.extend(page_lines)
-    return brf_pages(lines, layout)
+    """Every page, its title as a main heading, each starting on a new braille page, the pages numbered."""
+    sections = [
+        braille_lines(
+            (f"# {page.title}\n\n" if len(pages) > 1 else "") + page.source, text_braille, math_braille, layout
+        )
+        for page in pages
+    ]
+    return brf_pages(sections or [[]], layout, text_braille if page_numbers else None)

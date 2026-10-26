@@ -5,7 +5,7 @@ import tempfile
 import threading
 from pathlib import Path
 
-from mathessible.documents.brf_export import BrfLayout, notebook_brf
+from mathessible.documents.brf_export import BrfLayout, nemeth_in_ueb, notebook_brf
 from mathessible.documents.document_io import read_markdown, write_markdown
 from mathessible.documents.find_text import FindOptions, find, is_match, replace_all
 from mathessible.documents.html_export import PREVIEW_PAGE, ExportPage, preview_update_script, write_notebook_html
@@ -741,6 +741,10 @@ if wx is not None:
             tables = text_tables()
             table = self.settings.braille_text_table or default_table(preferred_languages(), tables)
             table_path = str(tables_directory() / table)
+            # UEB text needs switch indicators around Nemeth maths (UEB rule 14.6).
+            switches = self.settings.braille_code == "Nemeth" and any(
+                entry.file == table and entry.system == "ueb" for entry in tables
+            )
 
             def text_braille(text: str) -> str:
                 return mathessible_mathcat.text_braille(table_path, text)
@@ -749,7 +753,8 @@ if wx is not None:
                 # The editor's own MathCAT, with its braille code and signs; it reloads its equation when opened.
                 try:
                     navigator.load(equation_editor.convert_unicode_math(source), speak=False)
-                    return navigator.expression_braille()
+                    cells = navigator.expression_braille()
+                    return nemeth_in_ueb(cells) if switches else cells
                 except (UnicodeMathError, RuntimeError, ValueError):
                     return text_braille(source)  # An equation that does not build: its source.
 

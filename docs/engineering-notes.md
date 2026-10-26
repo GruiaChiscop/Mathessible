@@ -1238,7 +1238,17 @@ AppleLanguages (`defaults read -g`), Windows for the user's locale name,
 elsewhere LANGUAGE and LANG. Equations: the editor's own `MathCatNavigator` (its braille
 code and signs) loads each converted equation and gives
 `expression_braille()`; the editor reloads its equation when opened.
-The layout (cells 3/1 for paragraphs, 1/3 for list items, 5/7 for
+Page numbers follow BANA Braille Formats 2016 §1.15.1: right margin of
+the last line, at least three blank cells before, the number in the
+text's own braille (liblouis: `#A`); a last line with no room moves to
+the next page. With a UEB text table (`#+system: ueb`) and Nemeth, each
+equation goes between the opening Nemeth Code indicator and the
+terminator (`nemeth_in_ueb`, UEB rule 14.6.2 in BANA's "Guidance for
+Transcription Using the Nemeth Code within UEB Contexts", 2018: `_%`,
+a space, the maths, a space, `_:`), an equation that does not build
+(its source, in text braille) not. Not done: the single-word switch
+indicator (`,'`) between two expressions, which the guidance allows,
+not requires. The layout (cells 3/1 for paragraphs, 1/3 for list items, 5/7 for
 display equations, a centred main heading, a blank line between blocks)
 and Braille ASCII with CR LF and a form feed per page are in
 `brf_export`, tested with stand-in translators.

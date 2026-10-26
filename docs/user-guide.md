@@ -274,7 +274,11 @@ cell 3, a display equation in cell 5 with its runovers in cell 7, and a
 main heading is centred; a blank line separates them, and lines break
 between words. An equation that does not build is written as its
 UnicodeMath, in text braille. Each notebook page starts a new braille
-page, under its title.
+page, under its title. Every page has its braille page number at the
+right of its last line, as the Braille Authority of North America's
+formats have it. With UEB text and Nemeth maths, each equation is
+between the opening Nemeth Code indicator and the Nemeth Code
+terminator (`_%` and `_:`), as UEB requires.
 
 ## Notebooks and pages
 
