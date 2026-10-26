@@ -291,6 +291,15 @@ if wx is not None:
             self.markdown.SetInsertionPoint(0)
             self.markdown.SetFocus()
 
+        def source_with_open_equation(self) -> str:
+            """The document as it would be saved now, the equation being edited included."""
+            source = self.markdown.GetValue()
+            if self._session is None:
+                return source
+            zone = self._session.zone
+            equation = self.equation_window.equation.source
+            return f"{source[: zone.start]}{zone.delimiter}{equation}{zone.delimiter}{source[zone.end :]}"
+
         def commit_active_equation(self) -> None:
             if self._session is not None:
                 self.equation_window.finish(True)

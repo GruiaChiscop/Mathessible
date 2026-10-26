@@ -9,12 +9,17 @@ both are given. What each command does is explained in the
 | Command | macOS | Windows and Linux |
 | --- | --- | --- |
 | Open the equation at the caret, or a new one | `Control+=` | `Alt+=` |
-| New window | `Command+N` | `Ctrl+N` |
+| New document | `Command+N` | `Ctrl+N` |
 | Open | `Command+O` | `Ctrl+O` |
 | Save | `Command+S` | `Ctrl+S` |
 | Save as | `Command+Shift+S` | `Ctrl+Shift+S` |
+| Print | `Command+P` | `Ctrl+P` |
 | Close window | `Command+W` | `Ctrl+W` |
 | Quit | `Command+Q` | `Ctrl+Q` |
+| New notebook (one .msnb file) | `Command+Option+N` | `Ctrl+Alt+N` |
+| Add a page | `Command+Shift+N` | `Ctrl+Shift+N` |
+| Move the page up, down | `Command+Option+Up`, `Command+Option+Down` | `Ctrl+Alt+Up`, `Ctrl+Alt+Down` |
+| Previous page, next page | `Command+Option+Page Up`, `Command+Option+Page Down` | `Ctrl+Alt+Page Up`, `Ctrl+Alt+Page Down` |
 | Settings | `Command+,` | Edit menu |
 | Find | `Command+F` | `Ctrl+F` |
 | Find next, find previous | `Command+G`, `Command+Shift+G` | `F3`, `Shift+F3` |

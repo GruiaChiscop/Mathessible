@@ -64,17 +64,36 @@ included; Find Next and Find Previous (`Command+G` and
 wrap around. The Find dialog stays open beside the document, and Escape
 closes it. Replace replaces the selected match and finds the next one.
 
-Documents are saved as UTF-8 Markdown files from the File menu, with New,
-Open, Save and Save As and the standard shortcuts `Ctrl/Command+N`,
-`Ctrl/Command+O`, `Ctrl/Command+S` and `Ctrl/Command+Shift+S`. The `.md`
-extension is added when none is given. Mathessible asks before discarding
-unsaved changes, including an equation still open in the equation editor.
+Documents are UTF-8 Markdown files. The File menu has, in the order Mac
+applications have them:
 
-Each document or notebook opens in its own window. `New Window`, `Open`
-and the notebook commands keep the existing windows. `Close Window` closes
-only the current document, and `Quit` checks every window for unsaved
-changes. The `Window` menu moves to the next or previous window and brings
-them all to the front.
+- **New** (`Command+N`, `Ctrl+N` elsewhere): a new document, in a window
+  of its own.
+- **Open…** (`Command+O`): a Markdown document or a notebook saved as one
+  `.msnb` file. **Open Recent** lists the last ten documents and
+  notebooks opened or saved, and **Clear Menu** empties it. An untouched
+  Untitled window is used for what is opened; something already open is
+  brought to the front instead of being opened twice.
+- **Close Window** (`Command+W`), **Save** (`Command+S`), **Save As…**
+  (`Command+Shift+S`; `.md` is added when no extension is given) and
+  **Revert to Saved**, which, after asking, goes back to the document (or
+  the notebook's page) as it was last saved.
+- **Export**: HTML, PDF and BRF.
+- **Print…** (`Command+P`): the document, or every page of the notebook,
+  as the preview shows it, through the system's print panel (its own
+  page setup and Save as PDF included).
+
+Mathessible asks before discarding unsaved changes, including an
+equation still open in the equation editor, and `Quit` checks every
+window. Every thirty seconds, a window with unsaved changes also writes
+them to `~/.mathessible/recovery/`; should Mathessible stop unexpectedly
+(a crash, a power cut), it offers them back when it starts again:
+**Recover** opens them as unsaved changes, **Discard** forgets them.
+
+Each document or notebook has its own window. The `Window` menu moves to
+the next or previous window and brings them all to the front. Documents
+and notebooks given on the command line (`uv run mathessible notes.md`)
+are opened at start.
 
 ## Editing equations
 
@@ -324,15 +343,21 @@ the order of the pages, and the `pages` folder holds one UTF-8 `.md` file
 per page, so a notebook stays readable without Mathessible and works well with
 version control.
 
-The Notebook menu creates and opens notebooks, adds, renames and deletes
-pages, and moves them up or down. The accessible "Notebook pages" list
-appears beside the editor. When you change page, Mathessible saves the current
-one, including an equation being edited.
+The Notebook menu has **New Notebook…** (`Command+Option+N`, `Ctrl+Alt+N`
+elsewhere), a notebook in one `.msnb` file, which File → Open opens like
+a document; **New Notebook Folder…** and **Open Notebook Folder…**, for a
+notebook kept as a folder; **Save Notebook as Single File…**; **Add Page**
+(`Command+Shift+N`), **Rename Page…** and **Delete Page…** (after
+asking); **Move Page Up** and **Move Page Down** (`Command+Option+Up` and
+`Down`); and **Previous Page** and **Next Page** (`Command+Option+Page Up`
+and `Page Down`). The accessible "Notebook pages" list appears beside
+the editor. When you change page, Mathessible saves the current one,
+including an equation being edited.
 
-To move or share a notebook, it can be saved as a single `.msnb` file: a
-compressed archive with the manifest and every Markdown page. Mathessible
-creates, opens and edits `.msnb` notebooks directly, and saving repacks
-the archive atomically. Unsafe paths, symbolic links and archives that
+A notebook in one `.msnb` file is a compressed archive with the manifest
+and every Markdown page, to move or share. Mathessible creates, opens
+and edits `.msnb` notebooks directly, and saving repacks the archive
+atomically. Unsafe paths, symbolic links and archives that
 would unpack to an excessive size are refused on opening.
 
 `File → Export → HTML…` exports the current document, or every page of

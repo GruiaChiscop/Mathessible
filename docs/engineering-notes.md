@@ -1209,6 +1209,27 @@ tested. Templates: `template_source` holds
   them. Treat this as a known prototype limitation, not something to
   silently "fix" by hardcoding a different path.
 
+## File and Notebook Menus (2026-10-26)
+
+File follows Apple's order: New, Open, Open Recent, Close Window, Save,
+Save As, Revert to Saved, Export, Print (Quit moves to the application
+menu). `MainFrame.open_path` opens a document, a notebook folder or a
+`.msnb` in the window when it is untouched (`_is_blank`), else in a new
+one, and raises a window that has it open already (`_open_paths`,
+resolved: macOS's `/var` is `/private/var`). Open Recent is
+`settings.recent_files` (`documents/recent_files.py`: ten, most recent
+first, gone files skipped, twins named with their folder), rebuilt in
+every window. Revert reloads the document or re-reads the notebook's
+page. Print renders `notebook_html` in a web view of a never-shown frame
+and calls `WebView.Print()` (the system's panel; not testable headless).
+Recovery (`documents/recovery.py`): a 30 s timer writes a dirty window's
+`source_with_open_equation()` to `~/.mathessible/recovery/<pid>-<window>.json`
+(atomically), removed on save, revert and close; at start
+`offer_recovery` offers the records of processes no longer running.
+Notebook: Title Case, no file extensions in labels, "Open portable" gone
+(File > Open does it), shortcuts for New Notebook, Add Page, moving
+pages and Previous/Next Page.
+
 ## PDF Export (Typst)
 
 PDF export (2026-10-26) writes Typst source (`documents/pdf_export.py`)

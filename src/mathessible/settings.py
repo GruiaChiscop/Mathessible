@@ -95,6 +95,8 @@ class AppSettings:
     brf_lines_per_page: int = 25
     # Braille page numbers (BANA formats require them in transcriptions; Word adds none unless asked).
     brf_page_numbers: bool = True
+    # File > Open Recent: documents, notebook folders and .msnb files, most recent first.
+    recent_files: tuple[str, ...] = ()
     # PDF export (Typst): the page, the text, numbering, the outline, the source attached, the standard.
     pdf_paper: str = "a4"
     pdf_landscape: bool = False
@@ -178,6 +180,9 @@ def load_settings(path: Path | None = None) -> AppSettings:
         brf_cells_per_line=_bounded(data.get("brf_cells_per_line"), 40, BRF_CELLS),
         brf_lines_per_page=_bounded(data.get("brf_lines_per_page"), 25, BRF_LINES),
         brf_page_numbers=bool(data.get("brf_page_numbers", True)),
+        recent_files=tuple(item for item in data.get("recent_files", ()) if isinstance(item, str))[:10]
+        if isinstance(data.get("recent_files"), list)
+        else (),
         pdf_paper=_option(data.get("pdf_paper"), PDF_PAPERS, "a4"),
         pdf_landscape=bool(data.get("pdf_landscape", False)),
         pdf_margins=_margins(data.get("pdf_margins")),

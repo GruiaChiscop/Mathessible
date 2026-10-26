@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
+import os
 import sys
 import tempfile
 import threading
@@ -12,12 +13,22 @@ import typst
 from mathessible.documents.brf_export import BrfLayout, nemeth_in_ueb, notebook_brf
 from mathessible.documents.document_io import read_markdown, write_markdown
 from mathessible.documents.find_text import FindOptions, find, is_match, replace_all
-from mathessible.documents.html_export import PREVIEW_PAGE, ExportPage, preview_update_script, write_notebook_html
+from mathessible.documents.html_export import (
+    PREVIEW_PAGE,
+    ExportPage,
+    notebook_html,
+    preview_update_script,
+    write_notebook_html,
+)
 from mathessible.documents.markdown_math import find_math_zones
 from mathessible.documents.notebook import Notebook, NotebookError
 from mathessible.documents.pdf_export import PdfDocument, options_for, pdf_inputs, typst_document
 from mathessible.documents.pdf_security import protect
 from mathessible.documents.portable_notebook import extract_portable, save_portable
+from mathessible.documents.recent_files import LIMIT as RECENT_LIMIT
+from mathessible.documents.recent_files import menu_labels, remember, still_there
+from mathessible.documents.recovery import Recovered, delete_record, pending_records, record_name, write_record
+from mathessible.documents.recovery import now as recovery_time
 from mathessible.documents.typst_math import TypstEquation, typst_math
 from mathessible.mathcat.navigator import MATHCAT_MISSING, mathcat_load_error
 from mathessible.patch_check import missing_patches
@@ -37,6 +48,9 @@ try:
 except ImportError:
     wx = None
 
+
+# How often an unsaved window writes its text for recovery.
+RECOVERY_INTERVAL_MS = 30_000
 
 # The setup check runs once per process, whatever the number of windows.
 _patches_checked = False
@@ -58,6 +72,9 @@ if wx is not None:
             self.current_page = 0
             self.dirty = False
             self._closing_application = False
+            # Unsaved text is written for recovery now and then (documents/recovery.py).
+            self._recovery_name = record_name(id(self))
+            self._recovery_timer = wx.Timer(self)
 
             panel = wx.Panel(self)
             content_sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -95,6 +112,8 @@ if wx is not None:
             self.editor.markdown.Bind(wx.EVT_SET_FOCUS, self._on_editor_position_changed)
             self.page_list.Bind(wx.EVT_LISTBOX, self._on_page_selected)
             self.Bind(wx.EVT_CLOSE, self._on_close)
+            self.Bind(wx.EVT_TIMER, lambda _event: self._autosave(), self._recovery_timer)
+            self._recovery_timer.Start(RECOVERY_INTERVAL_MS)
             if self.settings.show_preview:
                 self._set_preview_shown(True)
             self._update_title()
@@ -142,19 +161,28 @@ if wx is not None:
             self._export_html_id = wx.NewIdRef()
             self._export_brf_id = wx.NewIdRef()
             self._export_pdf_id = wx.NewIdRef()
-            file_menu.Append(wx.ID_NEW, "&New Window\tCtrl+N")
+            # In the order of Apple's guidelines; Quit goes to the application menu on macOS.
+            file_menu.Append(wx.ID_NEW, "&New\tCtrl+N")
             file_menu.Append(wx.ID_OPEN, "&Open…\tCtrl+O")
+            self._recent_menu = wx.Menu()
+            self._recent_ids = [wx.NewIdRef() for _ in range(RECENT_LIMIT)]
+            self._clear_recent_id = wx.NewIdRef()
+            file_menu.AppendSubMenu(self._recent_menu, "Open &Recent")
             file_menu.AppendSeparator()
+            file_menu.Append(wx.ID_CLOSE, "&Close Window\tCtrl+W")
             file_menu.Append(wx.ID_SAVE, "&Save\tCtrl+S")
             file_menu.Append(wx.ID_SAVEAS, "Save &As…\tCtrl+Shift+S")
-            # Export, one item per format (PDF and DOCX are to come).
+            file_menu.Append(wx.ID_REVERT_TO_SAVED, "Re&vert to Saved")
+            file_menu.AppendSeparator()
+            # Export, one item per format (DOCX is to come).
             export_menu = wx.Menu()
             export_menu.Append(self._export_html_id, "&HTML…")
             export_menu.Append(self._export_pdf_id, "&PDF…")
             export_menu.Append(self._export_brf_id, "&BRF (Braille)…")
             file_menu.AppendSubMenu(export_menu, "&Export")
             file_menu.AppendSeparator()
-            file_menu.Append(wx.ID_CLOSE, "&Close Window\tCtrl+W")
+            file_menu.Append(wx.ID_PRINT, "&Print…\tCtrl+P")
+            file_menu.AppendSeparator()
             file_menu.Append(wx.ID_EXIT, "&Quit\tCtrl+Q")
             menu_bar = wx.MenuBar()
             menu_bar.Append(file_menu, "&File")
@@ -191,25 +219,29 @@ if wx is not None:
             self._new_notebook_id = wx.NewIdRef()
             self._open_notebook_id = wx.NewIdRef()
             self._new_portable_notebook_id = wx.NewIdRef()
-            self._open_portable_notebook_id = wx.NewIdRef()
             self._save_portable_notebook_id = wx.NewIdRef()
             self._add_page_id = wx.NewIdRef()
             self._rename_page_id = wx.NewIdRef()
             self._delete_page_id = wx.NewIdRef()
             self._move_page_up_id = wx.NewIdRef()
             self._move_page_down_id = wx.NewIdRef()
-            notebook_menu.Append(self._new_notebook_id, "&New folder notebook…")
-            notebook_menu.Append(self._open_notebook_id, "&Open folder notebook…")
-            notebook_menu.Append(self._new_portable_notebook_id, "New .msnb notebook…")
-            notebook_menu.Append(self._open_portable_notebook_id, "Open .msnb notebook…")
-            notebook_menu.Append(self._save_portable_notebook_id, "Save notebook as .msnb…")
+            self._previous_page_id = wx.NewIdRef()
+            self._next_page_id = wx.NewIdRef()
+            # A portable notebook (one .msnb file) opens with File > Open, as a document does.
+            notebook_menu.Append(self._new_portable_notebook_id, "&New Notebook…\tCtrl+Alt+N")
+            notebook_menu.Append(self._new_notebook_id, "New Notebook &Folder…")
+            notebook_menu.Append(self._open_notebook_id, "&Open Notebook Folder…")
+            notebook_menu.Append(self._save_portable_notebook_id, "Save Notebook as &Single File…")
             notebook_menu.AppendSeparator()
-            notebook_menu.Append(self._add_page_id, "&Add page")
-            notebook_menu.Append(self._rename_page_id, "&Rename page")
-            notebook_menu.Append(self._delete_page_id, "&Delete page")
+            notebook_menu.Append(self._add_page_id, "&Add Page\tCtrl+Shift+N")
+            notebook_menu.Append(self._rename_page_id, "&Rename Page…")
+            notebook_menu.Append(self._delete_page_id, "&Delete Page…")
             notebook_menu.AppendSeparator()
-            notebook_menu.Append(self._move_page_up_id, "Move page &up")
-            notebook_menu.Append(self._move_page_down_id, "Move page do&wn")
+            notebook_menu.Append(self._move_page_up_id, "Move Page &Up\tCtrl+Alt+Up")
+            notebook_menu.Append(self._move_page_down_id, "Move Page Do&wn\tCtrl+Alt+Down")
+            notebook_menu.AppendSeparator()
+            notebook_menu.Append(self._previous_page_id, "&Previous Page\tCtrl+Alt+PgUp")
+            notebook_menu.Append(self._next_page_id, "Ne&xt Page\tCtrl+Alt+PgDn")
             menu_bar.Append(notebook_menu, "&Notebook")
             window_menu = wx.Menu()
             self._next_window_id = wx.NewIdRef()
@@ -265,13 +297,21 @@ if wx is not None:
             self.Bind(wx.EVT_MENU, self._new_notebook, id=self._new_notebook_id)
             self.Bind(wx.EVT_MENU, self._open_notebook, id=self._open_notebook_id)
             self.Bind(wx.EVT_MENU, self._new_portable_notebook, id=self._new_portable_notebook_id)
-            self.Bind(wx.EVT_MENU, self._open_portable_notebook, id=self._open_portable_notebook_id)
             self.Bind(wx.EVT_MENU, self._save_portable_notebook, id=self._save_portable_notebook_id)
             self.Bind(wx.EVT_MENU, self._add_page, id=self._add_page_id)
             self.Bind(wx.EVT_MENU, self._rename_page, id=self._rename_page_id)
             self.Bind(wx.EVT_MENU, self._delete_page, id=self._delete_page_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._move_page(-1), id=self._move_page_up_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._move_page(1), id=self._move_page_down_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._go_to_page(-1), id=self._previous_page_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._go_to_page(1), id=self._next_page_id)
+            self.Bind(wx.EVT_MENU, self._revert, id=wx.ID_REVERT_TO_SAVED)
+            self.Bind(wx.EVT_UPDATE_UI, lambda event: event.Enable(self._can_revert()), id=wx.ID_REVERT_TO_SAVED)
+            self.Bind(wx.EVT_MENU, self._print, id=wx.ID_PRINT)
+            for index, recent_id in enumerate(self._recent_ids):
+                self.Bind(wx.EVT_MENU, lambda _event, index=index: self._open_recent(index), id=recent_id)
+            self.Bind(wx.EVT_MENU, self._clear_recent, id=self._clear_recent_id)
+            self._rebuild_recent_menu()
             self.Bind(wx.EVT_MENU, lambda _event: self._cycle_window(1), id=self._next_window_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._cycle_window(-1), id=self._previous_window_id)
             self.Bind(wx.EVT_MENU, self._bring_all_to_front, id=self._bring_all_to_front_id)
@@ -282,6 +322,8 @@ if wx is not None:
                 self._delete_page_id,
                 self._move_page_up_id,
                 self._move_page_down_id,
+                self._previous_page_id,
+                self._next_page_id,
             ):
                 self.Bind(wx.EVT_UPDATE_UI, self._on_update_notebook_menu, id=command_id)
 
@@ -479,6 +521,8 @@ if wx is not None:
                 int(self._delete_page_id): has_notebook and len(self.notebook.pages) > 1,
                 int(self._move_page_up_id): has_notebook and self.current_page > 0,
                 int(self._move_page_down_id): (has_notebook and self.current_page < len(self.notebook.pages) - 1),
+                int(self._previous_page_id): has_notebook and self.current_page > 0,
+                int(self._next_page_id): has_notebook and self.current_page < len(self.notebook.pages) - 1,
             }
             event.Enable(availability.get(event.GetId(), True))
 
@@ -588,10 +632,15 @@ if wx is not None:
             self._spawn_window()
 
         def _open_document(self, _event: wx.CommandEvent | None = None) -> None:
+            """File > Open: a Markdown document or a notebook in one file (.msnb)."""
             dialog = wx.FileDialog(
                 self,
-                message="Open Markdown document",
-                wildcard="Markdown documents (*.md;*.markdown)|*.md;*.markdown|All files|*.*",
+                message="Open",
+                wildcard=(
+                    "Documents and notebooks (*.md;*.markdown;*.msnb)|*.md;*.markdown;*.msnb|"
+                    "Markdown documents (*.md;*.markdown)|*.md;*.markdown|"
+                    "Notebooks (*.msnb)|*.msnb|All files|*.*"
+                ),
                 style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST,
             )
             try:
@@ -600,16 +649,181 @@ if wx is not None:
                 path = Path(dialog.GetPath())
             finally:
                 dialog.Destroy()
+            self.open_path(path)
+
+        def _is_blank(self) -> bool:
+            """An untouched Untitled window, which an opened file takes instead of a new window."""
+            return not self.dirty and self.document_path is None and self.notebook is None and not self.editor.source
+
+        def open_path(self, path: Path) -> MainFrame | None:
+            """Open a document, a notebook folder or a .msnb notebook, in this window if it is blank."""
+            for window in self._application_windows():
+                if path.resolve() in window._open_paths():
+                    window.Raise()  # Already open: show it rather than a second copy.
+                    return window
+            frame = self if self._is_blank() else None
             try:
-                source = read_markdown(path)
-            except (OSError, UnicodeError) as error:
-                self._show_error("open the document", error)
+                if path.is_dir():
+                    notebook = Notebook.open(path)
+                    frame = frame or self._spawn_window()
+                    frame._activate_notebook(notebook)
+                elif path.suffix.lower() == ".msnb":
+                    workspace = tempfile.TemporaryDirectory(prefix="mathessible-")
+                    try:
+                        notebook = extract_portable(path, Path(workspace.name) / "notebook")
+                    except (OSError, NotebookError):
+                        workspace.cleanup()
+                        raise
+                    frame = frame or self._spawn_window()
+                    frame._activate_notebook(notebook, path, workspace)
+                else:
+                    source = read_markdown(path)
+                    frame = frame or self._spawn_window()
+                    frame.editor.set_source(source)
+                    frame.document_path = path
+                    frame.dirty = False
+                    frame._update_title()
+            except (OSError, UnicodeError, NotebookError) as error:
+                self._show_error(f"open {path.name}", error)
+                return None
+            self.note_recent(path)
+            return frame
+
+        def _open_paths(self) -> set[Path]:
+            """What this window has open, resolved: its document, its notebook folder or .msnb file."""
+            if self.notebook is not None:
+                return {(self.notebook_archive_path or self.notebook.root).resolve()}
+            return {self.document_path.resolve()} if self.document_path is not None else set()
+
+        def note_recent(self, path: Path) -> None:
+            """Put `path` first in File > Open Recent, in every window."""
+            self.settings.recent_files = remember(self.settings.recent_files, path)
+            try:
+                save_settings(self.settings)
+            except OSError:
+                pass  # The list is a convenience: never an error over it.
+            for window in self._application_windows() or [self]:
+                window._rebuild_recent_menu()
+
+        def _rebuild_recent_menu(self) -> None:
+            for item in list(self._recent_menu.GetMenuItems()):
+                self._recent_menu.Delete(item)
+            recent = still_there(self.settings.recent_files)
+            for recent_id, label in zip(self._recent_ids, menu_labels(recent), strict=False):
+                self._recent_menu.Append(recent_id, label.replace("&", "&&"))
+            if recent:
+                self._recent_menu.AppendSeparator()
+            self._recent_menu.Append(self._clear_recent_id, "&Clear Menu")
+            self._recent_menu.Enable(self._clear_recent_id, bool(recent))
+
+        def _open_recent(self, index: int) -> None:
+            recent = still_there(self.settings.recent_files)
+            if index < len(recent):
+                self.open_path(Path(recent[index]))
+
+        def _clear_recent(self, _event: wx.CommandEvent | None = None) -> None:
+            self.settings.recent_files = ()
+            try:
+                save_settings(self.settings)
+            except OSError:
+                pass
+            for window in self._application_windows() or [self]:
+                window._rebuild_recent_menu()
+
+        def _can_revert(self) -> bool:
+            return self.dirty and self.document_path is not None and not self.editor.editing_equation
+
+        def _revert(self, _event: wx.CommandEvent | None = None) -> None:
+            """File > Revert to Saved: the document (or the notebook's page) as last saved, after asking."""
+            if not self._can_revert():
                 return
-            frame = self._spawn_window()
-            frame.editor.set_source(source)
-            frame.document_path = path
-            frame.dirty = False
-            frame._update_title()
+            dialog = wx.MessageDialog(
+                self,
+                "Revert to the saved version? The changes since it was saved will be lost.",
+                "Revert to Saved",
+                wx.YES_NO | wx.NO_DEFAULT | wx.ICON_WARNING,
+            )
+            dialog.SetYesNoLabels("&Revert", "&Cancel")
+            try:
+                if dialog.ShowModal() != wx.ID_YES:
+                    return
+            finally:
+                dialog.Destroy()
+            if self.notebook is not None:
+                self._load_page(self.current_page)
+            else:
+                try:
+                    source = read_markdown(self.document_path)
+                except (OSError, UnicodeError) as error:
+                    self._show_error("read the saved document", error)
+                    return
+                self.editor.set_source(source)
+                self.dirty = False
+                self._update_title()
+            self._forget_recovery()
+
+        def _go_to_page(self, offset: int) -> None:
+            """Notebook > Previous Page / Next Page, saving the page left as choosing it in the list does."""
+            if self.notebook is None:
+                return
+            index = self.current_page + offset
+            if 0 <= index < len(self.notebook.pages) and self._save_current_page() and self._load_page(index):
+                self.editor.markdown.SetFocus()
+
+        def _export_pages(self) -> tuple[str, list[ExportPage], str, str] | None:
+            """What Export and Print take: the title, the pages, a file name and a folder; None on an error."""
+            self.editor.commit_active_equation()
+            if self.notebook is not None:
+                try:
+                    pages = [
+                        ExportPage(
+                            page.title,
+                            self.editor.source if index == self.current_page else self.notebook.read_page(index),
+                        )
+                        for index, page in enumerate(self.notebook.pages)
+                    ]
+                except (OSError, UnicodeError) as error:
+                    self._show_error("read the notebook", error)
+                    return None
+                stem = self.notebook_archive_path.stem if self.notebook_archive_path else self.notebook.root.name
+                folder = (
+                    str(self.notebook_archive_path.parent)
+                    if self.notebook_archive_path is not None
+                    else str(self.notebook.root.parent)
+                )
+                return self.notebook.title, pages, stem, folder
+            title = self.document_path.stem if self.document_path is not None else "Mathessible document"
+            stem = self.document_path.stem if self.document_path else "mathessible-document"
+            folder = str(self.document_path.parent) if self.document_path else ""
+            return title, [ExportPage(title, self.editor.source)], stem, folder
+
+        def _print(self, _event: wx.CommandEvent | None = None) -> None:
+            """File > Print: the document as the preview shows it, through the system's print panel."""
+            gathered = self._export_pages()
+            if gathered is None:
+                return
+            title, pages, _stem, _folder = gathered
+            equation_editor = self.editor.equation_window.equation
+            if any(find_math_zones(page.source) for page in pages) and not equation_editor.converter_ready:
+                self._show_error("print", RuntimeError("The UnicodeMath converter is not ready yet. Please try again."))
+                return
+            try:
+                html = notebook_html(title, pages, equation_editor.convert_unicode_math)
+            except (RuntimeError, ValueError) as error:
+                self._show_error("print", error)
+                return
+            # A window of its own, never shown: its web view lays the pages out for printing.
+            holder = wx.Frame(self, size=(800, 1000))
+            view = wx.html2.WebView.New(holder)
+
+            def loaded(event: wx.html2.WebViewEvent) -> None:
+                view.Unbind(wx.html2.EVT_WEBVIEW_LOADED)
+                view.Print()
+                wx.CallLater(2000, holder.Destroy)
+                event.Skip()
+
+            view.Bind(wx.html2.EVT_WEBVIEW_LOADED, loaded)
+            view.SetPage(html, "")
 
         def _choose_save_path(self) -> Path | None:
             default_directory = str(self.document_path.parent) if self.document_path else ""
@@ -650,6 +864,9 @@ if wx is not None:
                     return False
                 self.dirty = False
                 self._update_title()
+                self._forget_recovery()
+                if self.notebook_archive_path is not None:
+                    self.note_recent(self.notebook_archive_path)
                 return True
             destination = None if save_as else self.document_path
             if destination is None:
@@ -663,6 +880,8 @@ if wx is not None:
                 return False
             self.dirty = False
             self._update_title()
+            self._forget_recovery()
+            self.note_recent(self.document_path)
             return True
 
         def _save_document_event(self, _event: wx.CommandEvent) -> None:
@@ -678,31 +897,10 @@ if wx is not None:
                 "pdf": ("PDF", "pdf", "PDF document (*.pdf)|*.pdf"),
                 "brf": ("BRF", "brf", "Braille ready file (*.brf)|*.brf"),
             }[kind]
-            self.editor.commit_active_equation()
-            if self.notebook is not None:
-                title = self.notebook.title
-                try:
-                    pages = [
-                        ExportPage(
-                            page.title,
-                            self.editor.source if index == self.current_page else self.notebook.read_page(index),
-                        )
-                        for index, page in enumerate(self.notebook.pages)
-                    ]
-                except (OSError, UnicodeError) as error:
-                    self._show_error("read the notebook for export", error)
-                    return
-                stem = self.notebook_archive_path.stem if self.notebook_archive_path else self.notebook.root.name
-                default_directory = (
-                    str(self.notebook_archive_path.parent)
-                    if self.notebook_archive_path is not None
-                    else str(self.notebook.root.parent)
-                )
-            else:
-                title = self.document_path.stem if self.document_path is not None else "Mathessible document"
-                pages = [ExportPage(title, self.editor.source)]
-                stem = self.document_path.stem if self.document_path else "mathessible-document"
-                default_directory = str(self.document_path.parent) if self.document_path else ""
+            gathered = self._export_pages()
+            if gathered is None:
+                return
+            title, pages, stem, default_directory = gathered
 
             equation_editor = self.editor.equation_window.equation
             if any(find_math_zones(page.source) for page in pages) and not equation_editor.converter_ready:
@@ -837,8 +1035,50 @@ if wx is not None:
             path.write_bytes(brf.encode("ascii", errors="replace"))
             return path
 
+        def _autosave(self) -> None:
+            """Write the unsaved text for recovery, or remove what was written once it is saved."""
+            if not self.dirty and not self.editor.editing_equation:
+                self._forget_recovery()
+                return
+            source = self.editor.source_with_open_equation()
+            if self.notebook is not None:
+                kind = "portable" if self.notebook_archive_path is not None else "notebook"
+                path = str(self.notebook_archive_path or self.notebook.root)
+            else:
+                kind, path = "document", str(self.document_path or "")
+            record = Recovered(kind, path, self.current_page, self.GetTitle(), source, os.getpid(), recovery_time())
+            try:
+                write_record(self._recovery_name, record)
+            except OSError:
+                pass  # Recovery is a safety net: never an error over it.
+
+        def _forget_recovery(self) -> None:
+            try:
+                delete_record(self._recovery_name)
+            except OSError:
+                pass
+
+        def recover(self, record: Recovered) -> None:
+            """Open what a crashed Mathessible had not saved, as unsaved changes again."""
+            frame: MainFrame | None = self if self._is_blank() else None
+            if record.kind in ("notebook", "portable") and record.path and Path(record.path).exists():
+                frame = self.open_path(Path(record.path))
+                if frame is None or frame.notebook is None:
+                    return
+                if 0 <= record.page < len(frame.notebook.pages):
+                    frame._load_page(record.page)
+            else:
+                frame = frame or self._spawn_window()
+                if record.path:
+                    frame.document_path = Path(record.path)
+            frame.editor.set_source(record.source)
+            frame.dirty = True
+            frame._update_title()
+
         def _on_close(self, event: wx.CloseEvent) -> None:
             if self._closing_application or self._confirm_changes():
+                self._recovery_timer.Stop()
+                self._forget_recovery()
                 if self._portable_workspace is not None:
                     self._portable_workspace.cleanup()
                     self._portable_workspace = None
@@ -929,7 +1169,9 @@ if wx is not None:
             except (OSError, NotebookError) as error:
                 self._show_error("create the notebook", error)
                 return
-            self._spawn_window()._activate_notebook(notebook)
+            frame = self if self._is_blank() else self._spawn_window()
+            frame._activate_notebook(notebook)
+            self.note_recent(root)
 
         def _choose_portable_path(self, default_name: str | None = None) -> Path | None:
             default_file = (
@@ -963,29 +1205,9 @@ if wx is not None:
                 workspace.cleanup()
                 self._show_error("create the portable notebook", error)
                 return
-            self._spawn_window()._activate_notebook(notebook, archive_path, workspace)
-
-        def _open_portable_notebook(self, _event: wx.CommandEvent | None = None) -> None:
-            dialog = wx.FileDialog(
-                self,
-                message="Open portable notebook",
-                wildcard="Mathessible notebooks (*.msnb)|*.msnb|All files|*.*",
-                style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST,
-            )
-            try:
-                if dialog.ShowModal() != wx.ID_OK:
-                    return
-                archive_path = Path(dialog.GetPath())
-            finally:
-                dialog.Destroy()
-            workspace = tempfile.TemporaryDirectory(prefix="mathessible-")
-            try:
-                notebook = extract_portable(archive_path, Path(workspace.name) / "notebook")
-            except (OSError, NotebookError) as error:
-                workspace.cleanup()
-                self._show_error("open the portable notebook", error)
-                return
-            self._spawn_window()._activate_notebook(notebook, archive_path, workspace)
+            frame = self if self._is_blank() else self._spawn_window()
+            frame._activate_notebook(notebook, archive_path, workspace)
+            self.note_recent(archive_path)
 
         def _save_portable_notebook(self, _event: wx.CommandEvent | None = None) -> None:
             if self.notebook is None:
@@ -1000,12 +1222,7 @@ if wx is not None:
                 root = Path(dialog.GetPath())
             finally:
                 dialog.Destroy()
-            try:
-                notebook = Notebook.open(root)
-            except NotebookError as error:
-                self._show_error("open the notebook", error)
-                return
-            self._spawn_window()._activate_notebook(notebook)
+            self.open_path(root)
 
         def _ask_page_title(self, caption: str, value: str) -> str | None:
             dialog = wx.TextEntryDialog(self, "Page title:", caption, value)
@@ -1099,6 +1316,29 @@ if wx is not None:
                 self._show_error("update the portable notebook", error)
                 return False
             return True
+
+    def offer_recovery(window: MainFrame) -> None:
+        """At start: offer back what a Mathessible that stopped unexpectedly had not saved."""
+        records = pending_records()
+        if not records:
+            return
+        count = len(records)
+        dialog = wx.MessageDialog(
+            window,
+            f"Mathessible closed without saving {count} document{'' if count == 1 else 's'}. "
+            "Recover the unsaved changes?",
+            "Recover Unsaved Changes",
+            wx.YES_NO | wx.YES_DEFAULT | wx.ICON_QUESTION,
+        )
+        dialog.SetYesNoLabels("&Recover", "&Discard")
+        try:
+            recover = dialog.ShowModal() == wx.ID_YES
+        finally:
+            dialog.Destroy()
+        for name, record in records:
+            if recover:
+                window.recover(record)
+            delete_record(name)  # The recovered windows write their own while unsaved.
 
 else:
 
