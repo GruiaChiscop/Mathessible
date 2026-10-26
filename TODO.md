@@ -20,6 +20,22 @@ GitHub, and the Help menu opens it in the browser.
 - [ ] A GitHub wiki, once there is more documentation than a few pages in
   `docs/`; the README and the Help menu then point to it.
 
+## Footnotes (important)
+
+CommonMark has no footnotes, but the common extension does (GitHub,
+Pandoc, markdown-it's footnote plugin): `text[^1]` and, anywhere,
+`[^1]: The note.` Typst has `#footnote[...]`, HTML a notes section with
+links back, liblouis and BRF need a braille transcriber's convention.
+
+- [ ] Footnotes in the document: `[^label]` and its note, kept in the
+  Markdown as that extension writes them.
+- [ ] Insert Footnote, as in Word (the reference at the caret, the note
+  to type), and moving between a reference and its note.
+- [ ] Equations inside notes.
+- [ ] Footnotes in the preview and in every export: HTML (notes at the
+  end, linked both ways), PDF (Typst's footnotes, tagged), BRF (the
+  braille formats' notes) and DOCX.
+
 ## PDF export
 
 - [x] Stage 1: page, text, page numbers, header, metadata, outline and
