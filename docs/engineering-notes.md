@@ -1209,6 +1209,38 @@ tested. Templates: `template_source` holds
   them. Treat this as a known prototype limitation, not something to
   silently "fix" by hardcoding a different path.
 
+## PDF Export (Typst)
+
+PDF export (2026-10-26) writes Typst source (`documents/pdf_export.py`)
+and compiles it with the `typst` Python package (the compiler is in the
+wheel). Chosen for accessibility: Typst 0.14+ writes tagged PDF by
+default and `math.equation(alt: ...)` puts the alt text in the Formula
+tag, checked in a real export (Formula with Alt, H1/H2, L/LI/Lbl/LBody,
+/Lang, outline, metadata, the attached Markdown). Its PDF/UA is UA-1
+only; the PDF Association's math guide prefers UA-2 with MathML, which
+LuaLaTeX writes but which needs a TeX installation, so that waits for
+Typst's UA-2. WeasyPrint does not render MathML; Chromium's tagging of
+math is unknown and it is large. Pandoc (texmath reads MathML, writes
+Typst) was considered: `pypandoc-binary`'s macOS arm64 wheel holds an
+x86_64 binary (no Rosetta here), so it would need a separate install.
+
+`typst_math.py` converts the converter's MathML to Typst math itself:
+every token apart (Typst reads `ab` as a name), every Typst syntax
+character escaped and texts as strings, so a document cannot reach Typst
+code; maths-italic letters back to plain ones (`plain_letters`);
+`attach(..., b:, t:)` for every script, `limits(...)` under large
+operators and named functions, `lr(...)` for visible fences (and
+`|x|`), `mat`/`cases`/`binom`, an equation array as `&`-aligned lines
+and the converter's labelled table row as the equation's `numbering`.
+The MathML is not sanitised first: the allow-list drops `bevelled`, and
+nothing from it reaches Typst unescaped. Markdown goes through
+markdown-it with `html: False` (raw HTML is text). The attached sources
+are passed as `sys.inputs`, never written into the code. Typst's
+standards: PDF/A-2 forbids attachments and PDF/A-4f excludes UA-1, so
+Settings offers tagged, UA-1, UA-1 + A-3a and A-3a; the attachments carry
+`relationship: "source"` for PDF/A-3. The alt text is MathCAT's English
+speech whatever the document's language (MathCAT has no Romanian).
+
 ## liblouis and BRF Export
 
 BRF export (2026-10-26, `documents/brf_export.py`) puts the text through

@@ -258,6 +258,26 @@ so a class can share one file:
 ⊐ 4-456-28
 ```
 
+### PDF export
+
+`File → Export → PDF…` asks for the document's properties (title,
+author, subject, keywords and language, which the PDF keeps), then
+writes the document, or every page of the notebook, as a PDF typeset by
+Typst. The PDF is tagged for screen readers: headings, paragraphs,
+lists, tables and links are marked as such, the headings are bookmarks,
+and every equation carries its spoken form, MathCAT's, for a screen
+reader to read. Equations are typeset as built structures (fractions,
+roots, limits, matrices, cases, equation arrays and numbers).
+
+`Settings → PDF` chooses the paper (A4, A5, A3, US Letter or US Legal),
+landscape, the four margins, the font (Typst's own or any installed),
+its size and the line spacing, justified text, page numbers and where
+they go, a header text, the default author, a table of contents from the
+headings, and whether the Markdown source is attached, so that the PDF
+can be opened in Mathessible again. **Standard** chooses what is
+checked: a tagged PDF, PDF/UA-1 (accessible; the default), PDF/UA-1 with
+PDF/A-3a (accessible and archival), or PDF/A-3a.
+
 ### BRF export
 
 `File → Export → BRF (Braille)…` writes the document, or every page of

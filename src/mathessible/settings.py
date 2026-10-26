@@ -95,6 +95,21 @@ class AppSettings:
     brf_lines_per_page: int = 25
     # Braille page numbers (BANA formats require them in transcriptions; Word adds none unless asked).
     brf_page_numbers: bool = True
+    # PDF export (Typst): the page, the text, numbering, the outline, the source attached, the standard.
+    pdf_paper: str = "a4"
+    pdf_landscape: bool = False
+    pdf_margins: tuple[int, int, int, int] = (25, 25, 25, 25)  # mm: top, right, bottom, left.
+    pdf_font: str = "Libertinus Serif"
+    pdf_font_size: int = 11
+    pdf_line_spacing: float = 0.65  # Leading, in em.
+    pdf_justify: bool = False
+    pdf_page_numbers: bool = True
+    pdf_page_number_position: str = "bottom-center"
+    pdf_header: str = ""
+    pdf_table_of_contents: bool = False
+    pdf_attach_source: bool = True
+    pdf_standard: str = "ua-1"
+    pdf_author: str = ""
     # Symbol shortcuts (<<, ->, <=) as soon as their last character is typed.
     convert_shortcuts_immediately: bool = True
     # Templates and structure edits write control words (\sum, \sqrt, \of)
@@ -158,6 +173,20 @@ def load_settings(path: Path | None = None) -> AppSettings:
         brf_cells_per_line=_bounded(data.get("brf_cells_per_line"), 40, BRF_CELLS),
         brf_lines_per_page=_bounded(data.get("brf_lines_per_page"), 25, BRF_LINES),
         brf_page_numbers=bool(data.get("brf_page_numbers", True)),
+        pdf_paper=_option(data.get("pdf_paper"), PDF_PAPERS, "a4"),
+        pdf_landscape=bool(data.get("pdf_landscape", False)),
+        pdf_margins=_margins(data.get("pdf_margins")),
+        pdf_font=str(data.get("pdf_font") or "Libertinus Serif"),
+        pdf_font_size=_bounded(data.get("pdf_font_size"), 11, PDF_FONT_SIZES),
+        pdf_line_spacing=_spacing(data.get("pdf_line_spacing")),
+        pdf_justify=bool(data.get("pdf_justify", False)),
+        pdf_page_numbers=bool(data.get("pdf_page_numbers", True)),
+        pdf_page_number_position=_option(data.get("pdf_page_number_position"), PDF_NUMBER_POSITIONS, "bottom-center"),
+        pdf_header=str(data.get("pdf_header", "")),
+        pdf_table_of_contents=bool(data.get("pdf_table_of_contents", False)),
+        pdf_attach_source=bool(data.get("pdf_attach_source", True)),
+        pdf_standard=_option(data.get("pdf_standard"), PDF_STANDARDS, "ua-1"),
+        pdf_author=str(data.get("pdf_author", "")),
         convert_shortcuts_immediately=bool(data.get("convert_shortcuts_immediately", True)),
         template_control_words=bool(data.get("template_control_words", True)),
         open_built=bool(data.get("open_built", False)),
@@ -245,6 +274,43 @@ def _normalize_removed(value: object) -> tuple[str, ...]:
 
 # The zoom steps of the equation editor, in percent, as a browser has them.
 ZOOM_LEVELS = (50, 67, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300)
+
+
+# PDF export choices: (value, label) as Settings shows them.
+PDF_PAPERS = (("a4", "A4"), ("a5", "A5"), ("a3", "A3"), ("us-letter", "US Letter"), ("us-legal", "US Legal"))
+PDF_NUMBER_POSITIONS = (
+    ("bottom-center", "Bottom, centred"),
+    ("bottom-right", "Bottom, right"),
+    ("top-right", "Top, right"),
+)
+# Typst's standards for each choice ("tagged": a tagged PDF, no standard checked).
+PDF_STANDARDS = (
+    ("tagged", "Tagged PDF"),
+    ("ua-1", "PDF/UA-1 (accessible, checked)"),
+    ("ua-1+a-3a", "PDF/UA-1 and PDF/A-3a (accessible and archival)"),
+    ("a-3a", "PDF/A-3a (archival)"),
+)
+PDF_FONT_SIZES = (6, 36)
+PDF_MARGINS = (0, 100)
+
+
+def pdf_standards(choice: str) -> tuple[str, ...]:
+    """Typst's `pdf_standards` for a PDF_STANDARDS choice."""
+    return () if choice == "tagged" else tuple(choice.split("+"))
+
+
+def _option(value: object, options: tuple[tuple[str, str], ...], default: str) -> str:
+    return value if isinstance(value, str) and value in dict(options) else default
+
+
+def _margins(value: object) -> tuple[int, int, int, int]:
+    if isinstance(value, (list, tuple)) and len(value) == 4:
+        return tuple(_bounded(margin, 25, PDF_MARGINS) for margin in value)  # type: ignore[return-value]
+    return (25, 25, 25, 25)
+
+
+def _spacing(value: object) -> float:
+    return float(value) if isinstance(value, (int, float)) and 0.2 <= value <= 3 else 0.65
 
 
 # The BRF page sizes Settings allows: cells per line, lines per page.

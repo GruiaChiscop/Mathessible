@@ -26,7 +26,8 @@ else is in the [documentation](#documentation).
   view.
 - **Markdown documents and notebooks**: equations as `$...$` and
   `$$...$$`, notebooks of pages saved as a folder or a single `.msnb`
-  file, and export to accessible HTML with native MathML, and to BRF
+  file, and export to accessible HTML with native MathML, to tagged PDF
+  (every equation with its spoken form, PDF/UA-1) and to BRF
   (braille ready to emboss or read on a braille display).
 - **Keyboard first**: everything works from the keyboard, and the
   equation editor speaks for itself, so VoiceOver never wanders into web
@@ -80,6 +81,8 @@ For working on Mathessible:
   speech, navigation and braille for MathML.
 - [UnicodeMathML](https://github.com/MurrayIII/UnicodeMathML) (Murray
   Sargent III): the UnicodeMath to MathML converter.
+- [Typst](https://typst.app): the typesetting of the PDF export, tagged
+  for screen readers.
 - [liblouis](https://liblouis.io): the document's text in braille, for
   BRF export, built from its submodule as NVDA builds it.
 - [wxPython](https://wxpython.org): the native interface.

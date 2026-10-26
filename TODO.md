@@ -20,6 +20,17 @@ GitHub, and the Help menu opens it in the browser.
 - [ ] A GitHub wiki, once there is more documentation than a few pages in
   `docs/`; the README and the Help menu then point to it.
 
+## PDF export
+
+- [x] Stage 1: page, text, page numbers, header, metadata, outline and
+  table of contents, tagged PDF with every equation's spoken form,
+  PDF/UA-1 and PDF/A-3a, the Markdown source attached.
+- [ ] Stage 2: open and permission passwords (after Typst, which has
+  none; not with PDF/A), a watermark, equation numbering styles, colours,
+  columns.
+- [ ] Stage 3: PDF/UA-2 with MathML in the Formula tags, when Typst has it.
+- [ ] Open a PDF with an attached Markdown source in Mathessible.
+
 ## Later
 
 - [x] Braille export (BRF) of a document or notebook.

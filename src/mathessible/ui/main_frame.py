@@ -4,6 +4,9 @@ import sys
 import tempfile
 import threading
 from pathlib import Path
+from xml.etree import ElementTree
+
+import typst
 
 from mathessible.documents.brf_export import BrfLayout, nemeth_in_ueb, notebook_brf
 from mathessible.documents.document_io import read_markdown, write_markdown
@@ -11,15 +14,18 @@ from mathessible.documents.find_text import FindOptions, find, is_match, replace
 from mathessible.documents.html_export import PREVIEW_PAGE, ExportPage, preview_update_script, write_notebook_html
 from mathessible.documents.markdown_math import find_math_zones
 from mathessible.documents.notebook import Notebook, NotebookError
+from mathessible.documents.pdf_export import PdfOptions, pdf_inputs, typst_document
 from mathessible.documents.portable_notebook import extract_portable, save_portable
+from mathessible.documents.typst_math import TypstEquation, typst_math
 from mathessible.mathcat.navigator import MATHCAT_MISSING, mathcat_load_error
 from mathessible.patch_check import missing_patches
-from mathessible.settings import AppSettings, load_settings, save_settings
+from mathessible.settings import AppSettings, load_settings, pdf_standards, save_settings
 from mathessible.symbols.system_languages import preferred_languages
 from mathessible.symbols.text_braille import default_table, tables_directory, text_tables
 from mathessible.ui.document_editor import DocumentEditor
 from mathessible.ui.help_menu import append_help_menu
 from mathessible.ui.macos_webview import guard_webview_key_equivalents
+from mathessible.ui.pdf_dialog import PdfProperties, PdfPropertiesDialog
 from mathessible.ui.settings_dialog import show_settings
 from mathessible.unicodemath import UnicodeMathError
 
@@ -133,6 +139,7 @@ if wx is not None:
             file_menu = wx.Menu()
             self._export_html_id = wx.NewIdRef()
             self._export_brf_id = wx.NewIdRef()
+            self._export_pdf_id = wx.NewIdRef()
             file_menu.Append(wx.ID_NEW, "&New Window\tCtrl+N")
             file_menu.Append(wx.ID_OPEN, "&Open…\tCtrl+O")
             file_menu.AppendSeparator()
@@ -141,6 +148,7 @@ if wx is not None:
             # Export, one item per format (PDF and DOCX are to come).
             export_menu = wx.Menu()
             export_menu.Append(self._export_html_id, "&HTML…")
+            export_menu.Append(self._export_pdf_id, "&PDF…")
             export_menu.Append(self._export_brf_id, "&BRF (Braille)…")
             file_menu.AppendSubMenu(export_menu, "&Export")
             file_menu.AppendSeparator()
@@ -220,6 +228,7 @@ if wx is not None:
             self.Bind(wx.EVT_MENU, self._save_as_document_event, id=wx.ID_SAVEAS)
             self.Bind(wx.EVT_MENU, lambda _event: self._export("html"), id=self._export_html_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._export("brf"), id=self._export_brf_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._export("pdf"), id=self._export_pdf_id)
             self.Bind(wx.EVT_MENU, lambda _event: self.Close(), id=wx.ID_CLOSE)
             self.Bind(wx.EVT_MENU, self._quit_application, id=wx.ID_EXIT)
             for command_id in (
@@ -661,9 +670,10 @@ if wx is not None:
             self.save_document(save_as=True)
 
         def _export(self, kind: str) -> None:
-            """File > Export: the document, or every page of the notebook, as HTML or BRF."""
+            """File > Export: the document, or every page of the notebook, as HTML, PDF or BRF."""
             label, extension, wildcard = {
                 "html": ("HTML", "html", "HTML document (*.html)|*.html"),
+                "pdf": ("PDF", "pdf", "PDF document (*.pdf)|*.pdf"),
                 "brf": ("BRF", "brf", "Braille ready file (*.brf)|*.brf"),
             }[kind]
             self.editor.commit_active_equation()
@@ -700,6 +710,11 @@ if wx is not None:
                 )
                 return
 
+            properties = None
+            if kind == "pdf":
+                properties = self._ask_pdf_properties(title)
+                if properties is None:
+                    return
             dialog = wx.FileDialog(
                 self,
                 message=f"Export as {label}",
@@ -718,6 +733,8 @@ if wx is not None:
             try:
                 if kind == "html":
                     exported_path = write_notebook_html(destination, title, pages, equation_editor.convert_unicode_math)
+                elif kind == "pdf":
+                    exported_path = self._write_pdf(destination, pages, title, properties)
                 else:
                     exported_path = self._write_brf(destination, pages)
             except (OSError, UnicodeError, RuntimeError, ValueError, ImportError) as error:
@@ -729,6 +746,62 @@ if wx is not None:
                 wx.OK | wx.ICON_INFORMATION,
                 self,
             )
+
+        def _ask_pdf_properties(self, title: str) -> PdfProperties | None:
+            languages = preferred_languages()
+            language = languages[0].split("-")[0] if languages else "en"
+            dialog = PdfPropertiesDialog(self, PdfProperties(title, self.settings.pdf_author, "", (), language))
+            try:
+                return dialog.properties if dialog.ShowModal() == wx.ID_OK else None
+            finally:
+                dialog.Destroy()
+
+        def _write_pdf(self, destination: Path, pages: list[ExportPage], title: str, properties: PdfProperties) -> Path:
+            """Typst's tagged PDF: each equation's MathCAT speech is its alt text."""
+            equation_editor = self.editor.equation_window.equation
+            navigator = equation_editor.mathcat
+
+            def equation_of(source: str) -> tuple[TypstEquation | None, str]:
+                try:
+                    mathml = equation_editor.convert_unicode_math(source)
+                    if 'mathcolor="#F00"' in mathml:
+                        return None, ""
+                    speech = navigator.load(mathml) if navigator is not None else ""
+                    return typst_math(mathml), speech
+                except (UnicodeMathError, RuntimeError, ValueError, ElementTree.ParseError):
+                    return None, ""
+
+            settings = self.settings
+            options = PdfOptions(
+                paper=settings.pdf_paper,
+                landscape=settings.pdf_landscape,
+                margins_mm=settings.pdf_margins,
+                font=settings.pdf_font,
+                font_size=settings.pdf_font_size,
+                line_spacing=settings.pdf_line_spacing,
+                justify=settings.pdf_justify,
+                page_numbers=settings.pdf_page_numbers,
+                page_number_position=settings.pdf_page_number_position,
+                header=settings.pdf_header,
+                title=properties.title or title,
+                author=properties.author,
+                subject=properties.subject,
+                keywords=properties.keywords,
+                language=properties.language,
+                table_of_contents=settings.pdf_table_of_contents,
+                attach_source=settings.pdf_attach_source,
+                standards=pdf_standards(settings.pdf_standard),
+            )
+            source = typst_document(pages, title, equation_of, options)
+            try:
+                pdf = typst.compile(
+                    source.encode("utf-8"), sys_inputs=pdf_inputs(pages), pdf_standards=list(options.standards)
+                )
+            except RuntimeError as error:
+                raise RuntimeError(f"Typst could not make the PDF:\n{error}") from error
+            path = destination if destination.suffix.lower() == ".pdf" else destination.with_suffix(".pdf")
+            path.write_bytes(pdf)
+            return path
 
         def _write_brf(self, destination: Path, pages: list[ExportPage]) -> Path:
             """The text through liblouis (Settings → Braille), the equations through MathCAT in the braille code chosen."""

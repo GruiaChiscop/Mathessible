@@ -13,7 +13,17 @@ from collections.abc import Callable
 from pathlib import Path
 
 from mathessible.editing.autocorrect import AutoCorrectTable, autocorrect_defaults, differences
-from mathessible.settings import BRAILLE_CODES, BRF_CELLS, BRF_LINES, AppSettings
+from mathessible.settings import (
+    BRAILLE_CODES,
+    BRF_CELLS,
+    BRF_LINES,
+    PDF_FONT_SIZES,
+    PDF_MARGINS,
+    PDF_NUMBER_POSITIONS,
+    PDF_PAPERS,
+    PDF_STANDARDS,
+    AppSettings,
+)
 from mathessible.symbols.braille_signs import load_signs, save_signs
 from mathessible.symbols.dictionary import SymbolDictionaryError, available_dictionaries, import_dictionary
 from mathessible.symbols.download import SymbolDownloadError, download_languages, nvda_languages
@@ -30,6 +40,8 @@ except ImportError:
     wx = None
 
 _WRAP = 460
+# The fonts Typst brings with it, offered first: they are in every PDF it writes.
+_TYPST_FONTS = ("Libertinus Serif", "New Computer Modern", "DejaVu Sans Mono")
 
 
 def applies_at_once() -> bool:
@@ -63,6 +75,7 @@ if wx is not None:
             self._navigation_page(self._page("Navigation"), settings)
             self._speech_page(self._page("Speech"), settings)
             self._braille_page(self._page("Braille"), settings)
+            self._pdf_page(self._page("PDF"), settings)
             for index in range(self.notebook.GetPageCount()):
                 self.notebook.GetPage(index).GetSizer().AddSpacer(12)  # A margin under the last control.
             sizer = wx.BoxSizer(wx.VERTICAL)
@@ -288,6 +301,83 @@ if wx is not None:
                 settings.brf_page_numbers,
             )
 
+        def _pdf_page(self, page: wx.Panel, settings: AppSettings) -> None:
+            """File > Export > PDF: the page, the text, numbering and what the PDF holds."""
+            grid = wx.FlexGridSizer(cols=2, vgap=8, hgap=12)
+
+            def row(label: str, control: wx.Window, name: str) -> wx.Window:
+                control.SetName(name)
+                grid.Add(wx.StaticText(page, label=label), 0, wx.ALIGN_CENTER_VERTICAL)
+                grid.Add(control, 0, wx.EXPAND)
+                return control
+
+            def choice(options: tuple[tuple[str, str], ...], value: str) -> wx.Choice:
+                control = wx.Choice(page, choices=[label for _value, label in options])
+                values = [option for option, _label in options]
+                control.SetSelection(values.index(value) if value in values else 0)
+                control.Bind(wx.EVT_CHOICE, lambda _event: self._changed())
+                return control
+
+            def spin(value: int, bounds: tuple[int, int]) -> wx.SpinCtrl:
+                control = wx.SpinCtrl(page, min=bounds[0], max=bounds[1], initial=value)
+                control.Bind(wx.EVT_SPINCTRL, lambda _event: self._changed())
+                return control
+
+            self.pdf_paper = row("&Paper", choice(PDF_PAPERS, settings.pdf_paper), "Paper")
+            margin_names = ("Top margin (mm)", "Right margin (mm)", "Bottom margin (mm)", "Left margin (mm)")
+            self.pdf_margins = [
+                row(name, spin(value, PDF_MARGINS), name.split(" (")[0])
+                for name, value in zip(margin_names, settings.pdf_margins, strict=True)
+            ]
+            fonts = sorted(set(wx.FontEnumerator().GetFacenames()) - set(_TYPST_FONTS), key=str.casefold)
+            self._pdf_fonts = [*_TYPST_FONTS, *fonts]
+            self.pdf_font = row("&Font", wx.Choice(page, choices=self._pdf_fonts), "Font")
+            if settings.pdf_font in self._pdf_fonts:
+                self.pdf_font.SetSelection(self._pdf_fonts.index(settings.pdf_font))
+            self.pdf_font.Bind(wx.EVT_CHOICE, lambda _event: self._changed())
+            self.pdf_font_size = row("Font si&ze (pt)", spin(settings.pdf_font_size, PDF_FONT_SIZES), "Font size")
+            self.pdf_line_spacing = row(
+                "&Line spacing (em)",
+                wx.SpinCtrlDouble(page, min=0.2, max=3, initial=settings.pdf_line_spacing, inc=0.05),
+                "Line spacing",
+            )
+            self.pdf_line_spacing.Bind(wx.EVT_SPINCTRLDOUBLE, lambda _event: self._changed())
+            self.pdf_number_position = row(
+                "Page number p&osition",
+                choice(PDF_NUMBER_POSITIONS, settings.pdf_page_number_position),
+                "Page number position",
+            )
+            self.pdf_header = row("&Header text", wx.TextCtrl(page, value=settings.pdf_header), "Header text")
+            self.pdf_author = row("&Author", wx.TextCtrl(page, value=settings.pdf_author), "Author")
+            for text in (self.pdf_header, self.pdf_author):
+                text.Bind(wx.EVT_KILL_FOCUS, self._text_done)
+            self.pdf_standard = row("&Standard", choice(PDF_STANDARDS, settings.pdf_standard), "PDF standard")
+            grid.AddGrowableCol(1)
+            page.GetSizer().Add(grid, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 12)
+            self.pdf_landscape = self._checkbox(page, "Lan&dscape", "Landscape", settings.pdf_landscape)
+            self.pdf_justify = self._checkbox(page, "&Justify the text", "Justify the text", settings.pdf_justify)
+            self.pdf_page_numbers = self._checkbox(
+                page, "&Number the pages", "Number the pages", settings.pdf_page_numbers
+            )
+            self.pdf_table_of_contents = self._checkbox(
+                page, "Table of &contents (from the headings)", "Table of contents", settings.pdf_table_of_contents
+            )
+            self.pdf_attach_source = self._checkbox(
+                page,
+                "Attach the Markdown &source (the PDF can be opened in Mathessible again)",
+                "Attach the Markdown source",
+                settings.pdf_attach_source,
+            )
+            self._help(
+                page,
+                "Every PDF is tagged, its headings bookmarked, and every equation carries its spoken form "
+                "for screen readers. PDF/UA-1 checks that while exporting.",
+            )
+
+        def _text_done(self, event: wx.Event) -> None:
+            self._changed()
+            event.Skip()
+
         # Controls
 
         def _checkbox(self, page: wx.Panel, label: str, name: str, value: bool) -> wx.CheckBox:
@@ -314,6 +404,7 @@ if wx is not None:
             selection = self.symbol_dictionary.GetSelection()
             if selection != wx.NOT_FOUND:
                 self._settings.symbol_dictionary = self._dictionaries[selection].identifier
+            self._apply_pdf()
             text_table = self.braille_text_table.GetSelection()
             if text_table != wx.NOT_FOUND:
                 self._settings.braille_text_table = self._text_tables[text_table].file
@@ -346,6 +437,31 @@ if wx is not None:
             self._settings.recognized_functions = self._functions
             self._settings.math_autocorrect, self._settings.math_autocorrect_removed = self._autocorrect
             self._settings.removed_words_as_symbols = self.removed_words_as_symbols.GetValue()
+
+        def _apply_pdf(self) -> None:
+            def chosen(control: wx.Choice, options: tuple[tuple[str, str], ...], current: str) -> str:
+                index = control.GetSelection()
+                return options[index][0] if index != wx.NOT_FOUND else current
+
+            settings = self._settings
+            settings.pdf_paper = chosen(self.pdf_paper, PDF_PAPERS, settings.pdf_paper)
+            settings.pdf_margins = tuple(control.GetValue() for control in self.pdf_margins)
+            font = self.pdf_font.GetSelection()
+            if font != wx.NOT_FOUND:
+                settings.pdf_font = self._pdf_fonts[font]
+            settings.pdf_font_size = self.pdf_font_size.GetValue()
+            settings.pdf_line_spacing = round(self.pdf_line_spacing.GetValue(), 2)
+            settings.pdf_page_number_position = chosen(
+                self.pdf_number_position, PDF_NUMBER_POSITIONS, settings.pdf_page_number_position
+            )
+            settings.pdf_header = self.pdf_header.GetValue()
+            settings.pdf_author = self.pdf_author.GetValue()
+            settings.pdf_standard = chosen(self.pdf_standard, PDF_STANDARDS, settings.pdf_standard)
+            settings.pdf_landscape = self.pdf_landscape.GetValue()
+            settings.pdf_justify = self.pdf_justify.GetValue()
+            settings.pdf_page_numbers = self.pdf_page_numbers.GetValue()
+            settings.pdf_table_of_contents = self.pdf_table_of_contents.GetValue()
+            settings.pdf_attach_source = self.pdf_attach_source.GetValue()
 
         # Lists edited in their own dialogs
 
