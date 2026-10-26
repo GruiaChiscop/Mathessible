@@ -1,12 +1,17 @@
-"""The PDF's page and content controls: the same in Settings (the defaults) and in the export dialog
-(this PDF), so the two never differ. Each set reads its values from an `AppSettings` and writes them
-back with `store`."""
+"""The export controls: the same in Settings (the defaults) and in each export's dialog (this file),
+so the two never differ. Each set reads its values from an `AppSettings` and writes them back with
+`store`."""
 
 from __future__ import annotations
 
 from collections.abc import Callable
 
 from mathessible.settings import (
+    BRAILLE_CODES,
+    BRF_CELLS,
+    BRF_LINES,
+    HTML_COLOUR_SCHEMES,
+    HTML_FONTS,
     PDF_COLOURS,
     PDF_COLUMNS,
     PDF_EQUATION_NUMBERING,
@@ -18,6 +23,8 @@ from mathessible.settings import (
     PDF_STANDARDS,
     AppSettings,
 )
+from mathessible.symbols.system_languages import preferred_languages
+from mathessible.symbols.text_braille import default_table, text_tables
 
 try:
     import wx
@@ -191,3 +198,68 @@ if wx is not None:
 
         def store(self, settings: AppSettings) -> None:
             settings.pdf_standard = _chosen(self.standard, PDF_STANDARDS, settings.pdf_standard)
+
+    class BrfControls:
+        """BRF: the text's braille table, the page, page numbers."""
+
+        def __init__(self, rows: FormRows, settings: AppSettings):
+            self.tables = text_tables()
+            files = [table.file for table in self.tables]
+            self.table = rows.row(
+                "&Text braille table",
+                wx.Choice(rows.page, choices=[table.name for table in self.tables]),
+                "Text braille table",
+            )
+            chosen = settings.braille_text_table or default_table(preferred_languages(), self.tables)
+            if chosen in files:
+                self.table.SetSelection(files.index(chosen))
+            self.table.Bind(wx.EVT_CHOICE, lambda _event: rows.changed())
+            self.cells = rows.row(
+                "&Cells per line", rows.spin(settings.brf_cells_per_line, BRF_CELLS), "Cells per line"
+            )
+            self.lines = rows.row(
+                "&Lines per page", rows.spin(settings.brf_lines_per_page, BRF_LINES), "Lines per page"
+            )
+            self.page_numbers = rows.checkbox(
+                "&Number the pages (at the right of each page's last line, as braille formats require)",
+                "Number the pages",
+                settings.brf_page_numbers,
+            )
+
+        def store(self, settings: AppSettings) -> None:
+            index = self.table.GetSelection()
+            if index != wx.NOT_FOUND:
+                settings.braille_text_table = self.tables[index].file
+            settings.brf_cells_per_line = self.cells.GetValue()
+            settings.brf_lines_per_page = self.lines.GetValue()
+            settings.brf_page_numbers = self.page_numbers.GetValue()
+
+    class BrailleCodeControl:
+        """The equations' braille code, for one BRF (Settings' code, the braille strip's, by default)."""
+
+        def __init__(self, rows: FormRows, settings: AppSettings):
+            self.code = rows.row(
+                "&Equations in", rows.choice(BRAILLE_CODES, settings.braille_code), "Braille code for the equations"
+            )
+
+        def store(self, settings: AppSettings) -> None:
+            settings.braille_code = _chosen(self.code, BRAILLE_CODES, settings.braille_code)
+
+    class HtmlControls:
+        """HTML: the table of contents, the font and the colours."""
+
+        def __init__(self, rows: FormRows, settings: AppSettings):
+            self.font = rows.row("&Font", rows.choice(HTML_FONTS, settings.html_font), "Font")
+            self.colour_scheme = rows.row(
+                "&Colours", rows.choice(HTML_COLOUR_SCHEMES, settings.html_colour_scheme), "Colours"
+            )
+            self.table_of_contents = rows.checkbox(
+                "Table of &contents (the pages of a notebook, the headings of a document)",
+                "Table of contents",
+                settings.html_table_of_contents,
+            )
+
+        def store(self, settings: AppSettings) -> None:
+            settings.html_font = _chosen(self.font, HTML_FONTS, settings.html_font)
+            settings.html_colour_scheme = _chosen(self.colour_scheme, HTML_COLOUR_SCHEMES, settings.html_colour_scheme)
+            settings.html_table_of_contents = self.table_of_contents.GetValue()

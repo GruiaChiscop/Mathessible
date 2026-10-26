@@ -99,39 +99,97 @@ def preview_update_script(source: str, convert_math: MathConverter) -> str:
     return f"window.mathessibleSetDocument({json.dumps(body)})"
 
 
+@dataclass(frozen=True, slots=True)
+class HtmlOptions:
+    author: str = ""
+    description: str = ""
+    language: str = "en"
+    table_of_contents: bool = True  # A notebook's pages, a document's headings.
+    font: str = "sans"  # "sans" (the system's) or "serif".
+    colour_scheme: str = "auto"  # "auto" (the reader's system), "light" or "dark".
+
+
+STANDARD_HTML = HtmlOptions()
+_HEADING = re.compile(r"<h([1-6])>(.*?)</h\1>", re.DOTALL)
+_TAG = re.compile(r"<[^>]+>")
+_FONTS = {"sans": "system-ui, sans-serif", "serif": '"Iowan Old Style", Georgia, "Times New Roman", serif'}
+_SCHEMES = {"auto": "light dark", "light": "light", "dark": "dark"}
+
+
+def _with_heading_ids(html: str, prefix: str) -> tuple[str, list[tuple[int, str, str]]]:
+    """The headings given ids, and (level, id, text) for each, for a table of contents."""
+    found: list[tuple[int, str, str]] = []
+
+    def anchor(match: re.Match[str]) -> str:
+        identifier = f"{prefix}{len(found) + 1}"
+        found.append((int(match.group(1)), identifier, _TAG.sub("", match.group(2)).strip()))
+        return f'<h{match.group(1)} id="{identifier}">{match.group(2)}</h{match.group(1)}>'
+
+    return _HEADING.sub(anchor, html), found
+
+
 def notebook_html(
     title: str,
     pages: Sequence[ExportPage],
     convert_math: MathConverter,
+    options: HtmlOptions = STANDARD_HTML,
 ) -> str:
+    """One HTML file: a notebook's pages under its title, or one document as it is, with MathML equations."""
     if not pages:
         raise ValueError("An exported notebook must contain at least one page")
 
-    navigation: list[str] = []
-    sections: list[str] = []
-    for index, page in enumerate(pages, start=1):
-        identifier = f"page-{index}"
-        navigation.append(f'<li><a href="#{identifier}">{escape(page.title)}</a></li>')
-        sections.append(
-            f'<section class="notebook-page" id="{identifier}" aria-labelledby="{identifier}-title">\n'
-            f'<h2 id="{identifier}-title">{escape(page.title)}</h2>\n'
-            f"{render_markdown(page.source, convert_math)}"
-            "</section>"
-        )
+    contents: list[str] = []
+    if len(pages) == 1:
+        body, headings = _with_heading_ids(render_markdown(pages[0].source, convert_math), "section-")
+        if options.table_of_contents and len(headings) > 1:
+            items = "".join(
+                f'<li class="level-{level}"><a href="#{identifier}">{text}</a></li>'
+                for level, identifier, text in headings
+                if level <= 3
+            )
+            contents.append(f'<nav aria-label="Contents">\n<h2>Contents</h2>\n<ul>{items}</ul>\n</nav>')
+        main = body
+        header = ""
+    else:
+        sections: list[str] = []
+        navigation: list[str] = []
+        for index, page in enumerate(pages, start=1):
+            identifier = f"page-{index}"
+            navigation.append(f'<li><a href="#{identifier}">{escape(page.title)}</a></li>')
+            body, _headings = _with_heading_ids(render_markdown(page.source, convert_math), f"{identifier}-section-")
+            sections.append(
+                f'<section class="notebook-page" id="{identifier}" aria-labelledby="{identifier}-title">\n'
+                f'<h2 id="{identifier}-title">{escape(page.title)}</h2>\n{body}</section>'
+            )
+        if options.table_of_contents:
+            contents.append(
+                f'<nav aria-label="Notebook pages">\n<h2>Pages</h2>\n<ol>{"".join(navigation)}</ol>\n</nav>'
+            )
+        main = "".join(sections)
+        header = f"<header><h1>{escape(title)}</h1></header>"
 
-    safe_title = escape(title)
+    metadata = "".join(
+        f'\n  <meta name="{name}" content="{escape(value)}">'
+        for name, value in (("author", options.author), ("description", options.description))
+        if value
+    )
+    font = _FONTS.get(options.font, _FONTS["sans"])
+    scheme = _SCHEMES.get(options.colour_scheme, "light dark")
     return f"""<!doctype html>
-<html lang="en">
+<html lang="{escape(options.language or "en")}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{safe_title}</title>
+  <title>{escape(title)}</title>{metadata}
   <style>
-    :root {{ color-scheme: light dark; font-family: system-ui, sans-serif; line-height: 1.55; }}
+    :root {{ color-scheme: {scheme}; font-family: {font}; line-height: 1.55; }}
     body {{ max-width: 58rem; margin: 0 auto; padding: 1.5rem; }}
     a {{ color: LinkText; }}
     nav {{ border-block: 1px solid GrayText; margin-block: 1.5rem 2.5rem; padding-block: 1rem; }}
+    nav .level-2 {{ margin-inline-start: 1.25rem; }}
+    nav .level-3 {{ margin-inline-start: 2.5rem; }}
     .notebook-page {{ margin-block: 3rem; }}
+    math {{ font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", math; }}
     .math-inline math {{ font-size: 1.08em; }}
     .math-display {{ margin-block: 1.25rem; overflow-x: auto; text-align: center; }}
     .math-display math {{ font-size: 1.25em; }}
@@ -147,13 +205,10 @@ def notebook_html(
   </style>
 </head>
 <body>
-  <header><h1>{safe_title}</h1></header>
-  <nav aria-label="Notebook pages">
-    <h2>Pages</h2>
-    <ol>{"".join(navigation)}</ol>
-  </nav>
+  {header}
+  {"".join(contents)}
   <main>
-    {"".join(sections)}
+    {main}
   </main>
 </body>
 </html>
@@ -165,11 +220,12 @@ def write_notebook_html(
     title: str,
     pages: Sequence[ExportPage],
     convert_math: MathConverter,
+    options: HtmlOptions = STANDARD_HTML,
 ) -> Path:
     path = Path(destination).expanduser()
     if path.suffix.lower() not in {".html", ".htm"}:
         path = path.with_suffix(".html")
     temporary = path.with_name(path.name + ".tmp")
-    temporary.write_text(notebook_html(title, pages, convert_math), encoding="utf-8", newline="")
+    temporary.write_text(notebook_html(title, pages, convert_math, options), encoding="utf-8", newline="")
     temporary.replace(path)
     return path

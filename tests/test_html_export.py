@@ -4,6 +4,7 @@ from pathlib import Path
 
 from mathessible.documents.html_export import (
     ExportPage,
+    HtmlOptions,
     notebook_html,
     preview_update_script,
     render_markdown,
@@ -79,6 +80,32 @@ class HtmlExportTests(unittest.TestCase):
         self.assertIn("First &lt;page&gt;", rendered)
         self.assertLess(rendered.index('id="page-1"'), rendered.index('id="page-2"'))
         self.assertIn('aria-label="Notebook pages"', rendered)
+
+    def test_a_document_is_itself_with_its_headings_in_contents(self) -> None:
+        source = "# Algebra\n\n## Roots\n\ntext $x$\n\n## Proof\n"
+        rendered = notebook_html("algebra", [ExportPage("algebra", source)], fake_mathml)
+        self.assertNotIn("Notebook pages", rendered)
+        self.assertNotIn("<header>", rendered)  # The document's own heading is its title.
+        self.assertIn('<h2 id="section-2">Roots</h2>', rendered)
+        self.assertIn('<li class="level-2"><a href="#section-2">Roots</a></li>', rendered)
+        self.assertNotIn("Contents", notebook_html("t", [ExportPage("t", "# Only one")], fake_mathml))
+
+    def test_options_reach_the_page(self) -> None:
+        options = HtmlOptions(
+            author="Ana <A>",
+            description="Roots",
+            language="ro",
+            table_of_contents=False,
+            font="serif",
+            colour_scheme="dark",
+        )
+        rendered = notebook_html("t", [ExportPage("a", "# A\n\n## B"), ExportPage("b", "x")], fake_mathml, options)
+        self.assertIn('<html lang="ro">', rendered)
+        self.assertIn('<meta name="author" content="Ana &lt;A&gt;">', rendered)
+        self.assertIn('<meta name="description" content="Roots">', rendered)
+        self.assertIn("color-scheme: dark", rendered)
+        self.assertIn("Georgia", rendered)
+        self.assertNotIn("Notebook pages", rendered)
 
     def test_write_adds_html_extension(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

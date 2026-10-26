@@ -13,16 +13,21 @@ from collections.abc import Callable
 from pathlib import Path
 
 from mathessible.editing.autocorrect import AutoCorrectTable, autocorrect_defaults, differences
-from mathessible.settings import BRAILLE_CODES, BRF_CELLS, BRF_LINES, AppSettings
+from mathessible.settings import BRAILLE_CODES, AppSettings
 from mathessible.symbols.braille_signs import load_signs, save_signs
 from mathessible.symbols.dictionary import SymbolDictionaryError, available_dictionaries, import_dictionary
 from mathessible.symbols.download import SymbolDownloadError, download_languages, nvda_languages
-from mathessible.symbols.system_languages import preferred_languages
-from mathessible.symbols.text_braille import default_table, text_tables
 from mathessible.ui.autocorrect_dialog import AutoCorrectDialog
 from mathessible.ui.braille_signs_dialog import BrailleSignsDialog
+from mathessible.ui.export_controls import (
+    BrfControls,
+    FormRows,
+    HtmlControls,
+    PdfContentControls,
+    PdfLayoutControls,
+    PdfStandardControl,
+)
 from mathessible.ui.functions_dialog import RecognizedFunctionsDialog
-from mathessible.ui.pdf_controls import FormRows, PdfContentControls, PdfLayoutControls, PdfStandardControl
 from mathessible.unicodemath import control_words
 
 try:
@@ -65,6 +70,7 @@ if wx is not None:
             self._speech_page(self._page("Speech"), settings)
             self._braille_page(self._page("Braille"), settings)
             self._pdf_page(self._page("PDF"), settings)
+            self._html_page(self._page("HTML"), settings)
             for index in range(self.notebook.GetPageCount()):
                 self.notebook.GetPage(index).GetSizer().AddSpacer(12)  # A margin under the last control.
             sizer = wx.BoxSizer(wx.VERTICAL)
@@ -256,39 +262,17 @@ if wx is not None:
                 "Braille signs are your own braille for symbols in the code chosen above, "
                 "for symbols it has no sign for, or to replace its own.",
             )
-            text_label = wx.StaticText(page, label="&Text braille table (BRF export; equations use the code above)")
-            self._text_tables = text_tables()
-            self.braille_text_table = wx.Choice(page, choices=[table.name for table in self._text_tables])
-            self.braille_text_table.SetName("Text braille table")
-            files = [table.file for table in self._text_tables]
-            chosen = settings.braille_text_table or default_table(preferred_languages(), self._text_tables)
-            if chosen in files:
-                self.braille_text_table.SetSelection(files.index(chosen))
-            self.braille_text_table.Bind(wx.EVT_CHOICE, lambda _event: self._changed())
-            page.GetSizer().Add(text_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
-            page.GetSizer().Add(self.braille_text_table, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 12)
-            size = wx.FlexGridSizer(cols=2, vgap=8, hgap=12)
-            cells_label = wx.StaticText(page, label="&Cells per line")
-            self.brf_cells_per_line = wx.SpinCtrl(
-                page, min=BRF_CELLS[0], max=BRF_CELLS[1], initial=settings.brf_cells_per_line
-            )
-            self.brf_cells_per_line.SetName("Cells per line")
-            lines_label = wx.StaticText(page, label="&Lines per page")
-            self.brf_lines_per_page = wx.SpinCtrl(
-                page, min=BRF_LINES[0], max=BRF_LINES[1], initial=settings.brf_lines_per_page
-            )
-            self.brf_lines_per_page.SetName("Lines per page")
-            for spin in (self.brf_cells_per_line, self.brf_lines_per_page):
-                spin.Bind(wx.EVT_SPINCTRL, lambda _event: self._changed())
-            size.AddMany([(cells_label, 0, wx.ALIGN_CENTER_VERTICAL), (self.brf_cells_per_line, 0)])
-            size.AddMany([(lines_label, 0, wx.ALIGN_CENTER_VERTICAL), (self.brf_lines_per_page, 0)])
-            page.GetSizer().Add(size, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
-            self.brf_page_numbers = self._checkbox(
-                page,
-                "Number the pages (at the right of each page's last line, as braille formats require)",
-                "Number the BRF pages",
-                settings.brf_page_numbers,
-            )
+            heading = wx.StaticText(page, label="BRF export (its dialog can change them for one file)")
+            page.GetSizer().Add(heading, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
+            rows = FormRows(page, self._changed)
+            self.brf = BrfControls(rows, settings)
+            rows.finish(page.GetSizer())
+
+        def _html_page(self, page: wx.Panel, settings: AppSettings) -> None:
+            """The HTML export's defaults; each export can change them (File > Export > HTML)."""
+            rows = FormRows(page, self._changed)
+            self.html = HtmlControls(rows, settings)
+            rows.finish(page.GetSizer())
 
         def _pdf_page(self, page: wx.Panel, settings: AppSettings) -> None:
             """The PDF export's defaults; each export can change them (File > Export > PDF)."""
@@ -331,12 +315,8 @@ if wx is not None:
             if selection != wx.NOT_FOUND:
                 self._settings.symbol_dictionary = self._dictionaries[selection].identifier
             self._apply_pdf()
-            text_table = self.braille_text_table.GetSelection()
-            if text_table != wx.NOT_FOUND:
-                self._settings.braille_text_table = self._text_tables[text_table].file
-            self._settings.brf_cells_per_line = self.brf_cells_per_line.GetValue()
-            self._settings.brf_lines_per_page = self.brf_lines_per_page.GetValue()
-            self._settings.brf_page_numbers = self.brf_page_numbers.GetValue()
+            self.brf.store(self._settings)
+            self.html.store(self._settings)
             braille = self.braille_code.GetSelection()
             if braille != wx.NOT_FOUND:
                 self._settings.braille_code = BRAILLE_CODES[braille][0]

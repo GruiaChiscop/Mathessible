@@ -1230,6 +1230,29 @@ Notebook: Title Case, no file extensions in labels, "Open portable" gone
 (File > Open does it), shortcuts for New Notebook, Add Page, moving
 pages and Previous/Next Page.
 
+## Export Dialogs (2026-10-26)
+
+Every format has its dialog, as PDF: HTML and BRF in
+`ui/export_dialogs.py` (one page each), PDF in `ui/pdf_dialog.py`
+(tabs). Each works on a copy of the settings (`dataclasses.replace`),
+starts from Settings' defaults with the same controls
+(`ui/export_controls.py`: `BrfControls`, `HtmlControls`, the PDF ones),
+and Save as Defaults copies back the format's fields only
+(`MainFrame._save_defaults(prefixes)`: `pdf_`, `html_`, `brf_` and
+`braille_text_table`; never the BRF dialog's equation code, which is the
+braille strip's setting). The BRF export sets the editor's MathCAT to
+the dialog's code and signs and restores the strip's afterwards. HTML
+writes a single document as itself (its headings with ids and an
+optional "Contents" of h1-h3; no notebook header or "Pages"), a notebook
+as before, with `lang`, author and description, font and colour
+scheme (`HtmlOptions`). "Export Complete" is gone: the status bar and
+`DocumentEditor.announce` say it, and "Open the file once exported"
+(`export_open_after`, remembered) opens it. Errors: `error_messages.explain`
+turns file, encoding, Typst (PDF/UA title, alt text, PDF/A attachments,
+fonts), liblouis and missing native errors into what to do, shown as
+the message box's extended text; the technical one goes to the session
+log.
+
 ## PDF Export (Typst)
 
 PDF export (2026-10-26) writes Typst source (`documents/pdf_export.py`)
@@ -1281,7 +1304,7 @@ subject, keywords, language, header, watermark, passwords:
 content, standard, author), which the dialog's Layout, Content and
 Security tabs start from on a copy (`dataclasses.replace`) and Save as
 Defaults copies back (every `pdf_` field). Both use the same controls
-(`ui/pdf_controls.py`: `FormRows`, `PdfLayoutControls`,
+(`ui/export_controls.py`: `FormRows`, `PdfLayoutControls`,
 `PdfContentControls`, `PdfStandardControl`), so they cannot differ.
 **Trap:** the macOS Settings window is kept hidden between openings, so
 after Save as Defaults it showed, and on the next change wrote back, the

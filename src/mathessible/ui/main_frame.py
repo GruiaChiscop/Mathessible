@@ -5,17 +5,20 @@ import os
 import sys
 import tempfile
 import threading
+from collections.abc import Callable
 from pathlib import Path
 from xml.etree import ElementTree
 
 import typst
 
+from mathessible import session_log
 from mathessible.documents.brf_export import BrfLayout, nemeth_in_ueb, notebook_brf
 from mathessible.documents.document_io import read_markdown, write_markdown
 from mathessible.documents.find_text import FindOptions, find, is_match, replace_all
 from mathessible.documents.html_export import (
     PREVIEW_PAGE,
     ExportPage,
+    HtmlOptions,
     notebook_html,
     preview_update_script,
     write_notebook_html,
@@ -30,12 +33,15 @@ from mathessible.documents.recent_files import menu_labels, remember, still_ther
 from mathessible.documents.recovery import Recovered, delete_record, pending_records, record_name, write_record
 from mathessible.documents.recovery import now as recovery_time
 from mathessible.documents.typst_math import TypstEquation, typst_math
+from mathessible.error_messages import explain
 from mathessible.mathcat.navigator import MATHCAT_MISSING, mathcat_load_error
 from mathessible.patch_check import missing_patches
 from mathessible.settings import AppSettings, load_settings, save_settings
+from mathessible.symbols.braille_signs import load_signs, signs_yaml
 from mathessible.symbols.system_languages import preferred_languages
 from mathessible.symbols.text_braille import default_table, tables_directory, text_tables
 from mathessible.ui.document_editor import DocumentEditor
+from mathessible.ui.export_dialogs import BrfExportDialog, HtmlDocument, HtmlExportDialog
 from mathessible.ui.help_menu import append_help_menu
 from mathessible.ui.macos_webview import guard_webview_key_equivalents
 from mathessible.ui.pdf_dialog import PdfExportDialog
@@ -551,12 +557,14 @@ if wx is not None:
             self.SetStatusText(f"Line {line}, Column {column}", 1)
 
         def _show_error(self, action: str, error: Exception) -> None:
-            wx.MessageBox(
-                f"Could not {action}.\n\n{error}",
-                "Mathessible Error",
-                wx.OK | wx.ICON_ERROR,
-                self,
-            )
+            """What failed, said plainly (error_messages); the technical text goes to the session log."""
+            session_log.write("error", f"could not {action}: {type(error).__name__}: {error}")
+            dialog = wx.MessageDialog(self, f"Could not {action}.", "Mathessible", wx.OK | wx.ICON_ERROR)
+            dialog.SetExtendedMessage(explain(error))
+            try:
+                dialog.ShowModal()
+            finally:
+                dialog.Destroy()
 
         def _confirm_changes(self) -> bool:
             if not self.dirty and not self.editor.editing_equation:
@@ -910,11 +918,11 @@ if wx is not None:
                 )
                 return
 
-            chosen = None
-            if kind == "pdf":
-                chosen = self._ask_pdf_export(title)
-                if chosen is None:
-                    return
+            # The format's own dialog first: this file's options, from Settings' defaults.
+            chosen = self._ask_export_options(kind, title)
+            if chosen is None:
+                return
+            options, document = chosen
             dialog = wx.FileDialog(
                 self,
                 message=f"Export as {label}",
@@ -932,39 +940,69 @@ if wx is not None:
 
             try:
                 if kind == "html":
-                    exported_path = write_notebook_html(destination, title, pages, equation_editor.convert_unicode_math)
+                    html_options = HtmlOptions(
+                        author=document.author,
+                        description=document.description,
+                        language=document.language,
+                        table_of_contents=options.html_table_of_contents,
+                        font=options.html_font,
+                        colour_scheme=options.html_colour_scheme,
+                    )
+                    exported_path = write_notebook_html(
+                        destination, document.title or title, pages, equation_editor.convert_unicode_math, html_options
+                    )
                 elif kind == "pdf":
-                    exported_path = self._write_pdf(destination, pages, title, chosen)
+                    exported_path = self._write_pdf(destination, pages, title, (options, document))
                 else:
-                    exported_path = self._write_brf(destination, pages)
+                    exported_path = self._write_brf(destination, pages, options)
             except (OSError, UnicodeError, RuntimeError, ValueError, ImportError) as error:
                 self._show_error(f"export the {label} document", error)
                 return
-            wx.MessageBox(
-                f"The {label} document was exported to:\n{exported_path}",
-                "Export Complete",
-                wx.OK | wx.ICON_INFORMATION,
-                self,
-            )
+            self._exported(exported_path, options.export_open_after)
 
-        def _ask_pdf_export(self, title: str) -> tuple[AppSettings, PdfDocument] | None:
-            """The export dialog: this PDF's settings (from the defaults) and its own document."""
+        def _exported(self, path: Path, open_after: bool) -> None:
+            """No dialog to dismiss, as in other applications: the status bar and the screen reader say it."""
+            if self.settings.export_open_after != open_after:
+                self.settings.export_open_after = open_after  # The choice is remembered for every export.
+                try:
+                    save_settings(self.settings)
+                except OSError:
+                    pass
+            self.SetStatusText(f"Exported {path.name}", 0)
+            self.editor.announce(f"exported {path.name}")
+            if open_after:
+                wx.LaunchDefaultApplication(str(path))
+
+        def _ask_export_options(self, kind: str, title: str) -> tuple[AppSettings, object] | None:
+            """The format's dialog: this file's settings (a copy of the defaults) and its own document."""
             languages = preferred_languages()
             language = languages[0].split("-")[0] if languages else "en"
-            document = PdfDocument(title, self.settings.pdf_author, language=language)
-            dialog = PdfExportDialog(self, self.settings, document, self._save_pdf_defaults)
+            if kind == "pdf":
+                document = PdfDocument(title, self.settings.pdf_author, language=language)
+                dialog = PdfExportDialog(self, self.settings, document, self._save_defaults("pdf_"))
+            elif kind == "html":
+                document = HtmlDocument(title, self.settings.pdf_author, language=language)
+                dialog = HtmlExportDialog(self, self.settings, document, self._save_defaults("html_"))
+            else:
+                dialog = BrfExportDialog(self, self.settings, self._save_defaults("brf_", "braille_text_table"))
             try:
-                return (dialog.settings, dialog.document) if dialog.ShowModal() == wx.ID_OK else None
+                if dialog.ShowModal() != wx.ID_OK:
+                    return None
+                return dialog.settings, getattr(dialog, "document", None)
             finally:
                 dialog.Destroy()
 
-        def _save_pdf_defaults(self, chosen: AppSettings) -> None:
-            """Save as Defaults: the PDF's layout, content, standard and author become Settings → PDF."""
-            for name in (field.name for field in dataclasses.fields(AppSettings)):
-                if name.startswith("pdf_"):
-                    setattr(self.settings, name, getattr(chosen, name))
-            forget_settings_window()  # Its controls still show the old defaults.
-            self._settings_applied()
+        def _save_defaults(self, *prefixes: str) -> Callable[[AppSettings], None]:
+            """Save as Defaults: the dialog's fields with these prefixes become Settings' defaults."""
+
+            def save(chosen: AppSettings) -> None:
+                for name in (field.name for field in dataclasses.fields(AppSettings)):
+                    if name.startswith(prefixes):
+                        setattr(self.settings, name, getattr(chosen, name))
+                forget_settings_window()  # Its controls still show the old defaults.
+                self._settings_applied()
+
+            return save
 
         def _write_pdf(
             self, destination: Path, pages: list[ExportPage], title: str, chosen: tuple[AppSettings, PdfDocument]
@@ -1001,8 +1039,8 @@ if wx is not None:
             path.write_bytes(protect(pdf, document.security))
             return path
 
-        def _write_brf(self, destination: Path, pages: list[ExportPage]) -> Path:
-            """The text through liblouis (Settings → Braille), the equations through MathCAT in the braille code chosen."""
+        def _write_brf(self, destination: Path, pages: list[ExportPage], options: AppSettings) -> Path:
+            """The text through liblouis, the equations through MathCAT, in this export's table and code."""
             import mathessible_mathcat
 
             equation_editor = self.editor.equation_window.equation
@@ -1010,10 +1048,10 @@ if wx is not None:
             if navigator is None:
                 raise RuntimeError(MATHCAT_MISSING)
             tables = text_tables()
-            table = self.settings.braille_text_table or default_table(preferred_languages(), tables)
+            table = options.braille_text_table or default_table(preferred_languages(), tables)
             table_path = str(tables_directory() / table)
             # UEB text needs switch indicators around Nemeth maths (UEB rule 14.6).
-            switches = self.settings.braille_code == "Nemeth" and any(
+            switches = options.braille_code == "Nemeth" and any(
                 entry.file == table and entry.system == "ueb" for entry in tables
             )
 
@@ -1021,7 +1059,6 @@ if wx is not None:
                 return mathessible_mathcat.text_braille(table_path, text)
 
             def math_braille(source: str) -> str:
-                # The editor's own MathCAT, with its braille code and signs; it reloads its equation when opened.
                 try:
                     navigator.load(equation_editor.convert_unicode_math(source), speak=False)
                     cells = navigator.expression_braille()
@@ -1029,8 +1066,16 @@ if wx is not None:
                 except (UnicodeMathError, RuntimeError, ValueError):
                     return text_braille(source)  # An equation that does not build: its source.
 
-            layout = BrfLayout(self.settings.brf_cells_per_line, self.settings.brf_lines_per_page)
-            brf = notebook_brf(pages, text_braille, math_braille, layout, self.settings.brf_page_numbers)
+            # The editor's own MathCAT, in this export's code with its signs; then back to the strip's
+            # (the editor reloads its equation when opened).
+            kept = navigator.braille_code, navigator.braille_signs
+            navigator.braille_code = options.braille_code
+            navigator.braille_signs = signs_yaml(load_signs(options.braille_code))
+            try:
+                layout = BrfLayout(options.brf_cells_per_line, options.brf_lines_per_page)
+                brf = notebook_brf(pages, text_braille, math_braille, layout, options.brf_page_numbers)
+            finally:
+                navigator.braille_code, navigator.braille_signs = kept
             path = destination if destination.suffix.lower() == ".brf" else destination.with_suffix(".brf")
             path.write_bytes(brf.encode("ascii", errors="replace"))
             return path

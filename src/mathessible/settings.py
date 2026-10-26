@@ -117,6 +117,12 @@ class AppSettings:
     pdf_heading_colour: str = ""
     pdf_link_colour: str = ""
     pdf_columns: int = 1
+    # HTML export: the defaults its dialog starts from.
+    html_font: str = "sans"
+    html_colour_scheme: str = "auto"
+    html_table_of_contents: bool = True
+    # Every export: open the file once written.
+    export_open_after: bool = False
     # Symbol shortcuts (<<, ->, <=) as soon as their last character is typed.
     convert_shortcuts_immediately: bool = True
     # Templates and structure edits write control words (\sum, \sqrt, \of)
@@ -202,6 +208,10 @@ def load_settings(path: Path | None = None) -> AppSettings:
         pdf_heading_colour=_option(data.get("pdf_heading_colour"), PDF_COLOURS, ""),
         pdf_link_colour=_option(data.get("pdf_link_colour"), PDF_COLOURS, ""),
         pdf_columns=_bounded(data.get("pdf_columns"), 1, PDF_COLUMNS),
+        html_font=_option(data.get("html_font"), HTML_FONTS, "sans"),
+        html_colour_scheme=_option(data.get("html_colour_scheme"), HTML_COLOUR_SCHEMES, "auto"),
+        html_table_of_contents=bool(data.get("html_table_of_contents", True)),
+        export_open_after=bool(data.get("export_open_after", False)),
         convert_shortcuts_immediately=bool(data.get("convert_shortcuts_immediately", True)),
         template_control_words=bool(data.get("template_control_words", True)),
         open_built=bool(data.get("open_built", False)),
@@ -318,6 +328,8 @@ PDF_COLOURS = (
     ("#5B2C6F", "Dark purple"),
 )
 PDF_COLUMNS = (1, 3)
+HTML_FONTS = (("sans", "Sans serif (the system's)"), ("serif", "Serif"))
+HTML_COLOUR_SCHEMES = (("auto", "Light or dark, as the reader's system"), ("light", "Light"), ("dark", "Dark"))
 PDF_FONT_SIZES = (6, 36)
 PDF_MARGINS = (0, 100)
 

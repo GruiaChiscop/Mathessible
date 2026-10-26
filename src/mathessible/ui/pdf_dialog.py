@@ -14,7 +14,8 @@ except ImportError:
 
 
 if wx is not None:
-    from mathessible.ui.pdf_controls import FormRows, PdfContentControls, PdfLayoutControls, PdfStandardControl
+    from mathessible.ui.export_controls import FormRows, PdfContentControls, PdfLayoutControls, PdfStandardControl
+    from mathessible.ui.export_dialogs import export_buttons, open_after_checkbox, saved_as_defaults
 
     class PdfExportDialog(wx.Dialog):
         """File > Export > PDF: this PDF's properties, layout, content and security, in tabs.
@@ -81,19 +82,11 @@ if wx is not None:
             note.Wrap(420)
             page.GetSizer().Add(note, 0, wx.ALL, 12)
 
-            defaults = wx.Button(self, label="Save as &Defaults")
-            defaults.Bind(wx.EVT_BUTTON, lambda _event: self._on_save_defaults())
-            export = wx.Button(self, wx.ID_OK, label="E&xport")
-            export.SetDefault()
-            cancel = wx.Button(self, wx.ID_CANCEL)
-            buttons = wx.BoxSizer(wx.HORIZONTAL)
-            buttons.Add(defaults, 0)
-            buttons.AddStretchSpacer()
-            buttons.Add(cancel, 0, wx.RIGHT, 8)
-            buttons.Add(export, 0)
+            self.open_after = open_after_checkbox(self, settings)
             sizer = wx.BoxSizer(wx.VERTICAL)
             sizer.Add(self.notebook, 1, wx.EXPAND | wx.ALL, 8)
-            sizer.Add(buttons, 0, wx.ALL | wx.EXPAND, 12)
+            sizer.Add(self.open_after, 0, wx.LEFT | wx.RIGHT, 12)
+            sizer.Add(export_buttons(self, self._on_save_defaults), 0, wx.ALL | wx.EXPAND, 12)
             self.SetSizerAndFit(sizer)
             self.title.SetFocus()
 
@@ -111,6 +104,7 @@ if wx is not None:
             self.content.store(self._settings)
             self.standard.store(self._settings)
             self._settings.pdf_author = self.author.GetValue().strip()
+            self._settings.export_open_after = self.open_after.GetValue()
             return self._settings
 
         @property
@@ -136,12 +130,7 @@ if wx is not None:
 
         def _on_save_defaults(self) -> None:
             self._save_defaults(self.settings)
-            wx.MessageBox(
-                "This layout, content, standard and author are now the defaults for new PDFs.",
-                "Save as Defaults",
-                wx.OK | wx.ICON_INFORMATION,
-                self,
-            )
+            saved_as_defaults(self, "This layout, content, standard and author")
 
 else:
 

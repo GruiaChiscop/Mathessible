@@ -317,12 +317,15 @@ screen reader to read. Equations are typeset as built structures
 
 `File → Export → BRF (Braille)…` writes the document, or every page of
 the notebook, as a BRF file, ready to emboss or to read on a braille
-display. The text is in braille by the **text braille table** chosen in
-`Settings → Braille` (liblouis's tables: Romanian uncontracted, English
-UEB uncontracted or contracted, and many more; by default the one for the
-first of the system's preferred languages that has a table), and every equation is in the braille code chosen
-above (Nemeth by default), your own braille signs included. The page has
-40 cells per line and 25 lines per page, both changeable there.
+display. Its dialog chooses the code the equations are in (by default
+the braille strip's, Nemeth unless changed; your own braille signs for
+that code included), the **text braille table** (liblouis's tables:
+Romanian uncontracted, English UEB uncontracted or contracted, and many
+more; by default the one for the first of the system's preferred
+languages that has a table), the cells per line and lines per page (40
+and 25 by default) and page numbers. The table, the page and page
+numbers start from `Settings → Braille`, which **Save as Defaults**
+changes; the equations' code there stays the braille strip's.
 
 A paragraph starts in cell 3, a list item in cell 1 with its runovers in
 cell 3, a display equation in cell 5 with its runovers in cell 7, and a
@@ -361,10 +364,22 @@ atomically. Unsafe paths, symbolic links and archives that
 would unpack to an excessive size are refused on opening.
 
 `File → Export → HTML…` exports the current document, or every page of
-the notebook, as a single HTML file: a table of contents, Markdown
-formatting, tables, and the UnicodeMath equations converted to native
-MathML, so the result stays accessible and needs neither JavaScript nor
-an internet connection.
+the notebook, as a single HTML file: Markdown formatting, tables, and
+the UnicodeMath equations converted to native MathML, so the result
+stays accessible and needs neither JavaScript nor an internet
+connection. Its dialog asks for the title, author, description and
+language, and chooses the font (sans serif or serif), the colours (light
+or dark as the reader's system has it, or always light or dark) and a
+table of contents: a notebook's pages, or a document's headings. A
+document is exported as itself; a notebook under its title, page after
+page. The font, colours and table of contents start from
+`Settings → HTML`, which **Save as Defaults** changes.
+
+Every export's dialog has **Open the file once exported**, remembered for
+the next export. No message has to be dismissed afterwards: the status
+bar and the screen reader say "exported", with the file's name. When
+something fails, the message says what, and what to do about it; the
+technical details go to the session log.
 
 ## Symbol dictionaries
 

@@ -310,6 +310,10 @@ if wx is not None:
             except Exception:
                 pass
 
+        def announce(self, message: str) -> None:
+            """Say something about the document (an export done) through the screen reader."""
+            self._announce(message)
+
         def copy_selection(self, cut: bool = False) -> bool:
             """Copy (or cut) the selection with its equations as MathML beside the text, for Word.
 
