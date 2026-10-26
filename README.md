@@ -9,6 +9,9 @@ screen reader and a braille display, through
 MateX is a prototype. It aims to match Word's equation editor feature by
 feature, and to go beyond it where a screen reader needs more.
 
+To try it, start with the [quick start](docs/quick-start.md); everything
+else is in the [documentation](#documentation).
+
 ## Features
 
 - **An equation editor modelled on Word's**: a linear view (the
@@ -43,16 +46,26 @@ uv run matex
 `scripts/bootstrap.sh` fetches the MathCAT and UnicodeMathML submodules,
 applies MateX's patches to them, builds the native MathCAT extension and
 runs the tests. On macOS wxPython needs a Framework build of Python
-(Homebrew's or python.org's); the script finds one.
+(Homebrew's or python.org's); the script finds one. The
+[quick start](docs/quick-start.md) goes on from there to a first
+equation.
 
 ## Documentation
+
+The documentation lives here, in the repository; MateX's Help menu opens
+these pages.
+
+For using MateX:
 
 - [Quick start](docs/quick-start.md): from installing to a first
   equation, written, read and saved.
 - [User guide](docs/user-guide.md): writing and reading equations,
-  documents, notebooks and symbol dictionaries.
+  documents, notebooks, braille and settings.
 - [Keyboard shortcuts](docs/keyboard-shortcuts.md): every key, for macOS
   and for Windows and Linux.
+
+For working on MateX:
+
 - [Contributing](CONTRIBUTING.md): checks, where code goes, the patches to
   MathCAT and UnicodeMathML, accessibility rules.
 - [Architecture](docs/architecture.md): how an equation goes through the

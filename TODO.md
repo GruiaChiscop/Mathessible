@@ -17,6 +17,8 @@ GitHub, and the Help menu opens it in the browser.
 - [ ] The Help menu in the equation editor's window too, which has its own
   menu bar.
 - [ ] Keep `docs/keyboard-shortcuts.md` up to date with every new shortcut.
+- [ ] A GitHub wiki, once there is more documentation than a few pages in
+  `docs/`; the README and the Help menu then point to it.
 
 ## Later
 
