@@ -13,17 +13,13 @@ from collections.abc import Callable
 from pathlib import Path
 
 from matex.editing.autocorrect import AutoCorrectTable, autocorrect_defaults, differences
-from matex.settings import (
-    BRAILLE_CODES,
-    AppSettings,
-    format_recognized_functions,
-    parse_recognized_functions,
-)
+from matex.settings import BRAILLE_CODES, AppSettings
 from matex.symbols.braille_signs import load_signs, save_signs
 from matex.symbols.dictionary import SymbolDictionaryError, available_dictionaries, import_dictionary
 from matex.symbols.download import SymbolDownloadError, download_languages, nvda_languages
 from matex.ui.autocorrect_dialog import AutoCorrectDialog
 from matex.ui.braille_signs_dialog import BrailleSignsDialog
+from matex.ui.functions_dialog import RecognizedFunctionsDialog
 from matex.unicodemath import control_words
 
 try:
@@ -45,8 +41,8 @@ if wx is not None:
         """Every setting, in tabs: Typing, Building, Navigation, Speech, Braille.
 
         `apply()` writes the controls into the settings. With `on_change`,
-        every change calls it straight away (the macOS window); a text field
-        does when it loses focus or Enter is pressed.
+        every change calls it straight away (the macOS window); a list edited
+        in its own dialog does when that dialog's OK is chosen.
         """
 
         def __init__(self, parent: wx.Window, settings: AppSettings, on_change: Callable[[], None] | None = None):
@@ -56,6 +52,7 @@ if wx is not None:
             self._autocorrect = (settings.math_autocorrect, settings.math_autocorrect_removed)
             # The user's own braille signs, per code, until applied (symbols/braille_signs.py).
             self._braille_signs: dict[str, dict[str, str]] = {}
+            self._functions = settings.recognized_functions
 
             self.notebook = wx.Notebook(self)
             self.notebook.SetName("Settings categories")
@@ -163,22 +160,13 @@ if wx is not None:
                 "Open the argument on the closing parenthesis",
                 settings.argument_on_closing_paren,
             )
-            label = wx.StaticText(page, label="&Recognized functions")
-            self.recognized_functions = wx.TextCtrl(
-                page,
-                value=format_recognized_functions(settings.recognized_functions),
-                size=(_WRAP, -1),  # Not the whole list's width: the window would be as wide.
-                style=wx.TE_PROCESS_ENTER,
-            )
-            self.recognized_functions.SetName("Recognized functions")
-            self.recognized_functions.Bind(wx.EVT_KILL_FOCUS, self._on_text_done)
-            self.recognized_functions.Bind(wx.EVT_TEXT_ENTER, self._on_text_done)
-            page.GetSizer().Add(label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
-            page.GetSizer().Add(self.recognized_functions, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 12)
+            self.functions_button = wx.Button(page, label="&Recognized Functions…")
+            self.functions_button.Bind(wx.EVT_BUTTON, lambda _event: self._edit_functions())
+            page.GetSizer().Add(self.functions_button, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
             self._help(
                 page,
-                "Comma-separated function names: Space after one opens its argument, "
-                "and they are navigated as function name and argument, as in Word.",
+                "Space after a recognized function (sin, log, lim…) opens its argument, "
+                "and it is navigated as function name and argument, as in Word.",
             )
 
         def _navigation_page(self, page: wx.Panel, settings: AppSettings) -> None:
@@ -279,10 +267,6 @@ if wx is not None:
             if self._on_change is not None:
                 self._on_change()
 
-        def _on_text_done(self, event: wx.Event) -> None:
-            self._changed()
-            event.Skip()
-
         # Applying
 
         def apply(self) -> None:
@@ -311,7 +295,7 @@ if wx is not None:
             self._settings.argument_on_closing_paren = self.argument_on_closing_paren.GetValue()
             self._settings.template_control_words = self.template_control_words.GetValue()
             self._settings.auto_zoom_out = self.auto_zoom_out.GetValue()
-            self._settings.recognized_functions = parse_recognized_functions(self.recognized_functions.GetValue())
+            self._settings.recognized_functions = self._functions
             self._settings.math_autocorrect, self._settings.math_autocorrect_removed = self._autocorrect
             self._settings.removed_words_as_symbols = self.removed_words_as_symbols.GetValue()
 
@@ -334,6 +318,17 @@ if wx is not None:
             finally:
                 dialog.Destroy()
             self.braille_signs_button.SetFocus()
+
+        def _edit_functions(self) -> None:
+            """Open the recognized functions; the list is kept until the settings apply."""
+            dialog = RecognizedFunctionsDialog(self, self._functions)
+            try:
+                if dialog.ShowModal() == wx.ID_OK:
+                    self._functions = tuple(dialog.functions)
+                    self._changed()
+            finally:
+                dialog.Destroy()
+            self.functions_button.SetFocus()
 
         def _edit_autocorrect(self) -> None:
             """Open the Math AutoCorrect list; its differences from the defaults are kept until applied."""
@@ -480,7 +475,6 @@ if wx is not None:
             if not event.CanVeto():
                 event.Skip()  # The app is quitting.
                 return
-            self._apply()  # A text field still focused has not applied yet.
             self.Hide()
             event.Veto()  # Kept for next time, where the user left it.
 

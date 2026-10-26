@@ -180,12 +180,12 @@ def save_settings(settings: AppSettings, path: Path | None = None) -> None:
     )
 
 
-def parse_recognized_functions(text: str) -> tuple[str, ...]:
-    return _normalize_functions(text.replace("\n", ",").split(","))
-
-
-def format_recognized_functions(functions: tuple[str, ...]) -> str:
-    return ", ".join(functions)
+def function_name(text: str) -> str | None:
+    """A recognized function as typed in its dialog, in the case it is kept in; None if not a name."""
+    name = text.strip()
+    if not name or any(character.isspace() or character == "," for character in name):
+        return None
+    return _normalize_functions((name,))[0]
 
 
 def _normalize_functions(value: object) -> tuple[str, ...]:

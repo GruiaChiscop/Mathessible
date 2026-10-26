@@ -109,6 +109,11 @@ structure. With
 **Open equations built**, equations open straight in the professional
 view (an empty one still opens linear).
 
+`Settings → Recognized Functions…`, as Word's list, holds the names
+built as functions (sin, log, lim…): Space after one opens its argument,
+and it is read and navigated as function name and argument. Type a name
+and Add it, choose one and Delete it, or Reset to Defaults.
+
 ### The professional view
 
 In the **professional view** you are on MathCAT's reading of the built

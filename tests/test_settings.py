@@ -4,8 +4,8 @@ from pathlib import Path
 
 from matex.settings import (
     AppSettings,
+    function_name,
     load_settings,
-    parse_recognized_functions,
     save_settings,
 )
 
@@ -72,10 +72,12 @@ class SettingsTests(unittest.TestCase):
         self.assertFalse(AppSettings().removed_words_as_symbols)  # Off by default: deleted words stay text.
 
     def test_function_names_whose_case_matters_keep_it(self) -> None:
-        self.assertEqual(parse_recognized_functions("PR, pr, Sin"), ("Pr", "sin"))
+        self.assertEqual([function_name(text) for text in ("PR", "pr", " Sin ")], ["Pr", "Pr", "sin"])
 
-    def test_parse_recognized_functions_normalizes_and_deduplicates(self) -> None:
-        self.assertEqual(parse_recognized_functions("sin, TG, tg,\nctg"), ("sin", "tg", "ctg"))
+    def test_a_function_name_is_one_word(self) -> None:
+        for text in ("", "  ", "arg max", "sin,cos"):
+            with self.subTest(text=text):
+                self.assertIsNone(function_name(text))
 
 
 class BrailleCodeSettingTests(unittest.TestCase):
