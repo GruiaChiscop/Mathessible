@@ -21,6 +21,7 @@ from mathessible.ui.autocorrect_dialog import AutoCorrectDialog
 from mathessible.ui.braille_signs_dialog import BrailleSignsDialog
 from mathessible.ui.export_controls import (
     BrfControls,
+    DocxControls,
     FormRows,
     HtmlControls,
     PdfContentControls,
@@ -71,6 +72,7 @@ if wx is not None:
             self._braille_page(self._page("Braille"), settings)
             self._pdf_page(self._page("PDF"), settings)
             self._html_page(self._page("HTML"), settings)
+            self._docx_page(self._page("Word"), settings)
             for index in range(self.notebook.GetPageCount()):
                 self.notebook.GetPage(index).GetSizer().AddSpacer(12)  # A margin under the last control.
             sizer = wx.BoxSizer(wx.VERTICAL)
@@ -268,6 +270,12 @@ if wx is not None:
             self.brf = BrfControls(rows, settings)
             rows.finish(page.GetSizer())
 
+        def _docx_page(self, page: wx.Panel, settings: AppSettings) -> None:
+            """The Word export's defaults; each export can change them (File > Export > Word Document)."""
+            rows = FormRows(page, self._changed)
+            self.docx = DocxControls(rows, settings)
+            rows.finish(page.GetSizer())
+
         def _html_page(self, page: wx.Panel, settings: AppSettings) -> None:
             """The HTML export's defaults; each export can change them (File > Export > HTML)."""
             rows = FormRows(page, self._changed)
@@ -317,6 +325,7 @@ if wx is not None:
             self._apply_pdf()
             self.brf.store(self._settings)
             self.html.store(self._settings)
+            self.docx.store(self._settings)
             braille = self.braille_code.GetSelection()
             if braille != wx.NOT_FOUND:
                 self._settings.braille_code = BRAILLE_CODES[braille][0]

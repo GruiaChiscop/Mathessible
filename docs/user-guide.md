@@ -313,6 +313,27 @@ bookmarks, and every equation carries its spoken form, MathCAT's, for a
 screen reader to read. Equations are typeset as built structures
 (fractions, roots, limits, matrices, cases, equation arrays and numbers).
 
+### Word export
+
+`File → Export → Word Document…` writes the document, or every page of
+the notebook, as a Word document (`.docx`). Every equation is a native
+Word equation, which Word edits and reads aloud as its own: fractions,
+roots, scripts, sums and integrals with their limits, functions,
+accents, braces, matrices (cases included), equation arrays aligned at
+their `&`, and numbered equations, numbered as Word numbers them.
+Headings use Word's Heading styles, so the navigation pane, a table of
+contents and screen readers find them; lists, tables, quotes, code,
+links, bold and italic are kept, and the document's title, author,
+subject, keywords and language are set.
+
+Its dialog asks for those properties and chooses the paper, the margins,
+the font, its size, the line spacing, landscape, justified text, page
+numbers and a table of contents, which Word fills in when the document
+is opened: Word first asks whether to update the document's fields (its
+usual question for any field, as with documents from Pandoc), and Yes
+fills in the table. The page and the text start from `Settings → Word`, which
+**Save as Defaults** changes.
+
 ### BRF export
 
 `File → Export → BRF (Braille)…` writes the document, or every page of

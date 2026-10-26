@@ -14,6 +14,7 @@ dependencies = [
     "mathessible-mathcat",
     "prismatoid>=0.16,<0.17",
     "pypdf[crypto]>=5,<7",
+    "python-docx>=1.1,<2",
     "typst>=0.15,<0.16",
     "wxPython>=4.2.3",
 ]

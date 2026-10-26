@@ -1253,6 +1253,31 @@ fonts), liblouis and missing native errors into what to do, shown as
 the message box's extended text; the technical one goes to the session
 log.
 
+## Word Export (DOCX)
+
+DOCX export (2026-10-26) writes the document with python-docx
+(`documents/docx_export.py`) and every equation as Office Math with
+`documents/omml_math.py`, Mathessible's own MathML to OMML converter:
+Microsoft's `mathml2omml.xsl` is in Word's installation but not
+redistributable (and needs Word), and Fidus Writer's `mathml2omml` is
+LGPL-3.0. Checked against Word's converter with
+`scripts/compare-omml-with-word.py` (reads Word's XSL from
+/Applications, never copies it; the user's request): the structures
+match, apart from defaults Word's converter writes (`sepChr`,
+`type=bar`, `subHide=off`, `mPr`), its maths-italic letters (OMML runs
+are italic by themselves, as Word stores typed letters), and four
+places where Mathessible writes what Word builds when typed rather than
+what its converter does: the box 〖〗 is no delimiter (fixed after the
+first comparison, which also fixed cases: `■` in a brace is a matrix,
+not an equation array), `█` is an `m:eqArr` aligned with `&` runs (as
+Word's XSL itself writes alignment), a labelled brace is `m:groupChr`
+under `m:limUpp`, and a number is an equation array ending in `#(1)`.
+Display equations are `m:oMathPara` paragraphs; headings use Word's
+Heading styles, lists List Bullet/Number (2, 3 nested), quotes Quote,
+code No Spacing in Courier New; the language goes into the core
+properties and `w:docDefaults`; page numbers and the table of contents
+are fields, `w:updateFields` making Word offer to fill them in.
+
 ## PDF Export (Typst)
 
 PDF export (2026-10-26) writes Typst source (`documents/pdf_export.py`)

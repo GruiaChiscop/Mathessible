@@ -26,7 +26,8 @@ else is in the [documentation](#documentation).
   view.
 - **Markdown documents and notebooks**: equations as `$...$` and
   `$$...$$`, notebooks of pages saved as a folder or a single `.msnb`
-  file, and export to accessible HTML with native MathML, to tagged PDF
+  file, and export to accessible HTML with native MathML, to Word with
+  native Word equations, to tagged PDF
   (every equation with its spoken form, PDF/UA-1) and to BRF
   (braille ready to emboss or read on a braille display).
 - **Keyboard first**: everything works from the keyboard, and the

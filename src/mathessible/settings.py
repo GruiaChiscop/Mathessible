@@ -121,6 +121,16 @@ class AppSettings:
     html_font: str = "sans"
     html_colour_scheme: str = "auto"
     html_table_of_contents: bool = True
+    # Word (DOCX) export: the defaults its dialog starts from.
+    docx_paper: str = "a4"
+    docx_landscape: bool = False
+    docx_margins: tuple[int, int, int, int] = (25, 25, 25, 25)
+    docx_font: str = "Aptos"
+    docx_font_size: int = 11
+    docx_line_spacing: str = "1.15"
+    docx_justify: bool = False
+    docx_page_numbers: bool = True
+    docx_table_of_contents: bool = False
     # Every export: open the file once written.
     export_open_after: bool = False
     # Symbol shortcuts (<<, ->, <=) as soon as their last character is typed.
@@ -211,6 +221,15 @@ def load_settings(path: Path | None = None) -> AppSettings:
         html_font=_option(data.get("html_font"), HTML_FONTS, "sans"),
         html_colour_scheme=_option(data.get("html_colour_scheme"), HTML_COLOUR_SCHEMES, "auto"),
         html_table_of_contents=bool(data.get("html_table_of_contents", True)),
+        docx_paper=_option(data.get("docx_paper"), PDF_PAPERS, "a4"),
+        docx_landscape=bool(data.get("docx_landscape", False)),
+        docx_margins=_margins(data.get("docx_margins")),
+        docx_font=str(data.get("docx_font") or "Aptos"),
+        docx_font_size=_bounded(data.get("docx_font_size"), 11, PDF_FONT_SIZES),
+        docx_line_spacing=_option(data.get("docx_line_spacing"), DOCX_LINE_SPACINGS, "1.15"),
+        docx_justify=bool(data.get("docx_justify", False)),
+        docx_page_numbers=bool(data.get("docx_page_numbers", True)),
+        docx_table_of_contents=bool(data.get("docx_table_of_contents", False)),
         export_open_after=bool(data.get("export_open_after", False)),
         convert_shortcuts_immediately=bool(data.get("convert_shortcuts_immediately", True)),
         template_control_words=bool(data.get("template_control_words", True)),
@@ -328,6 +347,7 @@ PDF_COLOURS = (
     ("#5B2C6F", "Dark purple"),
 )
 PDF_COLUMNS = (1, 3)
+DOCX_LINE_SPACINGS = (("1.0", "Single"), ("1.15", "1.15"), ("1.5", "1.5 lines"), ("2.0", "Double"))
 HTML_FONTS = (("sans", "Sans serif (the system's)"), ("serif", "Serif"))
 HTML_COLOUR_SCHEMES = (("auto", "Light or dark, as the reader's system"), ("light", "Light"), ("dark", "Dark"))
 PDF_FONT_SIZES = (6, 36)

@@ -14,6 +14,7 @@ import typst
 from mathessible import session_log
 from mathessible.documents.brf_export import BrfLayout, nemeth_in_ueb, notebook_brf
 from mathessible.documents.document_io import read_markdown, write_markdown
+from mathessible.documents.docx_export import DocxOptions, docx_document
 from mathessible.documents.find_text import FindOptions, find, is_match, replace_all
 from mathessible.documents.html_export import (
     PREVIEW_PAGE,
@@ -25,6 +26,7 @@ from mathessible.documents.html_export import (
 )
 from mathessible.documents.markdown_math import find_math_zones
 from mathessible.documents.notebook import Notebook, NotebookError
+from mathessible.documents.omml_math import OmmlEquation, omml_math
 from mathessible.documents.pdf_export import PdfDocument, options_for, pdf_inputs, typst_document
 from mathessible.documents.pdf_security import protect
 from mathessible.documents.portable_notebook import extract_portable, save_portable
@@ -41,7 +43,13 @@ from mathessible.symbols.braille_signs import load_signs, signs_yaml
 from mathessible.symbols.system_languages import preferred_languages
 from mathessible.symbols.text_braille import default_table, tables_directory, text_tables
 from mathessible.ui.document_editor import DocumentEditor
-from mathessible.ui.export_dialogs import BrfExportDialog, HtmlDocument, HtmlExportDialog
+from mathessible.ui.export_dialogs import (
+    BrfExportDialog,
+    DocxExportDialog,
+    HtmlDocument,
+    HtmlExportDialog,
+    WordDocument,
+)
 from mathessible.ui.help_menu import append_help_menu
 from mathessible.ui.macos_webview import guard_webview_key_equivalents
 from mathessible.ui.pdf_dialog import PdfExportDialog
@@ -167,6 +175,7 @@ if wx is not None:
             self._export_html_id = wx.NewIdRef()
             self._export_brf_id = wx.NewIdRef()
             self._export_pdf_id = wx.NewIdRef()
+            self._export_docx_id = wx.NewIdRef()
             # In the order of Apple's guidelines; Quit goes to the application menu on macOS.
             file_menu.Append(wx.ID_NEW, "&New\tCtrl+N")
             file_menu.Append(wx.ID_OPEN, "&Open…\tCtrl+O")
@@ -184,6 +193,7 @@ if wx is not None:
             export_menu = wx.Menu()
             export_menu.Append(self._export_html_id, "&HTML…")
             export_menu.Append(self._export_pdf_id, "&PDF…")
+            export_menu.Append(self._export_docx_id, "&Word Document…")
             export_menu.Append(self._export_brf_id, "&BRF (Braille)…")
             file_menu.AppendSubMenu(export_menu, "&Export")
             file_menu.AppendSeparator()
@@ -269,6 +279,7 @@ if wx is not None:
             self.Bind(wx.EVT_MENU, lambda _event: self._export("html"), id=self._export_html_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._export("brf"), id=self._export_brf_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._export("pdf"), id=self._export_pdf_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._export("docx"), id=self._export_docx_id)
             self.Bind(wx.EVT_MENU, lambda _event: self.Close(), id=wx.ID_CLOSE)
             self.Bind(wx.EVT_MENU, self._quit_application, id=wx.ID_EXIT)
             for command_id in (
@@ -903,6 +914,7 @@ if wx is not None:
             label, extension, wildcard = {
                 "html": ("HTML", "html", "HTML document (*.html)|*.html"),
                 "pdf": ("PDF", "pdf", "PDF document (*.pdf)|*.pdf"),
+                "docx": ("Word", "docx", "Word document (*.docx)|*.docx"),
                 "brf": ("BRF", "brf", "Braille ready file (*.brf)|*.brf"),
             }[kind]
             gathered = self._export_pages()
@@ -953,6 +965,8 @@ if wx is not None:
                     )
                 elif kind == "pdf":
                     exported_path = self._write_pdf(destination, pages, title, (options, document))
+                elif kind == "docx":
+                    exported_path = self._write_docx(destination, pages, title, options, document)
                 else:
                     exported_path = self._write_brf(destination, pages, options)
             except (OSError, UnicodeError, RuntimeError, ValueError, ImportError) as error:
@@ -980,6 +994,9 @@ if wx is not None:
             if kind == "pdf":
                 document = PdfDocument(title, self.settings.pdf_author, language=language)
                 dialog = PdfExportDialog(self, self.settings, document, self._save_defaults("pdf_"))
+            elif kind == "docx":
+                document = WordDocument(title, self.settings.pdf_author, language=language)
+                dialog = DocxExportDialog(self, self.settings, document, self._save_defaults("docx_"))
             elif kind == "html":
                 document = HtmlDocument(title, self.settings.pdf_author, language=language)
                 dialog = HtmlExportDialog(self, self.settings, document, self._save_defaults("html_"))
@@ -1037,6 +1054,42 @@ if wx is not None:
                 raise RuntimeError(f"Typst could not make the PDF:\n{error}") from error
             path = destination if destination.suffix.lower() == ".pdf" else destination.with_suffix(".pdf")
             path.write_bytes(protect(pdf, document.security))
+            return path
+
+        def _write_docx(
+            self, destination: Path, pages: list[ExportPage], title: str, settings: AppSettings, document: WordDocument
+        ) -> Path:
+            """A Word document; every equation Word's own (omml_math), as typed in Word."""
+            equation_editor = self.editor.equation_window.equation
+
+            def omml_of(source: str) -> OmmlEquation | None:
+                try:
+                    mathml = equation_editor.convert_unicode_math(source)
+                    if 'mathcolor="#F00"' in mathml:
+                        return None
+                    return omml_math(mathml)
+                except (UnicodeMathError, RuntimeError, ValueError, ElementTree.ParseError):
+                    return None
+
+            options = DocxOptions(
+                paper=settings.docx_paper,
+                landscape=settings.docx_landscape,
+                margins_mm=settings.docx_margins,
+                font=settings.docx_font,
+                font_size=settings.docx_font_size,
+                line_spacing=float(settings.docx_line_spacing),
+                justify=settings.docx_justify,
+                page_numbers=settings.docx_page_numbers,
+                table_of_contents=settings.docx_table_of_contents,
+                title=document.title or title,
+                author=document.author,
+                subject=document.subject,
+                keywords=document.keywords,
+                language=document.language,
+            )
+            data = docx_document(pages, title, omml_of, options)
+            path = destination if destination.suffix.lower() == ".docx" else destination.with_suffix(".docx")
+            path.write_bytes(data)
             return path
 
         def _write_brf(self, destination: Path, pages: list[ExportPage], options: AppSettings) -> Path:

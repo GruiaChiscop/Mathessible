@@ -15,6 +15,17 @@ except ImportError:
 
 
 @dataclass(frozen=True, slots=True)
+class WordDocument:
+    """What belongs to one Word document only, never kept."""
+
+    title: str
+    author: str = ""
+    subject: str = ""
+    keywords: tuple[str, ...] = ()
+    language: str = "en"
+
+
+@dataclass(frozen=True, slots=True)
 class HtmlDocument:
     """What belongs to one HTML file only, never kept."""
 
@@ -25,7 +36,7 @@ class HtmlDocument:
 
 
 if wx is not None:
-    from mathessible.ui.export_controls import BrailleCodeControl, BrfControls, FormRows, HtmlControls
+    from mathessible.ui.export_controls import BrailleCodeControl, BrfControls, DocxControls, FormRows, HtmlControls
 
     def export_buttons(dialog: wx.Dialog, on_save_defaults: Callable[[], None]) -> wx.Sizer:
         """Save as Defaults on the left; Cancel and Export, the default, on the right."""
@@ -131,10 +142,46 @@ if wx is not None:
                 language,
             )
 
+    class DocxExportDialog(_ExportDialog):
+        """File > Export > Word Document: the document's properties, the page and the text."""
+
+        def __init__(
+            self,
+            parent: wx.Window,
+            settings: AppSettings,
+            document: WordDocument,
+            save_defaults: Callable[[AppSettings], None],
+        ):
+            super().__init__(parent, "Export as Word Document", settings, save_defaults)
+            rows = self.rows
+            self.title = rows.row("&Title", rows.text(document.title), "Title")
+            self.author = rows.row("&Author", rows.text(document.author), "Author")
+            self.subject = rows.row("&Subject", rows.text(document.subject), "Subject")
+            self.keywords = rows.row("&Keywords (comma-separated)", rows.text(", ".join(document.keywords)), "Keywords")
+            self.language = rows.row("&Language (for example ro, en)", rows.text(document.language), "Language")
+            self.docx = DocxControls(rows, settings)
+            self.finish()
+            self.title.SetFocus()
+
+        def store(self, settings: AppSettings) -> None:
+            self.docx.store(settings)
+
+        @property
+        def document(self) -> WordDocument:
+            keywords = tuple(word.strip() for word in self.keywords.GetValue().split(",") if word.strip())
+            language = self.language.GetValue().strip().replace("_", "-").split("-")[0].lower() or "en"
+            return WordDocument(
+                self.title.GetValue().strip(),
+                self.author.GetValue().strip(),
+                self.subject.GetValue().strip(),
+                keywords,
+                language,
+            )
+
 else:
 
     class BrfExportDialog:  # type: ignore[no-redef]
         def __init__(self, *args: object, **kwargs: object):
             raise RuntimeError("wxPython is not installed. Run: uv sync")
 
-    HtmlExportDialog = BrfExportDialog  # type: ignore[misc,assignment]
+    HtmlExportDialog = DocxExportDialog = BrfExportDialog  # type: ignore[misc,assignment]

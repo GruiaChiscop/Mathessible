@@ -10,6 +10,7 @@ from mathessible.settings import (
     BRAILLE_CODES,
     BRF_CELLS,
     BRF_LINES,
+    DOCX_LINE_SPACINGS,
     HTML_COLOUR_SCHEMES,
     HTML_FONTS,
     PDF_COLOURS,
@@ -263,3 +264,50 @@ if wx is not None:
             settings.html_font = _chosen(self.font, HTML_FONTS, settings.html_font)
             settings.html_colour_scheme = _chosen(self.colour_scheme, HTML_COLOUR_SCHEMES, settings.html_colour_scheme)
             settings.html_table_of_contents = self.table_of_contents.GetValue()
+
+    class DocxControls:
+        """Word: the page, the text, page numbers and the table of contents."""
+
+        def __init__(self, rows: FormRows, settings: AppSettings):
+            page = rows.page
+            self.paper = rows.row("&Paper", rows.choice(PDF_PAPERS, settings.docx_paper), "Paper")
+            margins = wx.BoxSizer(wx.HORIZONTAL)
+            self.margins: list[wx.SpinCtrl] = []
+            for label, value in zip(("&Top", "&Right", "&Bottom", "&Left"), settings.docx_margins, strict=True):
+                margins.Add(wx.StaticText(page, label=label), 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 4)
+                spin = rows.spin(value, PDF_MARGINS)
+                spin.SetName(f"{label.replace('&', '')} margin (mm)")
+                margins.Add(spin, 0, wx.RIGHT, 10)
+                self.margins.append(spin)
+            rows.row_of("Margins (mm)", margins)
+            self.fonts = sorted(set(wx.FontEnumerator().GetFacenames()) | {settings.docx_font}, key=str.casefold)
+            self.font = rows.row("&Font", wx.Choice(page, choices=self.fonts), "Font")
+            self.font.SetSelection(self.fonts.index(settings.docx_font))
+            self.font.Bind(wx.EVT_CHOICE, lambda _event: rows.changed())
+            self.font_size = rows.row(
+                "Font si&ze (pt)", rows.spin(settings.docx_font_size, PDF_FONT_SIZES), "Font size"
+            )
+            self.line_spacing = rows.row(
+                "Line s&pacing", rows.choice(DOCX_LINE_SPACINGS, settings.docx_line_spacing), "Line spacing"
+            )
+            self.landscape = rows.checkbox("Lan&dscape", "Landscape", settings.docx_landscape)
+            self.justify = rows.checkbox("&Justify the text", "Justify the text", settings.docx_justify)
+            self.page_numbers = rows.checkbox("&Number the pages", "Number the pages", settings.docx_page_numbers)
+            self.table_of_contents = rows.checkbox(
+                "Table of &contents (Word fills it in when the document is opened)",
+                "Table of contents",
+                settings.docx_table_of_contents,
+            )
+
+        def store(self, settings: AppSettings) -> None:
+            settings.docx_paper = _chosen(self.paper, PDF_PAPERS, settings.docx_paper)
+            settings.docx_margins = tuple(control.GetValue() for control in self.margins)
+            font = self.font.GetSelection()
+            if font != wx.NOT_FOUND:
+                settings.docx_font = self.fonts[font]
+            settings.docx_font_size = self.font_size.GetValue()
+            settings.docx_line_spacing = _chosen(self.line_spacing, DOCX_LINE_SPACINGS, settings.docx_line_spacing)
+            settings.docx_landscape = self.landscape.GetValue()
+            settings.docx_justify = self.justify.GetValue()
+            settings.docx_page_numbers = self.page_numbers.GetValue()
+            settings.docx_table_of_contents = self.table_of_contents.GetValue()

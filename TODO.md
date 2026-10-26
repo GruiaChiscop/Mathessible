@@ -49,9 +49,11 @@ links back, liblouis and BRF need a braille transcriber's convention.
 
 ## DOCX export
 
-- [ ] File > Export > Word Document (.docx): text, headings, lists,
+- [x] File > Export > Word Document (.docx): text, headings, lists,
   tables, links, and every equation as a native Word equation (OMML),
   with its own dialog and Settings defaults, as the other exports.
+- [ ] Open the exported document in Word and check it by hand: the
+  equations, the numbered equation, the table of contents.
 
 ## A professional application
 
