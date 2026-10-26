@@ -6,11 +6,18 @@ except ImportError:  # The interface is an optional dependency.
     wx = None
 
 
-def set_clipboard_text(text: str) -> bool:
+def set_clipboard_text(text: str, html: str | None = None) -> bool:
+    """Put text on the clipboard, and `html` beside it (equations as MathML, which Word builds)."""
     if not wx.TheClipboard.Open():
         return False
     try:
-        wx.TheClipboard.SetData(wx.TextDataObject(text))
+        if html is None:
+            wx.TheClipboard.SetData(wx.TextDataObject(text))
+        else:
+            data = wx.DataObjectComposite()
+            data.Add(wx.TextDataObject(text), preferred=True)
+            data.Add(wx.HTMLDataObject(html))
+            wx.TheClipboard.SetData(data)
     finally:
         wx.TheClipboard.Close()
     return True

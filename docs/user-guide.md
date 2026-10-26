@@ -184,6 +184,16 @@ equations at `&` (`█(x+y&=1@x-y&=3)`, Insert → Equation Array), read as
 "equation 1", "equation 2"; the whole array can have one number,
 `█(...)#(2)`, but not one per line.
 
+### Copying to Word and the web
+
+A copied equation, or a part of one, goes to the clipboard twice: as
+its UnicodeMath text and as MathML. Pasted into Word it is a built
+equation, and a web page or editor that shows MathML shows it built too;
+pasted where only text goes, it is the UnicodeMath. In the document, a
+selection with equations is copied the same way, its text formatted and
+its equations as MathML, so it pastes into Word as text with built
+equations. An equation that does not build is copied as text only.
+
 ### Templates and the Structure Gallery
 
 The **Insert** menu has the templates, each with its shortcut where Word

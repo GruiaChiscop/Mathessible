@@ -904,6 +904,18 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   every equation as `<math display="block">`, so `render_markdown` turns
   an inline `$...$` to `display="inline"`; without it each inline
   equation sat on a line of its own, centred, in the preview and export.
+- **Copying to Word and the web (2026-10-26):** a copy puts HTML beside
+  the plain text (`set_clipboard_text(text, html)`, a
+  `DataObjectComposite`): the equation editor's copied source as one
+  MathML `<math>` (`clipboard_html.equation_html`), a document selection
+  holding an equation as its rendered Markdown (`document_html`, through
+  Edit > Copy/Cut, else the text control's own). Checked with Word for
+  Mac: MathML in the clipboard's HTML pastes as a built equation. A
+  pasted fragment needs the MathML namespace on `<math>`; the source goes
+  in `alttext`, for paste back. What Word copies itself: its linear format
+  as plain text, OMML in HTML (not MathML), and RTF; with Word's "Copy
+  MathML to the clipboard as plain text" option the plain text is MathML
+  instead. Nothing that does not build cleanly (#F00/#F01) goes as MathML.
 - Colours for the custom-drawn editor come from [ui/theme.py](../src/matex/ui/theme.py);
   its tests enforce WCAG contrast (4.5:1 text, 3:1 focus ring) in both
   light and dark appearance — keep new colours in that palette.

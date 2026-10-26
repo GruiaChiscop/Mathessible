@@ -4,6 +4,7 @@ import re
 import threading
 
 from matex import session_log
+from matex.documents.clipboard_html import equation_html
 from matex.editing.autocorrect import AutoCorrectTable, autocorrect_defaults
 from matex.editing.build_repair import BuildRepair
 from matex.editing.character_speech import (
@@ -143,6 +144,8 @@ if wx is not None:
             self._rendered_caret: dict | None = None
             # Where a mouse press in the built equation put the caret, while the button is down.
             self._mouse_anchor: int | None = None
+            # Display or inline, as the equation is saved (Change to Display/Inline); copied as such.
+            self.display = False
             self._rendered_zoom: float | None = None
             self._renderer_sync_pending = False
             self._converting = False
@@ -887,7 +890,8 @@ if wx is not None:
             if node is not None:
                 # Professional view: the current node (a whole fraction, a numerator, a symbol).
                 start, end, _replacement = self._node_removal(node.identifier)
-                if set_clipboard_text(self.document.source[start:end]):
+                text = self.document.source[start:end]
+                if set_clipboard_text(text, self._equation_html(text, whole=False)):
                     self._announce(f"copied {self._node_label(node)}")
                 else:
                     self._announce("could not copy")
@@ -897,7 +901,7 @@ if wx is not None:
             if not text:
                 self._announce("nothing to copy")
                 return
-            if not set_clipboard_text(text):
+            if not set_clipboard_text(text, self._equation_html(text, whole=not selection)):
                 self._announce("could not copy")
                 return
             self._announce("selection copied" if selection else "equation copied")
@@ -908,7 +912,7 @@ if wx is not None:
             if not text:
                 self._announce("nothing to cut")
                 return
-            if not set_clipboard_text(text):
+            if not set_clipboard_text(text, self._equation_html(text, whole=not selection)):
                 self._announce("could not cut")
                 return
             if selection:
@@ -917,6 +921,14 @@ if wx is not None:
             else:
                 self._replace_linear("", 0)
                 self._announce("equation cut")
+
+        def _equation_html(self, text: str, whole: bool) -> str | None:
+            """The copied source as MathML for the clipboard, so Word and browsers paste it built."""
+            try:
+                mathml = self.convert_unicode_math(text)
+            except (UnicodeMathError, RuntimeError):
+                return None
+            return equation_html(mathml, text, display=self.display and whole)
 
         def _paste_equation(self) -> None:
             text = get_clipboard_text()

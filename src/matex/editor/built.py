@@ -113,7 +113,8 @@ class BuiltEditingMixin:
             self._cut_equation()
             return
         start, end, _replacement = self._node_removal(node.identifier)
-        if not set_clipboard_text(self.document.source[start:end]):
+        text = self.document.source[start:end]
+        if not set_clipboard_text(text, self._equation_html(text, whole=False)):
             self._announce("could not cut")
             return
         self._remove_node(node.identifier, f"cut {self._node_label(node)}")

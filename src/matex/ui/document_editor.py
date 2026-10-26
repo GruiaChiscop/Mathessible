@@ -5,10 +5,12 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from matex import session_log
+from matex.documents.clipboard_html import document_html
 from matex.documents.markdown_math import MathZone, math_zone_at, toggle_display
 from matex.editor.equation_editor import EquationEditor
 from matex.editor.structures import append_insert_items
 from matex.settings import AppSettings
+from matex.ui.clipboard import set_clipboard_text
 from matex.ui.speech import AssistiveOutput, create_output
 
 try:
@@ -60,8 +62,6 @@ if wx is not None:
             self.SetMinSize((620, 440))
             self.SetName("Equation Editor window")
             self._on_done: Callable[[bool], None] | None = None
-            # Display or inline, as the equation is saved: Change to Display/Inline.
-            self.display = False
             self._disabled: list[wx.TopLevelWindow] = []
             panel = wx.Panel(self)
             sizer = wx.BoxSizer(wx.VERTICAL)
@@ -93,7 +93,7 @@ if wx is not None:
             self.Bind(wx.EVT_MENU, lambda _event: self.toggle_display(), display_item)
             self.Bind(
                 wx.EVT_UPDATE_UI,
-                lambda event: event.SetText("Change to &Inline" if self.display else "Change to &Display"),
+                lambda event: event.SetText("Change to &Inline" if self.equation.display else "Change to &Display"),
                 display_item,
             )
             menu_bar.Append(equation_menu, "E&quation")
@@ -155,22 +155,23 @@ if wx is not None:
             event.Enable(self.equation.mode == "linear" or self.equation.mathcat is not None)
 
         def prepare(self, source: str, display: bool) -> None:
-            self.display = display
+            self.equation.display = display
             self._show_kind()
             self.equation.set_source(source)
 
         def toggle_display(self) -> None:
             """Word's Change to Display / Change to Inline; it takes effect when the equation is saved."""
-            self.display = not self.display
-            session_log.write("command", f"change to {'display' if self.display else 'inline'}")
+            self.equation.display = not self.equation.display
+            kind = "display" if self.equation.display else "inline"
+            session_log.write("command", f"change to {kind}")
             self._show_kind()
             try:
-                self.equation.output.announce("display equation" if self.display else "inline equation", interrupt=True)
+                self.equation.output.announce(f"{kind} equation", interrupt=True)
             except Exception:
                 pass
 
         def _show_kind(self) -> None:
-            kind = "display" if self.display else "inline"
+            kind = "display" if self.equation.display else "inline"
             self.heading.SetLabel(f"Edit {kind} equation — Enter or {EQUATION_SHORTCUT_LABEL} saves. Escape cancels.")
 
         def begin(self, on_done: Callable[[bool, bool], None]) -> None:
@@ -293,6 +294,24 @@ if wx is not None:
             except Exception:
                 pass
 
+        def copy_selection(self, cut: bool = False) -> bool:
+            """Copy (or cut) the selection with its equations as MathML beside the text, for Word.
+
+            False when the selection holds no equation or the converter is
+            not ready: the Markdown editor's own Copy/Cut then does it.
+            """
+            start, end = self.markdown.GetSelection()
+            equation = self.equation_window.equation
+            if start == end or not equation.converter_ready:
+                return False
+            text = self.markdown.GetValue()[start:end]
+            html = document_html(text, equation.convert_unicode_math)
+            if html is None or not set_clipboard_text(text, html):
+                return False
+            if cut:
+                self.markdown.Remove(start, end)
+            return True
+
         def equation_at_caret(self) -> MathZone | None:
             start, end = self.markdown.GetSelection()
             return math_zone_at(self.markdown.GetValue(), start, end)
@@ -371,7 +390,7 @@ if wx is not None:
                 return
             if saved:
                 content = self.equation_window.equation.source
-                display = self.equation_window.display
+                display = self.equation_window.equation.display
                 replacement = f"{session.zone.delimiter}{content}{session.zone.delimiter}"
                 self.markdown.SetSelection(session.zone.start, session.zone.end)
                 self.markdown.WriteText(replacement)

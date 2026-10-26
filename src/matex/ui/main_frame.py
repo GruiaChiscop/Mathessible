@@ -327,8 +327,8 @@ if wx is not None:
             actions = {
                 wx.ID_UNDO: control.Undo,
                 wx.ID_REDO: control.Redo,
-                wx.ID_CUT: control.Cut,
-                wx.ID_COPY: control.Copy,
+                wx.ID_CUT: lambda: self.editor.copy_selection(cut=True) or control.Cut(),
+                wx.ID_COPY: lambda: self.editor.copy_selection() or control.Copy(),
                 wx.ID_PASTE: control.Paste,
                 wx.ID_SELECTALL: control.SelectAll,
             }
