@@ -759,7 +759,7 @@ if wx is not None:
                     return text_braille(source)  # An equation that does not build: its source.
 
             layout = BrfLayout(self.settings.brf_cells_per_line, self.settings.brf_lines_per_page)
-            brf = notebook_brf(pages, text_braille, math_braille, layout)
+            brf = notebook_brf(pages, text_braille, math_braille, layout, self.settings.brf_page_numbers)
             path = destination if destination.suffix.lower() == ".brf" else destination.with_suffix(".brf")
             path.write_bytes(brf.encode("ascii", errors="replace"))
             return path

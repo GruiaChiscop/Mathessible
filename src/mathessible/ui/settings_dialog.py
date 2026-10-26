@@ -281,6 +281,12 @@ if wx is not None:
             size.AddMany([(cells_label, 0, wx.ALIGN_CENTER_VERTICAL), (self.brf_cells_per_line, 0)])
             size.AddMany([(lines_label, 0, wx.ALIGN_CENTER_VERTICAL), (self.brf_lines_per_page, 0)])
             page.GetSizer().Add(size, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
+            self.brf_page_numbers = self._checkbox(
+                page,
+                "Number the pages (at the right of each page's last line, as braille formats require)",
+                "Number the BRF pages",
+                settings.brf_page_numbers,
+            )
 
         # Controls
 
@@ -313,6 +319,7 @@ if wx is not None:
                 self._settings.braille_text_table = self._text_tables[text_table].file
             self._settings.brf_cells_per_line = self.brf_cells_per_line.GetValue()
             self._settings.brf_lines_per_page = self.brf_lines_per_page.GetValue()
+            self._settings.brf_page_numbers = self.brf_page_numbers.GetValue()
             braille = self.braille_code.GetSelection()
             if braille != wx.NOT_FOUND:
                 self._settings.braille_code = BRAILLE_CODES[braille][0]

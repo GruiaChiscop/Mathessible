@@ -93,6 +93,8 @@ class AppSettings:
     braille_text_table: str = ""
     brf_cells_per_line: int = 40
     brf_lines_per_page: int = 25
+    # Braille page numbers (BANA formats require them in transcriptions; Word adds none unless asked).
+    brf_page_numbers: bool = True
     # Symbol shortcuts (<<, ->, <=) as soon as their last character is typed.
     convert_shortcuts_immediately: bool = True
     # Templates and structure edits write control words (\sum, \sqrt, \of)
@@ -155,6 +157,7 @@ def load_settings(path: Path | None = None) -> AppSettings:
         braille_text_table=str(data.get("braille_text_table", "")),
         brf_cells_per_line=_bounded(data.get("brf_cells_per_line"), 40, BRF_CELLS),
         brf_lines_per_page=_bounded(data.get("brf_lines_per_page"), 25, BRF_LINES),
+        brf_page_numbers=bool(data.get("brf_page_numbers", True)),
         convert_shortcuts_immediately=bool(data.get("convert_shortcuts_immediately", True)),
         template_control_words=bool(data.get("template_control_words", True)),
         open_built=bool(data.get("open_built", False)),

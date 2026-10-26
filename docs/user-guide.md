@@ -276,7 +276,8 @@ between words. An equation that does not build is written as its
 UnicodeMath, in text braille. Each notebook page starts a new braille
 page, under its title. Every page has its braille page number at the
 right of its last line, as the Braille Authority of North America's
-formats have it. With UEB text and Nemeth maths, each equation is
+formats have it; **Number the pages** in `Settings → Braille` (on by
+default) turns them off. With UEB text and Nemeth maths, each equation is
 between the opening Nemeth Code indicator and the Nemeth Code
 terminator (`_%` and `_:`), as UEB requires.
 
