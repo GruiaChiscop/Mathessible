@@ -9,6 +9,7 @@ from matex.documents.html_export import PREVIEW_PAGE, ExportPage, preview_update
 from matex.documents.markdown_math import find_math_zones
 from matex.documents.notebook import Notebook, NotebookError
 from matex.documents.portable_notebook import extract_mtex, save_mtex
+from matex.help_links import ABOUT, HELP_PAGES, ISSUES, page_url, version
 from matex.mathcat.navigator import mathcat_load_error
 from matex.patch_check import missing_patches
 from matex.settings import AppSettings, load_settings, save_settings
@@ -18,6 +19,7 @@ from matex.ui.settings_dialog import show_settings
 
 try:
     import wx
+    import wx.adv
     import wx.html2
 except ImportError:
     wx = None
@@ -186,6 +188,18 @@ if wx is not None:
             window_menu.AppendSeparator()
             window_menu.Append(self._bring_all_to_front_id, "Bring All to &Front")
             menu_bar.Append(window_menu, "&Window")
+            # Help opens the documentation on GitHub; MateX has none inside it.
+            help_menu = wx.Menu()
+            for label, path in HELP_PAGES:
+                item = help_menu.Append(wx.ID_ANY, label)
+                self.Bind(wx.EVT_MENU, lambda _event, path=path: wx.LaunchDefaultBrowser(page_url(path)), item)
+            help_menu.AppendSeparator()
+            report_item = help_menu.Append(wx.ID_ANY, "&Report a Problem")
+            self.Bind(wx.EVT_MENU, lambda _event: wx.LaunchDefaultBrowser(ISSUES), report_item)
+            help_menu.AppendSeparator()
+            help_menu.Append(wx.ID_ABOUT, "&About MateX")  # In the application menu on macOS.
+            self.Bind(wx.EVT_MENU, self._show_about, id=wx.ID_ABOUT)
+            menu_bar.Append(help_menu, "&Help")
             self.SetMenuBar(menu_bar)
 
             self.Bind(wx.EVT_MENU, self._new_document, id=wx.ID_NEW)
@@ -342,6 +356,16 @@ if wx is not None:
                 wx.ID_SELECTALL: bool(control.GetValue()),
             }
             event.Enable(availability.get(event.GetId(), True))
+
+        def _show_about(self, _event: wx.CommandEvent) -> None:
+            # Name, version, description and copyright only: on macOS that is
+            # the native About panel (a website or licence would make it wx's own).
+            info = wx.adv.AboutDialogInfo()
+            info.SetName("MateX")
+            info.SetVersion(version())
+            info.SetDescription(ABOUT)
+            info.SetCopyright("GNU General Public License, version 2 or later")
+            wx.adv.AboutBox(info, self)
 
         def _on_update_display_item(self, event: wx.UpdateUIEvent) -> None:
             zone = self.editor.equation_at_caret()

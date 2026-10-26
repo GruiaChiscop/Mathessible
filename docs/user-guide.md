@@ -2,7 +2,10 @@
 
 How to write, read and edit with MateX. For what the project is, see the
 [README](../README.md); for how it works inside,
-[architecture.md](architecture.md).
+[architecture.md](architecture.md). New to MateX? Start with the
+[quick start](quick-start.md); every key is in
+[keyboard-shortcuts.md](keyboard-shortcuts.md). MateX's Help menu opens
+these pages on GitHub.
 
 The equation editor is drawn by MateX itself, not a native text field, so
 that VoiceOver does not enter web navigation or announce an equation

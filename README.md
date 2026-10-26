@@ -34,7 +34,7 @@ MateX runs from a checkout of this repository, with Python 3.14 and
 [uv](https://docs.astral.sh/uv/):
 
 ```shell
-git clone --recursive <repository address>
+git clone --recursive https://github.com/GruiaChiscop/MateX.git
 cd MateX
 sh scripts/bootstrap.sh
 uv run matex
@@ -47,8 +47,12 @@ runs the tests. On macOS wxPython needs a Framework build of Python
 
 ## Documentation
 
+- [Quick start](docs/quick-start.md): from installing to a first
+  equation, written, read and saved.
 - [User guide](docs/user-guide.md): writing and reading equations,
   documents, notebooks and symbol dictionaries.
+- [Keyboard shortcuts](docs/keyboard-shortcuts.md): every key, for macOS
+  and for Windows and Linux.
 - [Contributing](CONTRIBUTING.md): checks, where code goes, the patches to
   MathCAT and UnicodeMathML, accessibility rules.
 - [Architecture](docs/architecture.md): how an equation goes through the
