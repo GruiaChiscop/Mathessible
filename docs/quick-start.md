@@ -69,3 +69,41 @@ of it, with the equations as MathML.
 - [User guide](user-guide.md): templates, the structure gallery, editing
   the built equation, notebooks, braille signs and settings.
 - [Keyboard shortcuts](keyboard-shortcuts.md).
+
+## Learn more
+
+### UnicodeMath
+
+MateX's equations are UnicodeMath, the same linear format as Word's, so
+what is written about Word's equations holds here too.
+
+- [Linear format equations using UnicodeMath and LaTeX in Word](https://support.microsoft.com/en-us/office/linear-format-equations-using-unicodemath-and-latex-in-word-2e00618d-b1fd-49d8-8cb4-8d17f25754f8)
+  (Microsoft Support): how fractions, scripts, roots, matrices and the
+  rest are typed, with examples.
+- [Unicode Technical Note #28](https://www.unicode.org/notes/tn28/), by
+  Murray Sargent III: the specification of UnicodeMath, and the
+  reference when Word's behaviour is unclear.
+- [Math in Office](https://devblogs.microsoft.com/math-in-office/):
+  Murray Sargent's blog on UnicodeMath and Office's maths.
+- [UnicodeMathML playground](https://murrayiii.github.io/UnicodeMathML/playground/):
+  try UnicodeMath in the browser and see the MathML it becomes, with the
+  converter MateX uses.
+
+### Control words and symbols
+
+Control words such as `\alpha` or `\int` are Word's Math AutoCorrect
+entries.
+
+- [Quick start guide to Math AutoCorrect commands and symbols](https://support.microsoft.com/en-us/topic/9cbc8873-c217-4c87-a059-03d539ef8eea)
+  (Microsoft Support): every symbol, with its control word and its
+  Unicode value.
+- In MateX: Settings → Math AutoCorrect… lists every control word and
+  shortcut, which you can change, delete or add to. Insert → Symbol…
+  (`Command+Shift+S`, `Ctrl+Shift+S`) finds a symbol by its control word
+  or name, and typing a control word offers the matching ones.
+
+### Speech, navigation and braille
+
+- [MathCAT for assistive technology users](https://daisy.github.io/MathCAT/users.html):
+  how MathCAT speaks, navigates and brailles maths, and its preferences.
+  MateX reads every built equation through MathCAT.
