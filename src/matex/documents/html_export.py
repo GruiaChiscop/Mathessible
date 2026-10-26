@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from html import escape
@@ -12,6 +13,9 @@ from matex.documents.markdown_math import find_math_zones
 from matex.documents.mathml_sanitize import sanitize_mathml
 
 MathConverter = Callable[[str], str]
+
+# The converter writes every equation as display="block"; `$...$` is inline.
+_BLOCK_DISPLAY = re.compile(r'^(<math\b[^>]*?\sdisplay=")block(")')
 
 
 @dataclass(frozen=True, slots=True)
@@ -31,11 +35,11 @@ def render_markdown(source: str, convert_math: MathConverter) -> str:
         equation = zone.content(source)
         try:
             mathml = sanitize_mathml(convert_math(equation))
-            rendered = (
-                f'<div class="math-display">{mathml}</div>'
-                if zone.display
-                else f'<span class="math-inline">{mathml}</span>'
-            )
+            if zone.display:
+                rendered = f'<div class="math-display">{mathml}</div>'
+            else:
+                inline = _BLOCK_DISPLAY.sub(r"\g<1>inline\g<2>", mathml, count=1)
+                rendered = f'<span class="math-inline">{inline}</span>'
         except (RuntimeError, ValueError, OSError):
             delimiter = zone.delimiter
             rendered = (

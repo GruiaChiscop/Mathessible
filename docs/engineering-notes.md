@@ -900,7 +900,10 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
 - **Document preview** (View → Document Preview, `show_preview` setting,
   off by default): a second WebView in a splitter beside the Markdown
   editor, filled via `html_export.preview_update_script` (same sanitised
-  rendering as HTML export) with a 350 ms debounce.
+  rendering as HTML export) with a 350 ms debounce. The converter writes
+  every equation as `<math display="block">`, so `render_markdown` turns
+  an inline `$...$` to `display="inline"`; without it each inline
+  equation sat on a line of its own, centred, in the preview and export.
 - Colours for the custom-drawn editor come from [ui/theme.py](../src/matex/ui/theme.py);
   its tests enforce WCAG contrast (4.5:1 text, 3:1 focus ring) in both
   light and dark appearance — keep new colours in that palette.

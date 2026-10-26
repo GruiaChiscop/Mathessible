@@ -64,6 +64,8 @@ if wx is not None:
             self._navigation_page(self._page("Navigation"), settings)
             self._speech_page(self._page("Speech"), settings)
             self._braille_page(self._page("Braille"), settings)
+            for index in range(self.notebook.GetPageCount()):
+                self.notebook.GetPage(index).GetSizer().AddSpacer(12)  # A margin under the last control.
             sizer = wx.BoxSizer(wx.VERTICAL)
             sizer.Add(self.notebook, 1, wx.EXPAND)
             self.SetSizer(sizer)
@@ -163,7 +165,10 @@ if wx is not None:
             )
             label = wx.StaticText(page, label="&Recognized functions")
             self.recognized_functions = wx.TextCtrl(
-                page, value=format_recognized_functions(settings.recognized_functions), style=wx.TE_PROCESS_ENTER
+                page,
+                value=format_recognized_functions(settings.recognized_functions),
+                size=(_WRAP, -1),  # Not the whole list's width: the window would be as wide.
+                style=wx.TE_PROCESS_ENTER,
             )
             self.recognized_functions.SetName("Recognized functions")
             self.recognized_functions.Bind(wx.EVT_KILL_FOCUS, self._on_text_done)

@@ -29,6 +29,15 @@ class HtmlExportTests(unittest.TestCase):
         self.assertIn('<span class="math-inline"><math><mi>x+1</mi></math></span>', rendered)
         self.assertIn('<div class="math-display"><math><mi>a/b</mi></math></div>', rendered)
 
+    def test_inline_math_is_inline_although_the_converter_writes_block(self) -> None:
+        def block_mathml(source: str) -> str:
+            return f'<math display="block"><mi>{source}</mi></math>'
+
+        rendered = render_markdown("Roots of $x$ are\n\n$$y$$", block_mathml)
+
+        self.assertIn('<span class="math-inline"><math display="inline"><mi>x</mi></math></span>', rendered)
+        self.assertIn('<div class="math-display"><math display="block"><mi>y</mi></math></div>', rendered)
+
     def test_code_math_is_untouched_and_invalid_math_has_a_safe_fallback(self) -> None:
         rendered = render_markdown("`$code$` and $bad$ <script>alert(1)</script>", fake_mathml)
 
