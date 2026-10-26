@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from mathessible import session_log
 from mathessible.documents.clipboard_html import document_html
 from mathessible.documents.markdown_math import MathZone, math_zone_at, toggle_display
+from mathessible.editing.autocorrect import AutoCorrectTable, autocorrect_defaults
+from mathessible.editing.space_conversion import convert_in_text
 from mathessible.editor.equation_editor import EquationEditor
 from mathessible.editor.structures import append_insert_items
 from mathessible.settings import AppSettings
@@ -264,6 +266,7 @@ if wx is not None:
             self.SetSizer(self._sizer)
 
             self.Bind(wx.EVT_CHAR_HOOK, self._on_char_hook)
+            self.markdown.Bind(wx.EVT_CHAR, self._on_markdown_char)
 
             self._shortcut_id = wx.NewIdRef()
             self.Bind(wx.EVT_MENU, self._on_equation_accelerator, id=self._shortcut_id)
@@ -357,6 +360,29 @@ if wx is not None:
                 self._open_equation()
                 return
             event.Skip()
+
+        def _on_markdown_char(self, event: wx.KeyEvent) -> None:
+            """Math AutoCorrect anywhere in the document, when on: Space, punctuation or Enter converts the entry before it."""
+            if not self.settings.autocorrect_in_document or self.editing_equation:
+                event.Skip()
+                return
+            key = event.GetKeyCode()
+            character = "\n" if key in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER) else chr(event.GetUnicodeKey() or 0)
+            start, end = self.markdown.GetSelection()
+            source = self.markdown.GetValue()
+            typed = character == "\n" or character.isprintable()
+            if event.HasModifiers() or start != end or not typed:
+                event.Skip()
+                return
+            table = AutoCorrectTable(
+                autocorrect_defaults(), self.settings.math_autocorrect, self.settings.math_autocorrect_removed
+            )
+            converted = convert_in_text(source, start, character, table.control_words(), table.shortcuts())
+            if converted is None:
+                event.Skip()
+                return
+            self.replace_source(converted.source)
+            self.markdown.SetInsertionPoint(converted.caret)
 
         def _on_equation_accelerator(self, _event: wx.CommandEvent) -> None:
             if not self.editing_equation:

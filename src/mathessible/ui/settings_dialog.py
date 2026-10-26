@@ -111,9 +111,15 @@ if wx is not None:
             )
             self.autocorrect_in_text = self._checkbox(
                 page,
-                "Use Math AutoCorrect in normal text (control words and shortcuts convert there too)",
-                "Use Math AutoCorrect in normal text",
+                "Use Math AutoCorrect in an equation's normal text (control words and shortcuts convert there too)",
+                "Use Math AutoCorrect in an equation's normal text",
                 settings.autocorrect_in_text,
+            )
+            self.autocorrect_in_document = self._checkbox(
+                page,
+                "Use Math AutoCorrect in the document too, text and equations alike (as Word's rule outside math regions)",
+                "Use Math AutoCorrect in the document",
+                settings.autocorrect_in_document,
             )
             self.template_control_words = self._checkbox(
                 page,
@@ -290,6 +296,7 @@ if wx is not None:
             self._settings.build_as_you_type = self.build_as_you_type.GetValue()
             self._settings.announce_built = self.announce_built.GetValue()
             self._settings.autocorrect_in_text = self.autocorrect_in_text.GetValue()
+            self._settings.autocorrect_in_document = self.autocorrect_in_document.GetValue()
             self._settings.name_unknown_symbols = self.name_unknown_symbols.GetValue()
             self._settings.remove_extra_spaces = self.remove_extra_spaces.GetValue()
             self._settings.argument_on_closing_paren = self.argument_on_closing_paren.GetValue()

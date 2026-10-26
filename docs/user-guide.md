@@ -171,8 +171,14 @@ its spaces, as UnicodeMath's quoted text (`"for all "x`). In math it
 starts a text, at the end of a text it goes back to math, in the middle
 it splits it, and on a selection it turns it into text or back into
 math. In normal text nothing converts or builds; **Use Math AutoCorrect
-in normal text** (off by default) lets control words and shortcuts
-convert there too.
+in an equation's normal text** (off by default) lets control words and
+shortcuts convert there too.
+
+In the document itself, **Use Math AutoCorrect in the document**
+(Settings → Typing, off by default; Word's rule outside math regions)
+converts an entry wherever it is typed, in the text or between `$`,
+when a space, a punctuation mark or Enter is typed after it: `\alpha`
+then Space gives "α ", `->` then Space "→ ".
 
 ### Unknown symbols
 

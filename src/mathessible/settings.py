@@ -104,6 +104,8 @@ class AppSettings:
     announce_built: bool = True
     # Math AutoCorrect (control words, shortcuts, argument boxes) in normal text too.
     autocorrect_in_text: bool = False
+    # As Word's "Use Math AutoCorrect rules outside of math regions": anywhere in the document's Markdown.
+    autocorrect_in_document: bool = False
     # Say a symbol nothing named (MathCAT, the dictionary) by its Unicode name (🜁: "alchemical symbol for air").
     name_unknown_symbols: bool = True
     # Remove the spaces that change nothing when an equation is saved or shown linear, as Word does.
@@ -152,6 +154,7 @@ def load_settings(path: Path | None = None) -> AppSettings:
         build_as_you_type=bool(data.get("build_as_you_type", True)),
         announce_built=bool(data.get("announce_built", True)),
         autocorrect_in_text=bool(data.get("autocorrect_in_text", False)),
+        autocorrect_in_document=bool(data.get("autocorrect_in_document", False)),
         name_unknown_symbols=bool(data.get("name_unknown_symbols", True)),
         remove_extra_spaces=bool(data.get("remove_extra_spaces", True)),
         equation_zoom=_zoom(data.get("equation_zoom", 100)),

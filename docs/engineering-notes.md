@@ -560,6 +560,12 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   Linear runs never escape inside a text (`operator_positions`: the
   backslash would be text), and quotes typed in a run delimit nothing.
   An empty `""` is a total failure: build_repair puts U+200B in it.
+- **Math AutoCorrect in the document (2026-10-26)**, as Word's "Use
+  Math AutoCorrect rules outside of math regions" (`autocorrect_in_document`,
+  off): in the Markdown editor, `DocumentEditor._on_markdown_char` asks
+  `convert_in_text` (the equation editor's control-word and shortcut
+  matching, the delimiter kept: Space, punctuation, Enter). Anywhere in
+  the Markdown, text, `$...$` or code alike: the user's decision.
   **Trap:** the converter writes a text's spaces as no-break spaces
   (`for\u00a0all\u00a0`), so `map_leaves` found no text leaf until
   `_normalize` took U+00A0 for a space. **Trap:** MathCAT splits a final

@@ -107,6 +107,31 @@ def convert_before_character(
     return SpaceConversion(updated, token_start + len(replacement) + len(character), replacement, True)
 
 
+def convert_in_text(
+    source: str,
+    caret: int,
+    character: str,
+    control_words: Mapping[str, str],
+    shortcuts: Mapping[str, str],
+) -> SpaceConversion | None:
+    """Word's "Use Math AutoCorrect rules outside of math regions": an entry before a space,
+    punctuation or Enter typed in the document's text converts, and the character is kept.
+
+    `\alpha` + Space gives "α ", `->` + Space "→ ". Letters and digits
+    continue the word; a backslash may start the next one. None when
+    nothing converts.
+    """
+    caret = max(0, min(caret, len(source)))
+    if not character or character.isalnum() or character == "\\":
+        return None
+    match = _control_word_match(source, caret, control_words) or _shortcut_match(source, caret, shortcuts)
+    if match is None:
+        return None
+    token_start, replacement = match
+    updated = source[:token_start] + replacement + character + source[caret:]
+    return SpaceConversion(updated, token_start + len(replacement) + len(character), replacement, True)
+
+
 def convert_word_before(
     source: str, caret: int, enabled: bool = True, control_words: Mapping[str, str] | None = None
 ) -> SpaceConversion | None:
