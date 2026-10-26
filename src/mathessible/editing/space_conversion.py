@@ -117,14 +117,17 @@ def convert_in_text(
     """Word's "Use Math AutoCorrect rules outside of math regions": an entry before a space,
     punctuation or Enter typed in the document's text converts, and the character is kept.
 
-    `\alpha` + Space gives "α ", `->` + Space "→ ". Letters and digits
-    continue the word; a backslash may start the next one. None when
-    nothing converts.
+    `\\alpha` + Space gives "α ", `->` + Space "→ ". Letters and digits
+    continue the word; a backslash may start the next one. A shortcut
+    only on Space or Enter: punctuation may still be part of a longer one
+    (`<-` then `>` is `<->`). None when nothing converts.
     """
     caret = max(0, min(caret, len(source)))
     if not character or character.isalnum() or character == "\\":
         return None
-    match = _control_word_match(source, caret, control_words) or _shortcut_match(source, caret, shortcuts)
+    match = _control_word_match(source, caret, control_words)
+    if match is None and character.isspace():
+        match = _shortcut_match(source, caret, shortcuts)
     if match is None:
         return None
     token_start, replacement = match

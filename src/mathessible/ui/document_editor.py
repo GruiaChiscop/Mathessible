@@ -8,7 +8,7 @@ from mathessible import session_log
 from mathessible.documents.clipboard_html import document_html
 from mathessible.documents.markdown_math import MathZone, math_zone_at, toggle_display
 from mathessible.editing.autocorrect import AutoCorrectTable, autocorrect_defaults
-from mathessible.editing.space_conversion import convert_in_text
+from mathessible.editing.space_conversion import convert_in_text, convert_shortcut_on_character
 from mathessible.editor.equation_editor import EquationEditor
 from mathessible.editor.structures import append_insert_items
 from mathessible.settings import AppSettings
@@ -377,7 +377,12 @@ if wx is not None:
             table = AutoCorrectTable(
                 autocorrect_defaults(), self.settings.math_autocorrect, self.settings.math_autocorrect_removed
             )
-            converted = convert_in_text(source, start, character, table.control_words(), table.shortcuts())
+            converted = None
+            if self.settings.convert_shortcuts_immediately:
+                # A symbol shortcut converts as its last character is typed (`->`), as in Word.
+                converted = convert_shortcut_on_character(source, start, character, table.shortcuts())
+            if converted is None:
+                converted = convert_in_text(source, start, character, table.control_words(), table.shortcuts())
             if converted is None:
                 event.Skip()
                 return

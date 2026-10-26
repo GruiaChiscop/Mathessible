@@ -91,7 +91,7 @@ if wx is not None:
             )
             self.convert_shortcuts_immediately = self._checkbox(
                 page,
-                "Convert symbol shortcuts (for example << or ->) as soon as they are typed",
+                "Convert symbol shortcuts (for example << or ->) as soon as they are typed, in equations and the document",
                 "Convert symbol shortcuts immediately",
                 settings.convert_shortcuts_immediately,
             )

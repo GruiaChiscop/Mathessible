@@ -22,7 +22,8 @@ class ConvertInTextTests(unittest.TestCase):
 
     def test_shortcuts_too_and_letters_only_as_a_whole_word(self) -> None:
         self.assertEqual(typed("a ->", " "), "a → ")
-        self.assertEqual(typed("in \\mathbb{R}", ","), "in ℝ,")
+        self.assertEqual(typed("in \\mathbb{R}", " "), "in ℝ ")
+        self.assertIsNone(typed("a <-", ">"))  # Maybe "<->": a shortcut waits for Space or Enter.
         self.assertEqual(typed("90deg", " "), None)
         self.assertEqual(typed("90 deg", " "), "90 ° ")
 

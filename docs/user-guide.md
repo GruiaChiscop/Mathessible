@@ -176,9 +176,12 @@ shortcuts convert there too.
 
 In the document itself, **Use Math AutoCorrect in the document**
 (Settings → Typing, off by default; Word's rule outside math regions)
-converts an entry wherever it is typed, in the text or between `$`,
-when a space, a punctuation mark or Enter is typed after it: `\alpha`
-then Space gives "α ", `->` then Space "→ ".
+converts an entry wherever it is typed, in the text or between `$`: a
+control word when a space, a punctuation mark or Enter is typed after it
+(`\alpha` then Space gives "α "), and a symbol shortcut as soon as its
+last character is typed (`->` gives "→"), as in Word, while **Convert
+symbol shortcuts as soon as they are typed** is on (it is by default);
+off, a shortcut waits for Space or Enter.
 
 ### Unknown symbols
 
