@@ -12,6 +12,7 @@ format.
 from __future__ import annotations
 
 import unicodedata
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 from mathessible.editing.source_view import spell_with_control_words
@@ -21,6 +22,7 @@ from mathessible.templates.math_templates import (
     insert_operator_template,
 )
 from mathessible.templates.matrix_templates import insert_matrix_template
+from mathessible.templates.saved_equations import SavedEquation
 from mathessible.templates.template_source import TemplateEdit, insert_template
 
 
@@ -253,6 +255,18 @@ CATEGORIES: tuple[GalleryCategory, ...] = (
         ),
     ),
 )
+
+
+# The user's own equations (Save as New Equation), first when there are any.
+MY_EQUATIONS = "My Equations"
+
+
+def gallery_categories(saved: Sequence[SavedEquation]) -> tuple[GalleryCategory, ...]:
+    """The gallery's categories: My Equations (when any are saved), then Word's."""
+    if not saved:
+        return CATEGORIES
+    mine = tuple(InsertItem(equation.name, _example(equation.source, equation.name)) for equation in saved)
+    return (GalleryCategory(MY_EQUATIONS, mine), *CATEGORIES)
 
 
 def _scripts_template(source: str, caret: int) -> TemplateEdit:

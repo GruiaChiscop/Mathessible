@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from mathessible.templates.insert_catalog import InsertItem
-from mathessible.templates.structure_gallery import CATEGORIES, written_form
+from mathessible.templates.saved_equations import SavedEquation, without_equation
+from mathessible.templates.structure_gallery import MY_EQUATIONS, gallery_categories, written_form
 
 try:
     import wx
@@ -18,6 +21,8 @@ if wx is not None:
         on the structures, Enter inserts. Native controls only, no
         announcements of its own: the screen reader reads them. "Written
         as" shows how the selected structure is typed in the linear view.
+        `saved` are the user's own equations (My Equations), which Delete
+        removes; the edited list is `saved` afterwards.
         """
 
         def __init__(
@@ -26,10 +31,13 @@ if wx is not None:
             control_words: bool,
             category: int = 0,
             structure: int = 0,
+            saved: Sequence[SavedEquation] = (),
         ):
             super().__init__(parent, title="Insert Structure", style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
             self.SetName("Insert structure dialog")
             self._control_words = control_words
+            self.saved = list(saved)
+            self._categories = gallery_categories(self.saved)
 
             sizer = wx.BoxSizer(wx.VERTICAL)
             lists = wx.BoxSizer(wx.HORIZONTAL)
@@ -37,7 +45,7 @@ if wx is not None:
             right = wx.BoxSizer(wx.VERTICAL)
             categories_label = wx.StaticText(self, label="&Category")
             self.categories = wx.ListBox(
-                self, choices=[category.name for category in CATEGORIES], size=(180, 300), style=wx.LB_SINGLE
+                self, choices=[category.name for category in self._categories], size=(180, 300), style=wx.LB_SINGLE
             )
             self.categories.SetName("Category")
             structures_label = wx.StaticText(self, label="&Structure")
@@ -46,12 +54,14 @@ if wx is not None:
             written_label = wx.StaticText(self, label="&Written as")
             self.written = wx.TextCtrl(self, style=wx.TE_READONLY)
             self.written.SetName("Written as")
+            self.delete_button = wx.Button(self, label="&Delete")
             buttons = self.CreateSeparatedButtonSizer(wx.OK | wx.CANCEL)
 
             left.Add(categories_label, 0, wx.BOTTOM, 4)
             left.Add(self.categories, 1, wx.EXPAND)
             right.Add(structures_label, 0, wx.BOTTOM, 4)
             right.Add(self.structures, 1, wx.EXPAND)
+            right.Add(self.delete_button, 0, wx.TOP, 8)
             lists.Add(left, 0, wx.ALL | wx.EXPAND, 12)
             lists.Add(right, 1, wx.ALL | wx.EXPAND, 12)
             sizer.Add(lists, 1, wx.EXPAND)
@@ -68,8 +78,9 @@ if wx is not None:
             self.structures.Bind(wx.EVT_LISTBOX_DCLICK, lambda _event: self._accept())
             self.structures.Bind(wx.EVT_KEY_DOWN, self._on_structures_key)
             self.Bind(wx.EVT_BUTTON, lambda _event: self._accept(), id=wx.ID_OK)
+            self.delete_button.Bind(wx.EVT_BUTTON, lambda _event: self._delete())
 
-            category = max(0, min(category, len(CATEGORIES) - 1))
+            category = max(0, min(category, len(self._categories) - 1))
             self.categories.SetSelection(category)
             self._show_category(structure)
             self.structures.SetFocus()
@@ -84,18 +95,22 @@ if wx is not None:
 
         @property
         def selected(self) -> InsertItem | None:
-            items = CATEGORIES[self.category].items
+            items = self._categories[self.category].items
             index = self.structures.GetSelection()
             return items[index] if 0 <= index < len(items) else None
 
         def _show_category(self, structure: int) -> None:
-            items = CATEGORIES[self.category].items
+            items = self._categories[self.category].items
             self.structures.Set([item.label for item in items])
             if items:
                 self.structures.SetSelection(max(0, min(structure, len(items) - 1)))
             self._show_written()
 
+        def _in_my_equations(self) -> bool:
+            return self._categories[self.category].name == MY_EQUATIONS
+
         def _show_written(self) -> None:
+            self.delete_button.Enable(self._in_my_equations() and self.selected is not None)
             item = self.selected
             text = written_form(item, self._control_words) if item is not None else ""
             self.written.SetValue(text or ("opens a dialog" if item is not None and item.dialog else ""))
@@ -111,7 +126,28 @@ if wx is not None:
             if event.GetKeyCode() in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
                 self._accept()
                 return
+            if event.GetKeyCode() in (wx.WXK_DELETE, wx.WXK_BACK) and self._in_my_equations():
+                self._delete()
+                return
             event.Skip()
+
+        def _delete(self) -> None:
+            """Delete the selected one of My Equations, after asking."""
+            item = self.selected
+            if item is None or not self._in_my_equations():
+                return
+            answer = wx.MessageBox(
+                f"Delete “{item.label}” from My Equations?", "Delete Equation", wx.YES_NO | wx.ICON_QUESTION, self
+            )
+            if answer != wx.YES:
+                return
+            index = self.structures.GetSelection()
+            self.saved = without_equation(self.saved, item.label)
+            self._categories = gallery_categories(self.saved)
+            self.categories.Set([category.name for category in self._categories])
+            self.categories.SetSelection(0)
+            self._show_category(index)
+            self.structures.SetFocus()
 
         def _accept(self) -> None:
             if self.selected is None:

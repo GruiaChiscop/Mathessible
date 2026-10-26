@@ -220,6 +220,13 @@ Operator, Matrix), each a list of variants. Shift+Tab goes to the
 categories, Enter inserts, and "Written as" shows how the structure is
 typed in the linear view.
 
+As in Word, Equation → Save as New Equation… keeps the equation being
+edited under a name you give; saving a name again replaces it. Your
+equations come first in the Structure Gallery, as **My Equations**, and
+Delete (the button or the key) removes the selected one, after asking.
+They are kept in `~/.mathessible/equations.json`, each with its name and
+its UnicodeMath, so a class can share one file.
+
 ## Braille
 
 The braille strip under the equation shows MathCAT's braille for the

@@ -10,6 +10,7 @@ from mathessible.editing.completion import Completion, accept_completion, comple
 from mathessible.editing.equation_errors import EquationError, find_errors
 from mathessible.editing.space_conversion import FALLBACK_CONTROL_WORDS
 from mathessible.templates.insert_catalog import InsertItem
+from mathessible.templates.saved_equations import find_equation, load_equations, save_equations, with_equation
 from mathessible.unicodemath import UnicodeMathError, code_point_index
 
 try:
@@ -116,16 +117,57 @@ class EditorAssistMixin:
         if self.mode != "linear":
             return None
         category, structure = self._last_gallery
-        dialog = GalleryDialog(self, self.settings.template_control_words, category, structure)
+        saved = load_equations()
+        dialog = GalleryDialog(self, self.settings.template_control_words, category, structure, saved)
         try:
             chosen = dialog.ShowModal() == wx.ID_OK
             self._last_gallery = (dialog.category, dialog.structure)
             item = dialog.selected if chosen else None
+            if dialog.saved != saved:
+                save_equations(dialog.saved)
         finally:
             dialog.Destroy()
         session_log.write("gallery", f"chose {item.label!r}" if item is not None else "cancelled")
         self.SetFocus()
         return item
+
+    def save_as_new_equation(self) -> None:
+        """Word's Save as New Equation: the equation under a name, in the gallery's My Equations."""
+        source = self.document.source
+        if not source.strip():
+            self._announce("nothing to save, the equation is empty")
+            return
+        dialog = wx.TextEntryDialog(self, "Name", "Save as New Equation")
+        try:
+            if dialog.ShowModal() != wx.ID_OK:
+                self.SetFocus()
+                return
+            name = dialog.GetValue().strip()
+        finally:
+            dialog.Destroy()
+        self.SetFocus()
+        if not name:
+            self._announce("not saved, the name is empty")
+            return
+        saved = load_equations()
+        existing = find_equation(saved, name)
+        if existing is not None:
+            answer = wx.MessageBox(
+                f"An equation named “{existing.name}” is saved already. Replace it?",
+                "Save as New Equation",
+                wx.YES_NO | wx.ICON_QUESTION,
+                self,
+            )
+            self.SetFocus()
+            if answer != wx.YES:
+                return
+        try:
+            save_equations(with_equation(saved, name, source))
+        except OSError as error:
+            self._announce(f"could not save the equation: {error}")
+            return
+        session_log.write("command", f"saved as new equation {name!r}")
+        self._announce(f"saved in My Equations as {name}")
 
     def current_errors(self, total_failure: bool | None = None) -> list[EquationError]:
         """The source's errors (equation_errors); `total_failure` None asks the converter."""

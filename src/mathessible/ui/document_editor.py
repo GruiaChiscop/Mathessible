@@ -90,6 +90,8 @@ if wx is not None:
             equation_menu.AppendSeparator()
             errors_item = equation_menu.Append(wx.ID_ANY, "&Errors…\tF8")
             self.Bind(wx.EVT_MENU, lambda _event: self.equation.show_errors(), errors_item)
+            new_equation_item = equation_menu.Append(wx.ID_ANY, "Save as &New Equation…")
+            self.Bind(wx.EVT_MENU, lambda _event: self.equation.save_as_new_equation(), new_equation_item)
             display_item = equation_menu.Append(wx.ID_ANY, "Change to &Display")
             self.Bind(wx.EVT_MENU, lambda _event: self.toggle_display(), display_item)
             self.Bind(

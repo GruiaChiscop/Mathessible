@@ -1199,6 +1199,24 @@ tested. Templates: `template_source` holds
   them. Treat this as a known prototype limitation, not something to
   silently "fix" by hardcoding a different path.
 
+## Newer UnicodeMathML Versions
+
+Checked 2026-10-26 against upstream `636dc8f` (2026-10-06; the submodule
+is `4e5e3ca`, 2026-02-12): the app loads `dist/unicodemathml.js` and
+`dist/unicodemathml-parser.js`, and upstream has not rebuilt `dist/` since
+2025-08-17 (`1458384`); its fixes go only into `src/unicodemathml.js` and
+`src/unicodemathml-parser.pegjs`, which the playground compiles with
+`lib/peg-0.10.0.min.js` at load. The three patches apply to the newer
+checkout and every test passes on its `dist/` (unchanged). Built from
+`src/` (PEG.js `generate`, `format: "globals"`, `exportVar: "ummlParser"`):
+`convertUnicodeMathToMathML` returns a string there, not
+`{mathml, parseError}`, and patches 0002/0003 are written for `dist/`
+only, so moving to `src/` is a port, not an update. It fixes none of
+the known problems: a bare `∫▒` is still a total failure, `(1,2,3)`
+still `1,2` and `,3`, and `MathMLtoUnicodeMath` still loses an integral's
+`▒` (now its `〖〗` too) and cases' `┤`. What it does add: `\abs(x)` gets
+`intent="absolute-value(𝑥)"` (dist: `⒜`).
+
 ## Local Patches in Detail
 
 - **Local MathCAT patches** (diverge from upstream `85c89a37`; worth
