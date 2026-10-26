@@ -66,7 +66,7 @@ them resolved (`editing/source_view.py`).
 
 ## Around it
 
-- `documents/`: notebooks (a folder or a `.mathessible` archive) and HTML export,
+- `documents/`: notebooks (a folder or a `.msnb` archive) and HTML export,
   where converter output passes `documents/mathml_sanitize.py` first.
 - `symbols/`: the dictionaries that name symbols while typing in the
   linear view (NVDA's `symbols.dic` format).

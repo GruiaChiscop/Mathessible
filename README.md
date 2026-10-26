@@ -25,7 +25,7 @@ else is in the [documentation](#documentation).
   selecting where MathCAT's cursor is, without leaving the professional
   view.
 - **Markdown documents and notebooks**: equations as `$...$` and
-  `$$...$$`, notebooks of pages saved as a folder or a single `.mathessible`
+  `$$...$$`, notebooks of pages saved as a folder or a single `.msnb`
   file, and export to accessible HTML with native MathML.
 - **Keyboard first**: everything works from the keyboard, and the
   equation editor speaks for itself, so VoiceOver never wanders into web

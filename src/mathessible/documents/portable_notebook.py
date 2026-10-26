@@ -13,8 +13,8 @@ MAX_UNCOMPRESSED_SIZE = 512 * 1024 * 1024
 
 def mtex_path(path: str | Path) -> Path:
     result = Path(path).expanduser()
-    if result.suffix.lower() != ".mathessible":
-        result = result.with_suffix(".mathessible")
+    if result.suffix.lower() != ".msnb":
+        result = result.with_suffix(".msnb")
     return result
 
 
@@ -45,15 +45,15 @@ def extract_portable(archive_path: str | Path, destination: str | Path) -> Noteb
         with zipfile.ZipFile(archive_path, "r") as archive:
             entries = archive.infolist()
             if len(entries) > MAX_ARCHIVE_FILES:
-                raise NotebookError("The .mathessible archive contains too many files")
+                raise NotebookError("The .msnb archive contains too many files")
             if sum(entry.file_size for entry in entries) > MAX_UNCOMPRESSED_SIZE:
-                raise NotebookError("The .mathessible archive is too large after decompression")
+                raise NotebookError("The .msnb archive is too large after decompression")
             file_names = [entry.filename for entry in entries if not entry.is_dir()]
             names = set(file_names)
             if len(names) != len(file_names):
-                raise NotebookError("The .mathessible archive contains duplicate files")
+                raise NotebookError("The .msnb archive contains duplicate files")
             if MANIFEST_NAME not in names:
-                raise NotebookError(f"The .mathessible archive does not contain {MANIFEST_NAME}")
+                raise NotebookError(f"The .msnb archive does not contain {MANIFEST_NAME}")
             for entry in entries:
                 relative = _safe_archive_path(entry)
                 target = destination.joinpath(*relative.parts)
@@ -64,21 +64,21 @@ def extract_portable(archive_path: str | Path, destination: str | Path) -> Noteb
                 with archive.open(entry, "r") as source, target.open("wb") as output:
                     shutil.copyfileobj(source, output)
     except (zipfile.BadZipFile, RuntimeError) as error:
-        raise NotebookError("The file is not a valid .mathessible notebook") from error
+        raise NotebookError("The file is not a valid .msnb notebook") from error
     return Notebook.open(destination)
 
 
 def _safe_archive_path(entry: zipfile.ZipInfo) -> PurePosixPath:
     if "\\" in entry.filename:
-        raise NotebookError(f"Invalid path in .mathessible archive: {entry.filename}")
+        raise NotebookError(f"Invalid path in .msnb archive: {entry.filename}")
     path = PurePosixPath(entry.filename)
     if path.is_absolute() or not path.parts or ".." in path.parts:
-        raise NotebookError(f"Unsafe path in .mathessible archive: {entry.filename}")
+        raise NotebookError(f"Unsafe path in .msnb archive: {entry.filename}")
     if path.parts[0] not in {MANIFEST_NAME, "pages"}:
-        raise NotebookError(f"Unknown file in .mathessible archive: {entry.filename}")
+        raise NotebookError(f"Unknown file in .msnb archive: {entry.filename}")
     if path.parts[0] == MANIFEST_NAME and len(path.parts) != 1:
-        raise NotebookError(f"Invalid path in .mathessible archive: {entry.filename}")
+        raise NotebookError(f"Invalid path in .msnb archive: {entry.filename}")
     mode = entry.external_attr >> 16
     if mode and stat.S_ISLNK(mode):
-        raise NotebookError(f"Symbolic links are not allowed in .mathessible: {entry.filename}")
+        raise NotebookError(f"Symbolic links are not allowed in .msnb: {entry.filename}")
     return path

@@ -247,9 +247,9 @@ pages, and moves them up or down. The accessible "Notebook pages" list
 appears beside the editor. When you change page, Mathessible saves the current
 one, including an equation being edited.
 
-To move or share a notebook, it can be saved as a single `.mathessible` file: a
+To move or share a notebook, it can be saved as a single `.msnb` file: a
 compressed archive with the manifest and every Markdown page. Mathessible
-creates, opens and edits `.mathessible` notebooks directly, and saving repacks
+creates, opens and edits `.msnb` notebooks directly, and saving repacks
 the archive atomically. Unsafe paths, symbolic links and archives that
 would unpack to an excessive size are refused on opening.
 

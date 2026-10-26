@@ -168,9 +168,9 @@ if wx is not None:
             self._move_page_down_id = wx.NewIdRef()
             notebook_menu.Append(self._new_notebook_id, "&New folder notebook…")
             notebook_menu.Append(self._open_notebook_id, "&Open folder notebook…")
-            notebook_menu.Append(self._new_portable_notebook_id, "New .mathessible notebook…")
-            notebook_menu.Append(self._open_portable_notebook_id, "Open .mathessible notebook…")
-            notebook_menu.Append(self._save_portable_notebook_id, "Save notebook as .mathessible…")
+            notebook_menu.Append(self._new_portable_notebook_id, "New .msnb notebook…")
+            notebook_menu.Append(self._open_portable_notebook_id, "Open .msnb notebook…")
+            notebook_menu.Append(self._save_portable_notebook_id, "Save notebook as .msnb…")
             notebook_menu.AppendSeparator()
             notebook_menu.Append(self._add_page_id, "&Add page")
             notebook_menu.Append(self._rename_page_id, "&Rename page")
@@ -740,13 +740,13 @@ if wx is not None:
             default_file = (
                 default_name or self.notebook_archive_path.name
                 if self.notebook_archive_path is not None
-                else default_name or f"{self.notebook.title if self.notebook else 'notebook'}.mathessible"
+                else default_name or f"{self.notebook.title if self.notebook else 'notebook'}.msnb"
             )
             dialog = wx.FileDialog(
                 self,
                 message="Save portable notebook",
                 defaultFile=default_file,
-                wildcard="Mathessible notebooks (*.mathessible)|*.mathessible",
+                wildcard="Mathessible notebooks (*.msnb)|*.msnb",
                 style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,
             )
             try:
@@ -757,7 +757,7 @@ if wx is not None:
                 dialog.Destroy()
 
         def _new_portable_notebook(self, _event: wx.CommandEvent | None = None) -> None:
-            archive_path = self._choose_portable_path("notebook.mathessible")
+            archive_path = self._choose_portable_path("notebook.msnb")
             if archive_path is None:
                 return
             workspace = tempfile.TemporaryDirectory(prefix="mathessible-")
@@ -774,7 +774,7 @@ if wx is not None:
             dialog = wx.FileDialog(
                 self,
                 message="Open portable notebook",
-                wildcard="Mathessible notebooks (*.mathessible)|*.mathessible|All files|*.*",
+                wildcard="Mathessible notebooks (*.msnb)|*.msnb|All files|*.*",
                 style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST,
             )
             try:

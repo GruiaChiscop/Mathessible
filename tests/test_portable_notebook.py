@@ -17,7 +17,7 @@ class PortableNotebookTests(unittest.TestCase):
             archive = save_portable(notebook, base / "analyse")
 
             reopened = extract_portable(archive, base / "destination")
-            self.assertEqual(archive.suffix, ".mathessible")
+            self.assertEqual(archive.suffix, ".msnb")
             self.assertEqual(reopened.title, "Analyse mathématique")
             self.assertEqual([page.title for page in reopened.pages], ["Page 1", "Integrale"])
             self.assertEqual(reopened.read_page(1), "$$∫_0^1 xⅆx$$")
@@ -25,7 +25,7 @@ class PortableNotebookTests(unittest.TestCase):
     def test_rejects_path_traversal(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory)
-            archive = base / "periculos.mathessible"
+            archive = base / "periculos.msnb"
             with zipfile.ZipFile(archive, "w") as output:
                 output.writestr("mathessible.json", "{}")
                 output.writestr("../outside.md", "no")
