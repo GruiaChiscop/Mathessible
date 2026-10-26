@@ -47,6 +47,30 @@ links back, liblouis and BRF need a braille transcriber's convention.
 - [ ] Stage 3: PDF/UA-2 with MathML in the Formula tags, when Typst has it.
 - [ ] Open a PDF with an attached Markdown source in Mathessible.
 
+## DOCX export
+
+- [ ] File > Export > Word Document (.docx): text, headings, lists,
+  tables, links, and every equation as a native Word equation (OMML),
+  with its own dialog and Settings defaults, as the other exports.
+
+## A professional application
+
+- [ ] The interface in more languages, Romanian first (a translation
+  system, gettext or wx's own; every string in English in the code).
+- [ ] The equations' spoken form in the PDF in the document's language:
+  MathCAT has no Romanian yet, so it is English today.
+- [ ] Check with VoiceOver what is only tested without a screen: the Find
+  dialog (wx's generic one), Undo after the commands that change the
+  document (Change to Display, Replace All, AutoCorrect in the text) and
+  File > Print.
+- [ ] Settings' height (720 px with the PDF tab): fine on a laptop, but
+  still tall.
+- [ ] Distribution: a macOS application (`.app`) with an icon, `.md` and
+  `.msnb` files opening in it, signing and notarisation, an installer;
+  Windows and Linux built and tried (liblouis needs clang-cl on
+  Windows); Mathessible running outside its checkout.
+- [ ] Versions: a changelog and releases on GitHub (it is 0.1.0).
+
 ## Later
 
 - [x] Braille export (BRF) of a document or notebook.
