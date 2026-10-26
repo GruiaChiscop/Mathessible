@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dataclasses
 import sys
 import tempfile
 import threading
@@ -14,20 +15,20 @@ from mathessible.documents.find_text import FindOptions, find, is_match, replace
 from mathessible.documents.html_export import PREVIEW_PAGE, ExportPage, preview_update_script, write_notebook_html
 from mathessible.documents.markdown_math import find_math_zones
 from mathessible.documents.notebook import Notebook, NotebookError
-from mathessible.documents.pdf_export import PdfOptions, pdf_inputs, typst_document
+from mathessible.documents.pdf_export import PdfDocument, options_for, pdf_inputs, typst_document
 from mathessible.documents.pdf_security import protect
 from mathessible.documents.portable_notebook import extract_portable, save_portable
 from mathessible.documents.typst_math import TypstEquation, typst_math
 from mathessible.mathcat.navigator import MATHCAT_MISSING, mathcat_load_error
 from mathessible.patch_check import missing_patches
-from mathessible.settings import AppSettings, load_settings, pdf_standards, save_settings
+from mathessible.settings import AppSettings, load_settings, save_settings
 from mathessible.symbols.system_languages import preferred_languages
 from mathessible.symbols.text_braille import default_table, tables_directory, text_tables
 from mathessible.ui.document_editor import DocumentEditor
 from mathessible.ui.help_menu import append_help_menu
 from mathessible.ui.macos_webview import guard_webview_key_equivalents
-from mathessible.ui.pdf_dialog import PdfProperties, PdfPropertiesDialog
-from mathessible.ui.settings_dialog import show_settings
+from mathessible.ui.pdf_dialog import PdfExportDialog
+from mathessible.ui.settings_dialog import forget_settings_window, show_settings
 from mathessible.unicodemath import UnicodeMathError
 
 try:
@@ -711,10 +712,10 @@ if wx is not None:
                 )
                 return
 
-            properties = None
+            chosen = None
             if kind == "pdf":
-                properties = self._ask_pdf_properties(title)
-                if properties is None:
+                chosen = self._ask_pdf_export(title)
+                if chosen is None:
                     return
             dialog = wx.FileDialog(
                 self,
@@ -735,7 +736,7 @@ if wx is not None:
                 if kind == "html":
                     exported_path = write_notebook_html(destination, title, pages, equation_editor.convert_unicode_math)
                 elif kind == "pdf":
-                    exported_path = self._write_pdf(destination, pages, title, properties)
+                    exported_path = self._write_pdf(destination, pages, title, chosen)
                 else:
                     exported_path = self._write_brf(destination, pages)
             except (OSError, UnicodeError, RuntimeError, ValueError, ImportError) as error:
@@ -748,17 +749,30 @@ if wx is not None:
                 self,
             )
 
-        def _ask_pdf_properties(self, title: str) -> PdfProperties | None:
+        def _ask_pdf_export(self, title: str) -> tuple[AppSettings, PdfDocument] | None:
+            """The export dialog: this PDF's settings (from the defaults) and its own document."""
             languages = preferred_languages()
             language = languages[0].split("-")[0] if languages else "en"
-            dialog = PdfPropertiesDialog(self, PdfProperties(title, self.settings.pdf_author, "", (), language))
+            document = PdfDocument(title, self.settings.pdf_author, language=language)
+            dialog = PdfExportDialog(self, self.settings, document, self._save_pdf_defaults)
             try:
-                return dialog.properties if dialog.ShowModal() == wx.ID_OK else None
+                return (dialog.settings, dialog.document) if dialog.ShowModal() == wx.ID_OK else None
             finally:
                 dialog.Destroy()
 
-        def _write_pdf(self, destination: Path, pages: list[ExportPage], title: str, properties: PdfProperties) -> Path:
+        def _save_pdf_defaults(self, chosen: AppSettings) -> None:
+            """Save as Defaults: the PDF's layout, content, standard and author become Settings → PDF."""
+            for name in (field.name for field in dataclasses.fields(AppSettings)):
+                if name.startswith("pdf_"):
+                    setattr(self.settings, name, getattr(chosen, name))
+            forget_settings_window()  # Its controls still show the old defaults.
+            self._settings_applied()
+
+        def _write_pdf(
+            self, destination: Path, pages: list[ExportPage], title: str, chosen: tuple[AppSettings, PdfDocument]
+        ) -> Path:
             """Typst's tagged PDF: each equation's MathCAT speech is its alt text."""
+            settings, document = chosen
             equation_editor = self.editor.equation_window.equation
             navigator = equation_editor.mathcat
 
@@ -772,38 +786,11 @@ if wx is not None:
                 except (UnicodeMathError, RuntimeError, ValueError, ElementTree.ParseError):
                     return None, ""
 
-            settings = self.settings
-            options = PdfOptions(
-                paper=settings.pdf_paper,
-                landscape=settings.pdf_landscape,
-                margins_mm=settings.pdf_margins,
-                font=settings.pdf_font,
-                font_size=settings.pdf_font_size,
-                line_spacing=settings.pdf_line_spacing,
-                justify=settings.pdf_justify,
-                page_numbers=settings.pdf_page_numbers,
-                page_number_position=settings.pdf_page_number_position,
-                header=settings.pdf_header,
-                title=properties.title or title,
-                author=properties.author,
-                subject=properties.subject,
-                keywords=properties.keywords,
-                language=properties.language,
-                table_of_contents=settings.pdf_table_of_contents,
-                attach_source=settings.pdf_attach_source,
-                standards=pdf_standards(settings.pdf_standard),
-                watermark=settings.pdf_watermark,
-                equation_numbering=settings.pdf_equation_numbering,
-                heading_numbering=settings.pdf_heading_numbering,
-                text_colour=settings.pdf_text_colour,
-                heading_colour=settings.pdf_heading_colour,
-                link_colour=settings.pdf_link_colour,
-                columns=settings.pdf_columns,
-            )
-            if properties.security.active and any(standard.startswith("a-") for standard in options.standards):
+            options = options_for(settings, document, title)
+            if document.security.active and any(standard.startswith("a-") for standard in options.standards):
                 raise ValueError(
-                    "PDF/A does not allow passwords or restrictions. Choose Tagged PDF or PDF/UA-1 in "
-                    "Settings → PDF Document, or export without them."
+                    "PDF/A does not allow passwords or restrictions. Choose Tagged PDF or PDF/UA-1 under "
+                    "Security, or export without them."
                 )
             source = typst_document(pages, title, equation_of, options)
             try:
@@ -813,7 +800,7 @@ if wx is not None:
             except RuntimeError as error:
                 raise RuntimeError(f"Typst could not make the PDF:\n{error}") from error
             path = destination if destination.suffix.lower() == ".pdf" else destination.with_suffix(".pdf")
-            path.write_bytes(protect(pdf, properties.security))
+            path.write_bytes(protect(pdf, document.security))
             return path
 
         def _write_brf(self, destination: Path, pages: list[ExportPage]) -> Path:

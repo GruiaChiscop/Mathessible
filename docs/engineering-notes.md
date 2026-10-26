@@ -1251,9 +1251,20 @@ white) and columns. Passwords and permissions come after Typst
 cloned whole so tags, outline, metadata and attachments stay (checked);
 the accessibility extraction bit is always set, as PDF/UA requires, and
 restrictions with no permissions password get a random one. PDF/A
-forbids encryption: refused before export. Passwords are only in the
-export dialog, never in settings. Settings split PDF into "PDF Page" and
-"PDF Document" (one tab was 849 px tall).
+forbids encryption: refused before export.
+
+Settings and the export dialog (the user's design, 2026-10-26): what
+belongs to one PDF is only in the export dialog and never kept (title,
+subject, keywords, language, header, watermark, passwords:
+`pdf_export.PdfDocument`); Settings → PDF holds the defaults (layout,
+content, standard, author), which the dialog's Layout, Content and
+Security tabs start from on a copy (`dataclasses.replace`) and Save as
+Defaults copies back (every `pdf_` field). Both use the same controls
+(`ui/pdf_controls.py`: `FormRows`, `PdfLayoutControls`,
+`PdfContentControls`, `PdfStandardControl`), so they cannot differ.
+**Trap:** the macOS Settings window is kept hidden between openings, so
+after Save as Defaults it showed, and on the next change wrote back, the
+old values: `forget_settings_window()` destroys it to be rebuilt.
 
 ## liblouis and BRF Export
 

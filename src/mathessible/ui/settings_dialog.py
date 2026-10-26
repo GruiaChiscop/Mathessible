@@ -13,21 +13,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from mathessible.editing.autocorrect import AutoCorrectTable, autocorrect_defaults, differences
-from mathessible.settings import (
-    BRAILLE_CODES,
-    BRF_CELLS,
-    BRF_LINES,
-    PDF_COLOURS,
-    PDF_COLUMNS,
-    PDF_EQUATION_NUMBERING,
-    PDF_FONT_SIZES,
-    PDF_HEADING_NUMBERING,
-    PDF_MARGINS,
-    PDF_NUMBER_POSITIONS,
-    PDF_PAPERS,
-    PDF_STANDARDS,
-    AppSettings,
-)
+from mathessible.settings import BRAILLE_CODES, BRF_CELLS, BRF_LINES, AppSettings
 from mathessible.symbols.braille_signs import load_signs, save_signs
 from mathessible.symbols.dictionary import SymbolDictionaryError, available_dictionaries, import_dictionary
 from mathessible.symbols.download import SymbolDownloadError, download_languages, nvda_languages
@@ -36,6 +22,7 @@ from mathessible.symbols.text_braille import default_table, text_tables
 from mathessible.ui.autocorrect_dialog import AutoCorrectDialog
 from mathessible.ui.braille_signs_dialog import BrailleSignsDialog
 from mathessible.ui.functions_dialog import RecognizedFunctionsDialog
+from mathessible.ui.pdf_controls import FormRows, PdfContentControls, PdfLayoutControls, PdfStandardControl
 from mathessible.unicodemath import control_words
 
 try:
@@ -44,8 +31,6 @@ except ImportError:
     wx = None
 
 _WRAP = 460
-# The fonts Typst brings with it, offered first: they are in every PDF it writes.
-_TYPST_FONTS = ("Libertinus Serif", "New Computer Modern", "DejaVu Sans Mono")
 
 
 def applies_at_once() -> bool:
@@ -54,40 +39,6 @@ def applies_at_once() -> bool:
 
 
 if wx is not None:
-
-    class _Rows:
-        """Labelled controls in two columns on a settings page; every change calls `changed`."""
-
-        def __init__(self, page: wx.Panel, changed: Callable[[], None]):
-            self.page, self.changed = page, changed
-            self.grid = wx.FlexGridSizer(cols=2, vgap=8, hgap=12)
-
-        def row(self, label: str, control: wx.Window, name: str) -> wx.Window:
-            control.SetName(name)
-            self.grid.Add(wx.StaticText(self.page, label=label), 0, wx.ALIGN_CENTER_VERTICAL)
-            self.grid.Add(control, 0, wx.EXPAND)
-            return control
-
-        def choice(self, options: tuple[tuple[str, str], ...], value: str) -> wx.Choice:
-            control = wx.Choice(self.page, choices=[label for _value, label in options])
-            values = [option for option, _label in options]
-            control.SetSelection(values.index(value) if value in values else 0)
-            control.Bind(wx.EVT_CHOICE, lambda _event: self.changed())
-            return control
-
-        def spin(self, value: int, bounds: tuple[int, int]) -> wx.SpinCtrl:
-            control = wx.SpinCtrl(self.page, min=bounds[0], max=bounds[1], initial=value)
-            control.Bind(wx.EVT_SPINCTRL, lambda _event: self.changed())
-            return control
-
-        def text(self, value: str) -> wx.TextCtrl:
-            control = wx.TextCtrl(self.page, value=value)
-            control.Bind(wx.EVT_KILL_FOCUS, lambda event: (self.changed(), event.Skip()))
-            return control
-
-        def finish(self) -> None:
-            self.grid.AddGrowableCol(1)
-            self.page.GetSizer().Add(self.grid, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 12)
 
     class SettingsPanel(wx.Panel):
         """Every setting, in tabs: Typing, Building, Navigation, Speech, Braille.
@@ -113,8 +64,7 @@ if wx is not None:
             self._navigation_page(self._page("Navigation"), settings)
             self._speech_page(self._page("Speech"), settings)
             self._braille_page(self._page("Braille"), settings)
-            self._pdf_layout_page(self._page("PDF Page"), settings)
-            self._pdf_document_page(self._page("PDF Document"), settings)
+            self._pdf_page(self._page("PDF"), settings)
             for index in range(self.notebook.GetPageCount()):
                 self.notebook.GetPage(index).GetSizer().AddSpacer(12)  # A margin under the last control.
             sizer = wx.BoxSizer(wx.VERTICAL)
@@ -340,87 +290,18 @@ if wx is not None:
                 settings.brf_page_numbers,
             )
 
-        def _pdf_rows(self, page: wx.Panel) -> _Rows:
-            return _Rows(page, self._changed)
-
-        def _pdf_layout_page(self, page: wx.Panel, settings: AppSettings) -> None:
-            """File > Export > PDF: the page and the text."""
-            rows = self._pdf_rows(page)
-            self.pdf_paper = rows.row("&Paper", rows.choice(PDF_PAPERS, settings.pdf_paper), "Paper")
-            margin_names = ("&Top margin (mm)", "&Right margin (mm)", "&Bottom margin (mm)", "&Left margin (mm)")
-            self.pdf_margins = [
-                rows.row(name, rows.spin(value, PDF_MARGINS), name.replace("&", "").split(" (")[0])
-                for name, value in zip(margin_names, settings.pdf_margins, strict=True)
-            ]
-            self.pdf_columns = rows.row("Colu&mns", rows.spin(settings.pdf_columns, PDF_COLUMNS), "Columns")
-            fonts = sorted(set(wx.FontEnumerator().GetFacenames()) - set(_TYPST_FONTS), key=str.casefold)
-            self._pdf_fonts = [*_TYPST_FONTS, *fonts]
-            self.pdf_font = rows.row("&Font", wx.Choice(page, choices=self._pdf_fonts), "Font")
-            if settings.pdf_font in self._pdf_fonts:
-                self.pdf_font.SetSelection(self._pdf_fonts.index(settings.pdf_font))
-            self.pdf_font.Bind(wx.EVT_CHOICE, lambda _event: self._changed())
-            self.pdf_font_size = rows.row(
-                "Font si&ze (pt)", rows.spin(settings.pdf_font_size, PDF_FONT_SIZES), "Font size"
-            )
-            self.pdf_line_spacing = rows.row(
-                "Line s&pacing (em)",
-                wx.SpinCtrlDouble(page, min=0.2, max=3, initial=settings.pdf_line_spacing, inc=0.05),
-                "Line spacing",
-            )
-            self.pdf_line_spacing.Bind(wx.EVT_SPINCTRLDOUBLE, lambda _event: self._changed())
-            self.pdf_number_position = rows.row(
-                "Page number p&osition",
-                rows.choice(PDF_NUMBER_POSITIONS, settings.pdf_page_number_position),
-                "Page number position",
-            )
-            self.pdf_header = rows.row("&Header text", rows.text(settings.pdf_header), "Header text")
-            self.pdf_watermark = rows.row("&Watermark text", rows.text(settings.pdf_watermark), "Watermark text")
-            rows.finish()
-            self.pdf_landscape = self._checkbox(page, "Lan&dscape", "Landscape", settings.pdf_landscape)
-            self.pdf_justify = self._checkbox(page, "&Justify the text", "Justify the text", settings.pdf_justify)
-            self.pdf_page_numbers = self._checkbox(
-                page, "&Number the pages", "Number the pages", settings.pdf_page_numbers
-            )
-
-        def _pdf_document_page(self, page: wx.Panel, settings: AppSettings) -> None:
-            """File > Export > PDF: numbering, colours, what the PDF holds and its standard."""
-            rows = self._pdf_rows(page)
-            self.pdf_author = rows.row("&Author", rows.text(settings.pdf_author), "Author")
-            self.pdf_heading_numbering = rows.row(
-                "Heading n&umbers",
-                rows.choice(PDF_HEADING_NUMBERING, settings.pdf_heading_numbering),
-                "Heading numbers",
-            )
-            self.pdf_equation_numbering = rows.row(
-                "E&quation numbers",
-                rows.choice(PDF_EQUATION_NUMBERING, settings.pdf_equation_numbering),
-                "Equation numbers",
-            )
-            self.pdf_text_colour = rows.row(
-                "Te&xt colour", rows.choice(PDF_COLOURS, settings.pdf_text_colour), "Text colour"
-            )
-            self.pdf_heading_colour = rows.row(
-                "Headin&g colour", rows.choice(PDF_COLOURS, settings.pdf_heading_colour), "Heading colour"
-            )
-            self.pdf_link_colour = rows.row(
-                "L&ink colour", rows.choice(PDF_COLOURS, settings.pdf_link_colour), "Link colour"
-            )
-            self.pdf_standard = rows.row("&Standard", rows.choice(PDF_STANDARDS, settings.pdf_standard), "PDF standard")
-            rows.finish()
-            self.pdf_table_of_contents = self._checkbox(
-                page, "Table of &contents (from the headings)", "Table of contents", settings.pdf_table_of_contents
-            )
-            self.pdf_attach_source = self._checkbox(
-                page,
-                "Attach the Markdown &source (the PDF can be opened in Mathessible again)",
-                "Attach the Markdown source",
-                settings.pdf_attach_source,
-            )
+        def _pdf_page(self, page: wx.Panel, settings: AppSettings) -> None:
+            """The PDF export's defaults; each export can change them (File > Export > PDF)."""
+            rows = FormRows(page, self._changed)
+            self.pdf_layout = PdfLayoutControls(rows, settings)
+            self.pdf_content = PdfContentControls(rows, settings)
+            self.pdf_standard = PdfStandardControl(rows, settings)
+            self.pdf_author = rows.row("Default &author", rows.text(settings.pdf_author), "Default author")
+            rows.finish(page.GetSizer())
             self._help(
                 page,
-                "Every PDF is tagged, its headings bookmarked, and every equation carries its spoken form "
-                "for screen readers. PDF/UA-1 checks that while exporting. Passwords are asked for when "
-                "exporting, and never kept.",
+                "These are the defaults for every PDF; the export's dialog can change them for one PDF, "
+                "and holds the title, header, watermark and passwords, which are never kept.",
             )
 
         # Controls
@@ -484,40 +365,10 @@ if wx is not None:
             self._settings.removed_words_as_symbols = self.removed_words_as_symbols.GetValue()
 
         def _apply_pdf(self) -> None:
-            def chosen(control: wx.Choice, options: tuple[tuple[str, str], ...], current: str) -> str:
-                index = control.GetSelection()
-                return options[index][0] if index != wx.NOT_FOUND else current
-
-            settings = self._settings
-            settings.pdf_paper = chosen(self.pdf_paper, PDF_PAPERS, settings.pdf_paper)
-            settings.pdf_margins = tuple(control.GetValue() for control in self.pdf_margins)
-            font = self.pdf_font.GetSelection()
-            if font != wx.NOT_FOUND:
-                settings.pdf_font = self._pdf_fonts[font]
-            settings.pdf_font_size = self.pdf_font_size.GetValue()
-            settings.pdf_line_spacing = round(self.pdf_line_spacing.GetValue(), 2)
-            settings.pdf_page_number_position = chosen(
-                self.pdf_number_position, PDF_NUMBER_POSITIONS, settings.pdf_page_number_position
-            )
-            settings.pdf_header = self.pdf_header.GetValue()
-            settings.pdf_author = self.pdf_author.GetValue()
-            settings.pdf_standard = chosen(self.pdf_standard, PDF_STANDARDS, settings.pdf_standard)
-            settings.pdf_columns = self.pdf_columns.GetValue()
-            settings.pdf_heading_numbering = chosen(
-                self.pdf_heading_numbering, PDF_HEADING_NUMBERING, settings.pdf_heading_numbering
-            )
-            settings.pdf_equation_numbering = chosen(
-                self.pdf_equation_numbering, PDF_EQUATION_NUMBERING, settings.pdf_equation_numbering
-            )
-            settings.pdf_text_colour = chosen(self.pdf_text_colour, PDF_COLOURS, settings.pdf_text_colour)
-            settings.pdf_heading_colour = chosen(self.pdf_heading_colour, PDF_COLOURS, settings.pdf_heading_colour)
-            settings.pdf_link_colour = chosen(self.pdf_link_colour, PDF_COLOURS, settings.pdf_link_colour)
-            settings.pdf_watermark = self.pdf_watermark.GetValue()
-            settings.pdf_landscape = self.pdf_landscape.GetValue()
-            settings.pdf_justify = self.pdf_justify.GetValue()
-            settings.pdf_page_numbers = self.pdf_page_numbers.GetValue()
-            settings.pdf_table_of_contents = self.pdf_table_of_contents.GetValue()
-            settings.pdf_attach_source = self.pdf_attach_source.GetValue()
+            self.pdf_layout.store(self._settings)
+            self.pdf_content.store(self._settings)
+            self.pdf_standard.store(self._settings)
+            self._settings.pdf_author = self.pdf_author.GetValue()
 
         # Lists edited in their own dialogs
 
@@ -732,6 +583,13 @@ if wx is not None:
 
     _window: SettingsWindow | None = None
 
+    def forget_settings_window() -> None:
+        """The kept Settings window is rebuilt next time: settings changed elsewhere (Save as Defaults)."""
+        global _window
+        if _window:
+            _window.Destroy()
+        _window = None
+
     def show_settings(parent: wx.Window, settings: AppSettings, on_apply: Callable[[], None]) -> None:
         """Settings, as the platform has them: the one window on macOS, a modal dialog elsewhere."""
         global _window
@@ -759,3 +617,6 @@ else:
 
     def show_settings(*args: object, **kwargs: object) -> None:  # type: ignore[misc]
         raise RuntimeError("wxPython is not installed. Run: uv sync")
+
+    def forget_settings_window() -> None:  # type: ignore[misc]
+        pass

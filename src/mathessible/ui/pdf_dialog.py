@@ -1,8 +1,11 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from collections.abc import Callable
+from dataclasses import replace
 
+from mathessible.documents.pdf_export import PdfDocument
 from mathessible.documents.pdf_security import PdfSecurity
+from mathessible.settings import AppSettings
 
 try:
     import wx
@@ -10,78 +13,118 @@ except ImportError:
     wx = None
 
 
-@dataclass(frozen=True, slots=True)
-class PdfProperties:
-    title: str
-    author: str
-    subject: str
-    keywords: tuple[str, ...]
-    language: str
-    security: PdfSecurity = field(default_factory=PdfSecurity)  # Asked each time, never kept.
-
-
 if wx is not None:
+    from mathessible.ui.pdf_controls import FormRows, PdfContentControls, PdfLayoutControls, PdfStandardControl
 
-    class PdfPropertiesDialog(wx.Dialog):
-        """File > Export > PDF: the document's properties, which the PDF keeps (and PDF/UA requires a title
-        and a language). Native controls only, no announcements of its own."""
+    class PdfExportDialog(wx.Dialog):
+        """File > Export > PDF: this PDF's properties, layout, content and security, in tabs.
 
-        def __init__(self, parent: wx.Window, properties: PdfProperties):
-            super().__init__(parent, title="PDF Document Properties", style=wx.DEFAULT_DIALOG_STYLE)
-            self.SetName("PDF document properties dialog")
-            grid = wx.FlexGridSizer(cols=2, vgap=8, hgap=12)
-            grid.AddGrowableCol(1)
+        Layout and content start from Settings → PDF; Save as Defaults
+        makes this PDF's layout, content, standard and author the defaults
+        (`save_defaults`), never its title, header, watermark or passwords.
+        Native controls only, no announcements of its own.
+        """
 
-            def text_field(label: str, value: str, name: str, style: int = 0) -> wx.TextCtrl:
-                control = wx.TextCtrl(self, value=value, size=(320, -1), style=style)
-                control.SetName(name)
-                grid.Add(wx.StaticText(self, label=label), 0, wx.ALIGN_CENTER_VERTICAL)
-                grid.Add(control, 1, wx.EXPAND)
-                return control
+        def __init__(
+            self,
+            parent: wx.Window,
+            settings: AppSettings,
+            document: PdfDocument,
+            save_defaults: Callable[[AppSettings], None],
+        ):
+            super().__init__(parent, title="Export as PDF", style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+            self.SetName("Export as PDF dialog")
+            self._settings = replace(settings)  # This PDF's copy.
+            self._save_defaults = save_defaults
+            self.notebook = wx.Notebook(self)
+            self.notebook.SetName("PDF export categories")
 
-            self.title = text_field("&Title", properties.title, "Title")
-            self.author = text_field("&Author", properties.author, "Author")
-            self.subject = text_field("&Subject", properties.subject, "Subject")
-            self.keywords = text_field("&Keywords (comma-separated)", ", ".join(properties.keywords), "Keywords")
-            self.language = text_field("&Language (for example ro, en)", properties.language, "Language")
-            security = wx.StaticBoxSizer(wx.VERTICAL, self, "Security (optional)")
-            box = security.GetStaticBox()
-            secrets = wx.FlexGridSizer(cols=2, vgap=8, hgap=12)
-            secrets.AddGrowableCol(1)
-            self.open_password = wx.TextCtrl(box, style=wx.TE_PASSWORD, size=(240, -1))
-            self.open_password.SetName("Password to open")
-            self.permissions_password = wx.TextCtrl(box, style=wx.TE_PASSWORD, size=(240, -1))
-            self.permissions_password.SetName("Password for permissions")
-            secrets.Add(wx.StaticText(box, label="Password to &open"), 0, wx.ALIGN_CENTER_VERTICAL)
-            secrets.Add(self.open_password, 1, wx.EXPAND)
-            secrets.Add(wx.StaticText(box, label="Password for &permissions"), 0, wx.ALIGN_CENTER_VERTICAL)
-            secrets.Add(self.permissions_password, 1, wx.EXPAND)
-            security.Add(secrets, 0, wx.ALL | wx.EXPAND, 8)
-            self.allow_printing = wx.CheckBox(box, label="Allow p&rinting")
-            self.allow_copying = wx.CheckBox(box, label="Allow &copying text (screen readers can always read)")
-            self.allow_editing = wx.CheckBox(box, label="Allow &editing")
-            for checkbox in (self.allow_printing, self.allow_copying, self.allow_editing):
-                checkbox.SetValue(True)
-                security.Add(checkbox, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-            buttons = self.CreateSeparatedButtonSizer(wx.OK | wx.CANCEL)
+            page = self._page("Document")
+            rows = FormRows(page)
+            self.title = rows.row("&Title", rows.text(document.title), "Title")
+            self.author = rows.row("&Author", rows.text(document.author), "Author")
+            self.subject = rows.row("&Subject", rows.text(document.subject), "Subject")
+            self.keywords = rows.row("&Keywords (comma-separated)", rows.text(", ".join(document.keywords)), "Keywords")
+            self.language = rows.row("&Language (for example ro, en)", rows.text(document.language), "Language")
+            rows.finish(page.GetSizer())
+
+            page = self._page("Layout")
+            rows = FormRows(page)
+            self.layout = PdfLayoutControls(rows, settings)
+            rows.finish(page.GetSizer())
+
+            page = self._page("Content")
+            rows = FormRows(page)
+            self.header = rows.row("&Header text", rows.text(document.header), "Header text")
+            self.watermark = rows.row("&Watermark text", rows.text(document.watermark), "Watermark text")
+            self.content = PdfContentControls(rows, settings)
+            rows.finish(page.GetSizer())
+
+            page = self._page("Security")
+            rows = FormRows(page)
+            self.standard = PdfStandardControl(rows, settings)
+            self.open_password = rows.row(
+                "Password to &open", wx.TextCtrl(page, style=wx.TE_PASSWORD), "Password to open"
+            )
+            self.permissions_password = rows.row(
+                "Password for &permissions", wx.TextCtrl(page, style=wx.TE_PASSWORD), "Password for permissions"
+            )
+            self.allow_printing = rows.checkbox("Allow p&rinting", "Allow printing", document.security.allow_printing)
+            self.allow_copying = rows.checkbox(
+                "Allow &copying text (screen readers can always read)",
+                "Allow copying text",
+                document.security.allow_copying,
+            )
+            self.allow_editing = rows.checkbox("Allow &editing", "Allow editing", document.security.allow_editing)
+            rows.finish(page.GetSizer())
+            note = wx.StaticText(page, label="Passwords are never kept. PDF/A does not allow them.")
+            note.Wrap(420)
+            page.GetSizer().Add(note, 0, wx.ALL, 12)
+
+            defaults = wx.Button(self, label="Save as &Defaults")
+            defaults.Bind(wx.EVT_BUTTON, lambda _event: self._on_save_defaults())
+            export = wx.Button(self, wx.ID_OK, label="E&xport")
+            export.SetDefault()
+            cancel = wx.Button(self, wx.ID_CANCEL)
+            buttons = wx.BoxSizer(wx.HORIZONTAL)
+            buttons.Add(defaults, 0)
+            buttons.AddStretchSpacer()
+            buttons.Add(cancel, 0, wx.RIGHT, 8)
+            buttons.Add(export, 0)
             sizer = wx.BoxSizer(wx.VERTICAL)
-            sizer.Add(grid, 0, wx.ALL | wx.EXPAND, 12)
-            sizer.Add(security, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 12)
-            if buttons is not None:
-                sizer.Add(buttons, 0, wx.ALL | wx.EXPAND, 12)
+            sizer.Add(self.notebook, 1, wx.EXPAND | wx.ALL, 8)
+            sizer.Add(buttons, 0, wx.ALL | wx.EXPAND, 12)
             self.SetSizerAndFit(sizer)
             self.title.SetFocus()
 
+        def _page(self, title: str) -> wx.Panel:
+            page = wx.Panel(self.notebook)
+            page.SetName(title)
+            page.SetSizer(wx.BoxSizer(wx.VERTICAL))
+            self.notebook.AddPage(page, title)
+            return page
+
         @property
-        def properties(self) -> PdfProperties:
+        def settings(self) -> AppSettings:
+            """This PDF's layout, content and standard."""
+            self.layout.store(self._settings)
+            self.content.store(self._settings)
+            self.standard.store(self._settings)
+            self._settings.pdf_author = self.author.GetValue().strip()
+            return self._settings
+
+        @property
+        def document(self) -> PdfDocument:
             keywords = tuple(word.strip() for word in self.keywords.GetValue().split(",") if word.strip())
             language = self.language.GetValue().strip().replace("_", "-").split("-")[0].lower() or "en"
-            return PdfProperties(
+            return PdfDocument(
                 self.title.GetValue().strip(),
                 self.author.GetValue().strip(),
                 self.subject.GetValue().strip(),
                 keywords,
                 language,
+                self.header.GetValue().strip(),
+                self.watermark.GetValue().strip(),
                 PdfSecurity(
                     self.open_password.GetValue(),
                     self.permissions_password.GetValue(),
@@ -91,8 +134,17 @@ if wx is not None:
                 ),
             )
 
+        def _on_save_defaults(self) -> None:
+            self._save_defaults(self.settings)
+            wx.MessageBox(
+                "This layout, content, standard and author are now the defaults for new PDFs.",
+                "Save as Defaults",
+                wx.OK | wx.ICON_INFORMATION,
+                self,
+            )
+
 else:
 
-    class PdfPropertiesDialog:  # type: ignore[no-redef]
+    class PdfExportDialog:  # type: ignore[no-redef]
         def __init__(self, *args: object, **kwargs: object):
             raise RuntimeError("wxPython is not installed. Run: uv sync")

@@ -260,34 +260,39 @@ so a class can share one file:
 
 ### PDF export
 
-`File → Export → PDF…` asks for the document's properties (title,
-author, subject, keywords and language, which the PDF keeps), then
-writes the document, or every page of the notebook, as a PDF typeset by
-Typst. The PDF is tagged for screen readers: headings, paragraphs,
-lists, tables and links are marked as such, the headings are bookmarks,
-and every equation carries its spoken form, MathCAT's, for a screen
-reader to read. Equations are typeset as built structures (fractions,
-roots, limits, matrices, cases, equation arrays and numbers).
+`File → Export → PDF…` opens the export's dialog, in four tabs, for this
+PDF only:
 
-`Settings → PDF Page` chooses the paper (A4, A5, A3, US Letter or US
-Legal), the four margins, columns (one to three), the font (Typst's own
-or any installed), its size and the line spacing, page numbers and where
-they go, a header text, a watermark across every page, landscape and
-justified text. `Settings → PDF Document` chooses the default author,
-numbers for headings (1., 1.1) and for display equations ((1), [1]; a
-number written in the equation, `#(1)`, is kept as it is, so a document
-with its own numbers is best left without), the colours of the text, the
-headings and the links (dark colours only, readable on white), a table
-of contents from the headings, whether the Markdown source is attached,
-so that the PDF can be opened in Mathessible again, and the
-**Standard**: a tagged PDF, PDF/UA-1 (accessible; the default), PDF/UA-1
-with PDF/A-3a (accessible and archival), or PDF/A-3a.
+- **Document**: the title, author, subject, keywords and language, which
+  the PDF keeps (PDF/UA requires a title and a language).
+- **Layout**: the paper (A4, A5, A3, US Letter or US Legal), the four
+  margins, columns (one to three), the font (Typst's own or any
+  installed), its size and the line spacing, landscape and justified
+  text.
+- **Content**: a header text and a watermark across every page, where
+  the page numbers go, numbers for headings (1., 1.1) and for display
+  equations ((1), [1]; a number written in the equation, `#(1)`, is kept
+  as it is, so a document with its own numbers is best left without),
+  the colours of the text, the headings and the links (dark colours
+  only, readable on white), page numbers, a table of contents from the
+  headings, and whether the Markdown source is attached, so that the PDF
+  can be opened in Mathessible again.
+- **Security**: the **standard** (a tagged PDF, PDF/UA-1, the default,
+  PDF/UA-1 with PDF/A-3a, or PDF/A-3a), a password to open the PDF, a
+  password for permissions, and whether printing, copying and editing
+  are allowed. Whatever is forbidden, screen readers can always read the
+  PDF, as PDF/UA requires. PDF/A does not allow passwords.
 
-The export's dialog can also protect the PDF: a password to open it, a
-password for permissions, and whether printing, copying and editing are
-allowed. Whatever is forbidden, screen readers can always read it, as
-PDF/UA requires. The passwords are never kept. PDF/A does not allow
-encryption, so these need a tagged or PDF/UA-1 PDF.
+Layout and content start from `Settings → PDF`, the defaults; **Save as
+Defaults** makes this PDF's layout, content, standard and author the
+defaults. The title, header, watermark and passwords belong to one PDF
+and are never kept.
+
+The PDF is typeset by Typst and tagged for screen readers: headings,
+paragraphs, lists, tables and links are marked as such, the headings are
+bookmarks, and every equation carries its spoken form, MathCAT's, for a
+screen reader to read. Equations are typeset as built structures
+(fractions, roots, limits, matrices, cases, equation arrays and numbers).
 
 ### BRF export
 

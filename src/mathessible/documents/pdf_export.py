@@ -12,13 +12,15 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from markdown_it import MarkdownIt
 
 from mathessible.documents.html_export import ExportPage
 from mathessible.documents.markdown_math import find_math_zones
+from mathessible.documents.pdf_security import PdfSecurity
 from mathessible.documents.typst_math import TypstEquation
+from mathessible.settings import AppSettings, pdf_standards
 
 
 @dataclass(frozen=True, slots=True)
@@ -48,6 +50,51 @@ class PdfOptions:
     heading_colour: str = ""
     link_colour: str = ""
     columns: int = 1
+
+
+@dataclass(frozen=True, slots=True)
+class PdfDocument:
+    """What belongs to one PDF only, never kept: its properties, header, watermark and passwords."""
+
+    title: str
+    author: str
+    subject: str = ""
+    keywords: tuple[str, ...] = ()
+    language: str = "en"
+    header: str = ""
+    watermark: str = ""
+    security: PdfSecurity = field(default_factory=PdfSecurity)
+
+
+def options_for(settings: AppSettings, document: PdfDocument, title: str) -> PdfOptions:
+    """One PDF's options: its layout and content (Settings' defaults, or the export dialog's) and its own document."""
+    return PdfOptions(
+        paper=settings.pdf_paper,
+        landscape=settings.pdf_landscape,
+        margins_mm=settings.pdf_margins,
+        font=settings.pdf_font,
+        font_size=settings.pdf_font_size,
+        line_spacing=settings.pdf_line_spacing,
+        justify=settings.pdf_justify,
+        page_numbers=settings.pdf_page_numbers,
+        page_number_position=settings.pdf_page_number_position,
+        header=document.header,
+        title=document.title or title,
+        author=document.author,
+        subject=document.subject,
+        keywords=document.keywords,
+        language=document.language,
+        table_of_contents=settings.pdf_table_of_contents,
+        attach_source=settings.pdf_attach_source,
+        standards=pdf_standards(settings.pdf_standard),
+        watermark=document.watermark,
+        equation_numbering=settings.pdf_equation_numbering,
+        heading_numbering=settings.pdf_heading_numbering,
+        text_colour=settings.pdf_text_colour,
+        heading_colour=settings.pdf_heading_colour,
+        link_colour=settings.pdf_link_colour,
+        columns=settings.pdf_columns,
+    )
 
 
 # An equation's Typst math and spoken form; None when it does not build.
