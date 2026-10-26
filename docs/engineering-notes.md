@@ -1230,8 +1230,12 @@ Windows. Its errors go to stderr.
 
 The tables offered are the literary ones with an `#-index-name` (their
 own English names, "Romanian, uncontracted") and not `#+dots: 8`; the
-default is the system language's uncontracted table, UEB where English
-has a choice. Equations: the editor's own `MathCatNavigator` (its braille
+default is the uncontracted table (UEB where English has a choice) of
+the first of the system's preferred languages that has one
+(`symbols/system_languages.py`). **Trap:** Python's locale is "C" in a
+macOS app, so it once always chose English: macOS is asked for its
+AppleLanguages (`defaults read -g`), Windows for the user's locale name,
+elsewhere LANGUAGE and LANG. Equations: the editor's own `MathCatNavigator` (its braille
 code and signs) loads each converted equation and gives
 `expression_braille()`; the editor reloads its equation when opened.
 The layout (cells 3/1 for paragraphs, 1/3 for list items, 5/7 for

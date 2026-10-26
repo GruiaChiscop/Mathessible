@@ -8,7 +8,6 @@ its settings grouped in native tabs that screen readers announce.
 
 from __future__ import annotations
 
-import locale
 import threading
 from collections.abc import Callable
 from pathlib import Path
@@ -18,6 +17,7 @@ from mathessible.settings import BRAILLE_CODES, BRF_CELLS, BRF_LINES, AppSetting
 from mathessible.symbols.braille_signs import load_signs, save_signs
 from mathessible.symbols.dictionary import SymbolDictionaryError, available_dictionaries, import_dictionary
 from mathessible.symbols.download import SymbolDownloadError, download_languages, nvda_languages
+from mathessible.symbols.system_languages import preferred_languages
 from mathessible.symbols.text_braille import default_table, text_tables
 from mathessible.ui.autocorrect_dialog import AutoCorrectDialog
 from mathessible.ui.braille_signs_dialog import BrailleSignsDialog
@@ -259,7 +259,7 @@ if wx is not None:
             self.braille_text_table = wx.Choice(page, choices=[table.name for table in self._text_tables])
             self.braille_text_table.SetName("Text braille table")
             files = [table.file for table in self._text_tables]
-            chosen = settings.braille_text_table or default_table(locale.getlocale()[0] or "en", self._text_tables)
+            chosen = settings.braille_text_table or default_table(preferred_languages(), self._text_tables)
             if chosen in files:
                 self.braille_text_table.SetSelection(files.index(chosen))
             self.braille_text_table.Bind(wx.EVT_CHOICE, lambda _event: self._changed())

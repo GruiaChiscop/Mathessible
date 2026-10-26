@@ -25,8 +25,8 @@ GitHub, and the Help menu opens it in the browser.
 - [x] Braille export (BRF) of a document or notebook.
 - [ ] BRF: the switch indicators UEB text needs around Nemeth maths (see
   what MathCAT offers), and page numbers.
-- [ ] The text braille table's default follows Python's locale, which is
-  "C" in a macOS app: read the system's preferred languages instead.
+- [x] The text braille table's default follows the system's preferred
+  languages (Python's locale is "C" in a macOS app).
 - [ ] Propose Mathessible's patches upstream (`patches/mathcat`,
   `patches/unicodemathml`).
 - [ ] LaTeX input in the equation editor.

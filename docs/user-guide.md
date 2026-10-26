@@ -265,7 +265,7 @@ the notebook, as a BRF file, ready to emboss or to read on a braille
 display. The text is in braille by the **text braille table** chosen in
 `Settings → Braille` (liblouis's tables: Romanian uncontracted, English
 UEB uncontracted or contracted, and many more; by default the one for the
-system's language), and every equation is in the braille code chosen
+first of the system's preferred languages that has a table), and every equation is in the braille code chosen
 above (Nemeth by default), your own braille signs included. The page has
 40 cells per line and 25 lines per page, both changeable there.
 

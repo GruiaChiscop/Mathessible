@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import locale
 import sys
 import tempfile
 import threading
@@ -16,6 +15,7 @@ from mathessible.documents.portable_notebook import extract_portable, save_porta
 from mathessible.mathcat.navigator import MATHCAT_MISSING, mathcat_load_error
 from mathessible.patch_check import missing_patches
 from mathessible.settings import AppSettings, load_settings, save_settings
+from mathessible.symbols.system_languages import preferred_languages
 from mathessible.symbols.text_braille import default_table, tables_directory, text_tables
 from mathessible.ui.document_editor import DocumentEditor
 from mathessible.ui.help_menu import append_help_menu
@@ -739,7 +739,7 @@ if wx is not None:
             if navigator is None:
                 raise RuntimeError(MATHCAT_MISSING)
             tables = text_tables()
-            table = self.settings.braille_text_table or default_table(locale.getlocale()[0] or "en", tables)
+            table = self.settings.braille_text_table or default_table(preferred_languages(), tables)
             table_path = str(tables_directory() / table)
 
             def text_braille(text: str) -> str:

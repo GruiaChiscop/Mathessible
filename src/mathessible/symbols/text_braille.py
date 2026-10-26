@@ -61,12 +61,13 @@ def text_tables(directory: Path | None = None) -> list[TextTable]:
     return sorted(tables, key=lambda table: table.name.casefold())
 
 
-def default_table(language: str, tables: list[TextTable]) -> str:
-    """The table for a language ("ro", "en_GB"): uncontracted, Unified English Braille where there is a choice;
-    English UEB uncontracted for a language without one."""
-    code = language.replace("_", "-").split("-")[0].lower()
-    matching = [table for table in tables if table.language.split("-")[0].lower() == code]
-    matching.sort(key=lambda table: (table.contraction != "no", table.system != "ueb", table.name))
-    if matching:
-        return matching[0].file
+def default_table(languages: list[str], tables: list[TextTable]) -> str:
+    """The table for the first of `languages` ("ro-RO", "en_GB") that has one: uncontracted, Unified
+    English Braille where there is a choice; English UEB uncontracted when none has one."""
+    for language in languages:
+        code = language.replace("_", "-").split("-")[0].lower()
+        matching = [table for table in tables if table.language.split("-")[0].lower() == code]
+        matching.sort(key=lambda table: (table.contraction != "no", table.system != "ueb", table.name))
+        if matching:
+            return matching[0].file
     return "en-ueb-g1.ctb"
