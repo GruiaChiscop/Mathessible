@@ -5,7 +5,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from matex import session_log
-from matex.documents.markdown_math import MathZone, math_zone_at
+from matex.documents.markdown_math import MathZone, math_zone_at, toggle_display
 from matex.editor.equation_editor import EquationEditor
 from matex.editor.structures import append_insert_items
 from matex.settings import AppSettings
@@ -60,6 +60,8 @@ if wx is not None:
             self.SetMinSize((620, 440))
             self.SetName("Equation Editor window")
             self._on_done: Callable[[bool], None] | None = None
+            # Display or inline, as the equation is saved: Change to Display/Inline.
+            self.display = False
             self._disabled: list[wx.TopLevelWindow] = []
             panel = wx.Panel(self)
             sizer = wx.BoxSizer(wx.VERTICAL)
@@ -87,6 +89,13 @@ if wx is not None:
             equation_menu.AppendSeparator()
             errors_item = equation_menu.Append(wx.ID_ANY, "&Errors…\tF8")
             self.Bind(wx.EVT_MENU, lambda _event: self.equation.show_errors(), errors_item)
+            display_item = equation_menu.Append(wx.ID_ANY, "Change to &Display")
+            self.Bind(wx.EVT_MENU, lambda _event: self.toggle_display(), display_item)
+            self.Bind(
+                wx.EVT_UPDATE_UI,
+                lambda event: event.SetText("Change to &Inline" if self.display else "Change to &Display"),
+                display_item,
+            )
             menu_bar.Append(equation_menu, "E&quation")
             edit_menu = wx.Menu()
             edit_items = (
@@ -146,9 +155,23 @@ if wx is not None:
             event.Enable(self.equation.mode == "linear" or self.equation.mathcat is not None)
 
         def prepare(self, source: str, display: bool) -> None:
-            kind = "display" if display else "inline"
-            self.heading.SetLabel(f"Edit {kind} equation — Enter or {EQUATION_SHORTCUT_LABEL} saves. Escape cancels.")
+            self.display = display
+            self._show_kind()
             self.equation.set_source(source)
+
+        def toggle_display(self) -> None:
+            """Word's Change to Display / Change to Inline; it takes effect when the equation is saved."""
+            self.display = not self.display
+            session_log.write("command", f"change to {'display' if self.display else 'inline'}")
+            self._show_kind()
+            try:
+                self.equation.output.announce("display equation" if self.display else "inline equation", interrupt=True)
+            except Exception:
+                pass
+
+        def _show_kind(self) -> None:
+            kind = "display" if self.display else "inline"
+            self.heading.SetLabel(f"Edit {kind} equation — Enter or {EQUATION_SHORTCUT_LABEL} saves. Escape cancels.")
 
         def begin(self, on_done: Callable[[bool, bool], None]) -> None:
             """Show the editor, the other windows disabled until `finish` calls `on_done(saved, new_line)`."""
@@ -270,6 +293,42 @@ if wx is not None:
             except Exception:
                 pass
 
+        def equation_at_caret(self) -> MathZone | None:
+            start, end = self.markdown.GetSelection()
+            return math_zone_at(self.markdown.GetValue(), start, end)
+
+        def toggle_equation_display(self) -> None:
+            """Word's Change to Display / Change to Inline on the equation at the caret."""
+            source = self.markdown.GetValue()
+            zone = self.equation_at_caret()
+            if zone is None or self.editing_equation:
+                return
+            result = toggle_display(source, zone)
+            if result is None:
+                session_log.write("command", "document: cannot be inline")
+                self._announce("this equation cannot be inline")
+                return
+            caret = self.markdown.GetInsertionPoint()
+            new_source, new_zone = result
+            session_log.write("command", f"document: change to {'display' if new_zone.display else 'inline'}")
+            self._replace_source(new_source)
+            offset = min(max(caret - zone.content_start, 0), new_zone.content_end - new_zone.content_start)
+            self.markdown.SetInsertionPoint(new_zone.content_start + offset)
+            self._announce("display equation" if new_zone.display else "inline equation")
+
+        def _replace_source(self, new_source: str) -> None:
+            """Replace only the text that changed, as an edit of the Markdown editor, not a new document."""
+            old = self.markdown.GetValue()
+            start = 0
+            while start < min(len(old), len(new_source)) and old[start] == new_source[start]:
+                start += 1
+            end_old, end_new = len(old), len(new_source)
+            while end_old > start and end_new > start and old[end_old - 1] == new_source[end_new - 1]:
+                end_old -= 1
+                end_new -= 1
+            self.markdown.SetSelection(start, end_old)
+            self.markdown.WriteText(new_source[start:end_new])
+
         def _on_char_hook(self, event: wx.KeyEvent) -> None:
             if not self.editing_equation and _is_equation_shortcut(event):
                 self._open_equation()
@@ -311,10 +370,18 @@ if wx is not None:
             if session is None:
                 return
             if saved:
-                replacement = f"{session.zone.delimiter}{self.equation_window.equation.source}{session.zone.delimiter}"
+                content = self.equation_window.equation.source
+                display = self.equation_window.display
+                replacement = f"{session.zone.delimiter}{content}{session.zone.delimiter}"
                 self.markdown.SetSelection(session.zone.start, session.zone.end)
                 self.markdown.WriteText(replacement)
                 caret = session.zone.start + len(replacement)
+                if display != session.zone.display:
+                    zone = math_zone_at(self.markdown.GetValue(), session.zone.start + 1)
+                    toggled = toggle_display(self.markdown.GetValue(), zone) if zone is not None else None
+                    if toggled is not None:
+                        self._replace_source(toggled[0])
+                        caret = toggled[1].end
                 self.markdown.SetSelection(caret, caret)
                 if new_line:
                     self.markdown.WriteText("\n")

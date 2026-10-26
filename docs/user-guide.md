@@ -33,7 +33,11 @@ inline equation, or wraps the selection in delimiters.
 In the equation editor, `Enter` saves the equation and starts a new line
 after it, as in Word; another `Alt+=` (`Control+=` on macOS) saves and
 returns to the Markdown. `Escape` cancels the edit without changing the
-document. Dollar signs preceded by a backslash, and those in Markdown code
+document. As in Word, Edit → Change Equation to Display (or
+to Inline), with the caret in an equation, makes an inline equation a
+display one, on a line of its own, or a display one inline, where it
+is; in the equation editor it is in the Equation menu and applies when
+the equation is saved. Dollar signs preceded by a backslash, and those in Markdown code
 blocks or code spans, are not taken as equations.
 
 View → Document Preview (`Ctrl+Shift+P`) shows the formatted document,

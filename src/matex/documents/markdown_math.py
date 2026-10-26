@@ -121,3 +121,29 @@ def math_zone_at(source: str, start: int, end: int | None = None) -> MathZone | 
         if zone.contains(start, end):
             return zone
     return None
+
+
+def toggle_display(source: str, zone: MathZone) -> tuple[str, MathZone] | None:
+    """Word's Change to Display / Change to Inline on one zone: the new source and zone.
+
+    Display goes on a line of its own, as in Word, by a line break where text
+    shares its line (a soft break: the paragraph stays one). Inline keeps the
+    equation where it is. None when the equation cannot be inline: empty, on
+    several lines or holding a `$`.
+    """
+    content = zone.content(source)
+    before, after = source[: zone.start], source[zone.end :]
+    if zone.display:
+        content = content.strip()
+        if not content or "\n" in content or "$" in content:
+            return None
+        start = len(before)
+        new_zone = MathZone(start, start + 1, start + 1 + len(content), start + 2 + len(content), False)
+        return f"{before}${content}${after}", new_zone
+    if before[before.rfind("\n") + 1 :].strip():
+        before = before.rstrip(" \t") + "\n"
+    if after.split("\n", 1)[0].strip():
+        after = "\n" + after.lstrip(" \t")
+    start = len(before)
+    new_zone = MathZone(start, start + 2, start + 2 + len(content), start + 4 + len(content), True)
+    return f"{before}$${content}$${after}", new_zone

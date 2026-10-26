@@ -144,6 +144,9 @@ if wx is not None:
             edit_menu.AppendSeparator()
             edit_menu.Append(wx.ID_SELECTALL, "Select &All\tCtrl+A")
             edit_menu.AppendSeparator()
+            self._display_id = wx.NewIdRef()
+            edit_menu.Append(self._display_id, "Change Equation to &Display")
+            edit_menu.AppendSeparator()
             edit_menu.Append(wx.ID_PREFERENCES, "&Settings…")
             menu_bar.Append(edit_menu, "&Edit")
             view_menu = wx.Menu()
@@ -203,6 +206,8 @@ if wx is not None:
             ):
                 self.Bind(wx.EVT_MENU, self._on_edit_command, id=command_id)
                 self.Bind(wx.EVT_UPDATE_UI, self._on_update_edit_menu, id=command_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self.editor.toggle_equation_display(), id=self._display_id)
+            self.Bind(wx.EVT_UPDATE_UI, self._on_update_display_item, id=self._display_id)
             self.Bind(wx.EVT_MENU, self._open_settings, id=wx.ID_PREFERENCES)
             self.Bind(wx.EVT_MENU, self._toggle_preview, id=self._preview_id)
             self.Bind(
@@ -337,6 +342,11 @@ if wx is not None:
                 wx.ID_SELECTALL: bool(control.GetValue()),
             }
             event.Enable(availability.get(event.GetId(), True))
+
+        def _on_update_display_item(self, event: wx.UpdateUIEvent) -> None:
+            zone = self.editor.equation_at_caret()
+            event.Enable(zone is not None and not self.editor.editing_equation)
+            event.SetText(f"Change Equation to {'&Inline' if zone is not None and zone.display else '&Display'}")
 
         def _on_update_notebook_menu(self, event: wx.UpdateUIEvent) -> None:
             has_notebook = self.notebook is not None
