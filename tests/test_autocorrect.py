@@ -1,7 +1,7 @@
 import unittest
 
 from converter_harness import convert, needs_node
-from matex.editing.autocorrect import (
+from mathessible.editing.autocorrect import (
     AutoCorrectTable,
     default_entries,
     differences,
@@ -9,8 +9,8 @@ from matex.editing.autocorrect import (
     math_alphabet_character,
     math_alphabet_entries,
 )
-from matex.editing.build_repair import literal_repair, literal_text, repairs
-from matex.editing.space_conversion import convert_shortcut_on_character
+from mathessible.editing.build_repair import literal_repair, literal_text, repairs
+from mathessible.editing.space_conversion import convert_shortcut_on_character
 
 DEFAULTS = {
     typed: symbol

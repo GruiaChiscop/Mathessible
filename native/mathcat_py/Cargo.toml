@@ -1,10 +1,10 @@
 [package]
-name = "matex-mathcat"
+name = "mathessible-mathcat"
 version = "0.1.0"
 edition = "2024"
 
 [lib]
-name = "matex_mathcat"
+name = "mathessible_mathcat"
 crate-type = ["cdylib"]
 
 [dependencies]

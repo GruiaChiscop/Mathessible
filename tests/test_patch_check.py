@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from matex.patch_check import missing_patches
+from mathessible.patch_check import missing_patches
 
 
 def _git(directory: Path, *arguments: str) -> None:

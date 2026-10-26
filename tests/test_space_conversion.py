@@ -1,6 +1,6 @@
 import unittest
 
-from matex.editing.space_conversion import (
+from mathessible.editing.space_conversion import (
     convert_before_character,
     convert_on_space,
     convert_shortcut_on_character,

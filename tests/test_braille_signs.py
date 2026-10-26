@@ -2,8 +2,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from matex.mathcat.navigator import MathCatNavigator
-from matex.symbols.braille_signs import (
+from mathessible.mathcat.navigator import MathCatNavigator
+from mathessible.symbols.braille_signs import (
     cells_from_text,
     dots_of,
     format_signs,

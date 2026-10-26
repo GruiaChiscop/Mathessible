@@ -1,9 +1,9 @@
 import unittest
 
 from converter_harness import convert, has_error, needs_node
-from matex.editing.build_repair import literal_repair, repairs
-from matex.editing.edit_history import EditHistory
-from matex.editing.linear_runs import (
+from mathessible.editing.build_repair import literal_repair, repairs
+from mathessible.editing.edit_history import EditHistory
+from mathessible.editing.linear_runs import (
     build_on_space,
     build_run,
     built_structure,
@@ -15,7 +15,7 @@ from matex.editing.linear_runs import (
     toggle_selection,
     typed,
 )
-from matex.editing.source_map import leaf_nodes, map_leaves
+from mathessible.editing.source_map import leaf_nodes, map_leaves
 
 
 def linear_text(source: str, runs) -> str:
@@ -226,7 +226,7 @@ class SpaceBuildTests(unittest.TestCase):
 @needs_node
 class LinearRunReadingTests(unittest.TestCase):
     def test_the_source_map_skips_the_escapes(self) -> None:
-        from matex.mathcat.navigator import MathCatNavigator
+        from mathessible.mathcat.navigator import MathCatNavigator
 
         source = "a/b+c/d"
         repair = literal_repair(source, (), ((5, 7),))
@@ -241,14 +241,14 @@ class LinearRunReadingTests(unittest.TestCase):
         self.assertEqual(mapped, ["a", "b", "+", "c", "/", "d"])
 
     def test_a_function_name_before_linear_text_takes_no_argument(self) -> None:
-        from matex.mathcat.navigator import MathCatNavigator
+        from mathessible.mathcat.navigator import MathCatNavigator
 
         navigator = MathCatNavigator(language="en")
         speech = navigator.load(convert(linear_text("x+log_", ((5, 6),))))
         self.assertEqual(speech, "x plus the log under bar")
 
     def test_mathcat_reads_linear_text_as_its_characters(self) -> None:
-        from matex.mathcat.navigator import MathCatNavigator
+        from mathessible.mathcat.navigator import MathCatNavigator
 
         navigator = MathCatNavigator(language="en")
         speech = navigator.load(convert(linear_text("a/b+c/", ((5, 6),))))

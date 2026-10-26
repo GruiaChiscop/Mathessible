@@ -1,7 +1,7 @@
 UnicodeMathML: a decimal comma only on request (options.decimalComma)
 
 UnicodeMath reads both "." and "," as a decimal separator, so `{1,2,3}`
-became the numbers 1,2 and ,3 rather than a set of three. MateX lets the
+became the numbers 1,2 and ,3 rather than a set of three. Mathessible lets the
 user choose (setting `decimal_separator`): with `decimalComma: false` in
 the converter options, "," is never part of a number and `{1,2,3}` is a
 list; with it true (the default, as upstream), `1,5` is a number and a
@@ -20,7 +20,7 @@ index 4c7b712..3cabc66 100644
        }
        if (s0 === peg$FAILED) {
 -        if (input.charCodeAt(peg$currPos) === 44) {
-+        // MateX: a decimal comma only with options.decimalComma (default on);
++        // Mathessible: a decimal comma only with options.decimalComma (default on);
 +        // off, "1,2" is the list 1, 2 and only "." makes decimals.
 +        if (input.charCodeAt(peg$currPos) === 44 && options.decimalComma !== false) {
            s0 = peg$c103;
@@ -55,7 +55,7 @@ index f706bc4..d33f60e 100644
  opOpen = [([{⟨〖⌈⌊❲⟦⟨⟪⟬⟮⦃⦅⦇⦉⦋⦍⦏⦑⦓⦕⦗⧘⧚⧼]
  opClose = [)}⟩〗⌉⌋❳⟧⟩⟫⟭⟯⦄⦆⦈⦊⦌⦎⦐⦒⦔⦖⦘⧙⧛⧽] / "]"
 -opDecimal = "." / ","
-+// MateX: a decimal comma only with options.decimalComma (default on); off,
++// Mathessible: a decimal comma only with options.decimalComma (default on); off,
 +// "1,2" is the list 1, 2 and only "." makes decimals.
 +opDecimal = "." / c:"," &{ return options.decimalComma !== false; } { return c; }
  opHbracket = [⏜⏝⏞⏟⏠⏡⎴⎵¯]  // no underbar since U+2581 is used for enclosures

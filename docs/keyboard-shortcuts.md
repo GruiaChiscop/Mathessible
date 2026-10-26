@@ -1,6 +1,6 @@
 # Keyboard shortcuts
 
-Every MateX command, by window. Where macOS and Windows or Linux differ,
+Every Mathessible command, by window. Where macOS and Windows or Linux differ,
 both are given. What each command does is explained in the
 [user guide](user-guide.md).
 

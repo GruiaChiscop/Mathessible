@@ -1,6 +1,6 @@
 import unittest
 
-from matex.templates.fraction_styles import (
+from mathessible.templates.fraction_styles import (
     built_fractions,
     fraction_at,
     restyle_fraction,

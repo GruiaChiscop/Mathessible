@@ -1,6 +1,6 @@
 import unittest
 
-from matex.editing.build_repair import PLACEHOLDER, BuildRepair, repair_for_build, repairs
+from mathessible.editing.build_repair import PLACEHOLDER, BuildRepair, repair_for_build, repairs
 
 
 def text_of(source: str, accepted: int) -> str:

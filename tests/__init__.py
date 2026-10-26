@@ -1,4 +1,4 @@
-"""MateX's tests. Run them with `uv run python -m unittest discover -s tests -v`.
+"""Mathessible's tests. Run them with `uv run python -m unittest discover -s tests -v`.
 
 The test modules import their shared helpers (`converter_harness`) as
 top-level modules, as `discover -s tests` does; this makes that work too

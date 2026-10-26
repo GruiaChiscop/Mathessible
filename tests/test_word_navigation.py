@@ -1,6 +1,6 @@
 import unittest
 
-from matex.editing.word_navigation import next_word_boundary, previous_word_boundary
+from mathessible.editing.word_navigation import next_word_boundary, previous_word_boundary
 
 
 class WordNavigationTests(unittest.TestCase):

@@ -76,7 +76,7 @@ fn navigation_braille(py: Python<'_>) -> PyResult<String> {
 }
 
 #[pymodule]
-fn matex_mathcat(module: &Bound<'_, PyModule>) -> PyResult<()> {
+fn mathessible_mathcat(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(initialize, module)?)?;
     module.add_function(wrap_pyfunction!(preference, module)?)?;
     module.add_function(wrap_pyfunction!(braille_signs, module)?)?;

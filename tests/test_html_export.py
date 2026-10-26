@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from matex.documents.html_export import (
+from mathessible.documents.html_export import (
     ExportPage,
     notebook_html,
     preview_update_script,
@@ -96,7 +96,7 @@ class HtmlExportTests(unittest.TestCase):
         script = preview_update_script(
             "# Title\n\n$x$ and <script>alert(1)</script>", lambda _s: "<math><mi>x</mi></math>"
         )
-        self.assertTrue(script.startswith("window.matexSetDocument("))
+        self.assertTrue(script.startswith("window.mathessibleSetDocument("))
         self.assertIn("<h1>Title</h1>", script)
         self.assertIn('<span class=\\"math-inline\\"><math><mi>x</mi></math></span>', script)
         self.assertNotIn("<script>", script)

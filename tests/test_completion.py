@@ -1,6 +1,12 @@
 import unittest
 
-from matex.editing.completion import Suggestion, accept_completion, completion_at, search_symbols, symbol_insertion
+from mathessible.editing.completion import (
+    Suggestion,
+    accept_completion,
+    completion_at,
+    search_symbols,
+    symbol_insertion,
+)
 
 TABLE = {
     "alpha": "α",

@@ -1,6 +1,6 @@
 MathCAT (braille, Nemeth and UEB): linear UnicodeMath syntax characters
 
-MateX keeps what is typed and not complete yet as linear text inside the
+Mathessible keeps what is typed and not complete yet as linear text inside the
 built equation, each build-up operator escaped (`x\_`, `x\▒`): the
 converter gives it as `<mo intent=":text">`. Braille showed some of them
 wrongly:
@@ -30,7 +30,7 @@ index 6ac9c74d..f7a57db5 100644
 - - "_": [t: ""]                 # 0x005F (Low line)
 + - "_":                         # 0x005F (Low line)
 +     - test:
-+        # MateX: an underscore left as linear text (a subscript not typed yet) marks an
++        # Mathessible: an underscore left as linear text (a subscript not typed yet) marks an
 +        # omission; Nemeth 2022, 11.1.2: an underscore denoting omission is the long dash.
 +        if: "@intent=':text'"
 +        then: [t: "⠤⠤⠤⠤"]
@@ -42,8 +42,8 @@ index 6ac9c74d..f7a57db5 100644
          then: [t: "w⠳w"]        # comparison (e.g., such that -- rule 145)
          else: [t: "⠳"]          # absolute value, others???
   - "}": [t: "⠨⠾"]               # 0x007D (Right curly bracket)
-+ # MateX: UnicodeMath's own syntax characters, seen only while left as linear text
-+ # (MateX's linear runs): their control words, as typed, not a hex code.
++ # Mathessible: UnicodeMath's own syntax characters, seen only while left as linear text
++ # (Mathessible's linear runs): their control words, as typed, not a hex code.
 + - "¦": [t: "⠸⠡⠁⠞⠕⠏"]         # 0x00A6 (\atop)
 + - "▒": [t: "⠸⠡⠕⠋"]             # 0x2592 (\of)
 + - "┬": [t: "⠸⠡⠃⠑⠇⠕⠺"]       # 0x252C (\below)
@@ -84,8 +84,8 @@ index 0700fa24..3111ba28 100644
   - "\\": [t: "⠸⠡"]              # 0x005C (Backslash)
   - "^": [t: "⠈⠢"]               # 0x005E (Caret (hat, up arrow))
   - "_": [t: "⠨⠤"]               # 0x005F (Low line (underscore))
-+ # MateX: UnicodeMath's own syntax characters, seen only while left as linear text
-+ # (MateX's linear runs): their control words, as typed, not a hex code.
++ # Mathessible: UnicodeMath's own syntax characters, seen only while left as linear text
++ # (Mathessible's linear runs): their control words, as typed, not a hex code.
 + - "▒": [t: "⠸⠡⠕⠋"]             # 0x2592 (\of)
 + - "┬": [t: "⠸⠡⠃⠑⠇⠕⠺"]       # 0x252C (\below)
 + - "┴": [t: "⠸⠡⠁⠃⠕⠧⠑"]       # 0x2534 (\above)

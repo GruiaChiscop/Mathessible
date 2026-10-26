@@ -6,12 +6,12 @@ Planned work, roughly in order. What is already done is described in the
 
 ## Help menu
 
-MateX has no help of its own inside the app. All the documentation lives on
+Mathessible has no help of its own inside the app. All the documentation lives on
 GitHub, and the Help menu opens it in the browser.
 
 - [x] A Help menu in the document window: Quick Start Guide, User Guide,
-  Keyboard Shortcuts, Report a Problem and About MateX (in the application
-  menu on macOS). The addresses are in `src/matex/help_links.py`.
+  Keyboard Shortcuts, Report a Problem and About Mathessible (in the application
+  menu on macOS). The addresses are in `src/mathessible/help_links.py`.
 - [x] `docs/quick-start.md` and `docs/keyboard-shortcuts.md`, linked from
   the README and the user guide.
 - [ ] The Help menu in the equation editor's window too, which has its own
@@ -23,7 +23,7 @@ GitHub, and the Help menu opens it in the browser.
 ## Later
 
 - [ ] Braille export (BRF) of a document or notebook.
-- [ ] Propose MateX's patches upstream (`patches/mathcat`,
+- [ ] Propose Mathessible's patches upstream (`patches/mathcat`,
   `patches/unicodemathml`).
 - [ ] LaTeX input in the equation editor.
 - [ ] The visual design of the equation editor.

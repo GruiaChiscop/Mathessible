@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from matex.settings import (
+from mathessible.settings import (
     AppSettings,
     function_name,
     load_settings,

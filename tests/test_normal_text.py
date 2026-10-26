@@ -1,9 +1,9 @@
 import unittest
 
 from converter_harness import convert, has_error, needs_node
-from matex.editing.build_repair import PLACEHOLDER, literal_repair, repairs
-from matex.editing.normal_text import in_text, text_spans, toggle_normal_text
-from matex.templates.insert_catalog import item_for_key
+from mathessible.editing.build_repair import PLACEHOLDER, literal_repair, repairs
+from mathessible.editing.normal_text import in_text, text_spans, toggle_normal_text
+from mathessible.templates.insert_catalog import item_for_key
 
 
 def toggled(source: str, caret: int, selection=None) -> tuple[str, str]:
@@ -69,8 +69,8 @@ class BuildingTests(unittest.TestCase):
 class ConverterTests(unittest.TestCase):
     def test_a_text_maps_back_to_its_source_with_its_spaces(self) -> None:
         # The converter writes a text's spaces as no-break spaces.
-        from matex.editing.source_map import leaf_characters, leaf_nodes, map_leaves
-        from matex.mathcat.navigator import MathCatNavigator
+        from mathessible.editing.source_map import leaf_characters, leaf_nodes, map_leaves
+        from mathessible.mathcat.navigator import MathCatNavigator
 
         source = 'x="for all "y'
         navigator = MathCatNavigator(language="en")

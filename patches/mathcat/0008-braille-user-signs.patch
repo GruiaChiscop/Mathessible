@@ -1,6 +1,6 @@
 MathCAT (braille): the user's own signs over a braille code's table
 
-MateX lets a user give their own braille sign for a symbol, over an
+Mathessible lets a user give their own braille sign for a symbol, over an
 existing code: where Nemeth and UEB define no sign they leave it to the
 transcriber, and a school or a teacher has its own conventions. MathCAT
 reads its rules only from the archive compiled in (include-zip), so the
@@ -25,7 +25,7 @@ index 823d8943..311315b4 100644
  /// A value can be overwritten by calling this function again with a different value.
  ///
  /// Be careful setting preferences -- these potentially override user settings, so only preferences that really need setting should be set.
-+/// MateX: the user's own braille signs, as unicode.yaml entries (` - "⊏": [t: "⠈⠸⠣"]`), which replace
++/// Mathessible: the user's own braille signs, as unicode.yaml entries (` - "⊏": [t: "⠈⠸⠣"]`), which replace
 +/// the braille code's signs for those characters; an empty string clears them.
 +pub fn set_braille_user_signs(signs: impl AsRef<str>) -> Result<()> {
 +    let signs = signs.as_ref().to_string();
@@ -48,11 +48,11 @@ index fde95d5f..48ddb2e2 100644
  }
  
 +thread_local!{
-+    /// MateX: the user's own braille signs, as unicode.yaml entries (`set_braille_user_signs`).
++    /// Mathessible: the user's own braille signs, as unicode.yaml entries (`set_braille_user_signs`).
 +    static BRAILLE_USER_SIGNS: RefCell<String> = RefCell::new(String::new());
 +}
 +
-+/// MateX: set the user's own braille signs (unicode.yaml entries, ` - "⊏": [t: "⠈⠸⠣"]`), read after
++/// Mathessible: set the user's own braille signs (unicode.yaml entries, ` - "⊏": [t: "⠈⠸⠣"]`), read after
 +/// the braille code's short table so they replace its signs; "" clears them. Braille reloads on a change.
 +pub fn set_braille_user_signs(signs: &str) {
 +    let changed = BRAILLE_USER_SIGNS.with(|current| {
@@ -75,9 +75,9 @@ index fde95d5f..48ddb2e2 100644
              self.unicode_short.borrow_mut().clear();
              self.unicode_short_files.borrow_mut().set_files_and_times(self.read_unicode(None, true)?);
 +            if self.name == RulesFor::Braille {
-+                // MateX: the user's own signs replace the code's; a mistake in them must not stop braille.
++                // Mathessible: the user's own signs replace the code's; a mistake in them must not stop braille.
 +                if let Err(e) = self.read_user_braille_signs() {
-+                    error!("MateX user braille signs ignored: {:#}", e);
++                    error!("Mathessible user braille signs ignored: {:#}", e);
 +                }
 +            }
          }
@@ -87,14 +87,14 @@ index fde95d5f..48ddb2e2 100644
          return Ok( () );
      }
  
-+    /// MateX: read the user's braille signs (`set_braille_user_signs`) into the short table just read,
++    /// Mathessible: read the user's braille signs (`set_braille_user_signs`) into the short table just read,
 +    /// so each one replaces the braille code's own sign for that character.
 +    fn read_user_braille_signs(&self) -> Result<()> {
 +        let signs = BRAILLE_USER_SIGNS.with(|signs| signs.borrow().clone());
 +        if signs.trim().is_empty() {
 +            return Ok( () );
 +        }
-+        let path = PathBuf::from("MateX user braille signs");
++        let path = PathBuf::from("Mathessible user braille signs");
 +        let build_fn = |unicode_def_list: &Yaml| {
 +            let Some(unicode_defs) = unicode_def_list.as_vec() else {
 +                bail!("The user's braille signs do not begin with an array");

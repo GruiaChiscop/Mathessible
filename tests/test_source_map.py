@@ -1,10 +1,10 @@
 import unittest
 
 from converter_harness import convert
-from matex.editing.source_map import anchor_offset, inside_leaf, leaf_at, leaf_characters, leaf_nodes, map_leaves
-from matex.mathcat.navigator import MathCatNavigator
+from mathessible.editing.source_map import anchor_offset, inside_leaf, leaf_at, leaf_characters, leaf_nodes, map_leaves
+from mathessible.mathcat.navigator import MathCatNavigator
 
-# Converter output for each source (UnicodeMathML with MateX's options).
+# Converter output for each source (UnicodeMathML with Mathessible's options).
 CONVERTED = {
     "2x+1": "<math><mn>2</mn><mi>𝑥</mi><mo>+</mo><mn>1</mn></math>",
     "\\sum_(i=1)^n\\of i": (

@@ -1,6 +1,6 @@
 import unittest
 
-from matex.editing.character_speech import (
+from mathessible.editing.character_speech import (
     character_name,
     deleted_character,
     inserted_character,

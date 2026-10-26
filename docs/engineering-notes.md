@@ -1,21 +1,21 @@
-# Engineering Notes (MateX)
+# Engineering Notes (Mathessible)
 
-Detailed notes for whoever works on MateX: what was built, why, and the
+Detailed notes for whoever works on Mathessible: what was built, why, and the
 traps found on the way. The general rules are in [AGENTS.md](../AGENTS.md);
 this file is the long memory. Paths are relative to the repository root.
 
 ## Product Direction: a Word-style Equation Editor, but Better
 
-The working goal for `EquationEditor` ([editor/equation_editor.py](../src/matex/editor/equation_editor.py)) is to
+The working goal for `EquationEditor` ([editor/equation_editor.py](../src/mathessible/editor/equation_editor.py)) is to
 match — then exceed — Microsoft Word's built-in equation editor, on three
 axes: **editing power** (Word's structure gallery and matrix tools),
 **speed** (Word's linear-format autocorrect and keyboard-only workflow), and
-**accessibility** (where MateX already has a real edge over Word).
+**accessibility** (where Mathessible already has a real edge over Word).
 
 This isn't a coincidental target: Word's "linear format" for equations *is*
 UnicodeMath, designed by Murray Sargent — the same author behind the
-`UnicodeMathML` submodule MateX already vendors and builds its parser on
-([unicodemath.py](../src/matex/unicodemath.py)). MateX and Word speak the same
+`UnicodeMathML` submodule Mathessible already vendors and builds its parser on
+([unicodemath.py](../src/mathessible/unicodemath.py)). Mathessible and Word speak the same
 equation language; the gap is entirely in the editing UX layered on top.
 
 **Already ported from Word's model:**
@@ -32,9 +32,9 @@ equation language; the gap is entirely in the editing UX layered on top.
 - `F2` toggling linear/professional view (Word literally calls this
   "Linear"/"Professional" in its own equation right-click menu).
 - Tab-to-empty-slot template navigation
-  ([templates/math_templates.py](../src/matex/templates/math_templates.py)).
+  ([templates/math_templates.py](../src/mathessible/templates/math_templates.py)).
 - Math AutoCorrect while typing
-  ([editing/space_conversion.py](../src/matex/editing/space_conversion.py)): a control word
+  ([editing/space_conversion.py](../src/mathessible/editing/space_conversion.py)): a control word
   converts on Space (the space is consumed — it can change the grouping,
   `1/\pi x` vs `1/π x`) or on punctuation/operators (kept: `\int_` →
   `∫_`), using the converter's own table (`unicodemath.control_words()`,
@@ -45,7 +45,7 @@ equation language; the gap is entirely in the editing UX layered on top.
   is typed (`convert_shortcuts_immediately` setting), a longer one
   replacing an already converted prefix (`←` + `>` → `↔`).
 - Control-word completion, as Word's autocomplete list
-  ([editing/completion.py](../src/matex/editing/completion.py), setting
+  ([editing/completion.py](../src/mathessible/editing/completion.py), setting
   `complete_control_words`, on by default): while `\` + letters is typed
   (`\al`), the matching words of the converter's table are spoken after
   the character ("l, alef, 1 of 3"; the word typed in full first, then
@@ -58,7 +58,7 @@ equation language; the gap is entirely in the editing UX layered on top.
   or the linear caret moves. It is computed in the linear typing/Backspace
   path, so professional-view typing (which runs that path) gets it too,
   and Tab there goes through `_edit_in_built`. Insert > Symbol…
-  (Cmd+Shift+S, `SymbolDialog` in [ui/symbol_dialog.py](../src/matex/ui/symbol_dialog.py))
+  (Cmd+Shift+S, `SymbolDialog` in [ui/symbol_dialog.py](../src/mathessible/ui/symbol_dialog.py))
   searches the same table by word, symbol or dictionary name
   (`search_symbols`) and inserts the control word or the symbol, per
   `template_control_words`. Native controls only (the search field, then
@@ -68,8 +68,8 @@ equation language; the gap is entirely in the editing UX layered on top.
 - Selection, clipboard (Cmd/Ctrl+C/X/V), word navigation, and a right-click
   context menu in linear mode, all platform-correct (`CmdDown()` for the
   primary modifier, Option-not-Command for word movement on macOS — see
-  `_word_navigation_down` in [editor/equation_editor.py](../src/matex/editor/equation_editor.py)).
-- Key map conventions ([editor/equation_editor.py](../src/matex/editor/equation_editor.py)): Home/End go to
+  `_word_navigation_down` in [editor/equation_editor.py](../src/mathessible/editor/equation_editor.py)).
+- Key map conventions ([editor/equation_editor.py](../src/mathessible/editor/equation_editor.py)): Home/End go to
   start/end in both modes, and on macOS Command+Left/Right does the same
   (`_effective_key` rewrites them to Home/End). Matrix cell navigation is
   therefore Command+Option+arrows on macOS / Ctrl+Alt+arrows elsewhere
@@ -82,7 +82,7 @@ equation language; the gap is entirely in the editing UX layered on top.
    Radical, Integral, Large Operator, Bracket, Function, Accent, Limit/Log,
    Operator, Matrix), each with several visual variants, inserted as
    Tab-able placeholders. Done so far, all in
-   [templates/math_templates.py](../src/matex/templates/math_templates.py): fraction (Ctrl+/),
+   [templates/math_templates.py](../src/mathessible/templates/math_templates.py): fraction (Ctrl+/),
    square root (Ctrl+R), subscript/superscript (Ctrl+=/Ctrl+Shift+=,
    mirroring Word's own character-formatting shortcuts), absolute value
    (Ctrl+\\), integral/sum/product (Ctrl+I/Ctrl+S/Ctrl+P `∫▒〖〗`, caret
@@ -114,7 +114,7 @@ equation language; the gap is entirely in the editing UX layered on top.
    too, so it types inside, empty or not. A bare `"∫▒"` typed by hand with nothing
    after it is still a total parse failure until filled in.
    Matrix (Ctrl+Shift+M, or Insert > Matrix…)
-   opens `MatrixDialog` ([ui/matrix_dialog.py](../src/matex/ui/matrix_dialog.py):
+   opens `MatrixDialog` ([ui/matrix_dialog.py](../src/mathessible/ui/matrix_dialog.py):
    rows, columns, fence) and inserts `insert_matrix_template`'s output,
    e.g. `(■(&@&))`. Cells are left genuinely empty, not filled with "()":
    the real converter keeps "()" inside an `mtd` as visible parens, while
@@ -216,7 +216,7 @@ equation language; the gap is entirely in the editing UX layered on top.
    dictionary only echoes typing, and the linear view's source): where a
    character, not a node, is read (an interval's fence, inside "4345", a
    selection, the insertion point, a node's name on copy/delete),
-   [mathcat/lone.py](../src/matex/mathcat/lone.py) has MathCAT read it alone
+   [mathcat/lone.py](../src/mathessible/mathcat/lone.py) has MathCAT read it alone
    as `<math><mo>(</mo></math>`, on one long-lived worker thread
    (MathCAT's state is per thread, so the equation being read is
    untouched), cached per language/style. Starting MathCAT there costs
@@ -255,7 +255,7 @@ equation language; the gap is entirely in the editing UX layered on top.
 2. **Matrix row/column editing** — done for linear mode: the context
    menu's "Matrix" submenu (only present while the caret is in a cell)
    calls `insert_matrix_row`/`insert_matrix_column`/`delete_matrix_row`/
-   `delete_matrix_column` in [templates/matrix_templates.py](../src/matex/templates/matrix_templates.py),
+   `delete_matrix_column` in [templates/matrix_templates.py](../src/mathessible/templates/matrix_templates.py),
    which rebuild the innermost matrix's body from `matrix_cells` (MathCAT
    is read-only, so this is pure source rewriting). Ragged rows are padded
    with empty cells on column insert; deleting the last row/column returns
@@ -281,7 +281,7 @@ equation language; the gap is entirely in the editing UX layered on top.
    while in a fraction) switching Word's styles: stacked `/`, skewed `⁄`
    (`bevelled`), linear `∕` (an inline `<mo>/</mo>`), small `⊘`
    (`displaystyle="false"`) — `restyle_fraction` in
-   [templates/fraction_styles.py](../src/matex/templates/fraction_styles.py).
+   [templates/fraction_styles.py](../src/mathessible/templates/fraction_styles.py).
    Linear drops the parens around its operands, so a multi-token "(...)"
    operand is doubled (`((a+b))∕c`) and undoubled on the way back.
    Professional mode maps MathCAT's innermost `mfrac` to the n-th
@@ -290,7 +290,7 @@ equation language; the gap is entirely in the editing UX layered on top.
    for every built style, "divided by" for linear.
    "Root" (Add/Remove Index: `√(x)` ↔ `√(&x)`, `∛`/`∜` → `√`) and
    "Integral"/"Sum"/"Product" (Add/Remove Limits: `∫▒x` ↔ `∫_()^()▒x`)
-   submenus, in [templates/structure_edits.py](../src/matex/templates/structure_edits.py). All
+   submenus, in [templates/structure_edits.py](../src/mathessible/templates/structure_edits.py). All
    structure submenus share one source↔MathCAT mapping
    (`_StructureKind`/`_structure_offset`/`_place_on` in
    editor/structures.py: n-th node of a kind = n-th source offset). An
@@ -298,7 +298,7 @@ equation language; the gap is entirely in the editing UX layered on top.
    drops to linear view with the caret in the index instead of rebuilding.
    **Script, Brackets, Accent and Bar submenus** (Word's options for those
    structures; `_append_caret_structure_menus`, edits in
-   [templates/structure_edits.py](../src/matex/templates/structure_edits.py)): add/remove a
+   [templates/structure_edits.py](../src/mathessible/templates/structure_edits.py)): add/remove a
    subscript or superscript (`scripts`: not ∑'s limits nor lim/log's own,
    whose menus edit those; a multi-letter name is one base, `sin^2`);
    change a visible bracket pair to another kind, hide or show either side
@@ -316,7 +316,7 @@ equation language; the gap is entirely in the editing UX layered on top.
    token (`(a)/(b)` renders identically to `a/b`), but `_`/`^` only strip
    them on the *argument* side — `(x)_(i)` keeps visible parens around `x`.
    `insert_subscript_template`/`insert_superscript_template` in
-   [templates/math_templates.py](../src/matex/templates/math_templates.py) work around this by
+   [templates/math_templates.py](../src/mathessible/templates/math_templates.py) work around this by
    reusing an existing preceding token as the base instead of wrapping an
    empty one; check the real MathML output (`EquationEditor.convert_unicode_math`)
    for stray `intent=":fenced"` wrappers whenever a new template is added,
@@ -358,8 +358,8 @@ equation language; the gap is entirely in the editing UX layered on top.
    function application, the name with `intent="limit-superior"` (as a
    bare `<mi>` MathCAT read "limsup").
    **The gallery itself** (Insert > Structure Gallery…, Cmd+Shift+G;
-   [templates/structure_gallery.py](../src/matex/templates/structure_gallery.py), dialog in
-   [ui/gallery_dialog.py](../src/matex/ui/gallery_dialog.py)): Word's 11 categories
+   [templates/structure_gallery.py](../src/mathessible/templates/structure_gallery.py), dialog in
+   [ui/gallery_dialog.py](../src/mathessible/ui/gallery_dialog.py)): Word's 11 categories
    plus "Other", each a list of `InsertItem`s, so a gallery pick goes through
    `insert_item` like a menu entry (`_insert_linear` → `_choose_from_gallery`,
    then the chosen item; built view included). Menu entries are reused by
@@ -381,8 +381,8 @@ equation language; the gap is entirely in the editing UX layered on top.
    tests/test_structure_gallery.py builds every variant with the real
    converter (after `build_repair`, as the editor does), so a variant that
    stops building fails there.
-   **Math AutoCorrect is one list, as in Word** ([editing/autocorrect.py](../src/matex/editing/autocorrect.py),
-   Settings > Math AutoCorrect…, [ui/autocorrect_dialog.py](../src/matex/ui/autocorrect_dialog.py)):
+   **Math AutoCorrect is one list, as in Word** ([editing/autocorrect.py](../src/mathessible/editing/autocorrect.py),
+   Settings > Math AutoCorrect…, [ui/autocorrect_dialog.py](../src/mathessible/ui/autocorrect_dialog.py)):
    the defaults are the converter's control words (`\alpha`, read from
    UnicodeMathML), the Greek letters its table leaves out (TeX's
    tradition: `\Alpha`, `\Beta`, … `\Chi` and `\omicron`, whose capitals
@@ -424,9 +424,9 @@ MathCAT ships in Rules/Braille: Nemeth, UEB, CMU, French, Russian,
 Swedish, Vietnam, and ASCIIMath/LaTeX as text); an unknown value falls back
 to Nemeth. There is no Romanian maths braille code in MathCAT.
 
-**Where MateX should stay ahead of Word, not just catch up:** MathCAT
+**Where Mathessible should stay ahead of Word, not just catch up:** MathCAT
 structural navigation/speech, the braille strip
-(`_update_braille_display` in [editor/equation_editor.py](../src/matex/editor/equation_editor.py)), and
+(`_update_braille_display` in [editor/equation_editor.py](../src/mathessible/editor/equation_editor.py)), and
 plain-text UnicodeMath stored directly in Markdown (no binary/XML equation
 object, no MathType lock-in) are already real advantages over Word's own
 equation editor. Don't trade these away for editing-speed features — any
@@ -484,13 +484,13 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   element and a side, or a token and an index (`_inside_leaf`), the
   remembered caret first (`_spec_for_offset`: after the leaf ending at
   it, else before the one starting there, so a click at the start of a
-  numerator draws there and not after "="); the page's `matexCaret`
+  numerator draws there and not after "="); the page's `mathessibleCaret`
   draws a blinking bar at that edge (a `Range` between a token's
   characters), and `_renderer_target` sends it in writing mode, the
   outline of the element read only in exploration mode, a selection as
   shading. **Trap** (seen on a screen capture): the caret's element lives
   on the page, not in the equation, so going back to linear left it in
-  the preview; `matexRender` hides it with every new equation. The page reports the mouse as JSON (`matexPoint`: element,
+  the preview; `mathessibleRender` hides it with every new equation. The page reports the mouse as JSON (`mathessiblePoint`: element,
   side of its middle or `caretRangeFromPoint` inside a token; `down`,
   `drag`, `up`, `double`) and `_pointer` turns it into a source offset
   (`_offset_at_point`, through `anchor_offset`), a selection or a
@@ -498,7 +498,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   move between numerator and denominator was tried on an assumption about
   Word, and removed, since Word does not do that. The source
   line scrolls (`_source_origin_x`); zoom is `equation_zoom` (CSS
-  `--matex-zoom`, the source font and box) on Cmd+Option+=/-/0, since
+  `--mathessible-zoom`, the source font and box) on Cmd+Option+=/-/0, since
   Cmd+= is the subscript template.
 - **Numbered equations (2026-10-24).** The converter writes
   `E=mc^2#(1)` as a one-row `mtable` whose first cell is the number
@@ -523,7 +523,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   Appendix A have none per line, so they are not added (the user's rule:
   only what UnicodeMath specifies).
 - **Settings (2026-10-24, the user's request):** one `SettingsPanel`
-  ([ui/settings_dialog.py](../src/matex/ui/settings_dialog.py)) with the
+  ([ui/settings_dialog.py](../src/mathessible/ui/settings_dialog.py)) with the
   settings in native `wx.Notebook` tabs (Typing, Building, Navigation,
   Speech, Braille), hosted as macOS has it, a `SettingsWindow` frame
   whose every change applies and saves at once (a text field when it
@@ -537,7 +537,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   behaviour and stays (the user's choice).
 - **Extra spaces (2026-10-24, setting `remove_extra_spaces`, on).** The
   user asked for it as an option, Word's linear format having no space
-  that changes nothing. [editing/space_tidy.py](../src/matex/editing/space_tidy.py)
+  that changes nothing. [editing/space_tidy.py](../src/mathessible/editing/space_tidy.py)
   `tidy_spaces` lets the converter decide: a space goes when the MathML
   without it is the original's, tried from the last to the first against
   the whole original. Kept: escaped `\ `, spaces in a normal text, and a
@@ -548,7 +548,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   trigger, and the linear runs and script chains hold source offsets.
 - **Normal text (2026-10-24), Word's Normal Text button:** UnicodeMath's
   quoted text (`"for all "x`, an `mtext`; MathCAT reads it as words).
-  [editing/normal_text.py](../src/matex/editing/normal_text.py)
+  [editing/normal_text.py](../src/mathessible/editing/normal_text.py)
   `toggle_normal_text` (Insert > Normal Text, Cmd+Shift+T, an `InsertItem`
   with `dialog="normal_text"`) puts a quote at each end of the selection,
   or a pair at the caret, then drops empty pairs and joins texts that
@@ -570,9 +570,9 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   comma inside keeps MathCAT's reading.
 - **Partial build: linear runs (2026-10-23).** Word builds only what has
   become unambiguous (UTN #28 sec. 2.3) and keeps the rest as linear text
-  in the same equation. MateX keeps one source and, beside it,
+  in the same equation. Mathessible keeps one source and, beside it,
   `EquationEditor._linear_runs`: source ranges typed and not built yet
-  ([editing/linear_runs.py](../src/matex/editing/linear_runs.py)). For
+  ([editing/linear_runs.py](../src/mathessible/editing/linear_runs.py)). For
   building, each build-up operator in a run is escaped (`c\/`, `\(c`;
   the parser's `opBuildup` plus `]` and `"`) as `BuildRepair` insertions:
   the converter gives `<mo intent=":text">`, an ordinary token that looks
@@ -652,7 +652,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      (2) typing/Backspace/Delete in professional mode, done (below);
      (3) a caret between nodes, done (below); (4) incomplete source while typing, done (below);
      (5) open equations built, done (below).
-     **Step 1, [editing/source_map.py](../src/matex/editing/source_map.py):** the converter
+     **Step 1, [editing/source_map.py](../src/mathessible/editing/source_map.py):** the converter
      keeps no source positions, and its Ⓐ/Ⓕ selection markers are no help
      (they attach to the *next* node, vanish at the end, and break parsing
      inside parens: `√(xⒶ())` is an error). `map_leaves(source,
@@ -694,7 +694,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      structural level edges and "start/end of math" are outside too.
      `anchor_offset(..., outside=True)` widens over the structure's own
      parens and sign (`√`, `■`). Shift+Option+Space (Shift+Alt+Space) reads
-     the point ([editing/insertion_point.py](../src/matex/editing/insertion_point.py): "after
+     the point ([editing/insertion_point.py](../src/mathessible/editing/insertion_point.py): "after
      1, end of numerator, before 2", "start of denominator, before 2",
      "after the fraction, before plus", "after 1, end of column 1, before
      2"); it describes the anchor, not an offset, since one offset can be
@@ -713,7 +713,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      (2026-10-22, "let me decide when a space goes in"), restored the same
      day once the user saw that Word keeps x outside the fraction this way.
      No other space is ever added, and the user's own are never removed.
-     **Step 4, [editing/build_repair.py](../src/matex/editing/build_repair.py):** sources the
+     **Step 4, [editing/build_repair.py](../src/mathessible/editing/build_repair.py):** sources the
      converter cannot build at all while half-typed (a bare `▒`, `√(&x)`,
      `√(&)`, an open quote, `|` or `■(`) are built from a *repaired* text
      instead: U+200B (a clean empty argument to the converter) where an
@@ -740,7 +740,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      was no node at all; the stop builder now speaks such an empty leaf as
      "empty" instead of skipping it like an invisible operator, and "index"
      is a region (so "in empty index").
-     **Whole nodes ([editing/node_edits.py](../src/matex/editing/node_edits.py)):** in
+     **Whole nodes ([editing/node_edits.py](../src/mathessible/editing/node_edits.py)):** in
      professional view Cmd+C/X copy/cut MathCAT's current node (its source
      widened over its own parens and sign) and Cmd+V pastes at the
      insertion point. Backspace/Delete still delete *one character* on a
@@ -767,9 +767,9 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
      leaf by characters); Shift+Option+Space reads "selected x plus 1".
      Left/Right collapse it to its start/end; any other navigation drops
      it. The renderer highlights its leaves (`_selected_ids`;
-     `matexHighlight` takes space-separated ids).
+     `mathessibleHighlight` takes space-separated ids).
      **Errors, like a code editor's problem list** (F8, Equation >
-     Errors…): [editing/equation_errors.py](../src/matex/editing/equation_errors.py)
+     Errors…): [editing/equation_errors.py](../src/mathessible/editing/equation_errors.py)
      `find_errors` scans the source itself, on the control-word view, since
      the converter gives no position (`#F01` on a dangling token, `#F00`
      around everything): unbalanced brackets (any opener pairs with any
@@ -838,18 +838,18 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
 - **Real system** (used whenever the native extension is available):
   `EquationEditor.convert_unicode_math` sends UnicodeMath source through the
   official `UnicodeMathML` JS engine (loaded in a `wx.html2.WebView`, see
-  [unicodemath.py](../src/matex/unicodemath.py)) to get
-  real MathML, then hands that MathML to the native `matex_mathcat` PyO3
-  binding ([mathcat/navigator.py](../src/matex/mathcat/navigator.py)) for speech, structural
-  navigation, and braille. [mathcat/mathml_model.py](../src/matex/mathcat/mathml_model.py)
+  [unicodemath.py](../src/mathessible/unicodemath.py)) to get
+  real MathML, then hands that MathML to the native `mathessible_mathcat` PyO3
+  binding ([mathcat/navigator.py](../src/mathessible/mathcat/navigator.py)) for speech, structural
+  navigation, and braille. [mathcat/mathml_model.py](../src/mathessible/mathcat/mathml_model.py)
   re-parses that MathML into a `MathMLDocument` used for semantic regions,
   table/matrix position.
 - **The same WebView is the visible renderer** (`_sync_renderer` in
   editor/renderer.py): in linear mode it is a live preview under the source, in
   professional mode it fills the editor and shows *MathCAT's* canonical
-  MathML, so `mathml_current_id` is a real DOM id and `matexHighlight`
+  MathML, so `mathml_current_id` is a real DOM id and `mathessibleHighlight`
   marks exactly what MathCAT is on; a click posts the clicked node's id
-  back (`AddScriptMessageHandler("matex")`) and moves MathCAT there. It is
+  back (`AddScriptMessageHandler("mathessible")`) and moves MathCAT there. It is
   `aria-hidden`, never meant to hold focus (`_keep_focus_off_renderer`),
   and everything shown goes through `sanitize_mathml` first.
   **Trap — `RunScript` re-entrancy:** `RunScript` is synchronous and spins
@@ -877,7 +877,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   checking focus, and AppKit offers key equivalents to every view in the key
   window — so the document preview stole Cmd+A from the Markdown editor and
   the equation renderer stole it from the equation editor.
-  [ui/macos_webview.py](../src/matex/ui/macos_webview.py) replaces that one method
+  [ui/macos_webview.py](../src/mathessible/ui/macos_webview.py) replaces that one method
   (ctypes, Objective-C runtime) to act only when the web view has the focus.
   Separately, the stock Edit ids `wxID_CUT/COPY/PASTE/SELECTALL` are native
   actions only a native text view can perform, so the equation window's
@@ -885,7 +885,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   Markdown editor keeps the stock ids. Verified by the user with a key log,
   not by synthetic events (CGEventPostToPid results were inconsistent here).
 - **The equation editor is a window, not a modal dialog**
-  (`EquationWindow` in [ui/document_editor.py](../src/matex/ui/document_editor.py)):
+  (`EquationWindow` in [ui/document_editor.py](../src/mathessible/ui/document_editor.py)):
   a macOS modal session disables every other window's menu bar, so a
   modal dialog could never offer an Insert menu (confirmed by the user:
   the main frame's Insert stayed dimmed). It is a `wx.Frame` with its own
@@ -920,14 +920,14 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   plain text (Word's option, `<mml:math>` included), or the one `<math>`
   in the clipboard's HTML (a web page; several mean a page of text, so
   the text) goes through the converter's own `MathMLtoUnicodeMath`
-  (`matexFromMathML`, `unicode_math_from_mathml`, sharing
+  (`mathessibleFromMathML`, `unicode_math_from_mathml`, sharing
   `_run_converter`'s RunScript loop with conversions), then
   `plain_letters` turns its maths-italic letters back into typed ones
-  (only italic: bold, script and double-struck mean something). MateX's
+  (only italic: bold, script and double-struck mean something). Mathessible's
   own copy is recognised by `alttext` equal to the text, and pasted as
   that text. The lineariser's known losses (tested 2026-10-26): an
   integral's `▒` (`∫₀¹〖𝑥²𝑑𝑥〗`) and cases' closing `┤`.
-- Colours for the custom-drawn editor come from [ui/theme.py](../src/matex/ui/theme.py);
+- Colours for the custom-drawn editor come from [ui/theme.py](../src/mathessible/ui/theme.py);
   its tests enforce WCAG contrast (4.5:1 text, 3:1 focus ring) in both
   light and dark appearance — keep new colours in that palette.
 - **No fallback system any more** (removed 2026-10-23, the user's
@@ -936,7 +936,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   editor when the native extension or the WebView was missing, with a
   grammar too small for real use, and parsed the source on every key even
   when MathCAT was there. Now the editor keeps only the text
-  ([editing/equation_source.py](../src/matex/editing/equation_source.py)); without MathCAT
+  ([editing/equation_source.py](../src/mathessible/editing/equation_source.py)); without MathCAT
   professional view refuses with `MATHCAT_MISSING`, a reading failure drops
   to linear view, and `MainFrame` warns at startup (`mathcat_load_error`,
   `WebView.IsBackendAvailable`, the patch check).
@@ -947,7 +947,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
     wrong cell. The matrix dialog therefore offers no "no brackets" option.
   - The converter's `|■(...)|` output (`intent="determinant($a)"` +
     `arg="a"`) has the same problem; `prepare_for_mathcat` in
-    [mathcat/navigator.py](../src/matex/mathcat/navigator.py) rewrites it to a plain `:fenced`
+    [mathcat/navigator.py](../src/mathessible/mathcat/navigator.py) rewrites it to a plain `:fenced`
     mrow, which MathCAT reads as "the 2 by 2 determinant". Route any future
     converter-output fixups for MathCAT through that function.
   - Cell commands issued while MathCAT's cursor sits on an `mtd` itself
@@ -971,7 +971,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
     ("empty"). Structural navigation reads a cell item through
     `_cell_speech` too (MathCAT read a case's cell as the whole case), and
     names tables/rows by kind ("start cases", "start case 1").
-  - `matex_mathcat.set_navigation(id, offset)` (wrapping MathCAT's
+  - `mathessible_mathcat.set_navigation(id, offset)` (wrapping MathCAT's
     `set_navigation_node`) is how to jump the cursor; zoom commands only
     ever descend into the current node.
   - `AutoZoomOut` (setting `auto_zoom_out`, default off; forced on for
@@ -1048,7 +1048,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
       linear stops are *always* built from the structure
       (`_build_bounded_stops`; the Right-arrow simulation is gone), the
       `structure_stops` setting only adds entering on "start of math"; and
-      structural navigation is always MateX's levels
+      structural navigation is always Mathessible's levels
       (`structural_command`), without structure stops just with no edge
       stops ("end fraction" said, the cursor stays). A node no stop stands
       on (a whole structure) counts as its own "start X" stop
@@ -1104,7 +1104,7 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
 
 ## Code Organisation
 
-`src/matex/` is split by concern (2026-10-23; the notes above name
+`src/mathessible/` is split by concern (2026-10-23; the notes above name
 modules as they were then, without their package):
 
 | Package | What is in it | wx? |
@@ -1115,10 +1115,10 @@ modules as they were then, without their package):
 | `templates/` | `template_source`, `math_templates`, `matrix_templates`, `fraction_styles`, `structure_edits`, `insert_catalog`, `structure_gallery` | no |
 | `mathcat/` | `navigator` (`MathCatNavigator`, was `mathcat`), `stops`, `structural`, `tables`, `common`, `prepare`, `lone` (were `mathcat_*`), `mathml_model` | no |
 | `documents/` | `markdown_math`, `document_io`, `notebook`, `portable_notebook`, `html_export`, `mathml_sanitize` | no |
-| `symbols/` | `dictionary`, `download` (were `symbol_*`) and the built-in `matex-en.dic` | no |
+| `symbols/` | `dictionary`, `download` (were `symbol_*`) and the built-in `mathessible-en.dic` | no |
 | `ui/` | `main_frame`, `document_editor`, the dialogs, `macos_webview`, `speech`, `clipboard`, `theme` | yes |
 
-Imports are absolute (`from matex.templates.math_templates import ...`).
+Imports are absolute (`from mathessible.templates.math_templates import ...`).
 Everything outside `editor/` and `ui/` imports `wx` nowhere and is unit
 tested. Templates: `template_source` holds
   `TemplateEdit` and the paren scan, `math_templates` the inserters and
@@ -1165,30 +1165,30 @@ tested. Templates: `template_source` holds
 
 ## The Native MathCAT Binding
 
-- `native/mathcat_py/` — PyO3 binding (`matex_mathcat`) wrapping the Rust
+- `native/mathcat_py/` — PyO3 binding (`mathessible_mathcat`) wrapping the Rust
   `MathCAT` submodule. Built via maturin, wired in through
-  `[tool.uv.sources] matex-mathcat = { path = "native/mathcat_py" }` in
+  `[tool.uv.sources] mathessible-mathcat = { path = "native/mathcat_py" }` in
   `pyproject.toml`; `uv sync` rebuilds it — only because
   `native/mathcat_py/pyproject.toml` lists `[tool.uv] cache-keys` covering
   both the binding's and the MathCAT submodule's sources/rules. Without
   them uv silently reinstalls a stale cached wheel (this happened: 21
   tests failed on a missing `preference` function). If in doubt:
-  `uv sync --reinstall-package matex-mathcat`.
+  `uv sync --reinstall-package mathessible-mathcat`.
   MathCAT was last updated to upstream `85c89a37` (0.7.6-rc.4, 2026-10-07);
   the binding's API use was unchanged by that update.
 
 ## Path Dependencies on the Git Checkout
 
-- [unicodemath.py](../src/matex/unicodemath.py) `distribution_directory()` finds
+- [unicodemath.py](../src/mathessible/unicodemath.py) `distribution_directory()` finds
   `UnicodeMathML/dist/*.js` by walking `Path(__file__).resolve().parents[2]`
-  from `src/matex/unicodemath.py` — i.e. it assumes it is running from a
+  from `src/mathessible/unicodemath.py` — i.e. it assumes it is running from a
   source checkout with the submodule initialised, two directories above
   `src/`. Same idea for the MathCAT `Rules/` dir at build time (bundled into
   the compiled extension via `include-zip`, so that one only matters if you
   rebuild `native/mathcat_py` without that feature).
-- This means: MateX currently only works run via `uv run matex` (or an
+- This means: Mathessible currently only works run via `uv run mathessible` (or an
   editable install) from within this checkout. A regular `pip install
-  matex`/built wheel from elsewhere would not find the UnicodeMathML JS
+  mathessible`/built wheel from elsewhere would not find the UnicodeMathML JS
   files — `pyproject.toml` has no `package-data`/`MANIFEST.in` entry for
   them. Treat this as a known prototype limitation, not something to
   silently "fix" by hardcoding a different path.
@@ -1214,8 +1214,8 @@ tested. Templates: `template_source` holds
   - `Rules/Languages/en/SharedRules/general.yaml` (patch 0003): the large-
     operator rules no longer add "of" before an invisible function
     application ("the max over x of of f"), and a `labeled-brace` rule
-    reads MateX's `overbrace($content,$label)` intent. Rules are bundled
-    with include-zip: rebuild (`uv sync --reinstall-package matex-mathcat`)
+    reads Mathessible's `overbrace($content,$label)` intent. Rules are bundled
+    with include-zip: rebuild (`uv sync --reinstall-package mathessible-mathcat`)
     after editing them.
   - `Rules/Intent/general.yaml`, `Rules/Languages/en/unicode.yaml` (patch
     0005): the limit rule named lim inf/sup `limit-inf`/`limit-sup`, which
@@ -1255,13 +1255,13 @@ tested. Templates: `template_source` holds
     `read_files` reads right after the code's short table: the short table
     is looked up first, so each replaces the code's sign. A change calls
     `invalidate_braille_caches`; a mistake in them is logged and ignored.
-    MateX side: [symbols/braille_signs.py](../src/matex/symbols/braille_signs.py)
-    (`~/.matex/braille/<code>.txt`, a symbol and its cells or dot numbers
+    Mathessible side: [symbols/braille_signs.py](../src/mathessible/symbols/braille_signs.py)
+    (`~/.mathessible/braille/<code>.txt`, a symbol and its cells or dot numbers
     per line), `MathCatNavigator.braille_signs` sent on every `load` (MathCAT
     reloads only on a change, so each thread's own MathCAT gets them too),
     and Settings > Braille signs… (`BrailleSignsDialog`, saved on the
     Settings dialog's OK).
-- **Startup patch check** ([patch_check.py](../src/matex/patch_check.py)):
+- **Startup patch check** ([patch_check.py](../src/mathessible/patch_check.py)):
   `git apply --reverse --check` per patch file, on a worker thread from
   the first `MainFrame`; a warning dialog lists the missing ones (a
   `uv sync` without bootstrap builds MathCAT unpatched). It cannot see a
@@ -1271,13 +1271,13 @@ tested. Templates: `template_source` holds
   `scripts/bootstrap.sh` like MathCAT's): 0001 makes the decimal comma an
   option (`decimalComma`, default on as upstream). The dist parser is
   generated from `src/unicodemathml-parser.pegjs`; the patch edits both
-  by hand (the dist one is what MateX loads), and passes the option from
+  by hand (the dist one is what Mathessible loads), and passes the option from
   `parse` in both `unicodemathml.js` copies. 0002 returns where parsing
   stopped (`parseError: {offset, found}`) when nothing parses: the PEG
   offset is in the text after `resolveCW`/`mapToPrivate`, so it is mapped
   back by the shortest input prefix whose prepared text reaches past it
   (cuts never split a control word). Only in `dist/unicodemathml.js`:
-  `src/unicodemathml.js` is a newer upstream revision, not what MateX
+  `src/unicodemathml.js` is a newer upstream revision, not what Mathessible
   loads. 0003: `sin qa_n` / `lim_(n→∞) qa_n` (a function applied to
   two letters, the second subscripted) threw in `preprocess` (the "⒡"
   dictation check read `x.atoms[0]`, `atoms` being one object there) and
@@ -1288,19 +1288,19 @@ tested. Templates: `template_source` holds
 - **Licence: GPL-2.0-or-later** (was MIT; changed so NVDA's GPL-2.0
   symbol dictionaries can be used). NVDA's `symbols.dic` files are never
   committed: Settings > "Download NVDA dictionaries…" (for users of a
-  binary, no `uv`) and `matex-fetch-symbols` both call
-  `download_languages` in [symbols/download.py](../src/matex/symbols/download.py),
-  into `~/.matex/symbols/nvda-<lang>.dic`. In Settings the network calls
+  binary, no `uv`) and `mathessible-fetch-symbols` both call
+  `download_languages` in [symbols/download.py](../src/mathessible/symbols/download.py),
+  into `~/.mathessible/symbols/nvda-<lang>.dic`. In Settings the network calls
   run on a worker thread behind a pulsing `wx.ProgressDialog`
   (`_in_background`); the thread only writes files, results go back
   through a `wx.CallLater` poll. Typed-character echo and the
   linear view's source reading (never the built equation, see
-  `mathcat_lone`) name symbols only from dictionaries ([symbols/dictionary.py](../src/matex/symbols/dictionary.py),
-  the `symbol_dictionary` setting, built-in `src/matex/symbols/matex-en.dic`);
+  `mathcat_lone`) name symbols only from dictionaries ([symbols/dictionary.py](../src/mathessible/symbols/dictionary.py),
+  the `symbol_dictionary` setting, built-in `src/mathessible/symbols/mathessible-en.dic`);
   do not add hardcoded name tables. Only the `symbols:` section is parsed;
   layers: chosen → the downloaded NVDA English one (for another NVDA
   locale) → built-in. **Provenance is a header, never the file name:**
-  the downloader prepends `# MateX-Source: NVDA`, `-Language`, `-Origin`,
+  the downloader prepends `# Mathessible-Source: NVDA`, `-Language`, `-Origin`,
   `-Downloaded` lines, import writes `-Origin`/`-Imported` and drops any
   provenance lines the file claimed (`read_provenance`). Labels ("ro (NVDA,
   downloaded …)") and the NVDA fallback read only that; a file merely

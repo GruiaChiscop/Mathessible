@@ -5,10 +5,10 @@ second subscripted) threw "Cannot read properties of undefined (reading
 'chars')" in preprocess, and the whole equation came back as an error
 span: the check for the "⒡" (parenthesize argument) dictation option read
 `x.atoms[0].chars`, but `atoms` is a single object there, not an array.
-Found by MateX's navigation audit: typing a letter at the start of a
+Found by Mathessible's navigation audit: typing a letter at the start of a
 limit's argument dropped the built equation.
 
-Only dist/unicodemathml.js, the file MateX loads. Applied by
+Only dist/unicodemathml.js, the file Mathessible loads. Applied by
 scripts/bootstrap.sh after 0001 and 0002.
 
 --- a/dist/unicodemathml.js
@@ -19,7 +19,7 @@ scripts/bootstrap.sh after 0001 and 0002.
                  if (x != undefined && x.hasOwnProperty('atoms')) {
 -                    let ch = x.atoms[0].chars;
 -                    if (ch[0] == '⒡') {
-+                    // MateX: atoms is not always an array ("sin qa_n"): x.atoms[0]
++                    // Mathessible: atoms is not always an array ("sin qa_n"): x.atoms[0]
 +                    // was undefined there and the whole conversion threw.
 +                    let first = Array.isArray(x.atoms) ? x.atoms[0] : x.atoms;
 +                    let ch = first && first.chars;

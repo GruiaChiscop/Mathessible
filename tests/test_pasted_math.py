@@ -1,6 +1,6 @@
 import unittest
 
-from matex.editing.pasted_math import pasted_mathml, plain_letters
+from mathessible.editing.pasted_math import pasted_mathml, plain_letters
 
 FRACTION = '<math xmlns="http://www.w3.org/1998/Math/MathML"><mfrac><mi>a</mi><mi>b</mi></mfrac></math>'
 
@@ -19,7 +19,7 @@ class PastedMathmlTests(unittest.TestCase):
         html = f"<html><body><span>{FRACTION}</span></body></html>"
         self.assertEqual(pasted_mathml("a\nb", html), FRACTION)
 
-    def test_several_equations_or_matex_own_copy_paste_the_text(self) -> None:
+    def test_several_equations_or_mathessible_own_copy_paste_the_text(self) -> None:
         self.assertIsNone(pasted_mathml("a b", f"<p>{FRACTION} and {FRACTION}</p>"))
         own = '<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline" alttext="a/b&lt;c"><mi>a</mi></math>'
         self.assertIsNone(pasted_mathml("a/b<c", f"<body>{own}</body>"))

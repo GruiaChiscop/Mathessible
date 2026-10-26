@@ -1,6 +1,6 @@
 import unittest
 
-from matex.documents.mathml_sanitize import MathMLModelError, sanitize_mathml
+from mathessible.documents.mathml_sanitize import MathMLModelError, sanitize_mathml
 
 
 class SanitizeMathMLTests(unittest.TestCase):

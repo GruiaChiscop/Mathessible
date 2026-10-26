@@ -6,8 +6,8 @@ MathCAT (en rules): no doubled "of" after a large operator, and labeled braces
    inserts one before `f(x)`), that operator says "of" itself: the result
    was "the max over x of of f of x". The test now skips U+2061.
 2. A rule for the intents `overbrace($content,$label)` and
-   `underbrace($content,$label)` that MateX gives `⏞(a+b)┴n` /
-   `⏟(a+b)┬n` (src/matex/mathcat.py, prepare_for_mathcat): "a plus b, with
+   `underbrace($content,$label)` that Mathessible gives `⏞(a+b)┴n` /
+   `⏟(a+b)┬n` (src/mathessible/mathcat.py, prepare_for_mathcat): "a plus b, with
    brace above, labeled n". Without it the nested movers read "quantity
    quantity a plus b with top brace above with n above".
 
@@ -22,7 +22,7 @@ index 832384da..74491460 100644
    - t: "comma"      # phrase(use a 'comma' to divide large numbers or as a decimal point)
    - x: "*[2]"
  
-+# MateX: a brace over/under an expression with a label (`⏞(a+b)┴n`), given by MateX as
++# Mathessible: a brace over/under an expression with a label (`⏞(a+b)┴n`), given by Mathessible as
 +# intent="overbrace($content,$label)": "a plus b, with brace above, labeled n".
 +- name: labeled-brace
 +  tag: [overbrace, underbrace]

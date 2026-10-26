@@ -2,9 +2,9 @@ import json
 import unittest
 
 from converter_harness import convert, needs_node
-from matex.editing.source_map import anchor_offset, leaf_nodes, map_leaves
-from matex.mathcat.navigator import MathCatNavigator
-from matex.unicodemath import decode_conversion
+from mathessible.editing.source_map import anchor_offset, leaf_nodes, map_leaves
+from mathessible.mathcat.navigator import MathCatNavigator
+from mathessible.unicodemath import decode_conversion
 
 
 def mathml(source: str) -> str:

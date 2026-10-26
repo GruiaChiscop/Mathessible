@@ -1,8 +1,8 @@
-"""How the newer structures read in MathCAT, with MateX's fixups (prepare_for_mathcat, flat stops)."""
+"""How the newer structures read in MathCAT, with Mathessible's fixups (prepare_for_mathcat, flat stops)."""
 
 import unittest
 
-from matex.mathcat.navigator import MathCatNavigator
+from mathessible.mathcat.navigator import MathCatNavigator
 
 # Converter output for each source.
 CONVERTED = {

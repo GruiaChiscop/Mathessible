@@ -1,25 +1,25 @@
 # Quick start
 
-From installing MateX to a first equation, written, read and saved. The
+From installing Mathessible to a first equation, written, read and saved. The
 [user guide](user-guide.md) explains everything in more detail, and
 [keyboard-shortcuts.md](keyboard-shortcuts.md) lists every key.
 
 ## Install and start
 
-MateX runs from a copy of this repository and needs Python 3.14 and
+Mathessible runs from a copy of this repository and needs Python 3.14 and
 [uv](https://docs.astral.sh/uv/). On macOS, use a Framework build of
 Python (Homebrew's or python.org's).
 
 ```shell
-git clone --recursive https://github.com/GruiaChiscop/MateX.git
-cd MateX
+git clone --recursive https://github.com/GruiaChiscop/Mathessible.git
+cd Mathessible
 sh scripts/bootstrap.sh
-uv run matex
+uv run mathessible
 ```
 
 `scripts/bootstrap.sh` prepares MathCAT and the converter and runs the
 tests; it is needed once, and again after an update. Afterwards
-`uv run matex` is enough. MateX speaks through the screen reader that is
+`uv run mathessible` is enough. Mathessible speaks through the screen reader that is
 running (VoiceOver, NVDA, JAWS…).
 
 ## Write a document
@@ -34,7 +34,7 @@ field. Headings start with `#`, lists with `-`.
 2. Type the equation in UnicodeMath, as in Word's linear format:
    `x=(-b±√(b^2-4ac))/(2a)`. Control words work too: `\pm` gives ±,
    `\sqrt` gives √.
-3. Each part is built as soon as it is complete, and MateX says what you
+3. Each part is built as soon as it is complete, and Mathessible says what you
    typed.
 4. Press `Enter` to save the equation and go on writing on a new line,
    or `Control+=` (`Alt+=`) to go back to the text after it. `Escape`
@@ -74,7 +74,7 @@ of it, with the equations as MathML.
 
 ### UnicodeMath
 
-MateX's equations are UnicodeMath, the same linear format as Word's, so
+Mathessible's equations are UnicodeMath, the same linear format as Word's, so
 what is written about Word's equations holds here too.
 
 - [Linear format equations using UnicodeMath and LaTeX in Word](https://support.microsoft.com/en-us/office/linear-format-equations-using-unicodemath-and-latex-in-word-2e00618d-b1fd-49d8-8cb4-8d17f25754f8)
@@ -87,7 +87,7 @@ what is written about Word's equations holds here too.
   Murray Sargent's blog on UnicodeMath and Office's maths.
 - [UnicodeMathML playground](https://murrayiii.github.io/UnicodeMathML/playground/):
   try UnicodeMath in the browser and see the MathML it becomes, with the
-  converter MateX uses.
+  converter Mathessible uses.
 
 ### Control words and symbols
 
@@ -97,7 +97,7 @@ entries.
 - [Quick start guide to Math AutoCorrect commands and symbols](https://support.microsoft.com/en-us/topic/9cbc8873-c217-4c87-a059-03d539ef8eea)
   (Microsoft Support): every symbol, with its control word and its
   Unicode value.
-- In MateX: Settings → Math AutoCorrect… lists every control word and
+- In Mathessible: Settings → Math AutoCorrect… lists every control word and
   shortcut, which you can change, delete or add to. Insert → Symbol…
   (`Command+Shift+S`, `Ctrl+Shift+S`) finds a symbol by its control word
   or name, and typing a control word offers the matching ones.
@@ -106,4 +106,4 @@ entries.
 
 - [MathCAT for assistive technology users](https://daisy.github.io/MathCAT/users.html):
   how MathCAT speaks, navigates and brailles maths, and its preferences.
-  MateX reads every built equation through MathCAT.
+  Mathessible reads every built equation through MathCAT.

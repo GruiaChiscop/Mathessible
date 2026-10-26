@@ -1,6 +1,6 @@
 import unittest
 
-from matex.documents.markdown_math import find_math_zones, math_zone_at, toggle_display
+from mathessible.documents.markdown_math import find_math_zones, math_zone_at, toggle_display
 
 
 class MarkdownMathTests(unittest.TestCase):

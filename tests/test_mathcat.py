@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from matex.mathcat.navigator import MathCatNavigator
+from mathessible.mathcat.navigator import MathCatNavigator
 
 # Converter output for "a/(b+c)".
 A_OVER_B_PLUS_C = '<math display="inline"><mfrac><mi>𝑎</mi><mrow><mi>𝑏</mi><mo>+</mo><mi>𝑐</mi></mrow></mfrac></math>'

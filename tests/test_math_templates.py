@@ -1,6 +1,6 @@
 import unittest
 
-from matex.templates.math_templates import (
+from mathessible.templates.math_templates import (
     group_function_argument,
     insert_absolute_value_template,
     insert_binomial_template,

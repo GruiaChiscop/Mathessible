@@ -1,0 +1,75 @@
+# Mathessible built-in symbol names (English), in the NVDA symbols.dic format.
+# Part of Mathessible (GPL-2.0-or-later). Used when no other dictionary is chosen,
+# and for any symbol the chosen dictionary does not name.
+
+symbols:
+# identifier	replacement[[	level][	preserve]][	# display name]
+ 	space	all
+\t	tab	all
+\n	new line	all
+(	left parenthesis	all
+)	right parenthesis	all
+[	left bracket	all
+]	right bracket	all
+{	left brace	all
+}	right brace	all
++	plus	all
+-	minus	all
+*	asterisk	all
+/	slash	all
+\\	backslash	all
+=	equals	all
+<	less than	all
+>	greater than	all
+_	underscore	all
+^	caret	all
+.	period	all
+,	comma	all
+;	semicolon	all
+:	colon	all
+'	apostrophe	all
+"	quote	all
+`	grave accent	all
+~	tilde	all
+!	exclamation mark	all
+?	question mark	all
+@	at sign	all
+\#	number sign	all
+$	dollar sign	all
+%	percent	all
+&	ampersand	all
+|	vertical bar	all
+⇒	implies	all
+→	right arrow	all
+←	left arrow	all
+∞	infinity	all
+≤	less than or equal to	all
+≥	greater than or equal to	all
+≠	not equal to	all
+×	times	all
+·	dot	all
+÷	divided by	all
+±	plus or minus	all
+√	square root	all
+∫	integral	all
+∑	sum	all
+∏	product	all
+α	alpha	all
+β	beta	all
+γ	gamma	all
+δ	delta	all
+π	pi	all
+θ	theta	all
+λ	lambda	all
+μ	mu	all
+σ	sigma	all
+φ	phi	all
+ω	omega	all
+# UnicodeMath structure characters
+▒	of	all
+■	matrix	all
+█	equation array	all
+┴	above	all
+┬	below	all
+〖	left invisible bracket	all
+〗	right invisible bracket	all

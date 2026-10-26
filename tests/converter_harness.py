@@ -12,7 +12,7 @@ import shutil
 import subprocess
 import unittest
 
-from matex.unicodemath import distribution_directory
+from mathessible.unicodemath import distribution_directory
 
 needs_node = unittest.skipUnless(shutil.which("node"), "Node is needed to run the UnicodeMathML converter")
 

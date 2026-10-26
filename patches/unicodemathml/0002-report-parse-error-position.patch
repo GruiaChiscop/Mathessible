@@ -2,8 +2,8 @@ UnicodeMathML: report where parsing stopped (result.parseError)
 
 When nothing parses, the converter only returns the whole source in red
 (`mathcolor="#F00"`) and logs the PEG error's name; its location is lost.
-MateX lists an equation's errors with their positions (F8, see
-src/matex/equation_errors.py) and needs it for the failures its own scan
+Mathessible lists an equation's errors with their positions (F8, see
+src/mathessible/equation_errors.py) and needs it for the failures its own scan
 cannot explain. `unicodemathml()` now keeps it as `parseError: {offset,
 found}`: `found` is the parser's (null at the end of the input), and
 `offset` is in the *input's* UTF-16 offsets, not the parser's, which
@@ -13,7 +13,7 @@ on the character it stopped at (prefixes never cut a control word, which
 is reported whole; leading spaces trimmed by unicodemathml() are added
 back).
 
-Only dist/unicodemathml.js, the file MateX loads: src/unicodemathml.js is
+Only dist/unicodemathml.js, the file Mathessible loads: src/unicodemathml.js is
 a newer upstream revision with different code around it. Applied by
 scripts/bootstrap.sh after 0001.
 
@@ -24,12 +24,12 @@ scripts/bootstrap.sh after 0001.
  // PLUMBING //
  //////////////
 +
-+// MateX: where parsing stopped when the input could not be parsed at all,
++// Mathessible: where parsing stopped when the input could not be parsed at all,
 +// as {offset, found} in the input's own UTF-16 offsets (else null).
 +var ummlParseError = null
  
-+function matexParseErrorPosition(source, error, leading) {
-+    // MateX: the parser's offset is in the text after resolveCW and
++function mathessibleParseErrorPosition(source, error, leading) {
++    // Mathessible: the parser's offset is in the text after resolveCW and
 +    // mapToPrivate. The shortest prefix of the source that reaches past it
 +    // ends at the character it stopped on; prefixes never cut a control
 +    // word (a half "\al" is not resolved), and a word is reported whole.
@@ -61,7 +61,7 @@ scripts/bootstrap.sh after 0001.
      debugGroup(unicodemath);
      selanchor = selfocus = null
 +    ummlParseError = null
-+    let matexLeading = unicodemath.length - unicodemath.trimStart().length
++    let mathessibleLeading = unicodemath.length - unicodemath.trimStart().length
      let k = unicodemath.length
      if (unicodemath[0] == ' ' || unicodemath[k - 1] == ' ') {
          unicodemath = unicodemath.trim()
@@ -69,7 +69,7 @@ scripts/bootstrap.sh after 0001.
      try {
          uast = parse(unicodemath);
      } catch (error) {
-+        ummlParseError = matexParseErrorPosition(unicodemath, error, matexLeading)
++        ummlParseError = mathessibleParseErrorPosition(unicodemath, error, mathessibleLeading)
          // Display unparsable string in red
          uast = {unicodemath: {content: [{expr: [{colored: {color: '#F00', of: {text: unicodemath}}}]}], eqnumber: null}}
          autoBuildUp = false                 // If called for autobuildup, return failure

@@ -1,7 +1,7 @@
-# How MateX works
+# How Mathessible works
 
 A one-page map of the code, following an equation through the app. Paths
-are under `src/matex/`; the details and the traps are in
+are under `src/mathessible/`; the details and the traps are in
 [engineering-notes.md](engineering-notes.md).
 
 ## The document
@@ -47,7 +47,7 @@ MathCAT (native, mathcat/navigator.py)
   ▼
 mathcat/mathml_model.py          that MathML as a tree: regions, roles, tables
 mathcat/stops.py, structural.py, tables.py
-                                 MateX's own linear stops, levels and cell moves over it
+                                 Mathessible's own linear stops, levels and cell moves over it
 ```
 
 Python never parses UnicodeMath itself: the converter decides what an
@@ -66,10 +66,10 @@ them resolved (`editing/source_view.py`).
 
 ## Around it
 
-- `documents/`: notebooks (a folder or a `.mtex` archive) and HTML export,
+- `documents/`: notebooks (a folder or a `.mathessible` archive) and HTML export,
   where converter output passes `documents/mathml_sanitize.py` first.
 - `symbols/`: the dictionaries that name symbols while typing in the
   linear view (NVDA's `symbols.dic` format).
-- `settings.py`, `session_log.py` (`MATEX_LOG=1`), `patch_check.py` (the
+- `settings.py`, `session_log.py` (`MATHESSIBLE_LOG=1`), `patch_check.py` (the
   startup check that bootstrap's patches are applied).
 - `native/mathcat_py/`: the PyO3 binding to the MathCAT submodule.

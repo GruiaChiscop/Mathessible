@@ -3,8 +3,8 @@ import unittest
 import zipfile
 from pathlib import Path
 
-from matex.documents.notebook import Notebook, NotebookError
-from matex.documents.portable_notebook import extract_mtex, save_mtex
+from mathessible.documents.notebook import Notebook, NotebookError
+from mathessible.documents.portable_notebook import extract_portable, save_portable
 
 
 class PortableNotebookTests(unittest.TestCase):
@@ -14,10 +14,10 @@ class PortableNotebookTests(unittest.TestCase):
             notebook = Notebook.create(base / "source", "Analyse mathématique")
             notebook.write_page(0, "# Limite\n\n$lim_(x→0) f(x)$")
             notebook.add_page("Integrale", "$$∫_0^1 xⅆx$$")
-            archive = save_mtex(notebook, base / "analyse")
+            archive = save_portable(notebook, base / "analyse")
 
-            reopened = extract_mtex(archive, base / "destination")
-            self.assertEqual(archive.suffix, ".mtex")
+            reopened = extract_portable(archive, base / "destination")
+            self.assertEqual(archive.suffix, ".mathessible")
             self.assertEqual(reopened.title, "Analyse mathématique")
             self.assertEqual([page.title for page in reopened.pages], ["Page 1", "Integrale"])
             self.assertEqual(reopened.read_page(1), "$$∫_0^1 xⅆx$$")
@@ -25,12 +25,12 @@ class PortableNotebookTests(unittest.TestCase):
     def test_rejects_path_traversal(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory)
-            archive = base / "periculos.mtex"
+            archive = base / "periculos.mathessible"
             with zipfile.ZipFile(archive, "w") as output:
-                output.writestr("matex.json", "{}")
+                output.writestr("mathessible.json", "{}")
                 output.writestr("../outside.md", "no")
             with self.assertRaises(NotebookError):
-                extract_mtex(archive, base / "destination")
+                extract_portable(archive, base / "destination")
             self.assertFalse((base / "outside.md").exists())
 
 

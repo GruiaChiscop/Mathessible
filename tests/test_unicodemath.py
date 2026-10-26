@@ -2,7 +2,7 @@ import json
 import unittest
 
 from converter_harness import convert, convert_all, has_error, needs_node
-from matex.unicodemath import (
+from mathessible.unicodemath import (
     StrayScriptResult,
     caret_script,
     code_point_index,
@@ -27,7 +27,7 @@ class UnicodeMathMLTests(unittest.TestCase):
         page, _base_url = renderer_page()
         self.assertNotIn("<script src=", page)
         self.assertIn("function convertUnicodeMathToMathML", page)
-        self.assertIn("window.matexConvert = function", page)
+        self.assertIn("window.mathessibleConvert = function", page)
 
     def test_webview_result_is_decoded_on_all_common_backends(self) -> None:
         payload = json.dumps({"mathml": "<math><mi>x</mi></math>", "error": None})
@@ -51,23 +51,25 @@ class UnicodeMathMLTests(unittest.TestCase):
 
     def test_the_page_draws_a_caret_and_zooms(self) -> None:
         page, _base = renderer_page()
-        self.assertIn("window.matexCaret = function", page)
-        self.assertIn("window.matexZoom = function", page)
-        self.assertEqual(caret_script({"id": "a", "side": "after"}), 'window.matexCaret({"id": "a", "side": "after"})')
-        self.assertEqual(caret_script(None), "window.matexCaret(null)")
-        self.assertEqual(zoom_script(1.25), "window.matexZoom(1.25)")
-        self.assertEqual(highlight_script("a b", selected=True), 'window.matexHighlight("a b", true)')
+        self.assertIn("window.mathessibleCaret = function", page)
+        self.assertIn("window.mathessibleZoom = function", page)
+        self.assertEqual(
+            caret_script({"id": "a", "side": "after"}), 'window.mathessibleCaret({"id": "a", "side": "after"})'
+        )
+        self.assertEqual(caret_script(None), "window.mathessibleCaret(null)")
+        self.assertEqual(zoom_script(1.25), "window.mathessibleZoom(1.25)")
+        self.assertEqual(highlight_script("a b", selected=True), 'window.mathessibleHighlight("a b", true)')
 
     def test_another_scripts_result_is_recognized_as_stray(self) -> None:
         own = json.dumps({"mathml": "<math><mi>x</mi></math>", "error": None, "token": 7})
         self.assertEqual(decode_conversion(own, 7).mathml, "<math><mi>x</mi></math>")
-        # matexRender/matexHighlight answer "true"/"false"; an older
+        # mathessibleRender/mathessibleHighlight answer "true"/"false"; an older
         # conversion carries another token.
         for stray in ("true", "false", json.dumps({"mathml": "<math/>", "error": None, "token": 6})):
             with self.assertRaises(StrayScriptResult):
                 decode_conversion(stray, 7)
         self.assertIn("{token: 7}", conversion_script("x", 7))
-        self.assertIn('window.matexConvert("x", false)', conversion_script("x", decimal_comma=False))
+        self.assertIn('window.mathessibleConvert("x", false)', conversion_script("x", decimal_comma=False))
         stopped = decode_conversion(
             json.dumps({"mathml": "<math/>", "error": None, "parseOffset": 3, "parseFound": ")"})
         )

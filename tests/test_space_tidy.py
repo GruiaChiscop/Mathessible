@@ -1,7 +1,7 @@
 import unittest
 
 from converter_harness import convert_all, needs_node
-from matex.editing.space_tidy import caret_after_tidy, tidy_spaces
+from mathessible.editing.space_tidy import caret_after_tidy, tidy_spaces
 
 
 @needs_node

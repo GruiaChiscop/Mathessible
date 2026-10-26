@@ -428,14 +428,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ceec5bc11778974d1bcb055b18002eba7f4b3518b6a0081b3af5f21666da9ad"
 
 [[package]]
-name = "matex-mathcat"
-version = "0.1.0"
-dependencies = [
- "mathcat",
- "pyo3",
-]
-
-[[package]]
 name = "mathcat"
 version = "0.7.6-rc.4"
 dependencies = [
@@ -459,6 +451,14 @@ dependencies = [
  "unicode-script",
  "yaml-rust",
  "zip",
+]
+
+[[package]]
+name = "mathessible-mathcat"
+version = "0.1.0"
+dependencies = [
+ "mathcat",
+ "pyo3",
 ]
 
 [[package]]

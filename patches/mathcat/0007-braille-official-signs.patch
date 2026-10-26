@@ -1,6 +1,6 @@
 MathCAT (braille, Nemeth and UEB): official signs the tables lacked
 
-MateX sent every character of the maths blocks through MathCAT and
+Mathessible sent every character of the maths blocks through MathCAT and
 looked each one missing up in the codes' own references. Most have no
 official sign at all (Nemeth and UEB both say to use a transcriber-defined
 symbol with a note), and MathCAT's hex code stays for them. These do:
@@ -31,7 +31,7 @@ index f7a57db5..f07544dd 100644
   # --- restored short definitions that differ from unicode-full ---
   - "∏": [t: "GCL⠏"]              # 0x220F (N-ary product)
   - "∑": [t: "GCL⠎"]              # 0x2211 (N-ary summation)
-+ # MateX: official signs MathCAT lacked (Nemeth Code 2022, Appendix D; page numbers given).
++ # Mathessible: official signs MathCAT lacked (Nemeth Code 2022, Appendix D; page numbers given).
 + - "⩽": [t: "⠐⠅⠱"]                  # 0x2A7D (less-than or slanted equal to: as ≤, 21-5)
 + - "⩾": [t: "⠨⠂⠱"]                  # 0x2A7E (greater-than or slanted equal to: as ≥, 21-5)
 + - "⪕": [t: "⠱⠐⠅"]                  # 0x2A95 (slanted equal to or less-than: as ⋜, 21-5)
@@ -60,6 +60,6 @@ index 3111ba28..b8aa9a6a 100644
   # --- restored short definitions that differ from unicode-full ---
   - "⋇": [t: "1⠌⠯⠦"]             # 0x22C7 (Division times)
   - "⊩": [t: "⠸⠳⠿⠸⠒"]            # 0x22A9 (Forces)
-+ # MateX: official signs MathCAT lacked (ICEB sources named).
++ # Mathessible: official signs MathCAT lacked (ICEB sources named).
 + - "⦀": [t: "⠼⠸⠇"]                  # 0x2980 (triple vertical bar: Rules of UEB 2024, Appendix 3)
 + - "⦜": [t: "⠼⠸⠪"]                  # 0x299C (measured right angle: UEB Technical Guidelines 2014, 11)

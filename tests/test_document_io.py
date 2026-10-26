@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from matex.documents.document_io import markdown_path, read_markdown, write_markdown
+from mathessible.documents.document_io import markdown_path, read_markdown, write_markdown
 
 
 class DocumentIOTests(unittest.TestCase):

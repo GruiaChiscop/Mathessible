@@ -64,7 +64,7 @@ if [ "$(uname -s)" = "Darwin" ]; then
     done
     if [ -z "$python_request" ]; then
         printf '%s\n' \
-            "On macOS, MateX needs a Framework build of Python for wxPython." \
+            "On macOS, Mathessible needs a Framework build of Python for wxPython." \
             "Install Python from Homebrew or python.org, then run this script again." >&2
         exit 1
     fi
@@ -75,4 +75,4 @@ fi
 "$uv_cmd" sync --python "$python_request"
 "$uv_cmd" run python -m unittest discover -s tests -v
 
-printf '%s\n' "MateX is ready. Start it with: $uv_cmd run matex"
+printf '%s\n' "Mathessible is ready. Start it with: $uv_cmd run mathessible"

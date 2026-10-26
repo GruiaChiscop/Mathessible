@@ -1,4 +1,4 @@
-# MateX
+# Mathessible
 
 An accessible maths editor. Documents are Markdown; equations are
 written in UnicodeMath, the linear format of Microsoft Word's equation
@@ -6,7 +6,7 @@ editor; and every equation can be read, navigated and edited with a
 screen reader and a braille display, through
 [MathCAT](https://github.com/daisy/MathCAT).
 
-MateX is a prototype. It aims to match Word's equation editor feature by
+Mathessible is a prototype. It aims to match Word's equation editor feature by
 feature, and to go beyond it where a screen reader needs more.
 
 To try it, start with the [quick start](docs/quick-start.md); everything
@@ -25,7 +25,7 @@ else is in the [documentation](#documentation).
   selecting where MathCAT's cursor is, without leaving the professional
   view.
 - **Markdown documents and notebooks**: equations as `$...$` and
-  `$$...$$`, notebooks of pages saved as a folder or a single `.mtex`
+  `$$...$$`, notebooks of pages saved as a folder or a single `.mathessible`
   file, and export to accessible HTML with native MathML.
 - **Keyboard first**: everything works from the keyboard, and the
   equation editor speaks for itself, so VoiceOver never wanders into web
@@ -33,18 +33,18 @@ else is in the [documentation](#documentation).
 
 ## Getting started
 
-MateX runs from a checkout of this repository, with Python 3.14 and
+Mathessible runs from a checkout of this repository, with Python 3.14 and
 [uv](https://docs.astral.sh/uv/):
 
 ```shell
-git clone --recursive https://github.com/GruiaChiscop/MateX.git
-cd MateX
+git clone --recursive https://github.com/GruiaChiscop/Mathessible.git
+cd Mathessible
 sh scripts/bootstrap.sh
-uv run matex
+uv run mathessible
 ```
 
 `scripts/bootstrap.sh` fetches the MathCAT and UnicodeMathML submodules,
-applies MateX's patches to them, builds the native MathCAT extension and
+applies Mathessible's patches to them, builds the native MathCAT extension and
 runs the tests. On macOS wxPython needs a Framework build of Python
 (Homebrew's or python.org's); the script finds one. The
 [quick start](docs/quick-start.md) goes on from there to a first
@@ -52,10 +52,10 @@ equation.
 
 ## Documentation
 
-The documentation lives here, in the repository; MateX's Help menu opens
+The documentation lives here, in the repository; Mathessible's Help menu opens
 these pages.
 
-For using MateX:
+For using Mathessible:
 
 - [Quick start](docs/quick-start.md): from installing to a first
   equation, written, read and saved.
@@ -64,7 +64,7 @@ For using MateX:
 - [Keyboard shortcuts](docs/keyboard-shortcuts.md): every key, for macOS
   and for Windows and Linux.
 
-For working on MateX:
+For working on Mathessible:
 
 - [Contributing](CONTRIBUTING.md): checks, where code goes, the patches to
   MathCAT and UnicodeMathML, accessibility rules.
@@ -87,7 +87,7 @@ For working on MateX:
 
 ## Licence
 
-MateX is distributed under the GNU General Public License, version 2 or
+Mathessible is distributed under the GNU General Public License, version 2 or
 (at your option) any later version. MathCAT and UnicodeMathML keep their
 own MIT licences, in their submodules; NVDA's dictionaries are not part of
 the repository and are under NVDA's licence (GPL-2.0).

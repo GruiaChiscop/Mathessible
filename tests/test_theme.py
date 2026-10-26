@@ -1,6 +1,6 @@
 import unittest
 
-from matex.ui.theme import DARK, LIGHT, contrast_ratio, palette
+from mathessible.ui.theme import DARK, LIGHT, contrast_ratio, palette
 
 
 class ThemeTests(unittest.TestCase):

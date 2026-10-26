@@ -1,7 +1,7 @@
 import unittest
 
 from converter_harness import convert, needs_node
-from matex.documents.clipboard_html import document_html, equation_html
+from mathessible.documents.clipboard_html import document_html, equation_html
 
 
 @needs_node

@@ -1,18 +1,18 @@
-# MateX user guide
+# Mathessible user guide
 
-How to write, read and edit with MateX. For what the project is, see the
+How to write, read and edit with Mathessible. For what the project is, see the
 [README](../README.md); for how it works inside,
-[architecture.md](architecture.md). New to MateX? Start with the
+[architecture.md](architecture.md). New to Mathessible? Start with the
 [quick start](quick-start.md); every key is in
-[keyboard-shortcuts.md](keyboard-shortcuts.md). MateX's Help menu opens
+[keyboard-shortcuts.md](keyboard-shortcuts.md). Mathessible's Help menu opens
 these pages on GitHub.
 
-The equation editor is drawn by MateX itself, not a native text field, so
+The equation editor is drawn by Mathessible itself, not a native text field, so
 that VoiceOver does not enter web navigation or announce an equation
-twice. What MateX says about the built equation is MathCAT's speech,
+twice. What Mathessible says about the built equation is MathCAT's speech,
 announced through the running screen reader (or printed to the console
 when there is none). Without the native MathCAT extension, equations can
-only be edited as text, and MateX says so at startup.
+only be edited as text, and Mathessible says so at startup.
 
 ## Settings
 
@@ -60,7 +60,7 @@ a double click selects a word. View → Zoom In and Zoom Out
 Documents are saved as UTF-8 Markdown files from the File menu, with New,
 Open, Save and Save As and the standard shortcuts `Ctrl/Command+N`,
 `Ctrl/Command+O`, `Ctrl/Command+S` and `Ctrl/Command+Shift+S`. The `.md`
-extension is added when none is given. MateX asks before discarding
+extension is added when none is given. Mathessible asks before discarding
 unsaved changes, including an equation still open in the equation editor.
 
 Each document or notebook opens in its own window. `New Window`, `Open`
@@ -81,7 +81,7 @@ punctuation mark after it (`\alpha` becomes α), and while you type one the
 matching words are offered: Up/Down browse them, Tab takes one, Escape
 closes the list. Tab and Shift+Tab move between a template's slots. Math
 AutoCorrect is one list, as in Word (`Settings → Math AutoCorrect…`): the
-control words, MateX's shortcuts and your own entries, each of which can
+control words, Mathessible's shortcuts and your own entries, each of which can
 be changed or deleted. As in Word, `\mathbb{R}` becomes ℝ when its brace
 closes, and `\doubleR`, `\scriptL`, `\frakturg` give the math alphabets.
 Your own `\R ℝ` works like a control word, and `deg °` is replaced when
@@ -171,7 +171,7 @@ convert there too.
 
 A symbol MathCAT and the symbol dictionary do not know reaches the
 screen reader as itself; with **Name unknown symbols** (on by default)
-MateX says its Unicode name instead (🜁, "alchemical symbol for air").
+Mathessible says its Unicode name instead (🜁, "alchemical symbol for air").
 Letters (ș, 中) and a text's punctuation are left as they are.
 
 ### Equation numbers and equation arrays
@@ -197,7 +197,7 @@ equations. An equation that does not build is copied as text only.
 Pasting into the equation editor works the other way round. Word's
 equations paste as their UnicodeMath, which is what Word copies as text;
 with Word's "Copy MathML to the clipboard as plain text" option, or from
-a web page that shows an equation as MathML, MateX converts the MathML
+a web page that shows an equation as MathML, Mathessible converts the MathML
 to UnicodeMath, its letters as you would type them (`x`, not `𝑥`). A
 selection of a web page with several equations pastes as its text.
 
@@ -225,7 +225,7 @@ Nemeth and UEB leave such symbols to the transcriber.
 code chosen above; it replaces the code's own sign too. Type the symbol
 as itself, as a control word (`\sqsubset`) or as its code (`U+228F`),
 and the braille as cells or as dot numbers with hyphens between cells
-(`4-456-126`). The signs are kept per code in `~/.matex/braille/`, one
+(`4-456-126`). The signs are kept per code in `~/.mathessible/braille/`, one
 plain text file each (`Nemeth.txt`), a symbol and its braille per line,
 so a class can share one file:
 
@@ -237,19 +237,19 @@ so a class can share one file:
 
 ## Notebooks and pages
 
-A MateX notebook is an ordinary folder. `matex.json` keeps the title and
+A Mathessible notebook is an ordinary folder. `mathessible.json` keeps the title and
 the order of the pages, and the `pages` folder holds one UTF-8 `.md` file
-per page, so a notebook stays readable without MateX and works well with
+per page, so a notebook stays readable without Mathessible and works well with
 version control.
 
 The Notebook menu creates and opens notebooks, adds, renames and deletes
 pages, and moves them up or down. The accessible "Notebook pages" list
-appears beside the editor. When you change page, MateX saves the current
+appears beside the editor. When you change page, Mathessible saves the current
 one, including an equation being edited.
 
-To move or share a notebook, it can be saved as a single `.mtex` file: a
-compressed archive with the manifest and every Markdown page. MateX
-creates, opens and edits `.mtex` notebooks directly, and saving repacks
+To move or share a notebook, it can be saved as a single `.mathessible` file: a
+compressed archive with the manifest and every Markdown page. Mathessible
+creates, opens and edits `.mathessible` notebooks directly, and saving repacks
 the archive atomically. Unsafe paths, symbolic links and archives that
 would unpack to an excessive size are refused on opening.
 
@@ -262,23 +262,23 @@ an internet connection.
 ## Symbol dictionaries
 
 The names spoken for symbols while typing, deleting and moving in the
-linear view come from a dictionary in NVDA's `symbols.dic` format. MateX
+linear view come from a dictionary in NVDA's `symbols.dic` format. Mathessible
 has its own, in English. NVDA's dictionaries are downloaded from the NVDA
 repository, from within the app with `Settings → Download NVDA
 dictionaries…` (choosing the languages from a list), or from the command
 line:
 
 ```shell
-uv run matex-fetch-symbols          # every language
-uv run matex-fetch-symbols ro en    # only these
+uv run mathessible-fetch-symbols          # every language
+uv run mathessible-fetch-symbols ro en    # only these
 ```
 
-They are saved in `~/.matex/symbols/` and chosen in `Settings → Symbol
+They are saved in `~/.mathessible/symbols/` and chosen in `Settings → Symbol
 dictionary`. The download notes, in the first lines of each file, the
 source (NVDA), the language, the address and the date; the Settings list
 shows "NVDA" only for files with that note, never because of a file name.
 `Import dictionary…`, in the same place, brings in any file in the same
 format (written by hand or copied from an NVDA installation). An NVDA
 dictionary in another language falls back to NVDA's English one, if
-downloaded, and then to MateX's own for what it does not define. The
+downloaded, and then to Mathessible's own for what it does not define. The
 built equation is always read by MathCAT, not by these dictionaries.

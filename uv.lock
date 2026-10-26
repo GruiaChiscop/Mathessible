@@ -72,12 +72,12 @@ wheels = [
 ]
 
 [[package]]
-name = "matex"
+name = "mathessible"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "markdown-it-py" },
-    { name = "matex-mathcat" },
+    { name = "mathessible-mathcat" },
     { name = "prismatoid" },
     { name = "wxpython" },
 ]
@@ -90,7 +90,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "markdown-it-py", specifier = ">=3,<5" },
-    { name = "matex-mathcat", directory = "native/mathcat_py" },
+    { name = "mathessible-mathcat", directory = "native/mathcat_py" },
     { name = "prismatoid", specifier = ">=0.16,<0.17" },
     { name = "wxpython", specifier = ">=4.2.3" },
 ]
@@ -99,7 +99,7 @@ requires-dist = [
 dev = [{ name = "ruff", specifier = ">=0.6" }]
 
 [[package]]
-name = "matex-mathcat"
+name = "mathessible-mathcat"
 version = "0.1.0"
 source = { directory = "native/mathcat_py" }
 

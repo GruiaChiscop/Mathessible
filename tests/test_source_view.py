@@ -1,8 +1,8 @@
 import unittest
 
-from matex.editing.source_view import edit_in_view, spell_with_control_words, view_of
-from matex.templates.fraction_styles import restyle_fraction
-from matex.templates.math_templates import (
+from mathessible.editing.source_view import edit_in_view, spell_with_control_words, view_of
+from mathessible.templates.fraction_styles import restyle_fraction
+from mathessible.templates.math_templates import (
     insert_integral_template,
     insert_limit_template,
     insert_operator_template,
@@ -10,8 +10,8 @@ from matex.templates.math_templates import (
     insert_sum_template,
     move_to_slot,
 )
-from matex.templates.matrix_templates import insert_matrix_row, insert_matrix_template
-from matex.templates.structure_edits import add_nary_limits, remove_nary_limits, remove_root_index
+from mathessible.templates.matrix_templates import insert_matrix_row, insert_matrix_template
+from mathessible.templates.structure_edits import add_nary_limits, remove_nary_limits, remove_root_index
 
 
 class SourceViewTests(unittest.TestCase):
