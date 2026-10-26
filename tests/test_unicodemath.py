@@ -4,13 +4,16 @@ import unittest
 from converter_harness import convert, convert_all, has_error, needs_node
 from matex.unicodemath import (
     StrayScriptResult,
+    caret_script,
     code_point_index,
     control_words,
     conversion_script,
     decode_conversion,
     distribution_directory,
+    highlight_script,
     mathml_has_parse_error,
     renderer_page,
+    zoom_script,
 )
 
 
@@ -45,6 +48,15 @@ class UnicodeMathMLTests(unittest.TestCase):
         self.assertEqual(decode_conversion(payload).mathml, "<math><mi>x</mi><mo>\U0001f701</mo></math>")
         lone = json.dumps({"mathml": '<math><mo intent=":text">\ud83d</mo></math>'})
         self.assertEqual(decode_conversion(lone).mathml, '<math><mo intent=":text">\ufffd</mo></math>')
+
+    def test_the_page_draws_a_caret_and_zooms(self) -> None:
+        page, _base = renderer_page()
+        self.assertIn("window.matexCaret = function", page)
+        self.assertIn("window.matexZoom = function", page)
+        self.assertEqual(caret_script({"id": "a", "side": "after"}), 'window.matexCaret({"id": "a", "side": "after"})')
+        self.assertEqual(caret_script(None), "window.matexCaret(null)")
+        self.assertEqual(zoom_script(1.25), "window.matexZoom(1.25)")
+        self.assertEqual(highlight_script("a b", selected=True), 'window.matexHighlight("a b", true)')
 
     def test_another_scripts_result_is_recognized_as_stray(self) -> None:
         own = json.dumps({"mathml": "<math><mi>x</mi></math>", "error": None, "token": 7})

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import time
 
 from matex.documents.mathml_sanitize import MathMLModelError, sanitize_mathml
@@ -11,11 +12,13 @@ from matex.unicodemath import (
     ConversionResult,
     StrayScriptResult,
     UnicodeMathError,
+    caret_script,
     conversion_script,
     decode_conversion,
     highlight_script,
     render_script,
     renderer_page,
+    zoom_script,
 )
 
 try:
@@ -59,6 +62,7 @@ class EquationRendererMixin:
             else:
                 # LOADED can fire for an earlier, blank page first.
                 self._renderer_error = None
+                self._rendered_zoom = None  # A new page starts at 100%.
                 if self._pending_read:
                     wx.CallAfter(self.read_expression)
             self.Refresh()
@@ -69,42 +73,42 @@ class EquationRendererMixin:
         event.Skip()
 
     def _on_renderer_click(self, event: wx.html2.WebViewEvent) -> None:
-        """A click on the rendered equation moves MathCAT to that node."""
+        """The mouse on the rendered equation (the page's JSON point): placing the caret, selecting."""
         self.SetFocus()
-        identifier = event.GetString()
-        if self.mode != "professional" or self.mathcat is None or not identifier:
+        if self.mode != "professional" or self.mathcat is None or self.mathcat.structure is None:
             return
         try:
-            self.mathcat.move_to(identifier)
-            self._inside_leaf = None
-            self._built_caret = None
-            self._highlight_matrix_cell = False
-            self._sync_mathcat_cursor()
-            self._announce(self.mathcat.command("ReadCurrent"))
-        except (OSError, RuntimeError, ValueError):
+            point = json.loads(event.GetString())
+        except ValueError:
             return
-        self.Refresh()
+        if isinstance(point, dict):
+            self._pointer(point)
 
     def _schedule_renderer_sync(self) -> None:
         if not self._renderer_sync_pending:
             self._renderer_sync_pending = True
             wx.CallAfter(self._sync_renderer)
 
-    def _renderer_target(self) -> tuple[tuple[str, str] | None, str | None]:
-        """What the renderer should show now: ((mode, MathML), highlighted id)."""
+    def _renderer_target(self) -> tuple[tuple[str, str] | None, tuple[str | None, bool], dict | None]:
+        """What the renderer should show now: ((mode, MathML), (highlighted ids, as a selection), caret)."""
+        nothing = (None, False)
         if self.mode == "linear":
             if not self.document.source:
-                return ("linear", ""), None
+                return ("linear", ""), nothing, None
             try:
                 mathml = self.convert_unicode_math(self.document.source)
             except (UnicodeMathError, RuntimeError, ValueError):
-                return ("linear", ""), None
-            return ("linear", mathml), None
+                return ("linear", ""), nothing, None
+            return ("linear", mathml), nothing, None
         mathml = self.mathcat.mathml if self.mathcat is not None else self._professional_mathml
         if not mathml:
-            return None, None
-        # A selection highlights its leaves (space-separated ids), else MathCAT's node.
-        return ("professional", mathml), " ".join(self._selected_ids) or self.mathml_current_id
+            return None, nothing, None
+        if self._selected_ids:
+            return ("professional", mathml), (" ".join(self._selected_ids), True), None
+        if self.writing_enabled:
+            # Writing: a text field's caret where typing goes, no box around the element read.
+            return ("professional", mathml), nothing, self._caret_spec()
+        return ("professional", mathml), (self.mathml_current_id, False), None
 
     def _sync_renderer(self) -> None:
         """Show, place and fill the visible renderer for the current mode.
@@ -125,7 +129,7 @@ class EquationRendererMixin:
         webview = self._webview
         if webview is None:
             return
-        target, highlight = self._renderer_target() if self._renderer_ready else (None, None)
+        target, highlight, caret = self._renderer_target() if self._renderer_ready else (None, (None, False), None)
         if target is None:
             if webview.IsShown():
                 webview.Hide()
@@ -141,9 +145,17 @@ class EquationRendererMixin:
             webview.RunScriptAsync(render_script(safe, preview=mode == "linear"))
             self._rendered = target
             self._rendered_highlight = None
+            self._rendered_caret = None
         if highlight != self._rendered_highlight:
-            webview.RunScriptAsync(highlight_script(highlight))
+            webview.RunScriptAsync(highlight_script(*highlight))
             self._rendered_highlight = highlight
+        if self._zoom() != self._rendered_zoom:
+            webview.RunScriptAsync(zoom_script(self._zoom()))
+            self._rendered_zoom = self._zoom()
+            self._rendered_caret = None  # The caret moves with what it stands by.
+        if caret != self._rendered_caret:
+            webview.RunScriptAsync(caret_script(caret))
+            self._rendered_caret = caret
         rect = self._renderer_rect().Deflate(3, 3)
         if webview.GetRect() != rect:
             webview.SetSize(rect)

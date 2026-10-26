@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import threading
 
 from matex import session_log
@@ -39,7 +40,7 @@ from matex.editor.renderer import EquationRendererMixin
 from matex.editor.structures import StructureActionsMixin
 from matex.mathcat.mathml_model import MathMLDocument
 from matex.mathcat.navigator import MATHCAT_MISSING, MathCatNavigator, create_mathcat_navigator
-from matex.settings import AppSettings
+from matex.settings import ZOOM_LEVELS, AppSettings, save_settings
 from matex.symbols.braille_signs import load_signs, signs_yaml
 from matex.symbols.dictionary import load_dictionary
 from matex.templates.insert_catalog import InsertItem, item_for_key
@@ -137,7 +138,12 @@ if wx is not None:
             # What the visible renderer currently shows: (mode, MathML) and the
             # highlighted node id; compared on paint to know when to update it.
             self._rendered: tuple[str, str] | None = None
-            self._rendered_highlight: str | None = None
+            self._rendered_highlight: tuple[str | None, bool] | None = None
+            # The caret the renderer shows in the built equation (`_caret_spec`), None when hidden.
+            self._rendered_caret: dict | None = None
+            # Where a mouse press in the built equation put the caret, while the button is down.
+            self._mouse_anchor: int | None = None
+            self._rendered_zoom: float | None = None
             self._renderer_sync_pending = False
             self._converting = False
             self._conversion_token = 0
@@ -196,6 +202,7 @@ if wx is not None:
             self.Bind(wx.EVT_KILL_FOCUS, self._on_blur)
             self.Bind(wx.EVT_SIZE, self._on_size)
             self.Bind(wx.EVT_LEFT_DOWN, self._on_left_down)
+            self.Bind(wx.EVT_LEFT_DCLICK, self._on_double_click)
             self.Bind(wx.EVT_LEFT_UP, self._on_left_up)
             self.Bind(wx.EVT_MOTION, self._on_motion)
             self.Bind(wx.EVT_MOUSE_CAPTURE_LOST, self._on_capture_lost)
@@ -409,6 +416,8 @@ if wx is not None:
             self.Refresh()
 
         def _on_motion(self, event: wx.MouseEvent) -> None:
+            over_text = self.mode == "linear" and self._source_rect().Contains(event.GetPosition())
+            self.SetCursor(wx.Cursor(wx.CURSOR_IBEAM if over_text else wx.CURSOR_ARROW))
             if not self._dragging or not event.LeftIsDown():
                 event.Skip()
                 return
@@ -426,14 +435,58 @@ if wx is not None:
                     self._announce_selection()
             event.Skip()
 
+        def _on_double_click(self, event: wx.MouseEvent) -> None:
+            """A double click in the source selects the word under it (`\\alpha` with its backslash)."""
+            if self.mode != "linear" or not self._source_rect().Contains(event.GetPosition()):
+                event.Skip()
+                return
+            position = self._caret_from_point(event.GetPosition())
+            source = self.document.source
+            for match in re.finditer(r"\\?[A-Za-z0-9_]+|\S", source):
+                if match.start() <= position <= match.end() and match.end() > match.start():
+                    self.selection_anchor, self.caret = match.start(), match.end()
+                    self._dragging = False
+                    if self.HasCapture():
+                        self.ReleaseMouse()
+                    self._announce_selection()
+                    self.Refresh()
+                    return
+
+        def zoom(self, step: int) -> None:
+            """View > Zoom In (+1), Zoom Out (-1), Actual Size (0): the source and the rendering, saved."""
+            levels = list(ZOOM_LEVELS)
+            current = levels.index(self.settings.equation_zoom) if self.settings.equation_zoom in levels else 4
+            index = levels.index(100) if step == 0 else max(0, min(len(levels) - 1, current + step))
+            self.settings.equation_zoom = levels[index]
+            try:
+                save_settings(self.settings)
+            except OSError:
+                pass  # The zoom still applies; it is only not remembered.
+            self._announce(f"zoom {self.settings.equation_zoom} percent")
+            self.Refresh()
+
+        def _zoom_key(self, key: int) -> bool:
+            """Cmd+Option+= / - / 0 (Ctrl+Alt elsewhere): Cmd+= is already the subscript template."""
+            steps = {
+                ord("="): 1,
+                ord("+"): 1,
+                wx.WXK_NUMPAD_ADD: 1,
+                ord("-"): -1,
+                wx.WXK_NUMPAD_SUBTRACT: -1,
+                ord("0"): 0,
+            }
+            if key not in steps:
+                return False
+            self.zoom(steps[key])
+            return True
+
         def _on_capture_lost(self, _event: wx.MouseCaptureLostEvent) -> None:
             self._dragging = False
 
         def _caret_from_point(self, point: wx.Point) -> int:
             dc = wx.ClientDC(self)
             dc.SetFont(self._source_font())
-            content = self._source_rect()
-            return self._caret_from_x(dc, point.x, content.x + 14)
+            return self._caret_from_x(dc, point.x, self._source_origin_x(dc))
 
         def _on_right_down(self, event: wx.MouseEvent) -> None:
             self.SetFocus()
@@ -447,7 +500,7 @@ if wx is not None:
             dc = wx.ClientDC(self)
             dc.SetFont(self._source_font())
             width = dc.GetTextExtent(self.document.source[: self.caret])[0] if self.caret else 0
-            return wx.Point(content.x + 14 + width, content.y + content.height // 2)
+            return wx.Point(self._source_origin_x(dc) + width, content.y + content.height // 2)
 
         def read_expression(self) -> None:
             if not self or not self.document.source:
@@ -554,6 +607,8 @@ if wx is not None:
             if key not in (wx.WXK_BACK, wx.WXK_DELETE):
                 self._armed_removal = None
             if self._completion_key(event, key):
+                return
+            if command_modifier and event.AltDown() and self._zoom_key(key):
                 return
             if key == wx.WXK_F8 and not command_modifier:
                 self.show_errors()

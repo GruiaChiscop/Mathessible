@@ -40,8 +40,15 @@ View → Document Preview (`Ctrl+Shift+P`) shows the formatted document,
 with rendered equations, beside the Markdown editor. It is off by default
 and remembered between sessions. In the equation editor, the linear view
 shows a preview of the equation under the source, and the professional
-view shows the rendered equation with the current element highlighted;
-clicking part of the equation moves MathCAT's cursor there.
+view shows the rendered equation with a caret where typing goes, as in a
+text field (in exploration mode, F10, the element being read is outlined
+instead). A click puts the caret there, between two characters of a
+number too, a drag selects, and a double click selects the element. In
+the linear view the source line scrolls to keep the caret in view, and
+a double click selects a word. View → Zoom In and Zoom Out
+(`Command+Option+=` and `Command+Option+-`, `Ctrl+Alt` elsewhere;
+`Command+=` is the subscript template) enlarge both views; Actual Size
+(`Command+Option+0`) goes back to 100%.
 
 Documents are saved as UTF-8 Markdown files from the File menu, with New,
 Open, Save and Save As and the standard shortcuts `Ctrl/Command+N`,

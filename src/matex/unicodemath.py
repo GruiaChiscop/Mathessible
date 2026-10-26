@@ -126,13 +126,17 @@ def renderer_page() -> tuple[str, str]:
     html, body { width: 100%; height: 100%; margin: 0; overflow: auto; }
     body { display: flex; align-items: center; justify-content: center;
            box-sizing: border-box; padding: 14px 18px;
-           color: var(--text); background: var(--page); font-size: 34px;
-           -webkit-user-select: none; user-select: none; cursor: default; }
-    body.preview { font-size: 28px; }
+           color: var(--text); background: var(--page); font-size: calc(34px * var(--matex-zoom, 1));
+           -webkit-user-select: none; user-select: none; cursor: text; }
+    body.preview { font-size: calc(28px * var(--matex-zoom, 1)); }
     #equation { max-width: 100%; }
     math { font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", math; }
     .matex-current { outline: 3px solid var(--focus); outline-offset: 3px;
                      background: var(--highlight); border-radius: 4px; }
+    .matex-selected { background: var(--highlight); border-radius: 2px; }
+    #matex-caret { position: absolute; width: 2px; background: var(--focus); display: none;
+                   pointer-events: none; animation: matex-blink 1.06s steps(1) infinite; }
+    @keyframes matex-blink { 50% { opacity: 0; } }
     .unicodemathml-error { color: #b00020; font-family: sans-serif; font-size: 16px; }
   </style>
   <script>
@@ -177,24 +181,97 @@ def renderer_page() -> tuple[str, str]:
       return true;
     };
     // One id, or several separated by spaces (a selection's leaves).
-    window.matexHighlight = function(identifier) {
-      document.querySelectorAll(".matex-current").forEach(node => node.classList.remove("matex-current"));
+    // With `selected`, a selection's leaves (shaded); else the element being read (outlined).
+    window.matexHighlight = function(identifier, selected) {
+      document.querySelectorAll(".matex-current, .matex-selected").forEach(
+        node => node.classList.remove("matex-current", "matex-selected"));
       if (!identifier) return false;
       const nodes = identifier.split(" ").map(id => document.getElementById(id)).filter(node => node);
       if (!nodes.length) return false;
-      nodes.forEach(node => node.classList.add("matex-current"));
+      nodes.forEach(node => node.classList.add(selected ? "matex-selected" : "matex-current"));
       nodes[0].scrollIntoView({block: "nearest", inline: "nearest"});
       return true;
     };
-    // A click on part of the equation tells the editor which node it was,
-    // so sighted users can point at what MathCAT should move to.
-    document.addEventListener("mousedown", event => {
+    // Where typing goes, as a text field's caret: at an element's edge ("before"/"after"),
+    // or between the characters of a token ("inside", `index` characters in). null hides it.
+    window.matexCaret = function(spec) {
+      let caret = document.getElementById("matex-caret");
+      if (!caret) {
+        caret = document.createElement("div");
+        caret.id = "matex-caret";
+        caret.setAttribute("aria-hidden", "true");
+        document.body.appendChild(caret);
+      }
+      const node = spec && document.getElementById(spec.id);
+      if (!node) { caret.style.display = "none"; return false; }
+      let rect = node.getBoundingClientRect();
+      let x = spec.side === "before" ? rect.left : rect.right;
+      const text = node.firstChild;
+      if (spec.side === "inside" && text && text.nodeType === Node.TEXT_NODE) {
+        const range = document.createRange();
+        const offset = Math.min(spec.index, text.length);
+        range.setStart(text, offset);
+        range.setEnd(text, offset);
+        const at = range.getBoundingClientRect();
+        if (at.height) x = at.left;
+      }
+      const height = Math.max(rect.height, parseFloat(getComputedStyle(document.body).fontSize) * 0.9);
+      const top = rect.top + rect.height / 2 - height / 2;
+      caret.style.left = (x + window.scrollX - 1) + "px";
+      caret.style.top = (top + window.scrollY) + "px";
+      caret.style.height = height + "px";
+      caret.style.display = "block";
+      caret.style.animation = "none";
+      void caret.offsetWidth;  // Restart the blink: the caret stays on while typing.
+      caret.style.animation = "";
+      node.scrollIntoView({block: "nearest", inline: "nearest"});
+      return true;
+    };
+    // The mouse tells the editor where it points, as JSON: the element, the side of
+    // it the pointer is on ("before"/"after"), or "inside" a token with the characters
+    // before the pointer; `kind` is "down", "drag", "up" or "double" (a double click).
+    function matexPoint(event, kind) {
       const node = event.target.closest && event.target.closest("#equation [id]");
+      if (!node) return {kind: kind, id: ""};
+      const rect = node.getBoundingClientRect();
+      const point = {kind: kind, id: node.id, side: event.clientX < rect.left + rect.width / 2 ? "before" : "after"};
+      const text = node.firstChild;
+      if (!node.children.length && text && text.nodeType === Node.TEXT_NODE && text.length > 1
+          && document.caretRangeFromPoint) {
+        const range = document.caretRangeFromPoint(event.clientX, event.clientY);
+        if (range && range.startContainer === text && range.startOffset > 0 && range.startOffset < text.length) {
+          point.side = "inside";
+          point.index = range.startOffset;
+        }
+      }
+      return point;
+    }
+    function matexPost(point) {
       const handler = window.matex || (window.webkit && window.webkit.messageHandlers
                                        && window.webkit.messageHandlers.matex);
-      if (handler) handler.postMessage(node ? node.id : "");
+      if (handler) handler.postMessage(JSON.stringify(point));
+    }
+    let matexDragging = false, matexLastDrag = "";
+    document.addEventListener("mousedown", event => {
+      matexDragging = event.button === 0;
+      matexLastDrag = "";
+      matexPost(matexPoint(event, event.detail === 2 ? "double" : "down"));
       event.preventDefault();
     });
+    document.addEventListener("mousemove", event => {
+      if (!matexDragging || !(event.buttons & 1)) return;
+      const point = matexPoint(event, "drag");
+      const key = point.id + point.side + (point.index || "");
+      if (key !== matexLastDrag) { matexLastDrag = key; matexPost(point); }
+    });
+    document.addEventListener("mouseup", event => {
+      if (matexDragging) matexPost({kind: "up", id: ""});
+      matexDragging = false;
+    });
+    window.matexZoom = function(factor) {
+      document.documentElement.style.setProperty("--matex-zoom", factor);
+      return true;
+    };
     window.matexReady = true;
   </script>
 </body>
@@ -209,8 +286,17 @@ def render_script(mathml: str, preview: bool = False) -> str:
     return f"window.matexRender({json.dumps(mathml)}, {json.dumps(preview)})"
 
 
-def highlight_script(identifier: str | None) -> str:
-    return f"window.matexHighlight({json.dumps(identifier)})"
+def highlight_script(identifier: str | None, selected: bool = False) -> str:
+    return f"window.matexHighlight({json.dumps(identifier)}, {json.dumps(selected)})"
+
+
+def zoom_script(factor: float) -> str:
+    return f"window.matexZoom({json.dumps(factor)})"
+
+
+def caret_script(spec: dict | None) -> str:
+    """Show the caret at an insertion point (`matexCaret`: id, side, index), or hide it with None."""
+    return f"window.matexCaret({json.dumps(spec)})"
 
 
 def conversion_script(source: str, token: int | None = None, decimal_comma: bool = True) -> str:

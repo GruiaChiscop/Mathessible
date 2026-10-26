@@ -13,15 +13,21 @@ except ImportError:  # The interface is an optional dependency.
 class EditorDrawingMixin:
     """Methods of `EquationEditor` (editor.py); relies on its state."""
 
+    def _zoom(self) -> float:
+        return self.settings.equation_zoom / 100
+
     def _source_font(self) -> wx.Font:
-        return wx.Font(22, wx.FONTFAMILY_MODERN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+        return wx.Font(round(22 * self._zoom()), wx.FONTFAMILY_MODERN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+
+    def _source_height(self) -> int:
+        """The source line's box, grown with the zoom."""
+        return max(48, round(64 * self._zoom()))
 
     def _ui_font(self, size: int = 12, weight: int = wx.FONTWEIGHT_NORMAL) -> wx.Font:
         return wx.Font(size, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, weight)
 
     _HEADER_HEIGHT = 36
     _STATUS_HEIGHT = 30
-    _SOURCE_HEIGHT = 64
     _PREVIEW_LABEL_HEIGHT = 26
 
     def _content_rect(self) -> wx.Rect:
@@ -33,15 +39,40 @@ class EditorDrawingMixin:
 
     def _source_rect(self) -> wx.Rect:
         content = self._content_rect()
-        return wx.Rect(content.x, content.y, content.width, min(self._SOURCE_HEIGHT, content.height))
+        return wx.Rect(content.x, content.y, content.width, min(self._source_height(), content.height))
 
     def _renderer_rect(self) -> wx.Rect:
         """Linear mode: the preview under the source. Professional: all of it."""
         content = self._content_rect()
         if self.mode != "linear":
             return content
-        top = content.y + self._SOURCE_HEIGHT + self._PREVIEW_LABEL_HEIGHT
+        top = content.y + self._source_height() + self._PREVIEW_LABEL_HEIGHT
         return wx.Rect(content.x, top, content.width, max(1, content.bottom - top))
+
+    _SOURCE_PADDING = 14
+    # How far the source line is scrolled left, in pixels, so the caret stays in view.
+    _source_scroll = 0
+
+    def _source_origin_x(self, dc: wx.DC, update: bool = False) -> int:
+        """Where the source text starts, scrolled as a one-line text field is so the caret shows.
+
+        With `update` (painting) the scroll follows the caret, a margin from
+        either edge; a click or the caret's position use it as drawn.
+        """
+        content = self._source_rect()
+        if update:
+            visible = max(1, content.width - 2 * self._SOURCE_PADDING)
+            margin = min(40, visible // 4)
+            caret_x = dc.GetTextExtent(self.document.source[: self.caret]).width
+            text_width = dc.GetTextExtent(self.document.source).width
+            scroll = self._source_scroll
+            if caret_x - scroll > visible - margin:
+                scroll = caret_x - (visible - margin)
+            elif caret_x - scroll < margin:
+                scroll = caret_x - margin
+            scroll = max(0, min(scroll, max(0, text_width - visible + margin)))
+            self._source_scroll = scroll
+        return content.x + self._SOURCE_PADDING - self._source_scroll
 
     def _caret_from_x(self, dc: wx.DC, x: int, origin_x: int) -> int:
         source = self.document.source
@@ -143,6 +174,8 @@ class EditorDrawingMixin:
                 self.mathml_current_id,
                 self._professional_mathml,
                 self._selected_ids,
+                self.writing_enabled,
+                repr(self._caret_spec()),
             )
             if target != self._drawn_target:
                 self._drawn_target = target
@@ -168,7 +201,7 @@ class EditorDrawingMixin:
         dc.SetClippingRegion(content)
         dc.SetFont(self._source_font())
         line_height = dc.GetTextExtent("Mg").height
-        x = content.x + 14
+        x = self._source_origin_x(dc, update=True)
         y = content.y + max(4, (content.height - line_height) // 2)
         selection = self._selection_range()
         if selection is not None:

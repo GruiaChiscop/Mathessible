@@ -247,6 +247,118 @@ class BuiltEditingMixin:
         self.Refresh()
         return True
 
+    def _offset_at_point(self, point: dict) -> int | None:
+        """The source offset the mouse points at: an element's side, or between a token's characters."""
+        structure = self.mathcat.structure if self.mathcat is not None else None
+        node_id = point.get("id") or ""
+        node = structure.node(node_id) if structure is not None else None
+        if node is None:
+            return None
+        repair = self._built_repair()
+        if point.get("side") == "inside":
+            span = map_leaves(repair.text, structure).get(node_id)
+            if span is not None and span.end > span.start:
+                return repair.to_real(min(span.start + int(point.get("index", 0)), span.end))
+        side = "before" if point.get("side") == "before" else "after"
+        return repair.to_real(anchor_offset(repair.text, structure, node_id, side, bool(node.children)))
+
+    def _pointer(self, point: dict) -> None:
+        """The mouse in the built equation, as in a text field: a press puts the caret, a drag
+        selects, a double click selects the element. Exploration mode (F10) has no caret: a
+        press moves to the element and reads it, as before."""
+        assert self.mathcat is not None
+        kind = point.get("kind")
+        if kind == "up":
+            if self._mouse_anchor is not None and self._built_selection() is not None:
+                self._announce(self._selection_speech())
+            self._mouse_anchor = None
+            return
+        if not self.writing_enabled:
+            if kind == "down" and point.get("id"):
+                try:
+                    self.mathcat.move_to(point["id"])
+                    self._inside_leaf = None
+                    self._built_caret = None
+                    self._highlight_matrix_cell = False
+                    self._sync_mathcat_cursor()
+                    self._announce(self.mathcat.command("ReadCurrent"))
+                except (OSError, RuntimeError, ValueError):
+                    return
+                self.Refresh()
+            return
+        offset = self._offset_at_point(point)
+        if offset is None:
+            return
+        if kind == "double" and self.mathcat.structure.node(point["id"]) is not None:
+            start, end, _replacement = self._node_removal(point["id"])
+            if end > start:
+                self.selection_anchor, self.caret = start, end
+                self._selected_ids = self._leaves_in(start, end)
+                self._mouse_anchor = None
+                self._announce(self._selection_speech())
+                self.Refresh()
+            return
+        if kind == "down":
+            self._clear_built_selection()
+            self.caret = offset
+            self._mouse_anchor = offset
+            self._place_after_caret()
+            self._sync_mathcat_cursor()
+            self._announce(self._insertion_point())
+            self.Refresh()
+        elif kind == "drag" and self._mouse_anchor is not None:
+            self.caret = offset
+            if offset == self._mouse_anchor:
+                self.selection_anchor, self._selected_ids = None, ()
+            else:
+                self.selection_anchor = self._mouse_anchor
+                self._selected_ids = self._leaves_in(*sorted((self._mouse_anchor, offset)))
+            self.Refresh()
+
+    def _spec_for_offset(self, offset: int) -> dict | None:
+        """The caret drawn at a source offset: after the leaf ending there, else before the one starting there."""
+        structure = self.mathcat.structure if self.mathcat is not None else None
+        if structure is None:
+            return None
+        repair = self._built_repair()
+        at = repair.to_repaired(offset)
+        spans = map_leaves(repair.text, structure)
+        visible = [leaf for leaf in leaf_nodes(structure) if leaf.identifier in spans and leaf.text.strip()]
+        ending = [leaf for leaf in visible if spans[leaf.identifier].end == at > spans[leaf.identifier].start]
+        if ending:
+            return {"id": ending[-1].identifier, "side": "after"}
+        starting = [leaf for leaf in visible if spans[leaf.identifier].start == at < spans[leaf.identifier].end]
+        if starting:
+            return {"id": starting[0].identifier, "side": "before"}
+        return None
+
+    def _caret_spec(self) -> dict | None:
+        """Where the built equation's caret is drawn: the insertion point Shift+Option+Space reads.
+
+        An element's id and "before"/"after" its edge, or "inside" a token with
+        the characters before the caret (`_inside_leaf`); None when there is no
+        caret to show (linear view, exploration, a selection).
+        """
+        structure = self.mathcat.structure if self.mathcat is not None else None
+        if self.mode != "professional" or structure is None or not self.writing_enabled:
+            return None
+        if self._built_selection() is not None:
+            return None
+        inside = self._current_inside()
+        if inside is not None:
+            return {"id": inside[0], "side": "inside", "index": inside[1]}
+        remembered = self._remembered_caret()
+        if remembered is not None:
+            # Typed or clicked there: the caret is exactly where typing goes on.
+            spec = self._spec_for_offset(remembered)
+            if spec is not None:
+                return spec
+        try:
+            node_id, side, _outside = self.mathcat.edit_anchor()
+        except (OSError, RuntimeError, ValueError):
+            return None
+        return {"id": node_id, "side": side} if node_id else None
+
     def _built_selection(self) -> tuple[int, int] | None:
         """The selection in professional view, as real-source offsets."""
         if self.mode != "professional":

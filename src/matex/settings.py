@@ -108,6 +108,8 @@ class AppSettings:
     name_unknown_symbols: bool = True
     # Remove the spaces that change nothing when an equation is saved or shown linear, as Word does.
     remove_extra_spaces: bool = True
+    # The equation editor's zoom, in percent (View > Zoom In/Out, Cmd+Option+= and -).
+    equation_zoom: int = 100
     # Closing lim_(...)/log_(...) opens the argument (and builds) at once,
     # instead of on the Space after it, as Word does.
     argument_on_closing_paren: bool = False
@@ -152,6 +154,7 @@ def load_settings(path: Path | None = None) -> AppSettings:
         autocorrect_in_text=bool(data.get("autocorrect_in_text", False)),
         name_unknown_symbols=bool(data.get("name_unknown_symbols", True)),
         remove_extra_spaces=bool(data.get("remove_extra_spaces", True)),
+        equation_zoom=_zoom(data.get("equation_zoom", 100)),
         argument_on_closing_paren=bool(data.get("argument_on_closing_paren", False)),
         symbol_dictionary=str(data.get("symbol_dictionary", "matex-en")),
         auto_zoom_out=bool(data.get("auto_zoom_out", False)),
@@ -225,3 +228,12 @@ def _normalize_removed(value: object) -> tuple[str, ...]:
     if not isinstance(value, (list, tuple)):
         return ()
     return tuple(sorted({item.strip() for item in value if isinstance(item, str) and item.strip()}))
+
+
+# The zoom steps of the equation editor, in percent, as a browser has them.
+ZOOM_LEVELS = (50, 67, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300)
+
+
+def _zoom(value: object) -> int:
+    """A saved zoom, or 100 when it is not one of `ZOOM_LEVELS`."""
+    return value if isinstance(value, int) and value in ZOOM_LEVELS else 100

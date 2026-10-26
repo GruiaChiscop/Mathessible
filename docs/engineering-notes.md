@@ -479,6 +479,25 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   logic in Python. This is an internal/undocumented convention of the
   vendored JS library, not a public API — flag it with a test that would
   catch a silent behaviour change on a `UnicodeMathML` submodule update.
+- **Sighted use (2026-10-24, the user's request).** The built equation
+  has a caret: `_caret_spec` (built.py) gives the insertion point as an
+  element and a side, or a token and an index (`_inside_leaf`), the
+  remembered caret first (`_spec_for_offset`: after the leaf ending at
+  it, else before the one starting there, so a click at the start of a
+  numerator draws there and not after "="); the page's `matexCaret`
+  draws a blinking bar at that edge (a `Range` between a token's
+  characters), and `_renderer_target` sends it in writing mode, the
+  outline of the element read only in exploration mode, a selection as
+  shading. The page reports the mouse as JSON (`matexPoint`: element,
+  side of its middle or `caretRangeFromPoint` inside a token; `down`,
+  `drag`, `up`, `double`) and `_pointer` turns it into a source offset
+  (`_offset_at_point`, through `anchor_offset`), a selection or a
+  whole element. Up/Down stay as they were (rows, the whole equation): a
+  move between numerator and denominator was tried on an assumption about
+  Word, and removed, since Word does not do that. The source
+  line scrolls (`_source_origin_x`); zoom is `equation_zoom` (CSS
+  `--matex-zoom`, the source font and box) on Cmd+Option+=/-/0, since
+  Cmd+= is the subscript template.
 - **Numbered equations (2026-10-24).** The converter writes
   `E=mc^2#(1)` as a one-row `mtable` whose first cell is the number
   (`intent=":equation-label"`) and the second the equation: MathML has the
