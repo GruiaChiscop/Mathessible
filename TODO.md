@@ -25,9 +25,9 @@ GitHub, and the Help menu opens it in the browser.
 - [x] Stage 1: page, text, page numbers, header, metadata, outline and
   table of contents, tagged PDF with every equation's spoken form,
   PDF/UA-1 and PDF/A-3a, the Markdown source attached.
-- [ ] Stage 2: open and permission passwords (after Typst, which has
-  none; not with PDF/A), a watermark, equation numbering styles, colours,
-  columns.
+- [x] Stage 2: open and permission passwords (after Typst, which has
+  none; not with PDF/A), a watermark, heading and equation numbering,
+  colours, columns.
 - [ ] Stage 3: PDF/UA-2 with MathML in the Formula tags, when Typst has it.
 - [ ] Open a PDF with an attached Markdown source in Mathessible.
 

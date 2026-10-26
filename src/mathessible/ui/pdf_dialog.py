@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+
+from mathessible.documents.pdf_security import PdfSecurity
 
 try:
     import wx
@@ -15,6 +17,7 @@ class PdfProperties:
     subject: str
     keywords: tuple[str, ...]
     language: str
+    security: PdfSecurity = field(default_factory=PdfSecurity)  # Asked each time, never kept.
 
 
 if wx is not None:
@@ -29,21 +32,41 @@ if wx is not None:
             grid = wx.FlexGridSizer(cols=2, vgap=8, hgap=12)
             grid.AddGrowableCol(1)
 
-            def field(label: str, value: str, name: str) -> wx.TextCtrl:
-                control = wx.TextCtrl(self, value=value, size=(320, -1))
+            def text_field(label: str, value: str, name: str, style: int = 0) -> wx.TextCtrl:
+                control = wx.TextCtrl(self, value=value, size=(320, -1), style=style)
                 control.SetName(name)
                 grid.Add(wx.StaticText(self, label=label), 0, wx.ALIGN_CENTER_VERTICAL)
                 grid.Add(control, 1, wx.EXPAND)
                 return control
 
-            self.title = field("&Title", properties.title, "Title")
-            self.author = field("&Author", properties.author, "Author")
-            self.subject = field("&Subject", properties.subject, "Subject")
-            self.keywords = field("&Keywords (comma-separated)", ", ".join(properties.keywords), "Keywords")
-            self.language = field("&Language (for example ro, en)", properties.language, "Language")
+            self.title = text_field("&Title", properties.title, "Title")
+            self.author = text_field("&Author", properties.author, "Author")
+            self.subject = text_field("&Subject", properties.subject, "Subject")
+            self.keywords = text_field("&Keywords (comma-separated)", ", ".join(properties.keywords), "Keywords")
+            self.language = text_field("&Language (for example ro, en)", properties.language, "Language")
+            security = wx.StaticBoxSizer(wx.VERTICAL, self, "Security (optional)")
+            box = security.GetStaticBox()
+            secrets = wx.FlexGridSizer(cols=2, vgap=8, hgap=12)
+            secrets.AddGrowableCol(1)
+            self.open_password = wx.TextCtrl(box, style=wx.TE_PASSWORD, size=(240, -1))
+            self.open_password.SetName("Password to open")
+            self.permissions_password = wx.TextCtrl(box, style=wx.TE_PASSWORD, size=(240, -1))
+            self.permissions_password.SetName("Password for permissions")
+            secrets.Add(wx.StaticText(box, label="Password to &open"), 0, wx.ALIGN_CENTER_VERTICAL)
+            secrets.Add(self.open_password, 1, wx.EXPAND)
+            secrets.Add(wx.StaticText(box, label="Password for &permissions"), 0, wx.ALIGN_CENTER_VERTICAL)
+            secrets.Add(self.permissions_password, 1, wx.EXPAND)
+            security.Add(secrets, 0, wx.ALL | wx.EXPAND, 8)
+            self.allow_printing = wx.CheckBox(box, label="Allow p&rinting")
+            self.allow_copying = wx.CheckBox(box, label="Allow &copying text (screen readers can always read)")
+            self.allow_editing = wx.CheckBox(box, label="Allow &editing")
+            for checkbox in (self.allow_printing, self.allow_copying, self.allow_editing):
+                checkbox.SetValue(True)
+                security.Add(checkbox, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
             buttons = self.CreateSeparatedButtonSizer(wx.OK | wx.CANCEL)
             sizer = wx.BoxSizer(wx.VERTICAL)
             sizer.Add(grid, 0, wx.ALL | wx.EXPAND, 12)
+            sizer.Add(security, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 12)
             if buttons is not None:
                 sizer.Add(buttons, 0, wx.ALL | wx.EXPAND, 12)
             self.SetSizerAndFit(sizer)
@@ -59,6 +82,13 @@ if wx is not None:
                 self.subject.GetValue().strip(),
                 keywords,
                 language,
+                PdfSecurity(
+                    self.open_password.GetValue(),
+                    self.permissions_password.GetValue(),
+                    self.allow_printing.GetValue(),
+                    self.allow_copying.GetValue(),
+                    self.allow_editing.GetValue(),
+                ),
             )
 
 else:

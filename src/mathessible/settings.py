@@ -110,6 +110,13 @@ class AppSettings:
     pdf_attach_source: bool = True
     pdf_standard: str = "ua-1"
     pdf_author: str = ""
+    pdf_watermark: str = ""
+    pdf_equation_numbering: str = ""
+    pdf_heading_numbering: str = ""
+    pdf_text_colour: str = ""
+    pdf_heading_colour: str = ""
+    pdf_link_colour: str = ""
+    pdf_columns: int = 1
     # Symbol shortcuts (<<, ->, <=) as soon as their last character is typed.
     convert_shortcuts_immediately: bool = True
     # Templates and structure edits write control words (\sum, \sqrt, \of)
@@ -187,6 +194,13 @@ def load_settings(path: Path | None = None) -> AppSettings:
         pdf_attach_source=bool(data.get("pdf_attach_source", True)),
         pdf_standard=_option(data.get("pdf_standard"), PDF_STANDARDS, "ua-1"),
         pdf_author=str(data.get("pdf_author", "")),
+        pdf_watermark=str(data.get("pdf_watermark", "")),
+        pdf_equation_numbering=_option(data.get("pdf_equation_numbering"), PDF_EQUATION_NUMBERING, ""),
+        pdf_heading_numbering=_option(data.get("pdf_heading_numbering"), PDF_HEADING_NUMBERING, ""),
+        pdf_text_colour=_option(data.get("pdf_text_colour"), PDF_COLOURS, ""),
+        pdf_heading_colour=_option(data.get("pdf_heading_colour"), PDF_COLOURS, ""),
+        pdf_link_colour=_option(data.get("pdf_link_colour"), PDF_COLOURS, ""),
+        pdf_columns=_bounded(data.get("pdf_columns"), 1, PDF_COLUMNS),
         convert_shortcuts_immediately=bool(data.get("convert_shortcuts_immediately", True)),
         template_control_words=bool(data.get("template_control_words", True)),
         open_built=bool(data.get("open_built", False)),
@@ -290,6 +304,19 @@ PDF_STANDARDS = (
     ("ua-1+a-3a", "PDF/UA-1 and PDF/A-3a (accessible and archival)"),
     ("a-3a", "PDF/A-3a (archival)"),
 )
+PDF_EQUATION_NUMBERING = (("", "None"), ("(1)", "(1), (2), (3)"), ("[1]", "[1], [2], [3]"))
+PDF_HEADING_NUMBERING = (("", "None"), ("1.", "1., 2., 3."), ("1.1", "1, 1.1, 1.1.1"))
+# Named colours, all dark enough for text on white (WCAG AA); "" is the default black.
+PDF_COLOURS = (
+    ("", "Default (black)"),
+    ("#333333", "Dark grey"),
+    ("#1F4E79", "Dark blue"),
+    ("#0645AD", "Link blue"),
+    ("#1E5E2F", "Dark green"),
+    ("#8B1A1A", "Dark red"),
+    ("#5B2C6F", "Dark purple"),
+)
+PDF_COLUMNS = (1, 3)
 PDF_FONT_SIZES = (6, 36)
 PDF_MARGINS = (0, 100)
 

@@ -13,6 +13,7 @@ dependencies = [
     "markdown-it-py>=3,<5",
     "mathessible-mathcat",
     "prismatoid>=0.16,<0.17",
+    "pypdf[crypto]>=5,<7",
     "typst>=0.15,<0.16",
     "wxPython>=4.2.3",
 ]

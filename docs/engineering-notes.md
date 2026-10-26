@@ -1241,6 +1241,20 @@ Settings offers tagged, UA-1, UA-1 + A-3a and A-3a; the attachments carry
 `relationship: "source"` for PDF/A-3. The alt text is MathCAT's English
 speech whatever the document's language (MathCAT has no Romanian).
 
+Stage 2 (2026-10-26): `PdfOptions` also has a watermark (page
+`background`, an artifact for the tags), heading and equation numbering
+(`#set heading/math.equation(numbering: ...)`; an equation's own
+`#(n)` stays its `numbering` function, so automatic numbers can repeat
+it), text/heading/link colours (only `PDF_COLOURS`, dark enough on
+white) and columns. Passwords and permissions come after Typst
+(`pdf_security.protect`, pypdf with `cryptography`, AES-256), the PDF
+cloned whole so tags, outline, metadata and attachments stay (checked);
+the accessibility extraction bit is always set, as PDF/UA requires, and
+restrictions with no permissions password get a random one. PDF/A
+forbids encryption: refused before export. Passwords are only in the
+export dialog, never in settings. Settings split PDF into "PDF Page" and
+"PDF Document" (one tab was 849 px tall).
+
 ## liblouis and BRF Export
 
 BRF export (2026-10-26, `documents/brf_export.py`) puts the text through

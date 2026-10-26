@@ -15,6 +15,7 @@ from mathessible.documents.html_export import PREVIEW_PAGE, ExportPage, preview_
 from mathessible.documents.markdown_math import find_math_zones
 from mathessible.documents.notebook import Notebook, NotebookError
 from mathessible.documents.pdf_export import PdfOptions, pdf_inputs, typst_document
+from mathessible.documents.pdf_security import protect
 from mathessible.documents.portable_notebook import extract_portable, save_portable
 from mathessible.documents.typst_math import TypstEquation, typst_math
 from mathessible.mathcat.navigator import MATHCAT_MISSING, mathcat_load_error
@@ -791,7 +792,19 @@ if wx is not None:
                 table_of_contents=settings.pdf_table_of_contents,
                 attach_source=settings.pdf_attach_source,
                 standards=pdf_standards(settings.pdf_standard),
+                watermark=settings.pdf_watermark,
+                equation_numbering=settings.pdf_equation_numbering,
+                heading_numbering=settings.pdf_heading_numbering,
+                text_colour=settings.pdf_text_colour,
+                heading_colour=settings.pdf_heading_colour,
+                link_colour=settings.pdf_link_colour,
+                columns=settings.pdf_columns,
             )
+            if properties.security.active and any(standard.startswith("a-") for standard in options.standards):
+                raise ValueError(
+                    "PDF/A does not allow passwords or restrictions. Choose Tagged PDF or PDF/UA-1 in "
+                    "Settings → PDF Document, or export without them."
+                )
             source = typst_document(pages, title, equation_of, options)
             try:
                 pdf = typst.compile(
@@ -800,7 +813,7 @@ if wx is not None:
             except RuntimeError as error:
                 raise RuntimeError(f"Typst could not make the PDF:\n{error}") from error
             path = destination if destination.suffix.lower() == ".pdf" else destination.with_suffix(".pdf")
-            path.write_bytes(pdf)
+            path.write_bytes(protect(pdf, properties.security))
             return path
 
         def _write_brf(self, destination: Path, pages: list[ExportPage]) -> Path:

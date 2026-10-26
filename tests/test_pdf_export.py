@@ -90,6 +90,26 @@ class PdfExportTests(unittest.TestCase):
             self.assertIn(expected, source)
         self.assertNotIn('numbering: "1"', source)
 
+    def test_stage_2_options(self) -> None:
+        source = self.source(
+            watermark="DRAFT",
+            equation_numbering="(1)",
+            heading_numbering="1.1",
+            heading_colour="#1F4E79",
+            link_colour="not a colour",
+            columns=2,
+        )
+        for expected in (
+            'background: rotate(-45deg, text(64pt, fill: luma(88%), "DRAFT"))',
+            "columns: 2",
+            '#set math.equation(numbering: "(1)")',
+            '#set heading(numbering: "1.1")',
+            '#show heading: set text(fill: rgb("#1F4E79"))',
+        ):
+            self.assertIn(expected, source)
+        self.assertNotIn("show link", source)  # Only a colour like #1F4E79 is written.
+        typst.compile(source.encode(), sys_inputs=pdf_inputs(self.pages), pdf_standards=["ua-1"])
+
     def test_typst_compiles_it_as_pdf_ua_1_with_the_source_attached(self) -> None:
         pdf = typst.compile(
             self.source(standards=("ua-1",)).encode(), sys_inputs=pdf_inputs(self.pages), pdf_standards=["ua-1"]

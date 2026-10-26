@@ -41,6 +41,13 @@ class PdfOptions:
     table_of_contents: bool = False
     attach_source: bool = True  # The Markdown, so the PDF can be opened in Mathessible again.
     standards: tuple[str, ...] = ()  # Typst's: "ua-1", "a-2a", "a-3a"...
+    watermark: str = ""  # Across every page, faint; "" for none.
+    equation_numbering: str = ""  # Typst numbering of display equations: "(1)", "[1]"; "" for none.
+    heading_numbering: str = ""  # "1.", "1.1."; "" for none.
+    text_colour: str = ""  # "#1a1a1a"; "" for Typst's black.
+    heading_colour: str = ""
+    link_colour: str = ""
+    columns: int = 1
 
 
 # An equation's Typst math and spoken form; None when it does not build.
@@ -48,6 +55,7 @@ EquationOf = Callable[[str], tuple[TypstEquation | None, str]]
 
 # Typst markup's own characters, written escaped in text.
 _MARKUP = set("\\/[]{}#*_+=`$~-<>@\"'")
+_COLOUR = re.compile(r"^#[0-9a-fA-F]{6}$")
 _POSITIONS = {"bottom-center": "center + bottom", "bottom-right": "right + bottom", "top-right": "right + top"}
 
 
@@ -227,6 +235,23 @@ def _preamble(options: PdfOptions, title: str) -> str:
         page.append(f"number-align: {_POSITIONS.get(options.page_number_position, 'center + bottom')}")
     if options.header:
         page.append(f"header: align(right, {typst_string(options.header)})")
+    if options.columns > 1:
+        page.append(f"columns: {int(options.columns)}")
+    if options.watermark:
+        # Page background: an artifact for screen readers, not part of the text.
+        page.append(f"background: rotate(-45deg, text(64pt, fill: luma(88%), {typst_string(options.watermark)}))")
+    styles = []
+    if options.equation_numbering:
+        styles.append(f"#set math.equation(numbering: {typst_string(options.equation_numbering)})")
+    for target, colour in (
+        ("", options.text_colour),
+        ("heading", options.heading_colour),
+        ("link", options.link_colour),
+    ):
+        if _COLOUR.match(colour):
+            rule = f"set text(fill: rgb({typst_string(colour)}))"
+            styles.append(f"#{rule}" if not target else f"#show {target}: {rule}")
+    heading = typst_string(options.heading_numbering) if options.heading_numbering else "none"
     return "\n".join(
         [
             f"#set document({', '.join(metadata)})",
@@ -234,7 +259,8 @@ def _preamble(options: PdfOptions, title: str) -> str:
             f"size: {options.font_size}pt)",
             f"#set page({', '.join(page)})",
             f"#set par(justify: {'true' if options.justify else 'false'}, leading: {options.line_spacing}em)",
-            "#set heading(numbering: none)",
+            f"#set heading(numbering: {heading})",
+            *styles,
             "",
         ]
     )
