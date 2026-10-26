@@ -177,6 +177,8 @@ def renderer_page() -> tuple[str, str]:
       document.body.classList.toggle("preview", !!preview);
       const equation = document.getElementById("equation");
       equation.innerHTML = mathml;
+      const caret = document.getElementById("matex-caret");
+      if (caret) caret.style.display = "none";  // A new equation: no caret until one is placed.
       equation.querySelectorAll("*").forEach(node => node.setAttribute("aria-hidden", "true"));
       return true;
     };

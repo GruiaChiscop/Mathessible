@@ -488,7 +488,9 @@ into 2D display. Design notes so this doesn't get re-derived from scratch:
   draws a blinking bar at that edge (a `Range` between a token's
   characters), and `_renderer_target` sends it in writing mode, the
   outline of the element read only in exploration mode, a selection as
-  shading. The page reports the mouse as JSON (`matexPoint`: element,
+  shading. **Trap** (seen on a screen capture): the caret's element lives
+  on the page, not in the equation, so going back to linear left it in
+  the preview; `matexRender` hides it with every new equation. The page reports the mouse as JSON (`matexPoint`: element,
   side of its middle or `caretRangeFromPoint` inside a token; `down`,
   `drag`, `up`, `double`) and `_pointer` turns it into a source offset
   (`_offset_at_point`, through `anchor_offset`), a selection or a
