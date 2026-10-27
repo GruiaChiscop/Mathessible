@@ -6,6 +6,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 
+from mathessible.i18n import _
 from mathessible.settings import AppSettings
 
 try:
@@ -40,9 +41,9 @@ if wx is not None:
 
     def export_buttons(dialog: wx.Dialog, on_save_defaults: Callable[[], None]) -> wx.Sizer:
         """Save as Defaults on the left; Cancel and Export, the default, on the right."""
-        defaults = wx.Button(dialog, label="Save as &Defaults")
+        defaults = wx.Button(dialog, label=_("Save as &Defaults"))
         defaults.Bind(wx.EVT_BUTTON, lambda _event: on_save_defaults())
-        export = wx.Button(dialog, wx.ID_OK, label="E&xport")
+        export = wx.Button(dialog, wx.ID_OK, label=_("E&xport"))
         export.SetDefault()
         cancel = wx.Button(dialog, wx.ID_CANCEL)
         buttons = wx.BoxSizer(wx.HORIZONTAL)
@@ -53,20 +54,20 @@ if wx is not None:
         return buttons
 
     def open_after_checkbox(parent: wx.Window, settings: AppSettings) -> wx.CheckBox:
-        checkbox = wx.CheckBox(parent, label="&Open the file once exported")
-        checkbox.SetName("Open the file once exported")
+        checkbox = wx.CheckBox(parent, label=_("&Open the file once exported"))
+        checkbox.SetName(_("Open the file once exported"))
         checkbox.SetValue(settings.export_open_after)
         return checkbox
 
-    def saved_as_defaults(parent: wx.Window, what: str) -> None:
-        wx.MessageBox(f"{what} are now the defaults.", "Save as Defaults", wx.OK | wx.ICON_INFORMATION, parent)
+    def saved_as_defaults(parent: wx.Window, message: str) -> None:
+        wx.MessageBox(message, _("Save as Defaults"), wx.OK | wx.ICON_INFORMATION, parent)
 
     class _ExportDialog(wx.Dialog):
         """One page of options; subclasses add theirs to `self.rows` and say what Save as Defaults stores."""
 
         def __init__(self, parent: wx.Window, title: str, settings: AppSettings, save_defaults: Callable):
             super().__init__(parent, title=title, style=wx.DEFAULT_DIALOG_STYLE)
-            self.SetName(f"{title} dialog")
+            self.SetName(_("{title} dialog").format(title=title))
             self._settings = replace(settings)  # This file's copy.
             self._save_defaults = save_defaults
             self.panel = wx.Panel(self)
@@ -93,13 +94,13 @@ if wx is not None:
 
         def _on_save_defaults(self) -> None:
             self._save_defaults(self.settings)
-            saved_as_defaults(self, "These options")
+            saved_as_defaults(self, _("These options are now the defaults."))
 
     class BrfExportDialog(_ExportDialog):
         """File > Export > BRF: the equations' code, the text's table, the page, page numbers."""
 
         def __init__(self, parent: wx.Window, settings: AppSettings, save_defaults: Callable[[AppSettings], None]):
-            super().__init__(parent, "Export as BRF", settings, save_defaults)
+            super().__init__(parent, _("Export as BRF"), settings, save_defaults)
             self.code = BrailleCodeControl(self.rows, settings)
             self.brf = BrfControls(self.rows, settings)
             self.finish()
@@ -119,12 +120,12 @@ if wx is not None:
             document: HtmlDocument,
             save_defaults: Callable[[AppSettings], None],
         ):
-            super().__init__(parent, "Export as HTML", settings, save_defaults)
+            super().__init__(parent, _("Export as HTML"), settings, save_defaults)
             rows = self.rows
-            self.title = rows.row("&Title", rows.text(document.title), "Title")
-            self.author = rows.row("&Author", rows.text(document.author), "Author")
-            self.description = rows.row("D&escription", rows.text(document.description), "Description")
-            self.language = rows.row("&Language (for example ro, en)", rows.text(document.language), "Language")
+            self.title = rows.row(_("&Title"), rows.text(document.title), _("Title"))
+            self.author = rows.row(_("&Author"), rows.text(document.author), _("Author"))
+            self.description = rows.row(_("D&escription"), rows.text(document.description), _("Description"))
+            self.language = rows.row(_("&Language (for example ro, en)"), rows.text(document.language), _("Language"))
             self.html = HtmlControls(rows, settings)
             self.finish()
             self.title.SetFocus()
@@ -152,13 +153,15 @@ if wx is not None:
             document: WordDocument,
             save_defaults: Callable[[AppSettings], None],
         ):
-            super().__init__(parent, "Export as Word Document", settings, save_defaults)
+            super().__init__(parent, _("Export as Word Document"), settings, save_defaults)
             rows = self.rows
-            self.title = rows.row("&Title", rows.text(document.title), "Title")
-            self.author = rows.row("&Author", rows.text(document.author), "Author")
-            self.subject = rows.row("&Subject", rows.text(document.subject), "Subject")
-            self.keywords = rows.row("&Keywords (comma-separated)", rows.text(", ".join(document.keywords)), "Keywords")
-            self.language = rows.row("&Language (for example ro, en)", rows.text(document.language), "Language")
+            self.title = rows.row(_("&Title"), rows.text(document.title), _("Title"))
+            self.author = rows.row(_("&Author"), rows.text(document.author), _("Author"))
+            self.subject = rows.row(_("&Subject"), rows.text(document.subject), _("Subject"))
+            self.keywords = rows.row(
+                _("&Keywords (comma-separated)"), rows.text(", ".join(document.keywords)), _("Keywords")
+            )
+            self.language = rows.row(_("&Language (for example ro, en)"), rows.text(document.language), _("Language"))
             self.docx = DocxControls(rows, settings)
             self.finish()
             self.title.SetFocus()

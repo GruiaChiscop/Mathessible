@@ -502,15 +502,22 @@ def mathcat_load_error() -> str | None:
     return None
 
 
+def mathcat_language(language: str) -> str:
+    """MathCAT's code for an interface language: "zh-TW" is its "zh-tw" (Rules/Languages/zh/tw)."""
+    return language.lower()
+
+
 def create_mathcat_navigator(
     recognized_functions: tuple[str, ...] = DEFAULT_RECOGNIZED_FUNCTIONS,
     auto_zoom_out: bool = True,
     boundary_stops: bool = False,
     structural_stops: bool = False,
     invisible_operator_stops: bool = False,
+    language: str = "en",
 ) -> MathCatNavigator | None:
     try:
         return MathCatNavigator(
+            language=mathcat_language(language),
             recognized_functions=recognized_functions,
             auto_zoom_out=auto_zoom_out,
             boundary_stops=boundary_stops,

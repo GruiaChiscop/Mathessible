@@ -1,0 +1,3994 @@
+# Ελληνικά translation of Mathessible.
+# Distributed under the same license as Mathessible.
+msgid ""
+msgstr ""
+"Project-Id-Version: Mathessible VERSION\n"
+"Report-Msgid-Bugs-To: https://github.com/GruiaChiscop/Mathessible/issues\n"
+"POT-Creation-Date: 2026-10-27 12:13+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Draft by Claude, not yet reviewed by a native speaker\n"
+"Language: el\n"
+"Language-Team: el <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: src/mathessible/documents/notebook.py:42
+msgid "The selected folder is not empty"
+msgstr "Ο επιλεγμένος φάκελος δεν είναι κενός"
+
+#: src/mathessible/documents/notebook.py:56
+#, python-brace-format
+msgid "The selected folder does not contain {name}"
+msgstr "Ο επιλεγμένος φάκελος δεν περιέχει {name}"
+
+#: src/mathessible/documents/notebook.py:58
+#, python-brace-format
+msgid "The notebook manifest could not be read: {error}"
+msgstr "Δεν ήταν δυνατή η ανάγνωση του δηλωτικού του σημειωματαρίου: {error}"
+
+#: src/mathessible/documents/notebook.py:60
+msgid "Unknown or incompatible notebook format"
+msgstr "Άγνωστη ή μη συμβατή μορφή σημειωματαρίου"
+
+#: src/mathessible/documents/notebook.py:64
+msgid "The notebook manifest is incomplete"
+msgstr "Το δηλωτικό του σημειωματαρίου είναι ελλιπές"
+
+#: src/mathessible/documents/notebook.py:69
+msgid "The manifest contains an invalid page"
+msgstr "Το δηλωτικό περιέχει μη έγκυρη σελίδα"
+
+#: src/mathessible/documents/notebook.py:74
+msgid "The manifest contains an incomplete page"
+msgstr "Το δηλωτικό περιέχει ελλιπή σελίδα"
+
+#: src/mathessible/documents/notebook.py:76
+msgid "The manifest contains duplicate page identifiers"
+msgstr "Το δηλωτικό περιέχει διπλά αναγνωριστικά σελίδων"
+
+#: src/mathessible/documents/notebook.py:80
+#, python-brace-format
+msgid "Page file is missing: {file}"
+msgstr "Λείπει το αρχείο της σελίδας: {file}"
+
+#: src/mathessible/documents/notebook.py:84
+msgid "A notebook must contain at least one page"
+msgstr "Ένα σημειωματάριο πρέπει να περιέχει τουλάχιστον μία σελίδα"
+
+#: src/mathessible/documents/notebook.py:106 src/mathessible/documents/notebook.py:131
+msgid "A page must have a title"
+msgstr "Μια σελίδα πρέπει να έχει τίτλο"
+
+#: src/mathessible/documents/notebook.py:156
+msgid "A notebook must keep at least one page"
+msgstr "Ένα σημειωματάριο πρέπει να κρατά τουλάχιστον μία σελίδα"
+
+#: src/mathessible/documents/notebook.py:184
+#, python-brace-format
+msgid "Unsafe page path: {file}"
+msgstr "Μη ασφαλής διαδρομή σελίδας: {file}"
+
+#: src/mathessible/documents/portable_notebook.py:43
+msgid "The temporary notebook folder is not empty"
+msgstr "Ο προσωρινός φάκελος του σημειωματαρίου δεν είναι κενός"
+
+#: src/mathessible/documents/portable_notebook.py:49
+msgid "The .msnb archive contains too many files"
+msgstr "Το αρχείο .msnb περιέχει πάρα πολλά αρχεία"
+
+#: src/mathessible/documents/portable_notebook.py:51
+msgid "The .msnb archive is too large after decompression"
+msgstr "Το αρχείο .msnb είναι πολύ μεγάλο μετά την αποσυμπίεση"
+
+#: src/mathessible/documents/portable_notebook.py:55
+msgid "The .msnb archive contains duplicate files"
+msgstr "Το αρχείο .msnb περιέχει διπλά αρχεία"
+
+#: src/mathessible/documents/portable_notebook.py:57
+#, python-brace-format
+msgid "The .msnb archive does not contain {name}"
+msgstr "Το αρχείο .msnb δεν περιέχει {name}"
+
+#: src/mathessible/documents/portable_notebook.py:68
+msgid "The file is not a valid .msnb notebook"
+msgstr "Το αρχείο δεν είναι έγκυρο σημειωματάριο .msnb"
+
+#: src/mathessible/documents/portable_notebook.py:74 src/mathessible/documents/portable_notebook.py:81
+#, python-brace-format
+msgid "Invalid path in .msnb archive: {file}"
+msgstr "Μη έγκυρη διαδρομή στο αρχείο .msnb: {file}"
+
+#: src/mathessible/documents/portable_notebook.py:77
+#, python-brace-format
+msgid "Unsafe path in .msnb archive: {file}"
+msgstr "Μη ασφαλής διαδρομή στο αρχείο .msnb: {file}"
+
+#: src/mathessible/documents/portable_notebook.py:79
+#, python-brace-format
+msgid "Unknown file in .msnb archive: {file}"
+msgstr "Άγνωστο αρχείο στο αρχείο .msnb: {file}"
+
+#: src/mathessible/documents/portable_notebook.py:84
+#, python-brace-format
+msgid "Symbolic links are not allowed in .msnb: {file}"
+msgstr "Οι συμβολικοί σύνδεσμοι δεν επιτρέπονται στο .msnb: {file}"
+
+#: src/mathessible/editing/equation_errors.py:37
+msgid "fraction without denominator"
+msgstr "κλάσμα χωρίς παρονομαστή"
+
+#: src/mathessible/editing/equation_errors.py:38
+msgid "superscript without anything after ^"
+msgstr "εκθέτης χωρίς τίποτα μετά το ^"
+
+#: src/mathessible/editing/equation_errors.py:39
+msgid "subscript without anything after _"
+msgstr "δείκτης χωρίς τίποτα μετά το _"
+
+#: src/mathessible/editing/equation_errors.py:40
+msgid "nothing above the operator"
+msgstr "τίποτα πάνω από τον τελεστή"
+
+#: src/mathessible/editing/equation_errors.py:41
+msgid "nothing below the operator"
+msgstr "τίποτα κάτω από τον τελεστή"
+
+#: src/mathessible/editing/equation_errors.py:42
+msgid "empty integrand or argument"
+msgstr "κενή ολοκληρωτέα συνάρτηση ή όρισμα"
+
+#: src/mathessible/editing/equation_errors.py:47
+msgid "& outside a matrix or equation array"
+msgstr "& έξω από πίνακα ή σύστημα εξισώσεων"
+
+#: src/mathessible/editing/equation_errors.py:48
+msgid "@ outside a matrix or equation array"
+msgstr "@ έξω από πίνακα ή σύστημα εξισώσεων"
+
+#: src/mathessible/editing/equation_errors.py:63
+#, python-brace-format
+msgid "{message}, at character {position}: {context}"
+msgstr "{message}, στον χαρακτήρα {position}: {context}"
+
+#: src/mathessible/editing/equation_errors.py:110
+#, python-brace-format
+msgid "closing {name} without an opening one"
+msgstr "κλειστή {name} χωρίς ανοιχτή"
+
+#: src/mathessible/editing/equation_errors.py:113
+#, python-brace-format
+msgid "unclosed {name}"
+msgstr "{name} που δεν κλείνει"
+
+#: src/mathessible/editing/equation_errors.py:115
+msgid "text not closed: missing quote"
+msgstr "κείμενο που δεν κλείνει: λείπουν εισαγωγικά"
+
+#: src/mathessible/editing/equation_errors.py:126
+msgid "fraction without numerator"
+msgstr "κλάσμα χωρίς αριθμητή"
+
+#: src/mathessible/editing/equation_errors.py:129
+msgid "root without an index"
+msgstr "ρίζα χωρίς τάξη"
+
+#: src/mathessible/editing/equation_errors.py:133
+msgid "absolute value bar without its pair"
+msgstr "γραμμή απόλυτης τιμής χωρίς το ζευγάρι της"
+
+#: src/mathessible/editing/equation_errors.py:144
+msgid "the equation ends too early"
+msgstr "η εξίσωση τελειώνει πολύ νωρίς"
+
+#: src/mathessible/editing/equation_errors.py:149
+#, python-brace-format
+msgid "cannot continue with {found}"
+msgstr "δεν είναι δυνατή η συνέχεια με {found}"
+
+#: src/mathessible/editing/equation_errors.py:153
+msgid "the equation cannot be read"
+msgstr "δεν είναι δυνατή η ανάγνωση της εξίσωσης"
+
+#: src/mathessible/editing/equation_errors.py:170
+#, python-brace-format
+msgid "unknown command {command}"
+msgstr "άγνωστη εντολή {command}"
+
+#: src/mathessible/editor/assist.py:70
+msgid "suggestions closed"
+msgstr "οι προτάσεις έκλεισαν"
+
+#: src/mathessible/editor/assist.py:139
+msgid "nothing to save, the equation is empty"
+msgstr "τίποτα για αποθήκευση, η εξίσωση είναι κενή"
+
+#: src/mathessible/editor/assist.py:141
+msgid "Name"
+msgstr "Όνομα"
+
+#: src/mathessible/editor/assist.py:141 src/mathessible/editor/assist.py:158
+msgid "Save as New Equation"
+msgstr "Αποθήκευση ως νέα εξίσωση"
+
+#: src/mathessible/editor/assist.py:151
+msgid "not saved, the name is empty"
+msgstr "δεν αποθηκεύτηκε, το όνομα είναι κενό"
+
+#: src/mathessible/editor/assist.py:157
+#, python-brace-format
+msgid "An equation named “{name}” is saved already. Replace it?"
+msgstr "Υπάρχει ήδη αποθηκευμένη εξίσωση με το όνομα «{name}». Να αντικατασταθεί;"
+
+#: src/mathessible/editor/assist.py:168
+#, python-brace-format
+msgid "could not save the equation: {error}"
+msgstr "δεν ήταν δυνατή η αποθήκευση της εξίσωσης: {error}"
+
+#: src/mathessible/editor/assist.py:171
+#, python-brace-format
+msgid "saved in My Equations as {name}"
+msgstr "αποθηκεύτηκε στις Εξισώσεις μου ως {name}"
+
+#: src/mathessible/editor/assist.py:199
+msgid "no errors found"
+msgstr "δεν βρέθηκαν σφάλματα"
+
+#: src/mathessible/editor/assist.py:202
+#, python-brace-format
+msgid "{count} error: {message}, F8 lists errors"
+msgid_plural "{count} errors: {message}, F8 lists errors"
+msgstr[0] "{count} σφάλμα: {message}, το F8 εμφανίζει τα σφάλματα"
+msgstr[1] "{count} σφάλματα: {message}, το F8 εμφανίζει τα σφάλματα"
+
+#: src/mathessible/editor/assist.py:211
+msgid "no errors"
+msgstr "κανένα σφάλμα"
+
+#: src/mathessible/editor/assist.py:235 src/mathessible/editor/assist.py:245
+#, python-brace-format
+msgid "{message}, selected {span}"
+msgstr "{message}, επιλεγμένο {span}"
+
+#: src/mathessible/editor/built.py:119 src/mathessible/editor/equation_editor.py:955
+msgid "could not cut"
+msgstr "δεν ήταν δυνατή η αποκοπή"
+
+#: src/mathessible/editor/built.py:432 src/mathessible/editor/equation_editor.py:920
+msgid "nothing to select"
+msgstr "τίποτα για επιλογή"
+
+#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:882
+msgid "nothing to undo"
+msgstr "τίποτα για αναίρεση"
+
+#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:882
+msgid "nothing to redo"
+msgstr "τίποτα για επανάληψη"
+
+#: src/mathessible/editor/drawing.py:98
+msgid "UnicodeMath source — empty equation"
+msgstr "Πηγαίος κώδικας UnicodeMath — κενή εξίσωση"
+
+#: src/mathessible/editor/drawing.py:99
+#, python-brace-format
+msgid "UnicodeMath source — character {position} of {length}"
+msgstr "Πηγαίος κώδικας UnicodeMath — χαρακτήρας {position} από {length}"
+
+#: src/mathessible/editor/drawing.py:103
+msgid "Professional mode — writing mode: Space types; Up/Down read rows; F10 explores; F2 source"
+msgstr ""
+"Επαγγελματική λειτουργία — λειτουργία γραφής: Διάστημα πληκτρολογεί· Πάνω/Κάτω διαβάζουν γραμμές·"
+" F10 εξερεύνηση· F2 πηγαίος κώδικας"
+
+#: src/mathessible/editor/drawing.py:106
+msgid ""
+"Professional mode — exploration mode, linear navigation (F10 writes); Space reads; Shift+Space "
+"context; Alt+Space zone; F2 source"
+msgstr ""
+"Επαγγελματική λειτουργία — λειτουργία εξερεύνησης, γραμμική πλοήγηση (F10 γραφή)· Διάστημα "
+"διαβάζει· Shift+Διάστημα πλαίσιο· Alt+Διάστημα ζώνη· F2 πηγαίος κώδικας"
+
+#: src/mathessible/editor/drawing.py:110
+msgid ""
+"Professional mode — exploration mode, structural navigation (F10 writes); Space reads; "
+"Shift+Space context; Alt+Space zone; F2 source"
+msgstr ""
+"Επαγγελματική λειτουργία — λειτουργία εξερεύνησης, δομική πλοήγηση (F10 γραφή)· Διάστημα "
+"διαβάζει· Shift+Διάστημα πλαίσιο· Alt+Διάστημα ζώνη· F2 πηγαίος κώδικας"
+
+#: src/mathessible/editor/drawing.py:125
+#, python-brace-format
+msgid "{position} of {count}; Tab completes"
+msgstr "{position} από {count}· Tab συμπληρώνει"
+
+#: src/mathessible/editor/drawing.py:141
+msgid "Linear (UnicodeMath source)"
+msgstr "Γραμμική (πηγαίος κώδικας UnicodeMath)"
+
+#: src/mathessible/editor/drawing.py:141
+msgid "Professional (built equation)"
+msgstr "Επαγγελματική (δομημένη εξίσωση)"
+
+#: src/mathessible/editor/drawing.py:145
+msgid "F2 switches view"
+msgstr "Το F2 αλλάζει προβολή"
+
+#: src/mathessible/editor/drawing.py:201
+msgid "Loading the math renderer…"
+msgstr "Φόρτωση της απόδοσης μαθηματικών…"
+
+#: src/mathessible/editor/drawing.py:209
+msgid "The math renderer is not available"
+msgstr "Η απόδοση μαθηματικών δεν είναι διαθέσιμη"
+
+#: src/mathessible/editor/drawing.py:230
+msgid "Type UnicodeMath here, e.g. (a+b)/2"
+msgstr "Πληκτρολογήστε UnicodeMath εδώ, π.χ. (a+b)/2"
+
+#: src/mathessible/editor/equation_editor.py:110
+msgid "Equation editor"
+msgstr "Επεξεργαστής εξισώσεων"
+
+#: src/mathessible/editor/equation_editor.py:207 src/mathessible/ui/braille_signs_dialog.py:61
+#: src/mathessible/ui/settings_dialog.py:74
+msgid "Braille"
+msgstr "Braille"
+
+#: src/mathessible/editor/equation_editor.py:210
+msgid "Equation braille"
+msgstr "Braille της εξίσωσης"
+
+#: src/mathessible/editor/equation_editor.py:266
+msgid "equation ready"
+msgstr "η εξίσωση είναι έτοιμη"
+
+#: src/mathessible/editor/equation_editor.py:429
+msgid "Equation editor, professional mode"
+msgstr "Επεξεργαστής εξισώσεων, επαγγελματική λειτουργία"
+
+#: src/mathessible/editor/equation_editor.py:431
+msgid "Equation editor, linear mode"
+msgstr "Επεξεργαστής εξισώσεων, γραμμική λειτουργία"
+
+#: src/mathessible/editor/equation_editor.py:503
+#, python-brace-format
+msgid "zoom {percent} percent"
+msgstr "ζουμ {percent} τοις εκατό"
+
+#: src/mathessible/editor/equation_editor.py:557
+msgid "The equation could not be built"
+msgstr "Δεν ήταν δυνατή η δόμηση της εξίσωσης"
+
+#: src/mathessible/editor/equation_editor.py:569
+#, python-brace-format
+msgid "The equation could not be read. {error}"
+msgstr "Δεν ήταν δυνατή η ανάγνωση της εξίσωσης. {error}"
+
+#: src/mathessible/editor/equation_editor.py:593
+msgid "empty equation"
+msgstr "κενή εξίσωση"
+
+#: src/mathessible/editor/equation_editor.py:599
+#, python-brace-format
+msgid "Professional mode could not be built. {error}"
+msgstr "Δεν ήταν δυνατή η δόμηση της επαγγελματικής λειτουργίας. {error}"
+
+#: src/mathessible/editor/equation_editor.py:604
+#, python-brace-format
+msgid "cannot be built, {errors}"
+msgstr "δεν μπορεί να δομηθεί, {errors}"
+
+#: src/mathessible/editor/equation_editor.py:607
+msgid "Professional mode could not be built"
+msgstr "Δεν ήταν δυνατή η δόμηση της επαγγελματικής λειτουργίας"
+
+#: src/mathessible/editor/equation_editor.py:634
+#, python-brace-format
+msgid "professional mode, {speech}"
+msgstr "επαγγελματική λειτουργία, {speech}"
+
+#: src/mathessible/editor/equation_editor.py:750
+msgid "writing mode"
+msgstr "λειτουργία γραφής"
+
+#: src/mathessible/editor/equation_editor.py:750
+msgid "exploration mode"
+msgstr "λειτουργία εξερεύνησης"
+
+#: src/mathessible/editor/equation_editor.py:753
+msgid "exploration mode, F10 to write"
+msgstr "λειτουργία εξερεύνησης, F10 για γραφή"
+
+#: src/mathessible/editor/equation_editor.py:915
+#, python-brace-format
+msgid "{count} character selected"
+msgid_plural "{count} characters selected"
+msgstr[0] "{count} χαρακτήρας επιλέχθηκε"
+msgstr[1] "{count} χαρακτήρες επιλέχθηκαν"
+
+#: src/mathessible/editor/equation_editor.py:934
+#, python-brace-format
+msgid "copied {item}"
+msgstr "αντιγράφηκε: {item}"
+
+#: src/mathessible/editor/equation_editor.py:936 src/mathessible/editor/equation_editor.py:944
+msgid "could not copy"
+msgstr "δεν ήταν δυνατή η αντιγραφή"
+
+#: src/mathessible/editor/equation_editor.py:941
+msgid "nothing to copy"
+msgstr "τίποτα για αντιγραφή"
+
+#: src/mathessible/editor/equation_editor.py:946
+msgid "selection copied"
+msgstr "η επιλογή αντιγράφηκε"
+
+#: src/mathessible/editor/equation_editor.py:946
+msgid "equation copied"
+msgstr "η εξίσωση αντιγράφηκε"
+
+#: src/mathessible/editor/equation_editor.py:952
+msgid "nothing to cut"
+msgstr "τίποτα για αποκοπή"
+
+#: src/mathessible/editor/equation_editor.py:959
+msgid "selection cut"
+msgstr "η επιλογή αποκόπηκε"
+
+#: src/mathessible/editor/equation_editor.py:962
+msgid "equation cut"
+msgstr "η εξίσωση αποκόπηκε"
+
+#: src/mathessible/editor/equation_editor.py:980
+msgid "the pasted MathML could not be converted"
+msgstr "δεν ήταν δυνατή η μετατροπή του MathML που επικολλήθηκε"
+
+#: src/mathessible/editor/equation_editor.py:983 src/mathessible/editor/equation_editor.py:989
+msgid "clipboard is empty"
+msgstr "το πρόχειρο είναι κενό"
+
+#: src/mathessible/editor/equation_editor.py:996
+msgid "equation pasted"
+msgstr "η εξίσωση επικολλήθηκε"
+
+#: src/mathessible/editor/equation_editor.py:1038
+msgid "still preparing the equation, please wait"
+msgstr "η εξίσωση προετοιμάζεται ακόμη, περιμένετε"
+
+#: src/mathessible/editor/equation_editor.py:1218 src/mathessible/editor/equation_editor.py:1229
+msgid "selection deleted"
+msgstr "η επιλογή διαγράφηκε"
+
+#: src/mathessible/editor/equation_editor.py:1415
+msgid "cannot move there"
+msgstr "δεν είναι δυνατή η μετάβαση εκεί"
+
+#: src/mathessible/editor/equation_editor.py:1419
+#, python-brace-format
+msgid "MathCAT could not read the equation, linear mode. {error}"
+msgstr "Το MathCAT δεν μπόρεσε να διαβάσει την εξίσωση, γραμμική λειτουργία. {error}"
+
+#: src/mathessible/editor/equation_editor.py:1489 src/mathessible/editor/equation_editor.py:1495
+msgid "start"
+msgstr "αρχή"
+
+#: src/mathessible/editor/equation_editor.py:1497
+msgid "end"
+msgstr "τέλος"
+
+#: src/mathessible/editor/renderer.py:65
+msgid "the UnicodeMathML engine did not initialize"
+msgstr "η μηχανή UnicodeMathML δεν αρχικοποιήθηκε"
+
+#: src/mathessible/editor/renderer.py:205
+msgid "the UnicodeMathML converter is still loading"
+msgstr "ο μετατροπέας UnicodeMathML φορτώνεται ακόμη"
+
+#: src/mathessible/editor/renderer.py:212
+msgid "the UnicodeMathML converter is busy"
+msgstr "ο μετατροπέας UnicodeMathML είναι απασχολημένος"
+
+#: src/mathessible/editor/renderer.py:242
+msgid "the UnicodeMathML converter could not run"
+msgstr "δεν ήταν δυνατή η εκτέλεση του μετατροπέα UnicodeMathML"
+
+#: src/mathessible/editor/structures.py:148
+msgid "Switch to Professional View"
+msgstr "Μετάβαση στην επαγγελματική προβολή"
+
+#: src/mathessible/editor/structures.py:148
+msgid "Switch to Linear View"
+msgstr "Μετάβαση στη γραμμική προβολή"
+
+#: src/mathessible/editor/structures.py:159 src/mathessible/ui/document_editor.py:113
+#: src/mathessible/ui/main_frame.py:217
+msgid "Cu&t"
+msgstr "Απο&κοπή"
+
+#: src/mathessible/editor/structures.py:160 src/mathessible/ui/document_editor.py:114
+#: src/mathessible/ui/main_frame.py:218
+msgid "&Copy"
+msgstr "Αντι&γραφή"
+
+#: src/mathessible/editor/structures.py:161 src/mathessible/ui/document_editor.py:115
+#: src/mathessible/ui/main_frame.py:219
+msgid "&Paste"
+msgstr "Επικό&λληση"
+
+#: src/mathessible/editor/structures.py:163 src/mathessible/ui/document_editor.py:117
+#: src/mathessible/ui/main_frame.py:222
+msgid "Select &All"
+msgstr "&Επιλογή όλων"
+
+#: src/mathessible/editor/structures.py:168 src/mathessible/ui/document_editor.py:136
+msgid "&Insert"
+msgstr "Ε&ισαγωγή"
+
+#: src/mathessible/editor/structures.py:190
+msgid "Insert Case &Above"
+msgstr "Εισαγωγή περίπτωσης &πάνω"
+
+#: src/mathessible/editor/structures.py:190
+msgid "Insert Case &Below"
+msgstr "Εισαγωγή περίπτωσης &κάτω"
+
+#: src/mathessible/editor/structures.py:190
+msgid "&Delete Case"
+msgstr "&Διαγραφή περίπτωσης"
+
+#: src/mathessible/editor/structures.py:192
+msgid "Insert Equation &Above"
+msgstr "Εισαγωγή εξίσωσης &πάνω"
+
+#: src/mathessible/editor/structures.py:192
+msgid "Insert Equation &Below"
+msgstr "Εισαγωγή εξίσωσης &κάτω"
+
+#: src/mathessible/editor/structures.py:192
+msgid "&Delete Equation"
+msgstr "&Διαγραφή εξίσωσης"
+
+#: src/mathessible/editor/structures.py:203
+msgid "&Equations"
+msgstr "&Εξισώσεις"
+
+#: src/mathessible/editor/structures.py:203 src/mathessible/templates/insert_catalog.py:129
+msgid "&Cases"
+msgstr "&Περιπτώσεις"
+
+#: src/mathessible/editor/structures.py:207
+msgid "Insert Row &Above"
+msgstr "Εισαγωγή γραμμής &πάνω"
+
+#: src/mathessible/editor/structures.py:208
+msgid "Insert Row &Below"
+msgstr "Εισαγωγή γραμμής &κάτω"
+
+#: src/mathessible/editor/structures.py:210
+msgid "Insert Column &Left"
+msgstr "Εισαγωγή στήλης &αριστερά"
+
+#: src/mathessible/editor/structures.py:214
+msgid "Insert Column &Right"
+msgstr "Εισαγωγή στήλης &δεξιά"
+
+#: src/mathessible/editor/structures.py:218
+msgid "Delete R&ow"
+msgstr "Διαγραφή &γραμμής"
+
+#: src/mathessible/editor/structures.py:219
+msgid "Delete C&olumn"
+msgstr "Διαγραφή &στήλης"
+
+#: src/mathessible/editor/structures.py:231
+msgid "Matri&x"
+msgstr "&Πίνακας"
+
+#: src/mathessible/editor/structures.py:248 src/mathessible/templates/insert_catalog.py:63
+msgid "&Fraction"
+msgstr "&Κλάσμα"
+
+#: src/mathessible/editor/structures.py:257
+msgid "&Add Index"
+msgstr "&Προσθήκη τάξης ρίζας"
+
+#: src/mathessible/editor/structures.py:258
+msgid "&Remove Index"
+msgstr "&Αφαίρεση τάξης ρίζας"
+
+#: src/mathessible/editor/structures.py:265
+msgid "&Root"
+msgstr "&Ρίζα"
+
+#: src/mathessible/editor/structures.py:277
+msgid "&Add Limits"
+msgstr "&Προσθήκη ορίων"
+
+#: src/mathessible/editor/structures.py:278
+msgid "&Remove Limits"
+msgstr "&Αφαίρεση ορίων"
+
+#: src/mathessible/editor/structures.py:310
+msgid "Add &Subscript"
+msgstr "Προσθήκη &δείκτη"
+
+#: src/mathessible/editor/structures.py:311
+msgid "Add Su&perscript"
+msgstr "Προσθήκη &εκθέτη"
+
+#: src/mathessible/editor/structures.py:312
+msgid "&Remove Subscript"
+msgstr "&Αφαίρεση δείκτη"
+
+#: src/mathessible/editor/structures.py:313
+msgid "Remove Superscrip&t"
+msgstr "Αφαίρεση ε&κθέτη"
+
+#: src/mathessible/editor/structures.py:314
+msgid "&Script"
+msgstr "&Δείκτες"
+
+#: src/mathessible/editor/structures.py:338
+msgid "Show &Opening Bracket"
+msgstr "Εμφάνιση &αριστερής παρένθεσης"
+
+#: src/mathessible/editor/structures.py:338
+msgid "Hide &Opening Bracket"
+msgstr "Απόκρυψη &αριστερής παρένθεσης"
+
+#: src/mathessible/editor/structures.py:343
+msgid "Show &Closing Bracket"
+msgstr "Εμφάνιση &δεξιάς παρένθεσης"
+
+#: src/mathessible/editor/structures.py:343
+msgid "Hide &Closing Bracket"
+msgstr "Απόκρυψη &δεξιάς παρένθεσης"
+
+#: src/mathessible/editor/structures.py:348
+msgid "&Remove Brackets"
+msgstr "&Αφαίρεση παρενθέσεων"
+
+#: src/mathessible/editor/structures.py:349 src/mathessible/ui/matrix_dialog.py:37
+msgid "&Brackets"
+msgstr "&Παρενθέσεις"
+
+#: src/mathessible/editor/structures.py:364
+msgid "&Remove Accent"
+msgstr "&Αφαίρεση τόνου"
+
+#: src/mathessible/editor/structures.py:365
+msgid "&Accent"
+msgstr "&Τόνος"
+
+#: src/mathessible/editor/structures.py:369
+msgid "Change to &Underbar"
+msgstr "Αλλαγή σε &κάτω γραμμή"
+
+#: src/mathessible/editor/structures.py:369
+msgid "Change to &Overbar"
+msgstr "Αλλαγή σε &πάνω γραμμή"
+
+#: src/mathessible/editor/structures.py:370
+msgid "&Remove Bar"
+msgstr "&Αφαίρεση γραμμής"
+
+#: src/mathessible/editor/structures.py:465
+msgid "not available here"
+msgstr "δεν είναι διαθέσιμο εδώ"
+
+#: src/mathessible/editor/structures.py:539
+#, python-brace-format
+msgid "{announcement}. Professional mode could not be rebuilt, linear mode. {error}"
+msgstr ""
+"{announcement}. Δεν ήταν δυνατή η αναδόμηση της επαγγελματικής λειτουργίας, γραμμική λειτουργία. "
+"{error}"
+
+#: src/mathessible/error_messages.py:11
+msgid "PDF/UA requires a title: give one in the export's Document tab."
+msgstr "Το PDF/UA απαιτεί τίτλο: δώστε τον στην καρτέλα Έγγραφο της εξαγωγής."
+
+#: src/mathessible/error_messages.py:14
+msgid "PDF/UA requires every equation to be readable, and one could not be: export as Tagged PDF."
+msgstr ""
+"Το PDF/UA απαιτεί κάθε εξίσωση να είναι αναγνώσιμη, και μία δεν είναι: κάντε εξαγωγή ως PDF με "
+"ετικέτες."
+
+#: src/mathessible/error_messages.py:16
+msgid "PDF/A-2 does not allow attachments: choose PDF/A-3a, or do not attach the source."
+msgstr "Το PDF/A-2 δεν επιτρέπει συνημμένα: επιλέξτε PDF/A-3a ή μην επισυνάψετε τον πηγαίο κώδικα."
+
+#: src/mathessible/error_messages.py:17
+msgid "A font is not installed: choose another in the export's Layout tab."
+msgstr "Μια γραμματοσειρά δεν είναι εγκατεστημένη: επιλέξτε άλλη στην καρτέλα Διάταξη της εξαγωγής."
+
+#: src/mathessible/error_messages.py:25
+msgid ""
+"Mathessible is not allowed to use this file or folder. Choose another place, or check its "
+"permissions."
+msgstr ""
+"Το Mathessible δεν έχει άδεια να χρησιμοποιήσει αυτό το αρχείο ή τον φάκελο. Επιλέξτε άλλη θέση ή"
+" ελέγξτε τα δικαιώματά του."
+
+#: src/mathessible/error_messages.py:28
+msgid "The file or folder is not there any more."
+msgstr "Το αρχείο ή ο φάκελος δεν υπάρχει πια."
+
+#: src/mathessible/error_messages.py:30
+msgid "That is a folder, not a file."
+msgstr "Αυτό είναι φάκελος, όχι αρχείο."
+
+#: src/mathessible/error_messages.py:32
+msgid "The disk is full."
+msgstr "Ο δίσκος είναι γεμάτος."
+
+#: src/mathessible/error_messages.py:34
+msgid "The file is not text in UTF-8, so Mathessible cannot read it."
+msgstr "Το αρχείο δεν είναι κείμενο σε UTF-8, οπότε το Mathessible δεν μπορεί να το διαβάσει."
+
+#: src/mathessible/error_messages.py:36
+msgid "Mathessible's native part (MathCAT and liblouis) is missing. Run scripts/bootstrap.sh."
+msgstr "Λείπει το εγγενές τμήμα του Mathessible (MathCAT και liblouis). Εκτελέστε το scripts/bootstrap.sh."
+
+#: src/mathessible/error_messages.py:43
+#, python-brace-format
+msgid "Typst could not typeset the PDF: {error}"
+msgstr "Το Typst δεν μπόρεσε να στοιχειοθετήσει το PDF: {error}"
+
+#: src/mathessible/error_messages.py:45
+msgid "The braille table could not be loaded. Choose another in the export's dialog."
+msgstr "Δεν ήταν δυνατή η φόρτωση του πίνακα braille. Επιλέξτε άλλον στο παράθυρο διαλόγου της εξαγωγής."
+
+#: src/mathessible/help_links.py:14
+msgid "&Quick Start Guide"
+msgstr "Οδηγός &γρήγορης έναρξης"
+
+#: src/mathessible/help_links.py:15
+msgid "&User Guide"
+msgstr "Οδηγός &χρήσης"
+
+#: src/mathessible/help_links.py:16
+msgid "&Keyboard Shortcuts"
+msgstr "Συντομεύσεις &πληκτρολογίου"
+
+#: src/mathessible/help_links.py:20
+msgid ""
+"An accessible maths editor: UnicodeMath equations in Markdown, read, navigated and brailled "
+"through MathCAT.\n"
+"\n"
+"Built on MathCAT (DAISY Consortium) and UnicodeMathML (Murray Sargent III), both under the MIT "
+"licence. NVDA's symbol dictionaries, downloaded on request, are under NVDA's licence (GPL-2.0).\n"
+"\n"
+"Mathessible is distributed under the GNU General Public License, version 2 or later."
+msgstr ""
+"Ένας προσβάσιμος επεξεργαστής μαθηματικών: εξισώσεις UnicodeMath σε Markdown, που διαβάζονται, "
+"πλοηγούνται και αποδίδονται σε braille μέσω του MathCAT.\n"
+"\n"
+"Βασίζεται στο MathCAT (DAISY Consortium) και στο UnicodeMathML (Murray Sargent III), και τα δύο "
+"με την άδεια MIT. Τα λεξικά συμβόλων του NVDA, που λαμβάνονται κατ’ απαίτηση, διέπονται από την "
+"άδεια του NVDA (GPL-2.0).\n"
+"\n"
+"Το Mathessible διανέμεται με την Άδεια Δημόσιας Χρήσης GNU, έκδοση 2 ή νεότερη."
+
+#: src/mathessible/settings.py:63
+msgid "Nemeth (US)"
+msgstr "Nemeth (ΗΠΑ)"
+
+#: src/mathessible/settings.py:64
+msgid "UEB (Unified English Braille)"
+msgstr "UEB (Unified English Braille)"
+
+#: src/mathessible/settings.py:65
+msgid "CMU (Spanish, Portuguese)"
+msgstr "CMU (ισπανικά, πορτογαλικά)"
+
+#: src/mathessible/settings.py:66
+msgid "French"
+msgstr "Γαλλικά"
+
+#: src/mathessible/settings.py:67
+msgid "Russian"
+msgstr "Ρωσικά"
+
+#: src/mathessible/settings.py:68
+msgid "Swedish"
+msgstr "Σουηδικά"
+
+#: src/mathessible/settings.py:69
+msgid "Vietnamese"
+msgstr "Βιετναμέζικα"
+
+#: src/mathessible/settings.py:70
+msgid "ASCIIMath (text)"
+msgstr "ASCIIMath (κείμενο)"
+
+#: src/mathessible/settings.py:71
+msgid "LaTeX (text)"
+msgstr "LaTeX (κείμενο)"
+
+#: src/mathessible/settings.py:332
+msgid "US Letter"
+msgstr "US Letter"
+
+#: src/mathessible/settings.py:332
+msgid "US Legal"
+msgstr "US Legal"
+
+#: src/mathessible/settings.py:334
+msgid "Bottom, centred"
+msgstr "Κάτω, στο κέντρο"
+
+#: src/mathessible/settings.py:335
+msgid "Bottom, right"
+msgstr "Κάτω, δεξιά"
+
+#: src/mathessible/settings.py:336
+msgid "Top, right"
+msgstr "Πάνω, δεξιά"
+
+#: src/mathessible/settings.py:340
+msgid "Tagged PDF"
+msgstr "PDF με ετικέτες"
+
+#: src/mathessible/settings.py:341
+msgid "PDF/UA-1 (accessible, checked)"
+msgstr "PDF/UA-1 (προσβάσιμο, ελεγμένο)"
+
+#: src/mathessible/settings.py:342
+msgid "PDF/UA-1 and PDF/A-3a (accessible and archival)"
+msgstr "PDF/UA-1 και PDF/A-3a (προσβάσιμο και για αρχειοθέτηση)"
+
+#: src/mathessible/settings.py:343
+msgid "PDF/A-3a (archival)"
+msgstr "PDF/A-3a (για αρχειοθέτηση)"
+
+#: src/mathessible/settings.py:345 src/mathessible/settings.py:346
+msgid "None"
+msgstr "Κανένα"
+
+#: src/mathessible/settings.py:349
+msgid "Default (black)"
+msgstr "Προεπιλογή (μαύρο)"
+
+#: src/mathessible/settings.py:350
+msgid "Dark grey"
+msgstr "Σκούρο γκρι"
+
+#: src/mathessible/settings.py:351
+msgid "Dark blue"
+msgstr "Σκούρο μπλε"
+
+#: src/mathessible/settings.py:352
+msgid "Link blue"
+msgstr "Μπλε συνδέσμου"
+
+#: src/mathessible/settings.py:353
+msgid "Dark green"
+msgstr "Σκούρο πράσινο"
+
+#: src/mathessible/settings.py:354
+msgid "Dark red"
+msgstr "Σκούρο κόκκινο"
+
+#: src/mathessible/settings.py:355
+msgid "Dark purple"
+msgstr "Σκούρο μωβ"
+
+#: src/mathessible/settings.py:358
+msgid "Single"
+msgstr "Μονό"
+
+#: src/mathessible/settings.py:358
+msgid "1.5 lines"
+msgstr "1,5 γραμμή"
+
+#: src/mathessible/settings.py:358
+msgid "Double"
+msgstr "Διπλό"
+
+#: src/mathessible/settings.py:359
+msgid "Sans serif (the system's)"
+msgstr "Χωρίς πατούρες (του συστήματος)"
+
+#: src/mathessible/settings.py:359
+msgid "Serif"
+msgstr "Με πατούρες"
+
+#: src/mathessible/settings.py:361
+msgid "Light or dark, as the reader's system"
+msgstr "Ανοιχτό ή σκούρο, όπως το σύστημα του αναγνώστη"
+
+#: src/mathessible/settings.py:362
+msgid "Light"
+msgstr "Ανοιχτό"
+
+#: src/mathessible/settings.py:363
+msgid "Dark"
+msgstr "Σκούρο"
+
+#: src/mathessible/spoken.py:21 src/mathessible/templates/math_templates.py:784
+#: src/mathessible/templates/structure_edits.py:326
+msgid "absolute value"
+msgstr "απόλυτη τιμή"
+
+#: src/mathessible/spoken.py:22
+msgid "after space"
+msgstr "μετά από διάστημα"
+
+#: src/mathessible/editing/equation_errors.py:28 src/mathessible/editing/equation_errors.py:29
+#: src/mathessible/spoken.py:23
+msgid "angle bracket"
+msgstr "γωνιακή αγκύλη"
+
+#: src/mathessible/editor/equation_editor.py:1170 src/mathessible/spoken.py:24
+msgid "argument"
+msgstr "όρισμα"
+
+#: src/mathessible/spoken.py:25
+msgid "arrow"
+msgstr "βέλος"
+
+#: src/mathessible/spoken.py:26
+msgid "at equation"
+msgstr "στην εξίσωση"
+
+#: src/mathessible/spoken.py:27
+msgid "base"
+msgstr "βάση"
+
+#: src/mathessible/editor/equation_editor.py:1208 src/mathessible/spoken.py:28
+msgid "blank"
+msgstr "κενό"
+
+#: src/mathessible/editing/equation_errors.py:26 src/mathessible/editing/equation_errors.py:27
+#: src/mathessible/spoken.py:29
+msgid "brace"
+msgstr "άγκιστρο"
+
+#: src/mathessible/editing/equation_errors.py:24 src/mathessible/editing/equation_errors.py:25
+#: src/mathessible/editing/equation_errors.py:32 src/mathessible/editing/equation_errors.py:33
+#: src/mathessible/spoken.py:30
+msgid "bracket"
+msgstr "αγκύλη"
+
+#: src/mathessible/editor/assist.py:90 src/mathessible/editor/equation_editor.py:1175
+#: src/mathessible/editor/equation_editor.py:1353 src/mathessible/spoken.py:31
+msgid "built"
+msgstr "δομήθηκε"
+
+#: src/mathessible/spoken.py:32
+msgid "case"
+msgstr "περίπτωση"
+
+#: src/mathessible/spoken.py:33
+msgid "cases"
+msgstr "περιπτώσεις"
+
+#: src/mathessible/spoken.py:34
+msgid "cell"
+msgstr "κελί"
+
+#: src/mathessible/spoken.py:35
+msgid "condition"
+msgstr "συνθήκη"
+
+#: src/mathessible/spoken.py:36
+msgid "denominator"
+msgstr "παρονομαστής"
+
+#: src/mathessible/spoken.py:37
+msgid "determinant"
+msgstr "ορίζουσα"
+
+#: src/mathessible/spoken.py:38
+msgid "empty"
+msgstr "κενό"
+
+#: src/mathessible/spoken.py:39
+msgid "empty slot"
+msgstr "κενή θέση"
+
+#: src/mathessible/spoken.py:40
+msgid "end of math"
+msgstr "τέλος μαθηματικών"
+
+#: src/mathessible/spoken.py:41
+msgid "equation"
+msgstr "εξίσωση"
+
+#: src/mathessible/spoken.py:42 src/mathessible/templates/math_templates.py:29
+msgid "equation number"
+msgstr "αριθμός εξίσωσης"
+
+#: src/mathessible/spoken.py:43
+msgid "equations"
+msgstr "εξισώσεις"
+
+#: src/mathessible/spoken.py:44
+msgid "factor"
+msgstr "παράγοντας"
+
+#: src/mathessible/spoken.py:45
+msgid "fraction"
+msgstr "κλάσμα"
+
+#: src/mathessible/spoken.py:46
+msgid "function name"
+msgstr "όνομα συνάρτησης"
+
+#: src/mathessible/editing/equation_errors.py:30 src/mathessible/editing/equation_errors.py:31
+#: src/mathessible/spoken.py:47
+msgid "group"
+msgstr "ομάδα"
+
+#: src/mathessible/spoken.py:48
+msgid "in an empty slot"
+msgstr "σε κενή θέση"
+
+#: src/mathessible/spoken.py:49
+msgid "index"
+msgstr "τάξη ρίζας"
+
+#: src/mathessible/spoken.py:50
+msgid "integral"
+msgstr "ολοκλήρωμα"
+
+#: src/mathessible/spoken.py:51
+msgid "integrand"
+msgstr "ολοκληρωτέα συνάρτηση"
+
+#: src/mathessible/spoken.py:52
+msgid "label"
+msgstr "ετικέτα"
+
+#: src/mathessible/spoken.py:53
+msgid "limit"
+msgstr "όριο"
+
+#: src/mathessible/spoken.py:54 src/mathessible/templates/math_templates.py:41
+#: src/mathessible/templates/math_templates.py:43 src/mathessible/templates/math_templates.py:44
+msgid "limit condition"
+msgstr "συνθήκη ορίου"
+
+#: src/mathessible/spoken.py:55
+msgid "limits"
+msgstr "όρια"
+
+#: src/mathessible/spoken.py:56 src/mathessible/templates/fraction_styles.py:14
+msgid "linear"
+msgstr "γραμμικό"
+
+#: src/mathessible/editor/assist.py:243 src/mathessible/editor/equation_editor.py:612
+#: src/mathessible/editor/structures.py:481 src/mathessible/spoken.py:57
+msgid "linear mode"
+msgstr "γραμμική λειτουργία"
+
+#: src/mathessible/spoken.py:58
+msgid "logarithm"
+msgstr "λογάριθμος"
+
+#: src/mathessible/spoken.py:59 src/mathessible/templates/math_templates.py:695
+msgid "lower limit"
+msgstr "κάτω όριο"
+
+#: src/mathessible/spoken.py:60
+msgid "matrix"
+msgstr "πίνακας"
+
+#: src/mathessible/editor/built.py:828 src/mathessible/editor/equation_editor.py:1134
+#: src/mathessible/spoken.py:61
+msgid "no slot"
+msgstr "καμία θέση"
+
+#: src/mathessible/spoken.py:62 src/mathessible/templates/structure_edits.py:327
+msgid "norm"
+msgstr "νόρμα"
+
+#: src/mathessible/editor/structures.py:504 src/mathessible/spoken.py:63
+msgid "not in a table"
+msgstr "όχι σε πίνακα"
+
+#: src/mathessible/spoken.py:64
+msgid "nothing selected"
+msgstr "τίποτα επιλεγμένο"
+
+#: src/mathessible/spoken.py:65
+msgid "numbered equation"
+msgstr "αριθμημένη εξίσωση"
+
+#: src/mathessible/spoken.py:66
+msgid "numerator"
+msgstr "αριθμητής"
+
+#: src/mathessible/spoken.py:67
+msgid "operator"
+msgstr "τελεστής"
+
+#: src/mathessible/spoken.py:68
+msgid "overscript"
+msgstr "υπερκείμενο"
+
+#: src/mathessible/spoken.py:69 src/mathessible/templates/structure_edits.py:320
+msgid "parentheses"
+msgstr "παρενθέσεις"
+
+#: src/mathessible/editing/equation_errors.py:22 src/mathessible/editing/equation_errors.py:23
+#: src/mathessible/spoken.py:70
+msgid "parenthesis"
+msgstr "παρένθεση"
+
+#: src/mathessible/spoken.py:71
+msgid "press again to delete it"
+msgstr "πατήστε ξανά για να το διαγράψετε"
+
+#: src/mathessible/spoken.py:72
+msgid "radicand"
+msgstr "υπόρριζο"
+
+#: src/mathessible/spoken.py:73
+msgid "root"
+msgstr "ρίζα"
+
+#: src/mathessible/spoken.py:74
+msgid "row"
+msgstr "γραμμή"
+
+#: src/mathessible/spoken.py:75
+msgid "script"
+msgstr "δείκτης ή εκθέτης"
+
+#: src/mathessible/spoken.py:76
+msgid "scripts"
+msgstr "δείκτες και εκθέτες"
+
+#: src/mathessible/spoken.py:77
+msgid "selected"
+msgstr "επιλεγμένο"
+
+#: src/mathessible/editor/equation_editor.py:911 src/mathessible/spoken.py:78
+msgid "selection cleared"
+msgstr "η επιλογή καταργήθηκε"
+
+#: src/mathessible/spoken.py:79 src/mathessible/templates/math_templates.py:59
+#: src/mathessible/templates/math_templates.py:782
+msgid "square root"
+msgstr "τετραγωνική ρίζα"
+
+#: src/mathessible/spoken.py:80
+msgid "start of math"
+msgstr "αρχή μαθηματικών"
+
+#: src/mathessible/spoken.py:81
+msgid "subscript"
+msgstr "δείκτης"
+
+#: src/mathessible/spoken.py:82
+msgid "sum"
+msgstr "άθροισμα"
+
+#: src/mathessible/spoken.py:83
+msgid "summand"
+msgstr "προσθετέος"
+
+#: src/mathessible/spoken.py:84
+msgid "superscript"
+msgstr "εκθέτης"
+
+#: src/mathessible/spoken.py:85 src/mathessible/templates/math_templates.py:64
+msgid "text above"
+msgstr "κείμενο πάνω"
+
+#: src/mathessible/spoken.py:86 src/mathessible/templates/math_templates.py:64
+msgid "text below"
+msgstr "κείμενο κάτω"
+
+#: src/mathessible/spoken.py:87
+msgid "underscript"
+msgstr "υποκείμενο"
+
+#: src/mathessible/spoken.py:88
+msgid "unselected"
+msgstr "μη επιλεγμένο"
+
+#: src/mathessible/spoken.py:89 src/mathessible/templates/math_templates.py:695
+msgid "upper limit"
+msgstr "άνω όριο"
+
+#: src/mathessible/spoken.py:90
+msgid "value"
+msgstr "τιμή"
+
+#: src/mathessible/spoken.py:95 src/mathessible/templates/matrix_templates.py:285
+#, python-brace-format
+msgid "row {row}, column {column}"
+msgstr "γραμμή {row}, στήλη {column}"
+
+#: src/mathessible/spoken.py:96
+#, python-brace-format
+msgid "cell row {row}, column {column}, {content}"
+msgstr "κελί γραμμή {row}, στήλη {column}, {content}"
+
+#: src/mathessible/spoken.py:97
+#, python-brace-format
+msgid "equation number {number}"
+msgstr "αριθμός εξίσωσης {number}"
+
+#: src/mathessible/spoken.py:98
+#, python-brace-format
+msgid "equation {number}"
+msgstr "εξίσωση {number}"
+
+#: src/mathessible/spoken.py:99
+#, python-brace-format
+msgid "case {number}"
+msgstr "περίπτωση {number}"
+
+#: src/mathessible/spoken.py:100
+#, python-brace-format
+msgid "row {row}"
+msgstr "γραμμή {row}"
+
+#: src/mathessible/spoken.py:101
+#, python-brace-format
+msgid "column {column}"
+msgstr "στήλη {column}"
+
+#: src/mathessible/spoken.py:102
+#, python-brace-format
+msgid "start of {region}"
+msgstr "αρχή του {region}"
+
+#: src/mathessible/spoken.py:103
+#, python-brace-format
+msgid "end of {region}"
+msgstr "τέλος του {region}"
+
+#: src/mathessible/spoken.py:104
+#, python-brace-format
+msgid "start {region}"
+msgstr "αρχή {region}"
+
+#: src/mathessible/spoken.py:105
+#, python-brace-format
+msgid "end {region}"
+msgstr "τέλος {region}"
+
+#: src/mathessible/spoken.py:106
+#, python-brace-format
+msgid "inside {region}"
+msgstr "μέσα σε {region}"
+
+#: src/mathessible/spoken.py:107
+#, python-brace-format
+msgid "in empty {region}"
+msgstr "σε κενό {region}"
+
+#: src/mathessible/spoken.py:108
+#, python-brace-format
+msgid "after {item}"
+msgstr "μετά από {item}"
+
+#: src/mathessible/spoken.py:109
+#, python-brace-format
+msgid "before {item}"
+msgstr "πριν από {item}"
+
+#: src/mathessible/spoken.py:110
+#, python-brace-format
+msgid "the {structure}"
+msgstr "{structure}"
+
+#: src/mathessible/spoken.py:111
+#, python-brace-format
+msgid "deleted {item}"
+msgstr "διαγράφηκε: {item}"
+
+#: src/mathessible/spoken.py:112
+#, python-brace-format
+msgid "cut {item}"
+msgstr "αποκόπηκε: {item}"
+
+#: src/mathessible/spoken.py:113
+#, python-brace-format
+msgid "selected {item}"
+msgstr "επιλέχθηκε: {item}"
+
+#: src/mathessible/spoken.py:114
+#, python-brace-format
+msgid "built {structure}"
+msgstr "δομήθηκε: {structure}"
+
+#: src/mathessible/templates/fraction_styles.py:14
+msgid "stacked"
+msgstr "κατακόρυφο"
+
+#: src/mathessible/templates/fraction_styles.py:14
+msgid "skewed"
+msgstr "πλάγιο"
+
+#: src/mathessible/templates/fraction_styles.py:14
+msgid "small"
+msgstr "μικρό"
+
+#: src/mathessible/templates/fraction_styles.py:16
+msgid "stacked fraction"
+msgstr "κατακόρυφο κλάσμα"
+
+#: src/mathessible/templates/fraction_styles.py:17
+msgid "skewed fraction"
+msgstr "πλάγιο κλάσμα"
+
+#: src/mathessible/templates/fraction_styles.py:18
+msgid "linear fraction"
+msgstr "γραμμικό κλάσμα"
+
+#: src/mathessible/templates/fraction_styles.py:19
+msgid "small fraction"
+msgstr "μικρό κλάσμα"
+
+#: src/mathessible/templates/insert_catalog.py:64
+msgid "&Subscript"
+msgstr "&Δείκτης"
+
+#: src/mathessible/templates/insert_catalog.py:65
+msgid "Su&perscript"
+msgstr "&Εκθέτης"
+
+#: src/mathessible/templates/insert_catalog.py:68
+msgid "&Square Root"
+msgstr "&Τετραγωνική ρίζα"
+
+#: src/mathessible/templates/insert_catalog.py:69
+msgid "&Root with Index"
+msgstr "&Ρίζα με τάξη"
+
+#: src/mathessible/templates/insert_catalog.py:72
+msgid "&Integral"
+msgstr "&Ολοκλήρωμα"
+
+#: src/mathessible/templates/insert_catalog.py:74
+msgid "Integral with &Limits"
+msgstr "Ολοκλήρωμα με ό&ρια"
+
+#: src/mathessible/templates/insert_catalog.py:79
+msgid "&Sum"
+msgstr "Ά&θροισμα"
+
+#: src/mathessible/templates/insert_catalog.py:81
+msgid "Sum with Li&mits"
+msgstr "Άθροισμα με όρι&α"
+
+#: src/mathessible/templates/insert_catalog.py:86
+msgid "&Product"
+msgstr "&Γινόμενο"
+
+#: src/mathessible/templates/insert_catalog.py:88
+msgid "Product with Limi&ts"
+msgstr "Γινόμενο με όρ&ια"
+
+#: src/mathessible/templates/insert_catalog.py:95
+msgid "&Absolute Value"
+msgstr "Α&πόλυτη τιμή"
+
+#: src/mathessible/templates/insert_catalog.py:96
+msgid "&Limit"
+msgstr "Ό&ριο"
+
+#: src/mathessible/templates/insert_catalog.py:97
+msgid "L&ogarithm"
+msgstr "&Λογάριθμος"
+
+#: src/mathessible/templates/insert_catalog.py:101
+msgid "Arrow with Text &Above"
+msgstr "Βέλος με κείμενο &πάνω"
+
+#: src/mathessible/templates/insert_catalog.py:103
+msgid "Arrow with Text &Below"
+msgstr "Βέλος με κείμενο &κάτω"
+
+#: src/mathessible/templates/insert_catalog.py:109
+msgid "&Equals with Text Above"
+msgstr "Ί&σον με κείμενο πάνω"
+
+#: src/mathessible/templates/insert_catalog.py:113
+msgid "&Norm"
+msgstr "&Νόρμα"
+
+#: src/mathessible/templates/insert_catalog.py:114
+msgid "Floo&r"
+msgstr "Ακέραιο μέρος &κάτω"
+
+#: src/mathessible/templates/insert_catalog.py:115
+msgid "Ceili&ng"
+msgstr "Ακέραιο μέρος &άνω"
+
+#: src/mathessible/templates/insert_catalog.py:116
+msgid "Angle Brac&kets"
+msgstr "Γω&νιακές αγκύλες"
+
+#: src/mathessible/templates/insert_catalog.py:117
+msgid "Bino&mial"
+msgstr "Διω&νυμικός συντελεστής"
+
+#: src/mathessible/templates/insert_catalog.py:120
+msgid "Double Inte&gral"
+msgstr "Διπλό ολοκλήρ&ωμα"
+
+#: src/mathessible/templates/insert_catalog.py:121 src/mathessible/templates/structure_gallery.py:134
+msgid "Triple Integral"
+msgstr "Τριπλό ολοκλήρωμα"
+
+#: src/mathessible/templates/insert_catalog.py:122 src/mathessible/templates/structure_gallery.py:139
+msgid "Contour Integral"
+msgstr "Επικαμπύλιο ολοκλήρωμα"
+
+#: src/mathessible/templates/insert_catalog.py:123
+msgid "&Union"
+msgstr "Έ&νωση"
+
+#: src/mathessible/templates/insert_catalog.py:125 src/mathessible/templates/structure_gallery.py:164
+msgid "Intersection"
+msgstr "Τομή"
+
+#: src/mathessible/templates/insert_catalog.py:130
+msgid "E&quation Array"
+msgstr "Σύστημα ε&ξισώσεων"
+
+#: src/mathessible/templates/insert_catalog.py:131
+msgid "Bo&x"
+msgstr "&Πλαίσιο"
+
+#: src/mathessible/templates/insert_catalog.py:132
+msgid "Equation &Number"
+msgstr "&Αριθμός εξίσωσης"
+
+#: src/mathessible/templates/insert_catalog.py:133 src/mathessible/templates/structure_gallery.py:204
+msgid "Overbrace"
+msgstr "Άγκιστρο πάνω"
+
+#: src/mathessible/templates/insert_catalog.py:134 src/mathessible/templates/structure_gallery.py:205
+msgid "Underbrace"
+msgstr "Άγκιστρο κάτω"
+
+#: src/mathessible/templates/insert_catalog.py:139
+msgid "&Matrix…"
+msgstr "&Πίνακας…"
+
+#: src/mathessible/templates/insert_catalog.py:141
+msgid "S&ymbol…"
+msgstr "&Σύμβολο…"
+
+#: src/mathessible/templates/insert_catalog.py:143
+msgid "Structure Gallery…"
+msgstr "Συλλογή δομών…"
+
+#: src/mathessible/templates/insert_catalog.py:147
+msgid "Normal &Text"
+msgstr "Κανονικό &κείμενο"
+
+#: src/mathessible/templates/math_templates.py:13
+msgid "double integral"
+msgstr "διπλό ολοκλήρωμα"
+
+#: src/mathessible/templates/math_templates.py:14
+msgid "triple integral"
+msgstr "τριπλό ολοκλήρωμα"
+
+#: src/mathessible/templates/math_templates.py:15
+msgid "contour integral"
+msgstr "επικαμπύλιο ολοκλήρωμα"
+
+#: src/mathessible/templates/math_templates.py:16
+msgid "surface integral"
+msgstr "επιφανειακό ολοκλήρωμα"
+
+#: src/mathessible/templates/math_templates.py:17
+msgid "volume integral"
+msgstr "ολοκλήρωμα όγκου"
+
+#: src/mathessible/templates/math_templates.py:25 src/mathessible/templates/structure_edits.py:323
+msgid "angle brackets"
+msgstr "γωνιακές αγκύλες"
+
+#: src/mathessible/templates/math_templates.py:43
+msgid "limit inferior"
+msgstr "κατώτερο όριο (lim inf)"
+
+#: src/mathessible/templates/math_templates.py:44
+msgid "limit superior"
+msgstr "ανώτερο όριο (lim sup)"
+
+#: src/mathessible/templates/math_templates.py:59
+msgid "cube root"
+msgstr "κυβική ρίζα"
+
+#: src/mathessible/templates/math_templates.py:59
+msgid "fourth root"
+msgstr "τέταρτη ρίζα"
+
+#: src/mathessible/templates/math_templates.py:89
+msgid "fraction template, empty numerator"
+msgstr "πρότυπο κλάσματος, κενός αριθμητής"
+
+#: src/mathessible/templates/math_templates.py:96
+msgid "square root template, empty radicand"
+msgstr "πρότυπο τετραγωνικής ρίζας, κενό υπόρριζο"
+
+#: src/mathessible/templates/math_templates.py:108
+msgid "limit template, empty limit condition"
+msgstr "πρότυπο ορίου, κενή συνθήκη ορίου"
+
+#: src/mathessible/templates/math_templates.py:134
+#, python-brace-format
+msgid "{structure}, empty {role}"
+msgstr "{structure}, κενό: {role}"
+
+#: src/mathessible/templates/math_templates.py:142
+#, python-brace-format
+msgid "{structure}, empty radicand"
+msgstr "{structure}, κενό υπόρριζο"
+
+#: src/mathessible/templates/math_templates.py:149
+msgid "empty argument"
+msgstr "κενό όρισμα"
+
+#: src/mathessible/templates/math_templates.py:159 src/mathessible/templates/math_templates.py:166
+#, python-brace-format
+msgid "{function}, empty argument"
+msgstr "{function}, κενό όρισμα"
+
+#: src/mathessible/templates/math_templates.py:253
+msgid "logarithm template, empty base"
+msgstr "πρότυπο λογαρίθμου, κενή βάση"
+
+#: src/mathessible/templates/math_templates.py:266 src/mathessible/templates/math_templates.py:394
+#: src/mathessible/templates/math_templates.py:424
+#, python-brace-format
+msgid "{structure} template, empty {role}"
+msgstr "πρότυπο {structure}, κενό: {role}"
+
+#: src/mathessible/templates/math_templates.py:280
+msgid "root template, empty index"
+msgstr "πρότυπο ρίζας, κενή τάξη"
+
+#: src/mathessible/templates/math_templates.py:292
+msgid "cases template, empty value, case 1"
+msgstr "πρότυπο περιπτώσεων, κενή τιμή, περίπτωση 1"
+
+#: src/mathessible/templates/math_templates.py:299
+msgid "equation array template, empty line 1"
+msgstr "πρότυπο συστήματος εξισώσεων, κενή γραμμή 1"
+
+#: src/mathessible/templates/math_templates.py:306
+msgid "binomial template, empty top"
+msgstr "πρότυπο διωνυμικού συντελεστή, κενό πάνω μέρος"
+
+#: src/mathessible/templates/math_templates.py:318
+#, python-brace-format
+msgid "{structure} template, empty value"
+msgstr "πρότυπο {structure}, κενή τιμή"
+
+#: src/mathessible/templates/math_templates.py:325
+msgid "box template, empty content"
+msgstr "πρότυπο πλαισίου, κενό περιεχόμενο"
+
+#: src/mathessible/templates/math_templates.py:333
+msgid "equation number, empty number"
+msgstr "αριθμός εξίσωσης, κενός αριθμός"
+
+#: src/mathessible/templates/math_templates.py:341
+#, python-brace-format
+msgid "{structure} template, empty content"
+msgstr "πρότυπο {structure}, κενό περιεχόμενο"
+
+#: src/mathessible/templates/math_templates.py:347
+msgid "absolute value template, empty value"
+msgstr "πρότυπο απόλυτης τιμής, κενή τιμή"
+
+#: src/mathessible/templates/math_templates.py:387
+#, python-brace-format
+msgid "{structure} template, empty lower limit"
+msgstr "πρότυπο {structure}, κενό κάτω όριο"
+
+#: src/mathessible/templates/math_templates.py:433
+#, python-brace-format
+msgid "{structure} template, empty base"
+msgstr "πρότυπο {structure}, κενή βάση"
+
+#: src/mathessible/templates/math_templates.py:597
+msgid "equation array"
+msgstr "σύστημα εξισώσεων"
+
+#: src/mathessible/templates/matrix_templates.py:58
+#, python-brace-format
+msgid "{rows} by {columns} determinant template, empty cell, row 1, column 1"
+msgstr "πρότυπο ορίζουσας {rows} επί {columns}, κενό κελί, γραμμή 1, στήλη 1"
+
+#: src/mathessible/templates/matrix_templates.py:60
+#, python-brace-format
+msgid "{rows} by {columns} matrix template, empty cell, row 1, column 1"
+msgstr "πρότυπο πίνακα {rows} επί {columns}, κενό κελί, γραμμή 1, στήλη 1"
+
+#: src/mathessible/templates/matrix_templates.py:130 src/mathessible/templates/matrix_templates.py:189
+#, python-brace-format
+msgid "inserted row {row}"
+msgstr "εισήχθη η γραμμή {row}"
+
+#: src/mathessible/templates/matrix_templates.py:146
+#, python-brace-format
+msgid "inserted column {column}"
+msgstr "εισήχθη η στήλη {column}"
+
+#: src/mathessible/templates/matrix_templates.py:158 src/mathessible/templates/matrix_templates.py:211
+#, python-brace-format
+msgid "deleted row {row}"
+msgstr "διαγράφηκε η γραμμή {row}"
+
+#: src/mathessible/templates/matrix_templates.py:173
+#, python-brace-format
+msgid "deleted column {column}"
+msgstr "διαγράφηκε η στήλη {column}"
+
+#: src/mathessible/templates/matrix_templates.py:193
+#, python-brace-format
+msgid "inserted case {number}, {count}, empty value, case {number}"
+msgstr "εισήχθη η περίπτωση {number}, {count}, κενή τιμή, περίπτωση {number}"
+
+#: src/mathessible/templates/matrix_templates.py:195
+#, python-brace-format
+msgid "inserted equation {number}, {count}, empty equation {number}"
+msgstr "εισήχθη η εξίσωση {number}, {count}, κενή εξίσωση {number}"
+
+#: src/mathessible/templates/matrix_templates.py:215
+#, python-brace-format
+msgid "deleted case {number}, {count}, case {current}"
+msgstr "διαγράφηκε η περίπτωση {number}, {count}, περίπτωση {current}"
+
+#: src/mathessible/templates/matrix_templates.py:217
+#, python-brace-format
+msgid "deleted equation {number}, {count}, equation {current}"
+msgstr "διαγράφηκε η εξίσωση {number}, {count}, εξίσωση {current}"
+
+#: src/mathessible/templates/matrix_templates.py:227
+#, python-brace-format
+msgid "{count} case"
+msgid_plural "{count} cases"
+msgstr[0] "{count} περίπτωση"
+msgstr[1] "{count} περιπτώσεις"
+
+#: src/mathessible/templates/matrix_templates.py:228
+#, python-brace-format
+msgid "{count} equation"
+msgid_plural "{count} equations"
+msgstr[0] "{count} εξίσωση"
+msgstr[1] "{count} εξισώσεις"
+
+#: src/mathessible/templates/matrix_templates.py:281
+#, python-brace-format
+msgid "{rows} by {columns} {structure}"
+msgstr "{structure} {rows} επί {columns}"
+
+#: src/mathessible/templates/matrix_templates.py:284
+msgid "empty cell"
+msgstr "κενό κελί"
+
+#: src/mathessible/templates/structure_edits.py:84
+msgid "root with index, empty index"
+msgstr "ρίζα με τάξη, κενή τάξη"
+
+#: src/mathessible/templates/structure_edits.py:97
+msgid "square root, index removed"
+msgstr "τετραγωνική ρίζα, η τάξη αφαιρέθηκε"
+
+#: src/mathessible/templates/structure_edits.py:150
+#, python-brace-format
+msgid "{structure} with limits, empty lower limit"
+msgstr "{structure} με όρια, κενό κάτω όριο"
+
+#: src/mathessible/templates/structure_edits.py:165
+#, python-brace-format
+msgid "{structure}, limits removed"
+msgstr "{structure}, τα όρια αφαιρέθηκαν"
+
+#: src/mathessible/templates/structure_edits.py:253
+msgid "subscript added, empty subscript"
+msgstr "προστέθηκε δείκτης, κενός δείκτης"
+
+#: src/mathessible/templates/structure_edits.py:262
+msgid "superscript added, empty superscript"
+msgstr "προστέθηκε εκθέτης, κενός εκθέτης"
+
+#: src/mathessible/templates/structure_edits.py:270
+msgid "subscript removed"
+msgstr "ο δείκτης αφαιρέθηκε"
+
+#: src/mathessible/templates/structure_edits.py:278
+msgid "superscript removed"
+msgstr "ο εκθέτης αφαιρέθηκε"
+
+#: src/mathessible/templates/structure_edits.py:321
+msgid "square brackets"
+msgstr "αγκύλες"
+
+#: src/mathessible/templates/structure_edits.py:322
+msgid "braces"
+msgstr "άγκιστρα"
+
+#: src/mathessible/templates/structure_edits.py:324
+msgid "floor"
+msgstr "ακέραιο μέρος κάτω"
+
+#: src/mathessible/templates/structure_edits.py:325
+msgid "ceiling"
+msgstr "ακέραιο μέρος άνω"
+
+#: src/mathessible/templates/structure_edits.py:396
+msgid "brackets removed"
+msgstr "οι παρενθέσεις αφαιρέθηκαν"
+
+#: src/mathessible/templates/structure_edits.py:408
+msgid "closing bracket shown"
+msgstr "η δεξιά παρένθεση εμφανίζεται"
+
+#: src/mathessible/templates/structure_edits.py:408
+msgid "closing bracket hidden"
+msgstr "η δεξιά παρένθεση αποκρύφτηκε"
+
+#: src/mathessible/templates/structure_edits.py:410
+msgid "opening bracket shown"
+msgstr "η αριστερή παρένθεση εμφανίζεται"
+
+#: src/mathessible/templates/structure_edits.py:410
+msgid "opening bracket hidden"
+msgstr "η αριστερή παρένθεση αποκρύφτηκε"
+
+#: src/mathessible/templates/structure_edits.py:429 src/mathessible/templates/structure_gallery.py:192
+msgid "vector arrow"
+msgstr "βέλος διανύσματος"
+
+#: src/mathessible/templates/structure_edits.py:430 src/mathessible/templates/structure_gallery.py:193
+msgid "hat"
+msgstr "καπέλο"
+
+#: src/mathessible/templates/structure_edits.py:431 src/mathessible/templates/structure_gallery.py:194
+msgid "bar"
+msgstr "γραμμή"
+
+#: src/mathessible/templates/structure_edits.py:432 src/mathessible/templates/structure_gallery.py:195
+msgid "dot"
+msgstr "τελεία"
+
+#: src/mathessible/templates/structure_edits.py:433 src/mathessible/templates/structure_gallery.py:196
+msgid "double dot"
+msgstr "διπλή τελεία"
+
+#: src/mathessible/templates/structure_edits.py:434 src/mathessible/templates/structure_gallery.py:197
+msgid "tilde"
+msgstr "περισπωμένη"
+
+#: src/mathessible/templates/structure_edits.py:435 src/mathessible/templates/structure_gallery.py:198
+msgid "check"
+msgstr "ανεστραμμένο καπέλο"
+
+#: src/mathessible/templates/structure_edits.py:436 src/mathessible/templates/structure_gallery.py:199
+msgid "acute"
+msgstr "οξεία"
+
+#: src/mathessible/templates/structure_edits.py:437 src/mathessible/templates/structure_gallery.py:200
+msgid "grave"
+msgstr "βαρεία"
+
+#: src/mathessible/templates/structure_edits.py:438 src/mathessible/templates/structure_gallery.py:201
+msgid "breve"
+msgstr "βραχεία"
+
+#: src/mathessible/templates/structure_edits.py:486
+#, python-brace-format
+msgid "{accent} removed"
+msgstr "αφαιρέθηκε: {accent}"
+
+#: src/mathessible/templates/structure_edits.py:491
+msgid "overbar"
+msgstr "πάνω γραμμή"
+
+#: src/mathessible/templates/structure_edits.py:491
+msgid "underbar"
+msgstr "κάτω γραμμή"
+
+#: src/mathessible/templates/structure_edits.py:523
+#, python-brace-format
+msgid "{bar} removed"
+msgstr "αφαιρέθηκε: {bar}"
+
+#: src/mathessible/templates/structure_gallery.py:54
+#, python-brace-format
+msgid "{accent}: type the base first, then the accent"
+msgstr "{accent}: πληκτρολογήστε πρώτα τη βάση και μετά τον τόνο"
+
+#: src/mathessible/templates/structure_gallery.py:56
+#, python-brace-format
+msgid "{accent} on {base}"
+msgstr "{accent} πάνω από {base}"
+
+#: src/mathessible/templates/structure_gallery.py:66
+#, python-brace-format
+msgid "{matrix}, empty cell, row 1, column 1"
+msgstr "{matrix}, κενό κελί, γραμμή 1, στήλη 1"
+
+#: src/mathessible/templates/structure_gallery.py:73 src/mathessible/templates/structure_gallery.py:250
+msgid "Matrix"
+msgstr "Πίνακας"
+
+#: src/mathessible/templates/structure_gallery.py:73 src/mathessible/ui/braille_signs_dialog.py:58
+msgid "Symbol"
+msgstr "Σύμβολο"
+
+#: src/mathessible/templates/structure_gallery.py:85
+#, python-brace-format
+msgid "{function} template, empty argument"
+msgstr "πρότυπο {function}, κενό όρισμα"
+
+#: src/mathessible/templates/structure_gallery.py:91 src/mathessible/templates/structure_gallery.py:93
+msgid "Fraction"
+msgstr "Κλάσμα"
+
+#: src/mathessible/templates/structure_gallery.py:94
+msgid "Skewed fraction"
+msgstr "Πλάγιο κλάσμα"
+
+#: src/mathessible/templates/structure_gallery.py:94
+msgid "skewed fraction template, empty numerator"
+msgstr "πρότυπο πλάγιου κλάσματος, κενός αριθμητής"
+
+#: src/mathessible/templates/structure_gallery.py:95
+msgid "Linear fraction"
+msgstr "Γραμμικό κλάσμα"
+
+#: src/mathessible/templates/structure_gallery.py:95
+msgid "linear fraction template, empty numerator"
+msgstr "πρότυπο γραμμικού κλάσματος, κενός αριθμητής"
+
+#: src/mathessible/templates/structure_gallery.py:96
+msgid "Small fraction"
+msgstr "Μικρό κλάσμα"
+
+#: src/mathessible/templates/structure_gallery.py:96
+msgid "small fraction template, empty numerator"
+msgstr "πρότυπο μικρού κλάσματος, κενός αριθμητής"
+
+#: src/mathessible/templates/structure_gallery.py:97
+msgid "dy over dx"
+msgstr "dy προς dx"
+
+#: src/mathessible/templates/structure_gallery.py:97
+msgid "d y over d x"
+msgstr "d y προς d x"
+
+#: src/mathessible/templates/structure_gallery.py:98
+msgid "Partial y over partial x"
+msgstr "Μερική y προς μερική x"
+
+#: src/mathessible/templates/structure_gallery.py:98
+msgid "partial y over partial x"
+msgstr "μερική y προς μερική x"
+
+#: src/mathessible/templates/structure_gallery.py:99
+msgid "Delta y over delta x"
+msgstr "Δέλτα y προς δέλτα x"
+
+#: src/mathessible/templates/structure_gallery.py:99
+msgid "delta y over delta x"
+msgstr "δέλτα y προς δέλτα x"
+
+#: src/mathessible/templates/structure_gallery.py:100
+msgid "Pi over 2"
+msgstr "Π προς 2"
+
+#: src/mathessible/templates/structure_gallery.py:100
+msgid "pi over 2"
+msgstr "π προς 2"
+
+#: src/mathessible/templates/structure_gallery.py:104
+msgid "Script"
+msgstr "Δείκτες"
+
+#: src/mathessible/templates/structure_gallery.py:106
+msgid "Subscript"
+msgstr "Δείκτης"
+
+#: src/mathessible/templates/structure_gallery.py:107
+msgid "Superscript"
+msgstr "Εκθέτης"
+
+#: src/mathessible/templates/structure_gallery.py:108
+msgid "Subscript and superscript"
+msgstr "Δείκτης και εκθέτης"
+
+#: src/mathessible/templates/structure_gallery.py:109
+msgid "x squared"
+msgstr "x στο τετράγωνο"
+
+#: src/mathessible/templates/structure_gallery.py:110
+msgid "e to the minus i omega t"
+msgstr "e στη μείον i ωμέγα t"
+
+#: src/mathessible/templates/structure_gallery.py:111
+msgid "x sub y squared"
+msgstr "x δείκτης y στο τετράγωνο"
+
+#: src/mathessible/templates/structure_gallery.py:115
+msgid "Radical"
+msgstr "Ριζικό"
+
+#: src/mathessible/templates/structure_gallery.py:117
+msgid "Square Root"
+msgstr "Τετραγωνική ρίζα"
+
+#: src/mathessible/templates/structure_gallery.py:118
+msgid "Root with Index"
+msgstr "Ρίζα με τάξη"
+
+#: src/mathessible/templates/structure_gallery.py:119
+msgid "Cube root"
+msgstr "Κυβική ρίζα"
+
+#: src/mathessible/templates/structure_gallery.py:119
+msgid "cube root template, empty radicand"
+msgstr "πρότυπο κυβικής ρίζας, κενό υπόρριζο"
+
+#: src/mathessible/templates/structure_gallery.py:120
+msgid "Fourth root"
+msgstr "Τέταρτη ρίζα"
+
+#: src/mathessible/templates/structure_gallery.py:120
+msgid "fourth root template, empty radicand"
+msgstr "πρότυπο τέταρτης ρίζας, κενό υπόρριζο"
+
+#: src/mathessible/templates/structure_gallery.py:121
+msgid "Quadratic formula"
+msgstr "Τύπος δευτεροβάθμιας εξίσωσης"
+
+#: src/mathessible/templates/structure_gallery.py:121
+msgid "quadratic formula"
+msgstr "τύπος δευτεροβάθμιας εξίσωσης"
+
+#: src/mathessible/templates/structure_gallery.py:125
+#: src/mathessible/templates/structure_gallery.py:127
+msgid "Integral"
+msgstr "Ολοκλήρωμα"
+
+#: src/mathessible/templates/structure_gallery.py:128
+msgid "Integral with Limits"
+msgstr "Ολοκλήρωμα με όρια"
+
+#: src/mathessible/templates/structure_gallery.py:129
+msgid "Double Integral"
+msgstr "Διπλό ολοκλήρωμα"
+
+#: src/mathessible/templates/structure_gallery.py:131
+msgid "Double integral with limits"
+msgstr "Διπλό ολοκλήρωμα με όρια"
+
+#: src/mathessible/templates/structure_gallery.py:136
+msgid "Triple integral with limits"
+msgstr "Τριπλό ολοκλήρωμα με όρια"
+
+#: src/mathessible/templates/structure_gallery.py:141
+msgid "Contour integral with limits"
+msgstr "Επικαμπύλιο ολοκλήρωμα με όρια"
+
+#: src/mathessible/templates/structure_gallery.py:144
+msgid "Surface integral"
+msgstr "Επιφανειακό ολοκλήρωμα"
+
+#: src/mathessible/templates/structure_gallery.py:145
+msgid "Volume integral"
+msgstr "Ολοκλήρωμα όγκου"
+
+#: src/mathessible/templates/structure_gallery.py:146
+msgid "Differential dx"
+msgstr "Διαφορικό dx"
+
+#: src/mathessible/templates/structure_gallery.py:146
+msgid "d x"
+msgstr "d x"
+
+#: src/mathessible/templates/structure_gallery.py:147
+msgid "Differential dy"
+msgstr "Διαφορικό dy"
+
+#: src/mathessible/templates/structure_gallery.py:147
+msgid "d y"
+msgstr "d y"
+
+#: src/mathessible/templates/structure_gallery.py:148
+msgid "Differential d theta"
+msgstr "Διαφορικό d θήτα"
+
+#: src/mathessible/templates/structure_gallery.py:148
+msgid "d theta"
+msgstr "d θήτα"
+
+#: src/mathessible/templates/structure_gallery.py:152
+msgid "Large Operator"
+msgstr "Μεγάλος τελεστής"
+
+#: src/mathessible/templates/structure_gallery.py:154
+msgid "Sum"
+msgstr "Άθροισμα"
+
+#: src/mathessible/templates/structure_gallery.py:155
+msgid "Sum with Limits"
+msgstr "Άθροισμα με όρια"
+
+#: src/mathessible/templates/structure_gallery.py:156
+msgid "Product"
+msgstr "Γινόμενο"
+
+#: src/mathessible/templates/structure_gallery.py:157
+msgid "Product with Limits"
+msgstr "Γινόμενο με όρια"
+
+#: src/mathessible/templates/structure_gallery.py:158
+msgid "Coproduct"
+msgstr "Συγγινόμενο"
+
+#: src/mathessible/templates/structure_gallery.py:160
+msgid "Coproduct with limits"
+msgstr "Συγγινόμενο με όρια"
+
+#: src/mathessible/templates/structure_gallery.py:163
+msgid "Union"
+msgstr "Ένωση"
+
+#: src/mathessible/templates/structure_gallery.py:168
+msgid "Bracket"
+msgstr "Παρένθεση"
+
+#: src/mathessible/templates/structure_gallery.py:170
+msgid "Parentheses"
+msgstr "Παρενθέσεις"
+
+#: src/mathessible/templates/structure_gallery.py:170
+msgid "parentheses, empty"
+msgstr "παρενθέσεις, κενές"
+
+#: src/mathessible/templates/structure_gallery.py:171
+msgid "Square brackets"
+msgstr "Αγκύλες"
+
+#: src/mathessible/templates/structure_gallery.py:171
+msgid "square brackets, empty"
+msgstr "αγκύλες, κενές"
+
+#: src/mathessible/templates/structure_gallery.py:172
+msgid "Braces"
+msgstr "Άγκιστρα"
+
+#: src/mathessible/templates/structure_gallery.py:172
+msgid "braces, empty"
+msgstr "άγκιστρα, κενά"
+
+#: src/mathessible/templates/structure_gallery.py:173
+msgid "Angle Brackets"
+msgstr "Γωνιακές αγκύλες"
+
+#: src/mathessible/templates/structure_gallery.py:174
+msgid "Absolute Value"
+msgstr "Απόλυτη τιμή"
+
+#: src/mathessible/templates/structure_gallery.py:175
+msgid "Norm"
+msgstr "Νόρμα"
+
+#: src/mathessible/templates/structure_gallery.py:176
+msgid "Floor"
+msgstr "Ακέραιο μέρος κάτω"
+
+#: src/mathessible/templates/structure_gallery.py:177
+msgid "Ceiling"
+msgstr "Ακέραιο μέρος άνω"
+
+#: src/mathessible/templates/structure_gallery.py:178
+msgid "Binomial"
+msgstr "Διωνυμικός συντελεστής"
+
+#: src/mathessible/templates/structure_gallery.py:179
+msgid "Cases"
+msgstr "Περιπτώσεις"
+
+#: src/mathessible/templates/structure_gallery.py:183 src/mathessible/ui/functions_dialog.py:43
+msgid "Function"
+msgstr "Συνάρτηση"
+
+#: src/mathessible/templates/structure_gallery.py:190
+msgid "Accent"
+msgstr "Τόνος"
+
+#: src/mathessible/templates/structure_gallery.py:192
+msgid "Vector arrow"
+msgstr "Βέλος διανύσματος"
+
+#: src/mathessible/templates/structure_gallery.py:193
+msgid "Hat"
+msgstr "Καπέλο"
+
+#: src/mathessible/templates/structure_gallery.py:194
+msgid "Bar"
+msgstr "Γραμμή"
+
+#: src/mathessible/templates/structure_gallery.py:195
+msgid "Dot"
+msgstr "Τελεία"
+
+#: src/mathessible/templates/structure_gallery.py:196
+msgid "Double dot"
+msgstr "Διπλή τελεία"
+
+#: src/mathessible/templates/structure_gallery.py:197
+msgid "Tilde"
+msgstr "Περισπωμένη"
+
+#: src/mathessible/templates/structure_gallery.py:198
+msgid "Check"
+msgstr "Ανεστραμμένο καπέλο"
+
+#: src/mathessible/templates/structure_gallery.py:199
+msgid "Acute"
+msgstr "Οξεία"
+
+#: src/mathessible/templates/structure_gallery.py:200
+msgid "Grave"
+msgstr "Βαρεία"
+
+#: src/mathessible/templates/structure_gallery.py:201
+msgid "Breve"
+msgstr "Βραχεία"
+
+#: src/mathessible/templates/structure_gallery.py:202
+msgid "Overbar"
+msgstr "Πάνω γραμμή"
+
+#: src/mathessible/templates/structure_gallery.py:202
+msgid "overbar template, empty content"
+msgstr "πρότυπο πάνω γραμμής, κενό περιεχόμενο"
+
+#: src/mathessible/templates/structure_gallery.py:203
+msgid "Underbar"
+msgstr "Κάτω γραμμή"
+
+#: src/mathessible/templates/structure_gallery.py:203
+msgid "underbar template, empty content"
+msgstr "πρότυπο κάτω γραμμής, κενό περιεχόμενο"
+
+#: src/mathessible/templates/structure_gallery.py:206
+msgid "Box"
+msgstr "Πλαίσιο"
+
+#: src/mathessible/templates/structure_gallery.py:210
+msgid "Limit and Log"
+msgstr "Όριο και λογάριθμος"
+
+#: src/mathessible/templates/structure_gallery.py:212
+msgid "Limit"
+msgstr "Όριο"
+
+#: src/mathessible/templates/structure_gallery.py:214
+msgid "Limit as n goes to infinity"
+msgstr "Όριο καθώς το n τείνει στο άπειρο"
+
+#: src/mathessible/templates/structure_gallery.py:215
+msgid "limit as n goes to infinity, empty argument"
+msgstr "όριο καθώς το n τείνει στο άπειρο, κενό όρισμα"
+
+#: src/mathessible/templates/structure_gallery.py:218
+msgid "Limit inferior"
+msgstr "Κατώτερο όριο (lim inf)"
+
+#: src/mathessible/templates/structure_gallery.py:219
+msgid "limit inferior template, empty limit condition"
+msgstr "πρότυπο lim inf, κενή συνθήκη ορίου"
+
+#: src/mathessible/templates/structure_gallery.py:222
+msgid "Limit superior"
+msgstr "Ανώτερο όριο (lim sup)"
+
+#: src/mathessible/templates/structure_gallery.py:223
+msgid "limit superior template, empty limit condition"
+msgstr "πρότυπο lim sup, κενή συνθήκη ορίου"
+
+#: src/mathessible/templates/structure_gallery.py:225
+msgid "Logarithm"
+msgstr "Λογάριθμος"
+
+#: src/mathessible/templates/structure_gallery.py:231
+msgid "Operator"
+msgstr "Τελεστής"
+
+#: src/mathessible/templates/structure_gallery.py:233
+msgid "Arrow with Text Above"
+msgstr "Βέλος με κείμενο πάνω"
+
+#: src/mathessible/templates/structure_gallery.py:234
+msgid "Arrow with Text Below"
+msgstr "Βέλος με κείμενο κάτω"
+
+#: src/mathessible/templates/structure_gallery.py:235
+msgid "Equals with Text Above"
+msgstr "Ίσον με κείμενο πάνω"
+
+#: src/mathessible/templates/structure_gallery.py:237
+msgid "Left arrow with text above"
+msgstr "Αριστερό βέλος με κείμενο πάνω"
+
+#: src/mathessible/templates/structure_gallery.py:241
+msgid "Double arrow with text above"
+msgstr "Διπλό βέλος με κείμενο πάνω"
+
+#: src/mathessible/templates/structure_gallery.py:244
+msgid "Colon equals"
+msgstr "Άνω και κάτω τελεία ίσον"
+
+#: src/mathessible/templates/structure_gallery.py:244
+msgid "colon equals"
+msgstr "άνω και κάτω τελεία ίσον"
+
+#: src/mathessible/templates/structure_gallery.py:245
+msgid "Equal by definition"
+msgstr "Ίσον εξ ορισμού"
+
+#: src/mathessible/templates/structure_gallery.py:245
+msgid "equal by definition"
+msgstr "ίσον εξ ορισμού"
+
+#: src/mathessible/templates/structure_gallery.py:246
+msgid "Delta equals"
+msgstr "Δέλτα ίσον"
+
+#: src/mathessible/templates/structure_gallery.py:246
+msgid "delta equals"
+msgstr "δέλτα ίσον"
+
+#: src/mathessible/templates/structure_gallery.py:253
+msgid "1 by 2 matrix"
+msgstr "Πίνακας 1 επί 2"
+
+#: src/mathessible/templates/structure_gallery.py:254
+msgid "2 by 1 matrix"
+msgstr "Πίνακας 2 επί 1"
+
+#: src/mathessible/templates/structure_gallery.py:255
+msgid "2 by 2 matrix"
+msgstr "Πίνακας 2 επί 2"
+
+#: src/mathessible/templates/structure_gallery.py:256
+msgid "2 by 2 matrix in brackets"
+msgstr "Πίνακας 2 επί 2 σε αγκύλες"
+
+#: src/mathessible/templates/structure_gallery.py:257
+msgid "2 by 2 determinant"
+msgstr "Ορίζουσα 2 επί 2"
+
+#: src/mathessible/templates/structure_gallery.py:258
+msgid "3 by 3 matrix"
+msgstr "Πίνακας 3 επί 3"
+
+#: src/mathessible/templates/structure_gallery.py:259
+msgid "2 by 2 identity matrix"
+msgstr "Μοναδιαίος πίνακας 2 επί 2"
+
+#: src/mathessible/templates/structure_gallery.py:260
+msgid "Equation Array"
+msgstr "Σύστημα εξισώσεων"
+
+#: src/mathessible/templates/structure_gallery.py:264
+msgid "Other"
+msgstr "Άλλα"
+
+#: src/mathessible/templates/structure_gallery.py:266
+msgid "Equation Number"
+msgstr "Αριθμός εξίσωσης"
+
+#: src/mathessible/templates/structure_gallery.py:274
+msgid "My Equations"
+msgstr "Οι εξισώσεις μου"
+
+#: src/mathessible/templates/structure_gallery.py:291
+msgid "scripts template, empty subscript"
+msgstr "πρότυπο δεικτών, κενός δείκτης"
+
+#: src/mathessible/templates/structure_gallery.py:294
+msgid "scripts template, empty base"
+msgstr "πρότυπο δεικτών, κενή βάση"
+
+#: src/mathessible/ui/autocorrect_dialog.py:31
+msgid "Math AutoCorrect"
+msgstr "Αυτόματη διόρθωση μαθηματικών"
+
+#: src/mathessible/ui/autocorrect_dialog.py:32
+msgid "Math AutoCorrect dialog"
+msgstr "Παράθυρο διαλόγου Αυτόματη διόρθωση μαθηματικών"
+
+#: src/mathessible/ui/autocorrect_dialog.py:40 src/mathessible/ui/autocorrect_dialog.py:107
+#: src/mathessible/ui/braille_signs_dialog.py:131
+msgid "&Replace"
+msgstr "&Αντικατάσταση"
+
+#: src/mathessible/ui/autocorrect_dialog.py:42 src/mathessible/ui/main_frame.py:472
+msgid "Replace"
+msgstr "Αντικατάσταση"
+
+#: src/mathessible/ui/autocorrect_dialog.py:43
+msgid "&With"
+msgstr "&Με"
+
+#: src/mathessible/ui/autocorrect_dialog.py:45
+msgid "With"
+msgstr "Με"
+
+#: src/mathessible/ui/autocorrect_dialog.py:50
+msgid "&Entries"
+msgstr "&Καταχωρίσεις"
+
+#: src/mathessible/ui/autocorrect_dialog.py:52
+msgid "Math AutoCorrect entries"
+msgstr "Καταχωρίσεις αυτόματης διόρθωσης μαθηματικών"
+
+#: src/mathessible/ui/autocorrect_dialog.py:54 src/mathessible/ui/autocorrect_dialog.py:107
+#: src/mathessible/ui/braille_signs_dialog.py:70 src/mathessible/ui/braille_signs_dialog.py:131
+#: src/mathessible/ui/functions_dialog.py:48
+msgid "&Add"
+msgstr "&Προσθήκη"
+
+#: src/mathessible/ui/autocorrect_dialog.py:55 src/mathessible/ui/braille_signs_dialog.py:71
+#: src/mathessible/ui/functions_dialog.py:49 src/mathessible/ui/gallery_dialog.py:56
+#: src/mathessible/ui/main_frame.py:220
+msgid "&Delete"
+msgstr "&Διαγραφή"
+
+#: src/mathessible/ui/autocorrect_dialog.py:56 src/mathessible/ui/functions_dialog.py:50
+msgid "Reset to De&faults"
+msgstr "Επαναφορά &προεπιλογών"
+
+#: src/mathessible/ui/braille_signs_dialog.py:36
+#, python-brace-format
+msgid "Braille signs: {code}"
+msgstr "Σημεία braille: {code}"
+
+#: src/mathessible/ui/braille_signs_dialog.py:39
+msgid "Braille signs dialog"
+msgstr "Παράθυρο διαλόγου Σημεία braille"
+
+#: src/mathessible/ui/braille_signs_dialog.py:48
+#, python-brace-format
+msgid ""
+"Your own braille for symbols in {code}; each replaces the code's sign. Symbol: the character, a "
+"control word (\\sqsubset) or a code (U+228F). Braille: cells, or dot numbers with hyphens between"
+" cells (4-456-126)."
+msgstr ""
+"Το δικό σας braille για σύμβολα στον κώδικα {code}· καθένα αντικαθιστά το σημείο του κώδικα. "
+"Σύμβολο: ο χαρακτήρας, μια λέξη ελέγχου (\\sqsubset) ή ένας κωδικός (U+228F). Braille: κελιά ή "
+"αριθμοί κουκκίδων με παύλες ανάμεσα στα κελιά (4-456-126)."
+
+#: src/mathessible/ui/braille_signs_dialog.py:56
+msgid "S&ymbol"
+msgstr "&Σύμβολο"
+
+#: src/mathessible/ui/braille_signs_dialog.py:59
+msgid "&Braille"
+msgstr "&Braille"
+
+#: src/mathessible/ui/braille_signs_dialog.py:66
+msgid "&Signs"
+msgstr "Σ&ημεία"
+
+#: src/mathessible/ui/braille_signs_dialog.py:68
+msgid "Braille signs"
+msgstr "Σημεία braille"
+
+#: src/mathessible/ui/braille_signs_dialog.py:107
+#, python-brace-format
+msgid "{symbol}  {name}: {cells} (dots {dots})"
+msgstr "{symbol}  {name}: {cells} (κουκκίδες {dots})"
+
+#: src/mathessible/ui/document_editor.py:62
+msgid "Equation Editor"
+msgstr "Επεξεργαστής εξισώσεων"
+
+#: src/mathessible/ui/document_editor.py:67
+msgid "Equation Editor window"
+msgstr "Παράθυρο Επεξεργαστής εξισώσεων"
+
+#: src/mathessible/ui/document_editor.py:74
+#, python-brace-format
+msgid "Enter or {shortcut} saves. Escape cancels."
+msgstr "Το Enter ή το {shortcut} αποθηκεύει. Το Escape ακυρώνει."
+
+#: src/mathessible/ui/document_editor.py:89
+msgid "&Save Equation (Enter)"
+msgstr "&Αποθήκευση εξίσωσης (Enter)"
+
+#: src/mathessible/ui/document_editor.py:90
+msgid "&Cancel (Escape)"
+msgstr "Ά&κυρο (Escape)"
+
+#: src/mathessible/ui/document_editor.py:94
+msgid "&Errors…"
+msgstr "&Σφάλματα…"
+
+#: src/mathessible/ui/document_editor.py:96
+msgid "Save as &New Equation…"
+msgstr "Αποθήκευση ως &νέα εξίσωση…"
+
+#: src/mathessible/ui/document_editor.py:98 src/mathessible/ui/document_editor.py:103
+msgid "Change to &Display"
+msgstr "Αλλαγή σε αυτ&όνομη"
+
+#: src/mathessible/ui/document_editor.py:103
+msgid "Change to &Inline"
+msgstr "Αλλαγή σε &ενσωματωμένη"
+
+#: src/mathessible/ui/document_editor.py:107
+msgid "E&quation"
+msgstr "Ε&ξίσωση"
+
+#: src/mathessible/ui/document_editor.py:110 src/mathessible/ui/main_frame.py:214
+msgid "&Undo"
+msgstr "&Αναίρεση"
+
+#: src/mathessible/ui/document_editor.py:111 src/mathessible/ui/main_frame.py:215
+msgid "&Redo"
+msgstr "Ε&πανάληψη"
+
+#: src/mathessible/ui/document_editor.py:131 src/mathessible/ui/main_frame.py:237
+msgid "&Edit"
+msgstr "&Επεξεργασία"
+
+#: src/mathessible/ui/document_editor.py:138
+msgid "&Professional View"
+msgstr "&Επαγγελματική προβολή"
+
+#: src/mathessible/ui/document_editor.py:139
+msgid "&Writing Mode"
+msgstr "Λειτουργία &γραφής"
+
+#: src/mathessible/ui/document_editor.py:141
+msgid "Zoom &In"
+msgstr "Μεγέ&θυνση"
+
+#: src/mathessible/ui/document_editor.py:142
+msgid "Zoom &Out"
+msgstr "Σμί&κρυνση"
+
+#: src/mathessible/ui/document_editor.py:143
+msgid "&Actual Size"
+msgstr "&Πραγματικό μέγεθος"
+
+#: src/mathessible/ui/document_editor.py:155 src/mathessible/ui/main_frame.py:241
+msgid "&View"
+msgstr "&Προβολή"
+
+#: src/mathessible/ui/document_editor.py:179 src/mathessible/ui/document_editor.py:364
+msgid "display equation"
+msgstr "αυτόνομη εξίσωση"
+
+#: src/mathessible/ui/document_editor.py:179 src/mathessible/ui/document_editor.py:364
+msgid "inline equation"
+msgstr "ενσωματωμένη εξίσωση"
+
+#: src/mathessible/ui/document_editor.py:186
+#, python-brace-format
+msgid "Edit display equation — Enter or {shortcut} saves. Escape cancels."
+msgstr "Επεξεργασία αυτόνομης εξίσωσης — Το Enter ή το {shortcut} αποθηκεύει. Το Escape ακυρώνει."
+
+#: src/mathessible/ui/document_editor.py:188
+#, python-brace-format
+msgid "Edit inline equation — Enter or {shortcut} saves. Escape cancels."
+msgstr "Επεξεργασία ενσωματωμένης εξίσωσης — Το Enter ή το {shortcut} αποθηκεύει. Το Escape ακυρώνει."
+
+#: src/mathessible/ui/document_editor.py:265
+msgid "Markdown editor"
+msgstr "Επεξεργαστής Markdown"
+
+#: src/mathessible/ui/document_editor.py:356
+msgid "this equation cannot be inline"
+msgstr "αυτή η εξίσωση δεν μπορεί να είναι ενσωματωμένη"
+
+#: src/mathessible/ui/document_editor.py:463
+msgid "equation saved, new line"
+msgstr "η εξίσωση αποθηκεύτηκε, νέα γραμμή"
+
+#: src/mathessible/ui/document_editor.py:463
+msgid "equation saved"
+msgstr "η εξίσωση αποθηκεύτηκε"
+
+#: src/mathessible/ui/document_editor.py:466
+msgid "equation editing canceled"
+msgstr "η επεξεργασία της εξίσωσης ακυρώθηκε"
+
+#: src/mathessible/ui/error_dialog.py:20
+#, python-brace-format
+msgid "Errors ({count})"
+msgstr "Σφάλματα ({count})"
+
+#: src/mathessible/ui/error_dialog.py:23
+msgid "Equation errors dialog"
+msgstr "Παράθυρο διαλόγου Σφάλματα εξίσωσης"
+
+#: src/mathessible/ui/error_dialog.py:28
+#, python-brace-format
+msgid "&{count} error; Enter goes to the error"
+msgid_plural "&{count} errors; Enter goes to the error"
+msgstr[0] "&{count} σφάλμα· το Enter μεταβαίνει στο σφάλμα"
+msgstr[1] "&{count} σφάλματα· το Enter μεταβαίνει στο σφάλμα"
+
+#: src/mathessible/ui/error_dialog.py:32
+msgid "Errors"
+msgstr "Σφάλματα"
+
+#: src/mathessible/ui/error_dialog.py:42
+msgid "&Go to Error"
+msgstr "&Μετάβαση στο σφάλμα"
+
+#: src/mathessible/ui/export_controls.py:41
+msgid "&Top"
+msgstr "&Πάνω"
+
+#: src/mathessible/ui/export_controls.py:41
+msgid "Top margin (mm)"
+msgstr "Πάνω περιθώριο (mm)"
+
+#: src/mathessible/ui/export_controls.py:42
+msgid "&Right"
+msgstr "&Δεξιά"
+
+#: src/mathessible/ui/export_controls.py:42
+msgid "Right margin (mm)"
+msgstr "Δεξί περιθώριο (mm)"
+
+#: src/mathessible/ui/export_controls.py:43
+msgid "&Bottom"
+msgstr "&Κάτω"
+
+#: src/mathessible/ui/export_controls.py:43
+msgid "Bottom margin (mm)"
+msgstr "Κάτω περιθώριο (mm)"
+
+#: src/mathessible/ui/export_controls.py:44
+msgid "&Left"
+msgstr "&Αριστερά"
+
+#: src/mathessible/ui/export_controls.py:44
+msgid "Left margin (mm)"
+msgstr "Αριστερό περιθώριο (mm)"
+
+#: src/mathessible/ui/export_controls.py:111 src/mathessible/ui/export_controls.py:287
+msgid "&Paper"
+msgstr "&Χαρτί"
+
+#: src/mathessible/ui/export_controls.py:111 src/mathessible/ui/export_controls.py:287
+msgid "Paper"
+msgstr "Χαρτί"
+
+#: src/mathessible/ui/export_controls.py:120 src/mathessible/ui/export_controls.py:296
+msgid "Margins (mm)"
+msgstr "Περιθώρια (mm)"
+
+#: src/mathessible/ui/export_controls.py:121
+msgid "Colu&mns"
+msgstr "Σ&τήλες"
+
+#: src/mathessible/ui/export_controls.py:121 src/mathessible/ui/matrix_dialog.py:36
+msgid "Columns"
+msgstr "Στήλες"
+
+#: src/mathessible/ui/export_controls.py:124 src/mathessible/ui/export_controls.py:267
+#: src/mathessible/ui/export_controls.py:298
+msgid "&Font"
+msgstr "&Γραμματοσειρά"
+
+#: src/mathessible/ui/export_controls.py:124 src/mathessible/ui/export_controls.py:267
+#: src/mathessible/ui/export_controls.py:298
+msgid "Font"
+msgstr "Γραμματοσειρά"
+
+#: src/mathessible/ui/export_controls.py:128 src/mathessible/ui/export_controls.py:302
+msgid "Font si&ze (pt)"
+msgstr "&Μέγεθος γραμματοσειράς (pt)"
+
+#: src/mathessible/ui/export_controls.py:128 src/mathessible/ui/export_controls.py:302
+msgid "Font size"
+msgstr "Μέγεθος γραμματοσειράς"
+
+#: src/mathessible/ui/export_controls.py:131
+msgid "Line s&pacing (em)"
+msgstr "Διά&στιχο (em)"
+
+#: src/mathessible/ui/export_controls.py:133 src/mathessible/ui/export_controls.py:305
+msgid "Line spacing"
+msgstr "Διάστιχο"
+
+#: src/mathessible/ui/export_controls.py:136 src/mathessible/ui/export_controls.py:307
+msgid "Lan&dscape"
+msgstr "&Οριζόντια"
+
+#: src/mathessible/ui/export_controls.py:136 src/mathessible/ui/export_controls.py:307
+msgid "Landscape"
+msgstr "Οριζόντια"
+
+#: src/mathessible/ui/export_controls.py:137 src/mathessible/ui/export_controls.py:308
+msgid "&Justify the text"
+msgstr "&Πλήρης στοίχιση του κειμένου"
+
+#: src/mathessible/ui/export_controls.py:137 src/mathessible/ui/export_controls.py:308
+msgid "Justify the text"
+msgstr "Πλήρης στοίχιση του κειμένου"
+
+#: src/mathessible/ui/export_controls.py:156
+msgid "Page number p&osition"
+msgstr "&Θέση αριθμού σελίδας"
+
+#: src/mathessible/ui/export_controls.py:158
+msgid "Page number position"
+msgstr "Θέση αριθμού σελίδας"
+
+#: src/mathessible/ui/export_controls.py:161
+msgid "Heading n&umbers"
+msgstr "Αρίθμηση &επικεφαλίδων"
+
+#: src/mathessible/ui/export_controls.py:163
+msgid "Heading numbers"
+msgstr "Αρίθμηση επικεφαλίδων"
+
+#: src/mathessible/ui/export_controls.py:166
+msgid "E&quation numbers"
+msgstr "Αρίθμηση ε&ξισώσεων"
+
+#: src/mathessible/ui/export_controls.py:168
+msgid "Equation numbers"
+msgstr "Αρίθμηση εξισώσεων"
+
+#: src/mathessible/ui/export_controls.py:171
+msgid "Te&xt colour"
+msgstr "Χρώμα &κειμένου"
+
+#: src/mathessible/ui/export_controls.py:171
+msgid "Text colour"
+msgstr "Χρώμα κειμένου"
+
+#: src/mathessible/ui/export_controls.py:174
+msgid "Headin&g colour"
+msgstr "Χρώμα ε&πικεφαλίδων"
+
+#: src/mathessible/ui/export_controls.py:174
+msgid "Heading colour"
+msgstr "Χρώμα επικεφαλίδων"
+
+#: src/mathessible/ui/export_controls.py:177
+msgid "L&ink colour"
+msgstr "Χρώμα &συνδέσμων"
+
+#: src/mathessible/ui/export_controls.py:177
+msgid "Link colour"
+msgstr "Χρώμα συνδέσμων"
+
+#: src/mathessible/ui/export_controls.py:179 src/mathessible/ui/export_controls.py:238
+#: src/mathessible/ui/export_controls.py:309
+msgid "Number the pages"
+msgstr "Αρίθμηση σελίδων"
+
+#: src/mathessible/ui/export_controls.py:179 src/mathessible/ui/export_controls.py:309
+msgid "&Number the pages"
+msgstr "&Αρίθμηση σελίδων"
+
+#: src/mathessible/ui/export_controls.py:181
+msgid "Table of &contents (from the headings)"
+msgstr "&Πίνακας περιεχομένων (από τις επικεφαλίδες)"
+
+#: src/mathessible/ui/export_controls.py:181 src/mathessible/ui/export_controls.py:273
+#: src/mathessible/ui/export_controls.py:312
+msgid "Table of contents"
+msgstr "Πίνακας περιεχομένων"
+
+#: src/mathessible/ui/export_controls.py:184
+msgid "Attach the Markdown &source (the PDF can be opened in Mathessible again)"
+msgstr "Επισύναψη του πηγαίου κώδικα &Markdown (το PDF μπορεί να ανοίξει ξανά στο Mathessible)"
+
+#: src/mathessible/ui/export_controls.py:185
+msgid "Attach the Markdown source"
+msgstr "Επισύναψη του πηγαίου κώδικα Markdown"
+
+#: src/mathessible/ui/export_controls.py:209
+msgid "&Standard"
+msgstr "&Πρότυπο"
+
+#: src/mathessible/ui/export_controls.py:209
+msgid "PDF standard"
+msgstr "Πρότυπο PDF"
+
+#: src/mathessible/ui/export_controls.py:222
+msgid "&Text braille table"
+msgstr "Πίνακας braille &κειμένου"
+
+#: src/mathessible/ui/export_controls.py:224
+msgid "Text braille table"
+msgstr "Πίνακας braille κειμένου"
+
+#: src/mathessible/ui/export_controls.py:231
+msgid "&Cells per line"
+msgstr "&Κελιά ανά γραμμή"
+
+#: src/mathessible/ui/export_controls.py:231
+msgid "Cells per line"
+msgstr "Κελιά ανά γραμμή"
+
+#: src/mathessible/ui/export_controls.py:234
+msgid "&Lines per page"
+msgstr "&Γραμμές ανά σελίδα"
+
+#: src/mathessible/ui/export_controls.py:234
+msgid "Lines per page"
+msgstr "Γραμμές ανά σελίδα"
+
+#: src/mathessible/ui/export_controls.py:237
+msgid "&Number the pages (at the right of each page's last line, as braille formats require)"
+msgstr "&Αρίθμηση σελίδων (δεξιά στην τελευταία γραμμή κάθε σελίδας, όπως απαιτούν οι μορφές braille)"
+
+#: src/mathessible/ui/export_controls.py:255
+msgid "&Equations in"
+msgstr "&Εξισώσεις σε"
+
+#: src/mathessible/ui/export_controls.py:257
+msgid "Braille code for the equations"
+msgstr "Κώδικας braille για τις εξισώσεις"
+
+#: src/mathessible/ui/export_controls.py:269
+msgid "&Colours"
+msgstr "&Χρώματα"
+
+#: src/mathessible/ui/export_controls.py:269
+msgid "Colours"
+msgstr "Χρώματα"
+
+#: src/mathessible/ui/export_controls.py:272
+msgid "Table of &contents (the pages of a notebook, the headings of a document)"
+msgstr "&Πίνακας περιεχομένων (οι σελίδες ενός σημειωματαρίου, οι επικεφαλίδες ενός εγγράφου)"
+
+#: src/mathessible/ui/export_controls.py:305
+msgid "Line s&pacing"
+msgstr "Διά&στιχο"
+
+#: src/mathessible/ui/export_controls.py:311
+msgid "Table of &contents (Word fills it in when the document is opened)"
+msgstr "&Πίνακας περιεχομένων (το Word τον συμπληρώνει όταν ανοίγει το έγγραφο)"
+
+#: src/mathessible/ui/export_dialogs.py:44
+msgid "Save as &Defaults"
+msgstr "Αποθήκευση ως &προεπιλογή"
+
+#: src/mathessible/ui/export_dialogs.py:46
+msgid "E&xport"
+msgstr "Ε&ξαγωγή"
+
+#: src/mathessible/ui/export_dialogs.py:57
+msgid "&Open the file once exported"
+msgstr "Ά&νοιγμα του αρχείου μετά την εξαγωγή"
+
+#: src/mathessible/ui/export_dialogs.py:58
+msgid "Open the file once exported"
+msgstr "Άνοιγμα του αρχείου μετά την εξαγωγή"
+
+#: src/mathessible/ui/export_dialogs.py:63
+msgid "Save as Defaults"
+msgstr "Αποθήκευση ως προεπιλογή"
+
+#: src/mathessible/ui/export_dialogs.py:70
+#, python-brace-format
+msgid "{title} dialog"
+msgstr "Παράθυρο διαλόγου {title}"
+
+#: src/mathessible/ui/export_dialogs.py:97
+msgid "These options are now the defaults."
+msgstr "Αυτές οι επιλογές είναι τώρα οι προεπιλογές."
+
+#: src/mathessible/ui/export_dialogs.py:103 src/mathessible/ui/main_frame.py:950
+msgid "Export as BRF"
+msgstr "Εξαγωγή ως BRF"
+
+#: src/mathessible/ui/export_dialogs.py:123 src/mathessible/ui/main_frame.py:943
+msgid "Export as HTML"
+msgstr "Εξαγωγή ως HTML"
+
+#: src/mathessible/ui/export_dialogs.py:125 src/mathessible/ui/export_dialogs.py:158
+#: src/mathessible/ui/pdf_dialog.py:46
+msgid "&Title"
+msgstr "&Τίτλος"
+
+#: src/mathessible/ui/export_dialogs.py:125 src/mathessible/ui/export_dialogs.py:158
+#: src/mathessible/ui/pdf_dialog.py:46
+msgid "Title"
+msgstr "Τίτλος"
+
+#: src/mathessible/ui/export_dialogs.py:126 src/mathessible/ui/export_dialogs.py:159
+#: src/mathessible/ui/pdf_dialog.py:47
+msgid "&Author"
+msgstr "&Συντάκτης"
+
+#: src/mathessible/ui/export_dialogs.py:126 src/mathessible/ui/export_dialogs.py:159
+#: src/mathessible/ui/pdf_dialog.py:47
+msgid "Author"
+msgstr "Συντάκτης"
+
+#: src/mathessible/ui/export_dialogs.py:127
+msgid "D&escription"
+msgstr "&Περιγραφή"
+
+#: src/mathessible/ui/export_dialogs.py:127
+msgid "Description"
+msgstr "Περιγραφή"
+
+#: src/mathessible/ui/export_dialogs.py:128 src/mathessible/ui/export_dialogs.py:164
+#: src/mathessible/ui/pdf_dialog.py:52
+msgid "&Language (for example ro, en)"
+msgstr "&Γλώσσα (για παράδειγμα ro, en)"
+
+#: src/mathessible/ui/export_dialogs.py:128 src/mathessible/ui/export_dialogs.py:164
+#: src/mathessible/ui/pdf_dialog.py:52 src/mathessible/ui/settings_dialog.py:69
+msgid "Language"
+msgstr "Γλώσσα"
+
+#: src/mathessible/ui/export_dialogs.py:156 src/mathessible/ui/main_frame.py:947
+msgid "Export as Word Document"
+msgstr "Εξαγωγή ως έγγραφο Word"
+
+#: src/mathessible/ui/export_dialogs.py:160 src/mathessible/ui/pdf_dialog.py:48
+msgid "&Subject"
+msgstr "&Θέμα"
+
+#: src/mathessible/ui/export_dialogs.py:160 src/mathessible/ui/pdf_dialog.py:48
+msgid "Subject"
+msgstr "Θέμα"
+
+#: src/mathessible/ui/export_dialogs.py:162 src/mathessible/ui/pdf_dialog.py:50
+msgid "&Keywords (comma-separated)"
+msgstr "&Λέξεις-κλειδιά (χωρισμένες με κόμματα)"
+
+#: src/mathessible/ui/export_dialogs.py:162 src/mathessible/ui/pdf_dialog.py:50
+msgid "Keywords"
+msgstr "Λέξεις-κλειδιά"
+
+#: src/mathessible/ui/functions_dialog.py:25
+msgid "Recognized Functions"
+msgstr "Αναγνωρισμένες συναρτήσεις"
+
+#: src/mathessible/ui/functions_dialog.py:26
+msgid "Recognized functions dialog"
+msgstr "Παράθυρο διαλόγου Αναγνωρισμένες συναρτήσεις"
+
+#: src/mathessible/ui/functions_dialog.py:35
+msgid ""
+"Space after a recognized function opens its argument, and the function is navigated as its name "
+"and argument, as in Word."
+msgstr ""
+"Ένα διάστημα μετά από αναγνωρισμένη συνάρτηση ανοίγει το όρισμά της, και η συνάρτηση πλοηγείται "
+"ως όνομα και όρισμα, όπως στο Word."
+
+#: src/mathessible/ui/functions_dialog.py:41
+msgid "&Function"
+msgstr "&Συνάρτηση"
+
+#: src/mathessible/ui/functions_dialog.py:44
+msgid "&Recognized functions"
+msgstr "&Αναγνωρισμένες συναρτήσεις"
+
+#: src/mathessible/ui/functions_dialog.py:46
+msgid "Recognized functions"
+msgstr "Αναγνωρισμένες συναρτήσεις"
+
+#: src/mathessible/ui/gallery_dialog.py:37
+msgid "Insert Structure"
+msgstr "Εισαγωγή δομής"
+
+#: src/mathessible/ui/gallery_dialog.py:38
+msgid "Insert structure dialog"
+msgstr "Παράθυρο διαλόγου Εισαγωγή δομής"
+
+#: src/mathessible/ui/gallery_dialog.py:47
+msgid "&Category"
+msgstr "&Κατηγορία"
+
+#: src/mathessible/ui/gallery_dialog.py:49
+msgid "Category"
+msgstr "Κατηγορία"
+
+#: src/mathessible/ui/gallery_dialog.py:50
+msgid "&Structure"
+msgstr "&Δομή"
+
+#: src/mathessible/ui/gallery_dialog.py:52
+msgid "Structure"
+msgstr "Δομή"
+
+#: src/mathessible/ui/gallery_dialog.py:53
+msgid "&Written as"
+msgstr "&Γράφεται ως"
+
+#: src/mathessible/ui/gallery_dialog.py:55
+msgid "Written as"
+msgstr "Γράφεται ως"
+
+#: src/mathessible/ui/gallery_dialog.py:120
+msgid "opens a dialog"
+msgstr "ανοίγει παράθυρο διαλόγου"
+
+#: src/mathessible/ui/gallery_dialog.py:144
+#, python-brace-format
+msgid "Delete “{name}” from My Equations?"
+msgstr "Διαγραφή του «{name}» από τις Εξισώσεις μου;"
+
+#: src/mathessible/ui/gallery_dialog.py:145
+msgid "Delete Equation"
+msgstr "Διαγραφή εξίσωσης"
+
+#: src/mathessible/ui/help_menu.py:24
+msgid "&Report a Problem"
+msgstr "&Αναφορά προβλήματος"
+
+#: src/mathessible/ui/help_menu.py:27
+msgid "&About Mathessible"
+msgstr "&Σχετικά με το Mathessible"
+
+#: src/mathessible/ui/help_menu.py:29
+msgid "&Help"
+msgstr "&Βοήθεια"
+
+#: src/mathessible/ui/help_menu.py:38
+msgid "GNU General Public License, version 2 or later"
+msgstr "Άδεια Δημόσιας Χρήσης GNU, έκδοση 2 ή νεότερη"
+
+#: src/mathessible/ui/main_frame.py:98
+msgid "Pages"
+msgstr "Σελίδες"
+
+#: src/mathessible/ui/main_frame.py:100
+msgid "Notebook pages"
+msgstr "Σελίδες σημειωματαρίου"
+
+#: src/mathessible/ui/main_frame.py:148
+#, python-brace-format
+msgid ""
+"MathCAT's native extension could not be loaded, so equations can only be edited as text, not read"
+" or navigated ({error}). Run scripts/bootstrap.sh."
+msgstr ""
+"Δεν ήταν δυνατή η φόρτωση της εγγενούς επέκτασης του MathCAT, οπότε οι εξισώσεις μπορούν να "
+"επεξεργαστούν μόνο ως κείμενο, όχι να διαβαστούν ή να πλοηγηθούν ({error}). Εκτελέστε το "
+"scripts/bootstrap.sh."
+
+#: src/mathessible/ui/main_frame.py:155
+msgid "No web view is available to convert and show equations (on Linux, install WebKitGTK for wxPython)."
+msgstr ""
+"Δεν υπάρχει διαθέσιμη προβολή ιστού για τη μετατροπή και εμφάνιση εξισώσεων (στο Linux, "
+"εγκαταστήστε το WebKitGTK για το wxPython)."
+
+#: src/mathessible/ui/main_frame.py:166
+#, python-brace-format
+msgid ""
+"Mathessible's fixes to MathCAT and UnicodeMathML are not applied, so some equations will be read "
+"or built wrongly. Run scripts/bootstrap.sh in the Mathessible folder, then start Mathessible "
+"again.\n"
+"\n"
+"Missing patches:\n"
+"{patches}"
+msgstr ""
+"Οι διορθώσεις του Mathessible στο MathCAT και στο UnicodeMathML δεν έχουν εφαρμοστεί, οπότε "
+"ορισμένες εξισώσεις θα διαβάζονται ή θα δομούνται λάθος. Εκτελέστε το scripts/bootstrap.sh στον "
+"φάκελο του Mathessible και ξεκινήστε ξανά το Mathessible.\n"
+"\n"
+"Διορθώσεις που λείπουν:\n"
+"{patches}"
+
+#: src/mathessible/ui/main_frame.py:179
+msgid "Mathessible Setup"
+msgstr "Ρύθμιση του Mathessible"
+
+#: src/mathessible/ui/main_frame.py:188
+msgid "&New"
+msgstr "&Νέο"
+
+#: src/mathessible/ui/main_frame.py:189
+msgid "&Open…"
+msgstr "&Άνοιγμα…"
+
+#: src/mathessible/ui/main_frame.py:193
+msgid "Open &Recent"
+msgstr "Άνοιγμα &πρόσφατου"
+
+#: src/mathessible/ui/main_frame.py:195
+msgid "&Close Window"
+msgstr "&Κλείσιμο παραθύρου"
+
+#: src/mathessible/ui/main_frame.py:196
+msgid "&Save"
+msgstr "&Αποθήκευση"
+
+#: src/mathessible/ui/main_frame.py:197
+msgid "Save &As…"
+msgstr "Αποθήκευση &ως…"
+
+#: src/mathessible/ui/main_frame.py:198
+msgid "Re&vert to Saved"
+msgstr "Επαναφορά στην αποθηκευ&μένη"
+
+#: src/mathessible/ui/main_frame.py:202
+msgid "&HTML…"
+msgstr "&HTML…"
+
+#: src/mathessible/ui/main_frame.py:203
+msgid "&PDF…"
+msgstr "&PDF…"
+
+#: src/mathessible/ui/main_frame.py:204
+msgid "&Word Document…"
+msgstr "Έγγραφο &Word…"
+
+#: src/mathessible/ui/main_frame.py:205
+msgid "&BRF (Braille)…"
+msgstr "&BRF (braille)…"
+
+#: src/mathessible/ui/main_frame.py:206
+msgid "&Export"
+msgstr "&Εξαγωγή"
+
+#: src/mathessible/ui/main_frame.py:208
+msgid "&Print…"
+msgstr "Εκτύπωσ&η…"
+
+#: src/mathessible/ui/main_frame.py:210
+msgid "&Quit"
+msgstr "Έ&ξοδος"
+
+#: src/mathessible/ui/main_frame.py:212
+msgid "&File"
+msgstr "&Αρχείο"
+
+#: src/mathessible/ui/main_frame.py:228
+msgid "&Find…"
+msgstr "Εύ&ρεση…"
+
+#: src/mathessible/ui/main_frame.py:229
+msgid "Find &Next"
+msgstr "Εύρεση επό&μενου"
+
+#: src/mathessible/ui/main_frame.py:230
+msgid "Find Pre&vious"
+msgstr "Εύρεση προηγο&ύμενου"
+
+#: src/mathessible/ui/main_frame.py:231
+msgid "R&eplace…"
+msgstr "Αντικατά&σταση…"
+
+#: src/mathessible/ui/main_frame.py:234 src/mathessible/ui/main_frame.py:544
+msgid "Change Equation to &Display"
+msgstr "Αλλαγή εξίσωσης σε αυτό&νομη"
+
+#: src/mathessible/ui/main_frame.py:236
+msgid "&Settings…"
+msgstr "Ρ&υθμίσεις…"
+
+#: src/mathessible/ui/main_frame.py:240
+msgid "Document &Preview"
+msgstr "&Προεπισκόπηση εγγράφου"
+
+#: src/mathessible/ui/main_frame.py:255
+msgid "&New Notebook…"
+msgstr "&Νέο σημειωματάριο…"
+
+#: src/mathessible/ui/main_frame.py:256
+msgid "New Notebook &Folder…"
+msgstr "Νέος &φάκελος σημειωματαρίου…"
+
+#: src/mathessible/ui/main_frame.py:257
+msgid "&Open Notebook Folder…"
+msgstr "&Άνοιγμα φακέλου σημειωματαρίου…"
+
+#: src/mathessible/ui/main_frame.py:258
+msgid "Save Notebook as &Single File…"
+msgstr "Αποθήκευση σημειωματαρίου ως &ενιαίου αρχείου…"
+
+#: src/mathessible/ui/main_frame.py:260
+msgid "&Add Page"
+msgstr "Προσ&θήκη σελίδας"
+
+#: src/mathessible/ui/main_frame.py:261
+msgid "&Rename Page…"
+msgstr "&Μετονομασία σελίδας…"
+
+#: src/mathessible/ui/main_frame.py:262
+msgid "&Delete Page…"
+msgstr "&Διαγραφή σελίδας…"
+
+#: src/mathessible/ui/main_frame.py:264
+msgid "Move Page &Up"
+msgstr "Μετακίνηση σελίδας &πάνω"
+
+#: src/mathessible/ui/main_frame.py:265
+msgid "Move Page Do&wn"
+msgstr "Μετακίνηση σελίδας &κάτω"
+
+#: src/mathessible/ui/main_frame.py:267
+msgid "&Previous Page"
+msgstr "Προη&γούμενη σελίδα"
+
+#: src/mathessible/ui/main_frame.py:268
+msgid "Ne&xt Page"
+msgstr "Επόμεν&η σελίδα"
+
+#: src/mathessible/ui/main_frame.py:269
+msgid "&Notebook"
+msgstr "&Σημειωματάριο"
+
+#: src/mathessible/ui/main_frame.py:274
+msgid "&Next Window"
+msgstr "&Επόμενο παράθυρο"
+
+#: src/mathessible/ui/main_frame.py:275
+msgid "&Previous Window"
+msgstr "&Προηγούμενο παράθυρο"
+
+#: src/mathessible/ui/main_frame.py:277
+msgid "Bring All to &Front"
+msgstr "Μεταφορά όλων σε πρώτο πλά&νο"
+
+#: src/mathessible/ui/main_frame.py:278
+msgid "&Window"
+msgstr "Παρά&θυρο"
+
+#: src/mathessible/ui/main_frame.py:384
+msgid "show the document preview"
+msgstr "εμφάνιση της προεπισκόπησης εγγράφου"
+
+#: src/mathessible/ui/main_frame.py:386
+msgid "Document preview"
+msgstr "Προεπισκόπηση εγγράφου"
+
+#: src/mathessible/ui/main_frame.py:472 src/mathessible/ui/main_frame.py:495
+msgid "Find"
+msgstr "Εύρεση"
+
+#: src/mathessible/ui/main_frame.py:494
+#, python-brace-format
+msgid "“{text}” was not found."
+msgstr "Το «{text}» δεν βρέθηκε."
+
+#: src/mathessible/ui/main_frame.py:528
+#, python-brace-format
+msgid "{count} replacement made."
+msgid_plural "{count} replacements made."
+msgstr[0] "Έγινε {count} αντικατάσταση."
+msgstr[1] "Έγιναν {count} αντικαταστάσεις."
+
+#: src/mathessible/ui/main_frame.py:529
+msgid "Replace All"
+msgstr "Αντικατάσταση όλων"
+
+#: src/mathessible/ui/main_frame.py:544
+msgid "Change Equation to &Inline"
+msgstr "Αλλαγή εξίσωσης σε ενσωματ&ωμένη"
+
+#: src/mathessible/ui/main_frame.py:565
+msgid "Untitled"
+msgstr "Χωρίς τίτλο"
+
+#: src/mathessible/ui/main_frame.py:567
+#, python-brace-format
+msgid "Mathessible — {name} — modified"
+msgstr "Mathessible — {name} — τροποποιημένο"
+
+#: src/mathessible/ui/main_frame.py:569
+#, python-brace-format
+msgid "Mathessible — {name}"
+msgstr "Mathessible — {name}"
+
+#: src/mathessible/ui/main_frame.py:580
+#, python-brace-format
+msgid "{notebook} — Page {page} of {pages}"
+msgstr "{notebook} — Σελίδα {page} από {pages}"
+
+#: src/mathessible/ui/main_frame.py:584
+msgid "Untitled Markdown document"
+msgstr "Έγγραφο Markdown χωρίς τίτλο"
+
+#: src/mathessible/ui/main_frame.py:586
+#, python-brace-format
+msgid "Line {line}, Column {column}"
+msgstr "Γραμμή {line}, στήλη {column}"
+
+#: src/mathessible/ui/main_frame.py:592
+#, python-brace-format
+msgid "Could not {action}."
+msgstr "Δεν ήταν δυνατό: {action}."
+
+#: src/mathessible/ui/main_frame.py:605
+msgid "The document has unsaved changes. Do you want to save them?"
+msgstr "Το έγγραφο έχει μη αποθηκευμένες αλλαγές. Θέλετε να τις αποθηκεύσετε;"
+
+#: src/mathessible/ui/main_frame.py:606
+msgid "Unsaved Changes"
+msgstr "Μη αποθηκευμένες αλλαγές"
+
+#: src/mathessible/ui/main_frame.py:626
+msgid "save settings"
+msgstr "αποθήκευση των ρυθμίσεων"
+
+#: src/mathessible/ui/main_frame.py:677
+msgid "Open"
+msgstr "Άνοιγμα"
+
+#: src/mathessible/ui/main_frame.py:679
+msgid "Documents and notebooks"
+msgstr "Έγγραφα και σημειωματάρια"
+
+#: src/mathessible/ui/main_frame.py:681
+msgid "Markdown documents"
+msgstr "Έγγραφα Markdown"
+
+#: src/mathessible/ui/main_frame.py:683
+msgid "Notebooks"
+msgstr "Σημειωματάρια"
+
+#: src/mathessible/ui/main_frame.py:685 src/mathessible/ui/main_frame.py:882
+#: src/mathessible/ui/settings_dialog.py:470
+msgid "All files"
+msgstr "Όλα τα αρχεία"
+
+#: src/mathessible/ui/main_frame.py:731
+#, python-brace-format
+msgid "open {name}"
+msgstr "άνοιγμα του {name}"
+
+#: src/mathessible/ui/main_frame.py:760
+msgid "&Clear Menu"
+msgstr "&Εκκαθάριση λίστας"
+
+#: src/mathessible/ui/main_frame.py:786
+msgid "Revert to the saved version? The changes since it was saved will be lost."
+msgstr "Επαναφορά στην αποθηκευμένη έκδοση; Οι αλλαγές από την αποθήκευση και μετά θα χαθούν."
+
+#: src/mathessible/ui/main_frame.py:787
+msgid "Revert to Saved"
+msgstr "Επαναφορά στην αποθηκευμένη"
+
+#: src/mathessible/ui/main_frame.py:790
+msgid "&Revert"
+msgstr "&Επαναφορά"
+
+#: src/mathessible/ui/main_frame.py:790
+msgid "&Cancel"
+msgstr "Ά&κυρο"
+
+#: src/mathessible/ui/main_frame.py:802
+msgid "read the saved document"
+msgstr "ανάγνωση του αποθηκευμένου εγγράφου"
+
+#: src/mathessible/ui/main_frame.py:830
+msgid "read the notebook"
+msgstr "ανάγνωση του σημειωματαρίου"
+
+#: src/mathessible/ui/main_frame.py:839
+msgid "Mathessible document"
+msgstr "Έγγραφο Mathessible"
+
+#: src/mathessible/ui/main_frame.py:853 src/mathessible/ui/main_frame.py:960
+msgid "The UnicodeMath converter is not ready yet. Please try again."
+msgstr "Ο μετατροπέας UnicodeMath δεν είναι ακόμη έτοιμος. Δοκιμάστε ξανά."
+
+#: src/mathessible/ui/main_frame.py:859
+msgid "print"
+msgstr "εκτύπωση"
+
+#: src/mathessible/ui/main_frame.py:879
+msgid "Save Markdown document"
+msgstr "Αποθήκευση εγγράφου Markdown"
+
+#: src/mathessible/ui/main_frame.py:882
+msgid "Markdown document"
+msgstr "Έγγραφο Markdown"
+
+#: src/mathessible/ui/main_frame.py:909 src/mathessible/ui/main_frame.py:1269
+msgid "save the page"
+msgstr "αποθήκευση της σελίδας"
+
+#: src/mathessible/ui/main_frame.py:925
+msgid "save the document"
+msgstr "αποθήκευση του εγγράφου"
+
+#: src/mathessible/ui/main_frame.py:943
+msgid "export the HTML document"
+msgstr "εξαγωγή του εγγράφου HTML"
+
+#: src/mathessible/ui/main_frame.py:943
+msgid "HTML document"
+msgstr "Έγγραφο HTML"
+
+#: src/mathessible/ui/main_frame.py:944
+msgid "export the PDF document"
+msgstr "εξαγωγή του εγγράφου PDF"
+
+#: src/mathessible/ui/main_frame.py:944
+msgid "PDF document"
+msgstr "Έγγραφο PDF"
+
+#: src/mathessible/ui/main_frame.py:944 src/mathessible/ui/pdf_dialog.py:37
+msgid "Export as PDF"
+msgstr "Εξαγωγή ως PDF"
+
+#: src/mathessible/ui/main_frame.py:946
+msgid "export the Word document"
+msgstr "εξαγωγή του εγγράφου Word"
+
+#: src/mathessible/ui/main_frame.py:948
+msgid "Word document"
+msgstr "Έγγραφο Word"
+
+#: src/mathessible/ui/main_frame.py:950
+msgid "export the BRF document"
+msgstr "εξαγωγή του εγγράφου BRF"
+
+#: src/mathessible/ui/main_frame.py:950
+msgid "Braille ready file"
+msgstr "Αρχείο έτοιμο για braille (BRF)"
+
+#: src/mathessible/ui/main_frame.py:1016
+#, python-brace-format
+msgid "Exported {name}"
+msgstr "Εξήχθη το {name}"
+
+#: src/mathessible/ui/main_frame.py:1017
+#, python-brace-format
+msgid "exported {name}"
+msgstr "εξήχθη το {name}"
+
+#: src/mathessible/ui/main_frame.py:1077
+msgid ""
+"PDF/A does not allow passwords or restrictions. Choose Tagged PDF or PDF/UA-1 under Security, or "
+"export without them."
+msgstr ""
+"Το PDF/A δεν επιτρέπει κωδικούς πρόσβασης ή περιορισμούς. Επιλέξτε PDF με ετικέτες ή PDF/UA-1 "
+"στην Ασφάλεια, ή κάντε εξαγωγή χωρίς αυτούς."
+
+#: src/mathessible/ui/main_frame.py:1250
+msgid "open the page"
+msgstr "άνοιγμα της σελίδας"
+
+#: src/mathessible/ui/main_frame.py:1289
+msgid "Choose or create the new notebook folder"
+msgstr "Επιλέξτε ή δημιουργήστε τον φάκελο του νέου σημειωματαρίου"
+
+#: src/mathessible/ui/main_frame.py:1301
+msgid "create the notebook"
+msgstr "δημιουργία του σημειωματαρίου"
+
+#: src/mathessible/ui/main_frame.py:1315
+msgid "Save portable notebook"
+msgstr "Αποθήκευση φορητού σημειωματαρίου"
+
+#: src/mathessible/ui/main_frame.py:1317
+msgid "Mathessible notebooks"
+msgstr "Σημειωματάρια Mathessible"
+
+#: src/mathessible/ui/main_frame.py:1337
+msgid "create the portable notebook"
+msgstr "δημιουργία του φορητού σημειωματαρίου"
+
+#: src/mathessible/ui/main_frame.py:1349
+msgid "Choose the notebook folder"
+msgstr "Επιλέξτε τον φάκελο του σημειωματαρίου"
+
+#: src/mathessible/ui/main_frame.py:1359
+msgid "Page title:"
+msgstr "Τίτλος σελίδας:"
+
+#: src/mathessible/ui/main_frame.py:1371
+msgid "Add Page"
+msgstr "Προσθήκη σελίδας"
+
+#: src/mathessible/ui/main_frame.py:1371
+#, python-brace-format
+msgid "Page {number}"
+msgstr "Σελίδα {number}"
+
+#: src/mathessible/ui/main_frame.py:1377
+msgid "add the page"
+msgstr "προσθήκη της σελίδας"
+
+#: src/mathessible/ui/main_frame.py:1387
+msgid "Rename Page"
+msgstr "Μετονομασία σελίδας"
+
+#: src/mathessible/ui/main_frame.py:1393
+msgid "rename the page"
+msgstr "μετονομασία της σελίδας"
+
+#: src/mathessible/ui/main_frame.py:1405
+#, python-brace-format
+msgid "Delete the page “{title}”?"
+msgstr "Διαγραφή της σελίδας «{title}»;"
+
+#: src/mathessible/ui/main_frame.py:1406
+msgid "Delete Page"
+msgstr "Διαγραφή σελίδας"
+
+#: src/mathessible/ui/main_frame.py:1415
+msgid "delete the page"
+msgstr "διαγραφή της σελίδας"
+
+#: src/mathessible/ui/main_frame.py:1431
+msgid "move the page"
+msgstr "μετακίνηση της σελίδας"
+
+#: src/mathessible/ui/main_frame.py:1447
+msgid "update the portable notebook"
+msgstr "ενημέρωση του φορητού σημειωματαρίου"
+
+#: src/mathessible/ui/main_frame.py:1460
+#, python-brace-format
+msgid "Mathessible closed without saving {count} document. Recover the unsaved changes?"
+msgid_plural "Mathessible closed without saving {count} documents. Recover the unsaved changes?"
+msgstr[0] ""
+"Το Mathessible έκλεισε χωρίς να αποθηκεύσει {count} έγγραφο. Να ανακτηθούν οι μη αποθηκευμένες "
+"αλλαγές;"
+msgstr[1] ""
+"Το Mathessible έκλεισε χωρίς να αποθηκεύσει {count} έγγραφα. Να ανακτηθούν οι μη αποθηκευμένες "
+"αλλαγές;"
+
+#: src/mathessible/ui/main_frame.py:1464
+msgid "Recover Unsaved Changes"
+msgstr "Ανάκτηση μη αποθηκευμένων αλλαγών"
+
+#: src/mathessible/ui/main_frame.py:1467
+msgid "&Recover"
+msgstr "&Ανάκτηση"
+
+#: src/mathessible/ui/main_frame.py:1467
+msgid "&Discard"
+msgstr "Α&πόρριψη"
+
+#: src/mathessible/ui/matrix_dialog.py:13
+msgid "Parentheses ( )"
+msgstr "Παρενθέσεις ( )"
+
+#: src/mathessible/ui/matrix_dialog.py:14
+msgid "Brackets [ ]"
+msgstr "Αγκύλες [ ]"
+
+#: src/mathessible/ui/matrix_dialog.py:15
+msgid "Vertical bars | | (determinant)"
+msgstr "Κατακόρυφες γραμμές | | (ορίζουσα)"
+
+#: src/mathessible/ui/matrix_dialog.py:26
+msgid "Insert Matrix"
+msgstr "Εισαγωγή πίνακα"
+
+#: src/mathessible/ui/matrix_dialog.py:27
+msgid "Insert matrix dialog"
+msgstr "Παράθυρο διαλόγου Εισαγωγή πίνακα"
+
+#: src/mathessible/ui/matrix_dialog.py:31
+msgid "&Rows"
+msgstr "&Γραμμές"
+
+#: src/mathessible/ui/matrix_dialog.py:33
+msgid "Rows"
+msgstr "Γραμμές"
+
+#: src/mathessible/ui/matrix_dialog.py:34
+msgid "&Columns"
+msgstr "&Στήλες"
+
+#: src/mathessible/ui/matrix_dialog.py:40
+msgid "Brackets"
+msgstr "Παρενθέσεις"
+
+#: src/mathessible/ui/pdf_dialog.py:38
+msgid "Export as PDF dialog"
+msgstr "Παράθυρο διαλόγου Εξαγωγή ως PDF"
+
+#: src/mathessible/ui/pdf_dialog.py:42
+msgid "PDF export categories"
+msgstr "Κατηγορίες εξαγωγής PDF"
+
+#: src/mathessible/ui/pdf_dialog.py:44
+msgid "Document"
+msgstr "Έγγραφο"
+
+#: src/mathessible/ui/pdf_dialog.py:55
+msgid "Layout"
+msgstr "Διάταξη"
+
+#: src/mathessible/ui/pdf_dialog.py:60
+msgid "Content"
+msgstr "Περιεχόμενο"
+
+#: src/mathessible/ui/pdf_dialog.py:62
+msgid "&Header text"
+msgstr "Κείμενο &κεφαλίδας"
+
+#: src/mathessible/ui/pdf_dialog.py:62
+msgid "Header text"
+msgstr "Κείμενο κεφαλίδας"
+
+#: src/mathessible/ui/pdf_dialog.py:63
+msgid "&Watermark text"
+msgstr "Κείμενο &υδατογραφήματος"
+
+#: src/mathessible/ui/pdf_dialog.py:63
+msgid "Watermark text"
+msgstr "Κείμενο υδατογραφήματος"
+
+#: src/mathessible/ui/pdf_dialog.py:67
+msgid "Security"
+msgstr "Ασφάλεια"
+
+#: src/mathessible/ui/pdf_dialog.py:71
+msgid "Password to &open"
+msgstr "Κωδικός για &άνοιγμα"
+
+#: src/mathessible/ui/pdf_dialog.py:71
+msgid "Password to open"
+msgstr "Κωδικός για άνοιγμα"
+
+#: src/mathessible/ui/pdf_dialog.py:74
+msgid "Password for &permissions"
+msgstr "Κωδικός για &δικαιώματα"
+
+#: src/mathessible/ui/pdf_dialog.py:74
+msgid "Password for permissions"
+msgstr "Κωδικός για δικαιώματα"
+
+#: src/mathessible/ui/pdf_dialog.py:77
+msgid "Allow p&rinting"
+msgstr "Να επιτρέπεται η &εκτύπωση"
+
+#: src/mathessible/ui/pdf_dialog.py:77
+msgid "Allow printing"
+msgstr "Να επιτρέπεται η εκτύπωση"
+
+#: src/mathessible/ui/pdf_dialog.py:80
+msgid "Allow &copying text (screen readers can always read)"
+msgstr "Να επιτρέπεται η α&ντιγραφή κειμένου (οι αναγνώστες οθόνης μπορούν πάντα να διαβάζουν)"
+
+#: src/mathessible/ui/pdf_dialog.py:81
+msgid "Allow copying text"
+msgstr "Να επιτρέπεται η αντιγραφή κειμένου"
+
+#: src/mathessible/ui/pdf_dialog.py:84
+msgid "Allow &editing"
+msgstr "Να επιτρέπεται η ε&πεξεργασία"
+
+#: src/mathessible/ui/pdf_dialog.py:84
+msgid "Allow editing"
+msgstr "Να επιτρέπεται η επεξεργασία"
+
+#: src/mathessible/ui/pdf_dialog.py:86
+msgid "Passwords are never kept. PDF/A does not allow them."
+msgstr "Οι κωδικοί πρόσβασης δεν διατηρούνται ποτέ. Το PDF/A δεν τους επιτρέπει."
+
+#: src/mathessible/ui/pdf_dialog.py:138
+msgid "This layout, content, standard and author are now the defaults."
+msgstr "Αυτή η διάταξη, το περιεχόμενο, το πρότυπο και ο συντάκτης είναι τώρα οι προεπιλογές."
+
+#: src/mathessible/ui/settings_dialog.py:68
+msgid "Settings categories"
+msgstr "Κατηγορίες ρυθμίσεων"
+
+#: src/mathessible/ui/settings_dialog.py:70
+msgid "Typing"
+msgstr "Πληκτρολόγηση"
+
+#: src/mathessible/ui/settings_dialog.py:71
+msgid "Building"
+msgstr "Δόμηση"
+
+#: src/mathessible/ui/settings_dialog.py:72
+msgid "Navigation"
+msgstr "Πλοήγηση"
+
+#: src/mathessible/ui/settings_dialog.py:73
+msgid "Speech"
+msgstr "Ομιλία"
+
+#: src/mathessible/ui/settings_dialog.py:77
+msgid "Word"
+msgstr "Word"
+
+#: src/mathessible/ui/settings_dialog.py:96
+msgid "Convert control words (for example \\alpha) when Space or punctuation is typed"
+msgstr "Μετατροπή λέξεων ελέγχου (για παράδειγμα \\alpha) όταν πληκτρολογείται διάστημα ή σημείο στίξης"
+
+#: src/mathessible/ui/settings_dialog.py:97
+msgid "Convert control words while typing"
+msgstr "Μετατροπή λέξεων ελέγχου κατά την πληκτρολόγηση"
+
+#: src/mathessible/ui/settings_dialog.py:102
+msgid "Suggest control words while one is typed (Up/Down browse, Tab completes)"
+msgstr "Προτάσεις λέξεων ελέγχου όσο πληκτρολογείται μία (Πάνω/Κάτω για περιήγηση, Tab για συμπλήρωση)"
+
+#: src/mathessible/ui/settings_dialog.py:103
+msgid "Suggest control words while typing"
+msgstr "Προτάσεις λέξεων ελέγχου κατά την πληκτρολόγηση"
+
+#: src/mathessible/ui/settings_dialog.py:109
+msgid ""
+"Convert symbol shortcuts (for example << or ->) as soon as they are typed, in equations and the "
+"document"
+msgstr ""
+"Μετατροπή συντομεύσεων συμβόλων (για παράδειγμα << ή ->) μόλις πληκτρολογηθούν, στις εξισώσεις "
+"και στο έγγραφο"
+
+#: src/mathessible/ui/settings_dialog.py:111
+msgid "Convert symbol shortcuts immediately"
+msgstr "Άμεση μετατροπή συντομεύσεων συμβόλων"
+
+#: src/mathessible/ui/settings_dialog.py:114
+msgid "Math &AutoCorrect…"
+msgstr "&Αυτόματη διόρθωση μαθηματικών…"
+
+#: src/mathessible/ui/settings_dialog.py:120
+msgid ""
+"Math AutoCorrect is one list, as in Word: the converter's control words, Mathessible's shortcuts "
+"and your own entries, each one can be changed or deleted."
+msgstr ""
+"Η αυτόματη διόρθωση μαθηματικών είναι μία λίστα, όπως στο Word: οι λέξεις ελέγχου του μετατροπέα,"
+" οι συντομεύσεις του Mathessible και οι δικές σας καταχωρίσεις· καθεμία μπορεί να αλλάξει ή να "
+"διαγραφεί."
+
+#: src/mathessible/ui/settings_dialog.py:127
+msgid ""
+"Deleted AutoCorrect control words still show as their symbol (off: they stay the text typed, as "
+"in Word)"
+msgstr ""
+"Οι διαγραμμένες λέξεις ελέγχου της αυτόματης διόρθωσης εμφανίζονται ακόμη ως το σύμβολό τους "
+"(ανενεργό: μένουν το κείμενο που πληκτρολογήθηκε, όπως στο Word)"
+
+#: src/mathessible/ui/settings_dialog.py:129
+msgid "Deleted AutoCorrect control words still show as their symbol"
+msgstr "Οι διαγραμμένες λέξεις ελέγχου της αυτόματης διόρθωσης εμφανίζονται ακόμη ως το σύμβολό τους"
+
+#: src/mathessible/ui/settings_dialog.py:134
+msgid "Use Math AutoCorrect in an equation's normal text (control words and shortcuts convert there too)"
+msgstr ""
+"Χρήση της αυτόματης διόρθωσης μαθηματικών στο κανονικό κείμενο μιας εξίσωσης (οι λέξεις ελέγχου "
+"και οι συντομεύσεις μετατρέπονται και εκεί)"
+
+#: src/mathessible/ui/settings_dialog.py:135
+msgid "Use Math AutoCorrect in an equation's normal text"
+msgstr "Χρήση της αυτόματης διόρθωσης μαθηματικών στο κανονικό κείμενο μιας εξίσωσης"
+
+#: src/mathessible/ui/settings_dialog.py:141
+msgid ""
+"Use Math AutoCorrect in the document too, text and equations alike (as Word's rule outside math "
+"regions)"
+msgstr ""
+"Χρήση της αυτόματης διόρθωσης μαθηματικών και στο έγγραφο, σε κείμενο και εξισώσεις (όπως ο "
+"κανόνας του Word έξω από μαθηματικές περιοχές)"
+
+#: src/mathessible/ui/settings_dialog.py:143
+msgid "Use Math AutoCorrect in the document"
+msgstr "Χρήση της αυτόματης διόρθωσης μαθηματικών στο έγγραφο"
+
+#: src/mathessible/ui/settings_dialog.py:148
+msgid "Insert templates as control words (for example \\sum and \\sqrt instead of ∑ and √)"
+msgstr "Εισαγωγή προτύπων ως λέξεων ελέγχου (για παράδειγμα \\sum και \\sqrt αντί για ∑ και √)"
+
+#: src/mathessible/ui/settings_dialog.py:149
+msgid "Insert templates as control words"
+msgstr "Εισαγωγή προτύπων ως λέξεων ελέγχου"
+
+#: src/mathessible/ui/settings_dialog.py:155
+#, python-brace-format
+msgid ""
+"Decimal comma: 1,5 is a number and a set is written {1, 2, 3}; off: decimal point (3.14), and "
+"{1,2,3} is a set"
+msgstr ""
+"Υποδιαστολή κόμμα: το 1,5 είναι αριθμός και ένα σύνολο γράφεται {1, 2, 3}· ανενεργό: υποδιαστολή "
+"τελεία (3.14), και το {1,2,3} είναι σύνολο"
+
+#: src/mathessible/ui/settings_dialog.py:158
+msgid "Decimal comma"
+msgstr "Υποδιαστολή κόμμα"
+
+#: src/mathessible/ui/settings_dialog.py:163
+msgid "Remove spaces that change nothing when saving the equation or switching to linear view"
+msgstr ""
+"Αφαίρεση κενών που δεν αλλάζουν τίποτα κατά την αποθήκευση της εξίσωσης ή τη μετάβαση στη "
+"γραμμική προβολή"
+
+#: src/mathessible/ui/settings_dialog.py:164
+msgid "Remove extra spaces"
+msgstr "Αφαίρεση περιττών κενών"
+
+#: src/mathessible/ui/settings_dialog.py:171
+msgid "Build equations as you type (on Space or an operator, what is complete; the rest stays linear)"
+msgstr ""
+"Δόμηση εξισώσεων κατά την πληκτρολόγηση (με Διάστημα ή τελεστή, ό,τι είναι πλήρες· τα υπόλοιπα "
+"μένουν γραμμικά)"
+
+#: src/mathessible/ui/settings_dialog.py:172
+msgid "Build equations as you type"
+msgstr "Δόμηση εξισώσεων κατά την πληκτρολόγηση"
+
+#: src/mathessible/ui/settings_dialog.py:177
+msgid "Say what was built while typing (for example, built fraction)"
+msgstr "Ανακοίνωση του τι δομήθηκε κατά την πληκτρολόγηση (για παράδειγμα, δομήθηκε κλάσμα)"
+
+#: src/mathessible/ui/settings_dialog.py:178
+msgid "Say what was built"
+msgstr "Ανακοίνωση του τι δομήθηκε"
+
+#: src/mathessible/ui/settings_dialog.py:183
+msgid "Open equations built (professional view), ready to navigate and type into"
+msgstr "Άνοιγμα των εξισώσεων δομημένων (επαγγελματική προβολή), έτοιμων για πλοήγηση και πληκτρολόγηση"
+
+#: src/mathessible/ui/settings_dialog.py:184
+msgid "Open equations built"
+msgstr "Άνοιγμα των εξισώσεων δομημένων"
+
+#: src/mathessible/ui/settings_dialog.py:189
+msgid "Open a function's argument as soon as its parenthesis is closed (instead of on Space)"
+msgstr "Άνοιγμα του ορίσματος μιας συνάρτησης μόλις κλείσει η παρένθεσή της (αντί για το Διάστημα)"
+
+#: src/mathessible/ui/settings_dialog.py:190
+msgid "Open the argument on the closing parenthesis"
+msgstr "Άνοιγμα του ορίσματος στη δεξιά παρένθεση"
+
+#: src/mathessible/ui/settings_dialog.py:193
+msgid "&Recognized Functions…"
+msgstr "&Αναγνωρισμένες συναρτήσεις…"
+
+#: src/mathessible/ui/settings_dialog.py:199
+msgid ""
+"Space after a recognized function (sin, log, lim…) opens its argument, and it is navigated as "
+"function name and argument, as in Word."
+msgstr ""
+"Ένα διάστημα μετά από αναγνωρισμένη συνάρτηση (sin, log, lim…) ανοίγει το όρισμά της, και "
+"πλοηγείται ως όνομα συνάρτησης και όρισμα, όπως στο Word."
+
+#: src/mathessible/ui/settings_dialog.py:207
+msgid "Use linear navigation in exploration mode (F10; writing mode is always linear)"
+msgstr ""
+"Χρήση γραμμικής πλοήγησης στη λειτουργία εξερεύνησης (F10· η λειτουργία γραφής είναι πάντα "
+"γραμμική)"
+
+#: src/mathessible/ui/settings_dialog.py:208
+msgid "Linear navigation in exploration mode"
+msgstr "Γραμμική πλοήγηση στη λειτουργία εξερεύνησης"
+
+#: src/mathessible/ui/settings_dialog.py:214
+msgid ""
+"Stop at the start and end of every structure (for example \"start fraction\", \"end numerator\") "
+"and of the math"
+msgstr ""
+"Στάση στην αρχή και στο τέλος κάθε δομής (για παράδειγμα «αρχή κλάσματος», «τέλος αριθμητή») και "
+"των μαθηματικών"
+
+#: src/mathessible/ui/settings_dialog.py:217
+msgid "Stop at structure start and end"
+msgstr "Στάση στην αρχή και στο τέλος των δομών"
+
+#: src/mathessible/ui/settings_dialog.py:222
+msgid "Stop at invisible operators (for example the invisible times in 3x)"
+msgstr "Στάση στους αόρατους τελεστές (για παράδειγμα στο αόρατο επί στο 3x)"
+
+#: src/mathessible/ui/settings_dialog.py:223
+msgid "Stop at invisible operators"
+msgstr "Στάση στους αόρατους τελεστές"
+
+#: src/mathessible/ui/settings_dialog.py:228
+msgid "Leave a structure automatically at its end (for example, from the numerator to the denominator)"
+msgstr "Αυτόματη έξοδος από μια δομή στο τέλος της (για παράδειγμα, από τον αριθμητή στον παρονομαστή)"
+
+#: src/mathessible/ui/settings_dialog.py:229
+msgid "Leave structures automatically"
+msgstr "Αυτόματη έξοδος από δομές"
+
+#: src/mathessible/ui/settings_dialog.py:235
+msgid ""
+"When enabled, the right arrow enters structures such as fractions automatically, so you can read "
+"more of an expression without pressing Down."
+msgstr ""
+"Όταν είναι ενεργό, το δεξί βέλος μπαίνει αυτόματα σε δομές όπως τα κλάσματα, ώστε να διαβάζετε "
+"περισσότερο από μια παράσταση χωρίς να πατάτε Κάτω."
+
+#: src/mathessible/ui/settings_dialog.py:241
+msgid "&Symbol dictionary (names spoken for symbols while typing)"
+msgstr "&Λεξικό συμβόλων (ονόματα που λέγονται για τα σύμβολα κατά την πληκτρολόγηση)"
+
+#: src/mathessible/ui/settings_dialog.py:243
+msgid "Symbol dictionary"
+msgstr "Λεξικό συμβόλων"
+
+#: src/mathessible/ui/settings_dialog.py:246
+msgid "&Import dictionary…"
+msgstr "&Εισαγωγή λεξικού…"
+
+#: src/mathessible/ui/settings_dialog.py:248
+msgid "&Download NVDA dictionaries…"
+msgstr "&Λήψη λεξικών του NVDA…"
+
+#: src/mathessible/ui/settings_dialog.py:259
+msgid ""
+"Any file in NVDA's symbols.dic format can be imported. NVDA's own dictionaries are downloaded "
+"from the NVDA project on GitHub. The built equation is always read by MathCAT."
+msgstr ""
+"Μπορεί να εισαχθεί οποιοδήποτε αρχείο σε μορφή symbols.dic του NVDA. Τα λεξικά του ίδιου του NVDA"
+" λαμβάνονται από το έργο NVDA στο GitHub. Τη δομημένη εξίσωση τη διαβάζει πάντα το MathCAT."
+
+#: src/mathessible/ui/settings_dialog.py:265
+msgid "Say symbols MathCAT does not know by their Unicode name (for example, alchemical symbol for air)"
+msgstr ""
+"Ανάγνωση των συμβόλων που δεν γνωρίζει το MathCAT με το όνομά τους στο Unicode (για παράδειγμα, "
+"alchemical symbol for air)"
+
+#: src/mathessible/ui/settings_dialog.py:266
+msgid "Name unknown symbols"
+msgstr "Ονομασία άγνωστων συμβόλων"
+
+#: src/mathessible/ui/settings_dialog.py:271
+msgid "&Braille code (the braille strip under the equation)"
+msgstr "&Κώδικας braille (η γραμμή braille κάτω από την εξίσωση)"
+
+#: src/mathessible/ui/settings_dialog.py:273
+msgid "Braille code"
+msgstr "Κώδικας braille"
+
+#: src/mathessible/ui/settings_dialog.py:277
+msgid "Braille si&gns…"
+msgstr "&Σημεία braille…"
+
+#: src/mathessible/ui/settings_dialog.py:285
+msgid ""
+"Braille signs are your own braille for symbols in the code chosen above, for symbols it has no "
+"sign for, or to replace its own."
+msgstr ""
+"Τα σημεία braille είναι το δικό σας braille για σύμβολα στον κώδικα που επιλέχθηκε παραπάνω, για "
+"σύμβολα χωρίς σημείο σε αυτόν ή για να αντικαταστήσουν τα δικά του."
+
+#: src/mathessible/ui/settings_dialog.py:289
+msgid "BRF export (its dialog can change them for one file)"
+msgstr "Εξαγωγή BRF (το παράθυρο διαλόγου της μπορεί να τα αλλάξει για ένα αρχείο)"
+
+#: src/mathessible/ui/settings_dialog.py:310
+msgid "The system's"
+msgstr "Του συστήματος"
+
+#: src/mathessible/ui/settings_dialog.py:312
+msgid "&Interface"
+msgstr "&Περιβάλλον"
+
+#: src/mathessible/ui/settings_dialog.py:312
+msgid "Interface language"
+msgstr "Γλώσσα περιβάλλοντος"
+
+#: src/mathessible/ui/settings_dialog.py:314
+msgid "The interface's"
+msgstr "Του περιβάλλοντος"
+
+#: src/mathessible/ui/settings_dialog.py:316
+msgid "&Speech of equations"
+msgstr "&Ομιλία εξισώσεων"
+
+#: src/mathessible/ui/settings_dialog.py:316
+msgid "Speech language"
+msgstr "Γλώσσα ομιλίας"
+
+#: src/mathessible/ui/settings_dialog.py:322
+msgid ""
+"The interface changes when Mathessible starts again; the speech of equations at once. These are "
+"MathCAT's languages. Translations other than English are drafts that a native speaker has yet to "
+"review."
+msgstr ""
+"Το περιβάλλον αλλάζει όταν το Mathessible ξεκινήσει ξανά· η ομιλία των εξισώσεων αμέσως. Αυτές "
+"είναι οι γλώσσες του MathCAT. Οι μεταφράσεις εκτός των αγγλικών είναι προσχέδια που πρέπει ακόμη "
+"να ελέγξει ένας φυσικός ομιλητής."
+
+#: src/mathessible/ui/settings_dialog.py:334
+msgid "Default &author"
+msgstr "Προεπιλεγμένος &συντάκτης"
+
+#: src/mathessible/ui/settings_dialog.py:334
+msgid "Default author"
+msgstr "Προεπιλεγμένος συντάκτης"
+
+#: src/mathessible/ui/settings_dialog.py:339
+msgid ""
+"These are the defaults for every PDF; the export's dialog can change them for one PDF, and holds "
+"the title, header, watermark and passwords, which are never kept."
+msgstr ""
+"Αυτές είναι οι προεπιλογές για κάθε PDF· το παράθυρο διαλόγου της εξαγωγής μπορεί να τις αλλάξει "
+"για ένα PDF και περιέχει τον τίτλο, την κεφαλίδα, το υδατογράφημα και τους κωδικούς πρόσβασης, "
+"που δεν διατηρούνται ποτέ."
+
+#: src/mathessible/ui/settings_dialog.py:469
+msgid "Import a symbol dictionary"
+msgstr "Εισαγωγή λεξικού συμβόλων"
+
+#: src/mathessible/ui/settings_dialog.py:470
+msgid "NVDA symbol dictionaries"
+msgstr "Λεξικά συμβόλων του NVDA"
+
+#: src/mathessible/ui/settings_dialog.py:479
+msgid "Import failed"
+msgstr "Η εισαγωγή απέτυχε"
+
+#: src/mathessible/ui/settings_dialog.py:486
+msgid "Listing NVDA's languages…"
+msgstr "Λήψη λίστας γλωσσών του NVDA…"
+
+#: src/mathessible/ui/settings_dialog.py:491
+msgid "Choose the languages to download (Space checks one)."
+msgstr "Επιλέξτε τις γλώσσες για λήψη (το Διάστημα επιλέγει μία)."
+
+#: src/mathessible/ui/settings_dialog.py:492 src/mathessible/ui/settings_dialog.py:525
+#: src/mathessible/ui/settings_dialog.py:530 src/mathessible/ui/settings_dialog.py:551
+msgid "Download NVDA dictionaries"
+msgstr "Λήψη λεξικών του NVDA"
+
+#: src/mathessible/ui/settings_dialog.py:503
+#, python-brace-format
+msgid "Downloading {count} dictionary…"
+msgid_plural "Downloading {count} dictionaries…"
+msgstr[0] "Λήψη {count} λεξικού…"
+msgstr[1] "Λήψη {count} λεξικών…"
+
+#: src/mathessible/ui/settings_dialog.py:518
+#, python-brace-format
+msgid "{count} dictionary downloaded."
+msgid_plural "{count} dictionaries downloaded."
+msgstr[0] "Λήφθηκε {count} λεξικό."
+msgstr[1] "Λήφθηκαν {count} λεξικά."
+
+#: src/mathessible/ui/settings_dialog.py:522
+#, python-brace-format
+msgid "NVDA has no symbol dictionary for: {languages}."
+msgstr "Το NVDA δεν έχει λεξικό συμβόλων για: {languages}."
+
+#: src/mathessible/ui/settings_dialog.py:550
+#, python-brace-format
+msgid "The download failed: {error}"
+msgstr "Η λήψη απέτυχε: {error}"
+
+#: src/mathessible/ui/settings_dialog.py:570 src/mathessible/ui/settings_dialog.py:571
+#: src/mathessible/ui/settings_dialog.py:608
+msgid "Settings"
+msgstr "Ρυθμίσεις"
+
+#: src/mathessible/ui/settings_dialog.py:609
+msgid "Settings dialog"
+msgstr "Παράθυρο διαλόγου Ρυθμίσεις"
+
+#: src/mathessible/ui/symbol_dialog.py:34
+msgid "Insert Symbol"
+msgstr "Εισαγωγή συμβόλου"
+
+#: src/mathessible/ui/symbol_dialog.py:35
+msgid "Insert symbol dialog"
+msgstr "Παράθυρο διαλόγου Εισαγωγή συμβόλου"
+
+#: src/mathessible/ui/symbol_dialog.py:41
+msgid "&Search (control word, symbol or name)"
+msgstr "&Αναζήτηση (λέξη ελέγχου, σύμβολο ή όνομα)"
+
+#: src/mathessible/ui/symbol_dialog.py:43
+msgid "Search symbols"
+msgstr "Αναζήτηση συμβόλων"
+
+#: src/mathessible/ui/symbol_dialog.py:44
+msgid "&Matches"
+msgstr "&Αντιστοιχίες"
+
+#: src/mathessible/ui/symbol_dialog.py:46
+msgid "Matching symbols"
+msgstr "Σύμβολα που αντιστοιχούν"
+

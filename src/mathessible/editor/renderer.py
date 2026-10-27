@@ -8,6 +8,7 @@ from collections.abc import Callable
 
 from mathessible.documents.mathml_sanitize import MathMLModelError, sanitize_mathml
 from mathessible.editing.build_repair import literal_repair, literal_text, repair_for_build
+from mathessible.i18n import _
 from mathessible.ui.macos_webview import guard_webview_key_equivalents
 from mathessible.unicodemath import (
     ConversionResult,
@@ -61,7 +62,7 @@ class EquationRendererMixin:
             )
             self._renderer_ready = success and value.strip().lower() == "true"
             if not self._renderer_ready:
-                self._renderer_error = "the UnicodeMathML engine did not initialize"
+                self._renderer_error = _("the UnicodeMathML engine did not initialize")
             else:
                 # LOADED can fire for an earlier, blank page first.
                 self._renderer_error = None
@@ -201,14 +202,14 @@ class EquationRendererMixin:
     def _run_converter[T](self, script: Callable[[int], str], decode: Callable[[str, int], T]) -> T:
         """Run one converter script synchronously and decode its own result (`script(token)`)."""
         if not self._renderer_ready or self._webview is None:
-            reason = self._renderer_error or "the UnicodeMathML converter is still loading"
+            reason = self._renderer_error or _("the UnicodeMathML converter is still loading")
             raise UnicodeMathError(reason)
         if self._converting:
             # RunScript spins a nested event loop: a conversion started
             # from inside it (a timer, a deferred call) would receive the
             # outer one's result. Refuse instead; callers already handle
             # a failed conversion.
-            raise UnicodeMathError("the UnicodeMathML converter is busy")
+            raise UnicodeMathError(_("the UnicodeMathML converter is busy"))
         self._converting = True
         try:
             # RunScript takes whichever script result arrives first, e.g.
@@ -238,7 +239,7 @@ class EquationRendererMixin:
                 if conversion is not None:
                     break
             if conversion is None:
-                raise UnicodeMathError("the UnicodeMathML converter could not run")
+                raise UnicodeMathError(_("the UnicodeMathML converter could not run"))
         finally:
             self._converting = False
         return conversion

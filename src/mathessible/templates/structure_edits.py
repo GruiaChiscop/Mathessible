@@ -12,6 +12,7 @@ from __future__ import annotations
 import unicodedata
 from dataclasses import dataclass
 
+from mathessible.i18n import N_, spoken
 from mathessible.templates.math_templates import FUNCTION_SCRIPTS, NARY_LABELS
 from mathessible.templates.template_source import TemplateEdit, matching_parens, operand_end
 
@@ -80,7 +81,7 @@ def add_root_index(source: str, caret: int) -> TemplateEdit | None:
         return None
     radicand = source[root.start : root.end]
     edited = source[: root.sign] + f"√(&{radicand})" + source[root.outer_end :]
-    return TemplateEdit(edited, root.sign + 2, "root with index, empty index")
+    return TemplateEdit(edited, root.sign + 2, spoken("root with index, empty index"))
 
 
 def remove_root_index(source: str, caret: int) -> TemplateEdit | None:
@@ -93,7 +94,7 @@ def remove_root_index(source: str, caret: int) -> TemplateEdit | None:
     replacement = f"√〖{radicand}〗" if root.grouped else f"√{radicand}"
     edited = source[: root.sign] + replacement + source[root.outer_end :]
     caret = root.sign + len(replacement) - (1 if root.grouped else 0)
-    return TemplateEdit(edited, caret, "square root, index removed")
+    return TemplateEdit(edited, caret, spoken("square root, index removed"))
 
 
 @dataclass(frozen=True, slots=True)
@@ -143,7 +144,11 @@ def add_nary_limits(source: str, caret: int) -> TemplateEdit | None:
         return None
     label = NARY_LABELS[source[nary.symbol]]
     at = nary.symbol + 1
-    return TemplateEdit(source[:at] + "_()^()" + source[at:], at + 2, f"{label} with limits, empty lower limit")
+    return TemplateEdit(
+        source[:at] + "_()^()" + source[at:],
+        at + 2,
+        spoken("{structure} with limits, empty lower limit").format(structure=spoken(label)),
+    )
 
 
 def remove_nary_limits(source: str, caret: int) -> TemplateEdit | None:
@@ -157,7 +162,7 @@ def remove_nary_limits(source: str, caret: int) -> TemplateEdit | None:
     if not rest.startswith("▒"):
         rest = "▒" + rest.lstrip(" ")
     edited = source[:at] + rest
-    return TemplateEdit(edited, at + 1, f"{label}, limits removed")
+    return TemplateEdit(edited, at + 1, spoken("{structure}, limits removed").format(structure=spoken(label)))
 
 
 def _group_end(source: str, start: int) -> int | None:
@@ -245,7 +250,7 @@ def add_subscript(source: str, caret: int) -> TemplateEdit | None:
     if script is None or script.subscript is not None:
         return None
     at = script.base_end
-    return TemplateEdit(source[:at] + "_()" + source[at:], at + 2, "subscript added, empty subscript")
+    return TemplateEdit(source[:at] + "_()" + source[at:], at + 2, spoken("subscript added, empty subscript"))
 
 
 def add_superscript(source: str, caret: int) -> TemplateEdit | None:
@@ -254,7 +259,7 @@ def add_superscript(source: str, caret: int) -> TemplateEdit | None:
     if script is None or script.superscript is not None:
         return None
     at = script.end
-    return TemplateEdit(source[:at] + "^()" + source[at:], at + 2, "superscript added, empty superscript")
+    return TemplateEdit(source[:at] + "^()" + source[at:], at + 2, spoken("superscript added, empty superscript"))
 
 
 def remove_subscript(source: str, caret: int) -> TemplateEdit | None:
@@ -262,7 +267,7 @@ def remove_subscript(source: str, caret: int) -> TemplateEdit | None:
     if script is None or script.subscript is None:
         return None
     start, end = script.subscript
-    return TemplateEdit(source[:start] + source[end:], start, "subscript removed")
+    return TemplateEdit(source[:start] + source[end:], start, spoken("subscript removed"))
 
 
 def remove_superscript(source: str, caret: int) -> TemplateEdit | None:
@@ -270,7 +275,7 @@ def remove_superscript(source: str, caret: int) -> TemplateEdit | None:
     if script is None or script.superscript is None:
         return None
     start, end = script.superscript
-    return TemplateEdit(source[:start] + source[end:], start, "superscript removed")
+    return TemplateEdit(source[:start] + source[end:], start, spoken("superscript removed"))
 
 
 def _base_start(source: str, connector: int, openings: dict[int, int]) -> int | None:
@@ -312,14 +317,14 @@ def _argument_end(source: str, start: int, pairs: dict[int, int]) -> int:
 # Visible bracket pairs (opening -> closing); `├`/`┤` are UnicodeMath's invisible ones.
 BRACKETS = {"(": ")", "[": "]", "{": "}", "⟨": "⟩", "⌊": "⌋", "⌈": "⌉", "|": "|", "‖": "‖", "├": "┤"}
 BRACKET_NAMES = {
-    "(": "parentheses",
-    "[": "square brackets",
-    "{": "braces",
-    "⟨": "angle brackets",
-    "⌊": "floor",
-    "⌈": "ceiling",
-    "|": "absolute value",
-    "‖": "norm",
+    "(": N_("parentheses"),
+    "[": N_("square brackets"),
+    "{": N_("braces"),
+    "⟨": N_("angle brackets"),
+    "⌊": N_("floor"),
+    "⌈": N_("ceiling"),
+    "|": N_("absolute value"),
+    "‖": N_("norm"),
 }
 _OPENERS = "([{⟨⌊⌈├"
 _CLOSERS = ")]}⟩⌋⌉┤"
@@ -373,7 +378,7 @@ def change_brackets(source: str, caret: int, opening: str) -> TemplateEdit | Non
     closing = BRACKETS[opening]
     edited = source[: bracket.opening] + opening + source[bracket.opening + 1 : bracket.closing] + closing
     edited += source[bracket.closing + 1 :]
-    return TemplateEdit(edited, min(caret, bracket.closing), f"{BRACKET_NAMES.get(opening, 'brackets')}")
+    return TemplateEdit(edited, min(caret, bracket.closing), spoken(BRACKET_NAMES.get(opening, N_("brackets"))))
 
 
 def encloses_matrix(source: str, bracket: Bracket) -> bool:
@@ -388,7 +393,7 @@ def remove_brackets(source: str, caret: int) -> TemplateEdit | None:
         return None
     content = source[bracket.opening + 1 : bracket.closing]
     edited = source[: bracket.opening] + content + source[bracket.closing + 1 :]
-    return TemplateEdit(edited, bracket.opening + len(content), "brackets removed")
+    return TemplateEdit(edited, bracket.opening + len(content), spoken("brackets removed"))
 
 
 def hide_bracket(source: str, caret: int, closing: bool) -> TemplateEdit | None:
@@ -399,9 +404,12 @@ def hide_bracket(source: str, caret: int, closing: bool) -> TemplateEdit | None:
     at = bracket.closing if closing else bracket.opening
     hidden = source[at] in "├┤"
     replacement = (")" if closing else "(") if hidden else ("┤" if closing else "├")
-    side = "closing" if closing else "opening"
+    if closing:
+        announcement = spoken("closing bracket shown") if hidden else spoken("closing bracket hidden")
+    else:
+        announcement = spoken("opening bracket shown") if hidden else spoken("opening bracket hidden")
     edited = source[:at] + replacement + source[at + 1 :]
-    return TemplateEdit(edited, min(caret, len(edited)), f"{side} bracket {'shown' if hidden else 'hidden'}")
+    return TemplateEdit(edited, min(caret, len(edited)), announcement)
 
 
 def _visible(source: str, opening: int, closing: int) -> bool:
@@ -418,16 +426,16 @@ def _visible(source: str, opening: int, closing: int) -> bool:
 
 # Accents Mathessible inserts (structure_gallery), by combining mark.
 ACCENTS = {
-    "\u20d7": "vector arrow",
-    "\u0302": "hat",
-    "\u0305": "bar",
-    "\u0307": "dot",
-    "\u0308": "double dot",
-    "\u0303": "tilde",
-    "\u030c": "check",
-    "\u0301": "acute",
-    "\u0300": "grave",
-    "\u0306": "breve",
+    "\u20d7": N_("vector arrow"),
+    "\u0302": N_("hat"),
+    "\u0305": N_("bar"),
+    "\u0307": N_("dot"),
+    "\u0308": N_("double dot"),
+    "\u0303": N_("tilde"),
+    "\u030c": N_("check"),
+    "\u0301": N_("acute"),
+    "\u0300": N_("grave"),
+    "\u0306": N_("breve"),
 }
 
 
@@ -474,11 +482,13 @@ def remove_accent(source: str, caret: int) -> TemplateEdit | None:
     if accent is None:
         return None
     edited = source[: accent.mark] + source[accent.mark + 1 :]
-    return TemplateEdit(edited, accent.mark, f"{ACCENTS[source[accent.mark]]} removed")
+    return TemplateEdit(
+        edited, accent.mark, spoken("{accent} removed").format(accent=spoken(ACCENTS[source[accent.mark]]))
+    )
 
 
 # Bars over or under a group: `¯(x+y)`, `▁(x+y)` (CONTENT_SIGNS in math_templates).
-BARS = {"¯": "overbar", "▁": "underbar"}
+BARS = {"¯": N_("overbar"), "▁": N_("underbar")}
 
 
 def bar_at(source: str, caret: int, end: int | None = None) -> tuple[int, int] | None:
@@ -510,4 +520,4 @@ def remove_bar(source: str, caret: int) -> TemplateEdit | None:
     sign, closing = bar
     content = source[sign + 2 : closing]
     edited = source[:sign] + content + source[closing + 1 :]
-    return TemplateEdit(edited, sign + len(content), f"{BARS[source[sign]]} removed")
+    return TemplateEdit(edited, sign + len(content), spoken("{bar} removed").format(bar=spoken(BARS[source[sign]])))

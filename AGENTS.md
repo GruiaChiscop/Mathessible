@@ -21,8 +21,12 @@ specification (Unicode Technical Note #28) is the reference.
 
 Everything in the repository is in English: code, identifiers, comments,
 messages, scripts, documentation and test data.
-Other languages belong only in localisation files (none yet); a test
-that needs non-ASCII text may use any language for it.
+Other languages belong only in the localisation files
+(`src/mathessible/locale/`, see [docs/translating.md](docs/translating.md));
+a test that needs non-ASCII text may use any language for it. A text
+the user sees or hears goes through `_`/`ngettext` (`spoken`/`spoken_n`
+for what the equation editor says about an equation), and
+`scripts/update-translations.py` is run after changing such texts.
 
 ## Product Rules
 

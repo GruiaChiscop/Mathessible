@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 
 from mathessible.editing.completion import Suggestion, SymbolNamer, search_symbols
+from mathessible.i18n import _
 
 try:
     import wx
@@ -30,19 +31,19 @@ if wx is not None:
             name: SymbolNamer,
             query: str = "",
         ):
-            super().__init__(parent, title="Insert Symbol", style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
-            self.SetName("Insert symbol dialog")
+            super().__init__(parent, title=_("Insert Symbol"), style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+            self.SetName(_("Insert symbol dialog"))
             self._table = table
             self._name = name
             self._matches: list[Suggestion] = []
 
             sizer = wx.BoxSizer(wx.VERTICAL)
-            search_label = wx.StaticText(self, label="&Search (control word, symbol or name)")
+            search_label = wx.StaticText(self, label=_("&Search (control word, symbol or name)"))
             self.search = wx.TextCtrl(self, value=query, style=wx.TE_PROCESS_ENTER)
-            self.search.SetName("Search symbols")
-            results_label = wx.StaticText(self, label="&Matches")
+            self.search.SetName(_("Search symbols"))
+            results_label = wx.StaticText(self, label=_("&Matches"))
             self.results = wx.ListBox(self, size=(420, 260), style=wx.LB_SINGLE)
-            self.results.SetName("Matching symbols")
+            self.results.SetName(_("Matching symbols"))
             buttons = self.CreateSeparatedButtonSizer(wx.OK | wx.CANCEL)
 
             sizer.Add(search_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)

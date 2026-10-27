@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
+from mathessible.i18n import _
+
 try:
     import wx
 except ImportError:
@@ -26,8 +28,8 @@ if wx is not None:
             defaults: Mapping[str, str],
             entries: Mapping[str, str],
         ):
-            super().__init__(parent, title="Math AutoCorrect", style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
-            self.SetName("Math AutoCorrect dialog")
+            super().__init__(parent, title=_("Math AutoCorrect"), style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+            self.SetName(_("Math AutoCorrect dialog"))
             self._defaults = dict(defaults)
             self.entries = dict(entries)
             self._keys: list[str] = []
@@ -35,23 +37,23 @@ if wx is not None:
             sizer = wx.BoxSizer(wx.VERTICAL)
             fields = wx.FlexGridSizer(cols=2, vgap=8, hgap=12)
             fields.AddGrowableCol(1)
-            replace_label = wx.StaticText(self, label="&Replace")
+            replace_label = wx.StaticText(self, label=_("&Replace"))
             self.replace = wx.TextCtrl(self)
-            self.replace.SetName("Replace")
-            with_label = wx.StaticText(self, label="&With")
+            self.replace.SetName(_("Replace"))
+            with_label = wx.StaticText(self, label=_("&With"))
             self.replacement = wx.TextCtrl(self)
-            self.replacement.SetName("With")
+            self.replacement.SetName(_("With"))
             fields.Add(replace_label, 0, wx.ALIGN_CENTER_VERTICAL)
             fields.Add(self.replace, 1, wx.EXPAND)
             fields.Add(with_label, 0, wx.ALIGN_CENTER_VERTICAL)
             fields.Add(self.replacement, 1, wx.EXPAND)
-            list_label = wx.StaticText(self, label="&Entries")
+            list_label = wx.StaticText(self, label=_("&Entries"))
             self.list = wx.ListBox(self, size=(420, 280), style=wx.LB_SINGLE)
-            self.list.SetName("Math AutoCorrect entries")
+            self.list.SetName(_("Math AutoCorrect entries"))
             row = wx.BoxSizer(wx.HORIZONTAL)
-            self.add_button = wx.Button(self, label="&Add")
-            self.delete_button = wx.Button(self, label="&Delete")
-            reset_button = wx.Button(self, label="Reset to De&faults")
+            self.add_button = wx.Button(self, label=_("&Add"))
+            self.delete_button = wx.Button(self, label=_("&Delete"))
+            reset_button = wx.Button(self, label=_("Reset to De&faults"))
             row.Add(self.add_button, 0, wx.RIGHT, 8)
             row.Add(self.delete_button, 0, wx.RIGHT, 8)
             row.Add(reset_button, 0)
@@ -102,7 +104,7 @@ if wx is not None:
 
         def _update_buttons(self) -> None:
             typed = self.replace.GetValue().strip()
-            self.add_button.SetLabel("&Replace" if typed in self.entries else "&Add")
+            self.add_button.SetLabel(_("&Replace") if typed in self.entries else _("&Add"))
             valid = bool(typed) and not any(character.isspace() for character in typed) and typed != "\\"
             self.add_button.Enable(valid and bool(self.replacement.GetValue().strip()))
             self.delete_button.Enable(typed in self.entries)

@@ -17,13 +17,39 @@ only be edited as text, and Mathessible says so at startup.
 ## Settings
 
 `Settings…` (`Command+,` on macOS, in the Edit menu elsewhere) groups the
-settings in five tabs: Typing (Math AutoCorrect and what converts while
-typing), Building (building as you type, recognised functions),
-Navigation, Speech (symbol dictionaries, unknown symbols) and Braille
-(the braille code and your own braille signs). On macOS it is a window,
+settings in tabs: Language (see below), Typing (Math AutoCorrect and what
+converts while typing), Building (building as you type, recognised
+functions), Navigation, Speech (symbol dictionaries, unknown symbols),
+Braille (the braille code and your own braille signs), and PDF, HTML and
+Word (the defaults of each export). On macOS it is a window,
 as in Mac apps: every change applies and is saved at once, and Escape or
 `Command+W` closes it. On Windows and Linux it is a dialog with OK,
 Cancel and Apply.
+
+### Language
+
+Mathessible is offered in MathCAT's languages, so that the menus and
+dialogs can be in the language equations are spoken in: English, German,
+Greek, Spanish, Finnish, French, Hungarian, Indonesian, Norwegian Bokmål,
+Polish, Portuguese (Brazil), Russian, Swedish, Vietnamese and Chinese
+(Taiwan). The Language tab has two choices:
+
+- **Interface**: the language of the menus, dialogs and what Mathessible
+  says about editing (for example "equation saved"). "The system's" (the
+  default) takes the first of your system's preferred languages that is
+  offered, else English. The interface changes the next time Mathessible
+  starts.
+- **Speech of equations**: the language MathCAT speaks equations in, and
+  in which the equation editor names its stops ("start fraction",
+  "in the numerator"). "The interface's" (the default) follows the
+  interface. This changes at once.
+
+What you type is never translated, and an exported document keeps the
+language of its own text; the language field of an export's Document tab
+only labels it. Only English is written by the project. The other
+languages are drafts that a native speaker has yet to review, so some
+wording may be odd; [translating.md](translating.md) says how to correct
+it.
 
 ## Markdown and equations
 

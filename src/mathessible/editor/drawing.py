@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from mathessible.i18n import _
 from mathessible.ui.theme import Palette
 
 try:
@@ -94,13 +95,21 @@ class EditorDrawingMixin:
     def _status_text(self) -> str:
         if self.mode == "linear":
             if not self.document.source:
-                return "UnicodeMath source — empty equation"
-            return f"UnicodeMath source — character {self.caret + 1} of {len(self.document.source) + 1}"
+                return _("UnicodeMath source — empty equation")
+            return _("UnicodeMath source — character {position} of {length}").format(
+                position=self.caret + 1, length=len(self.document.source) + 1
+            )
         if self.writing_enabled:
-            return "Professional mode — writing mode: Space types; Up/Down read rows; F10 explores; F2 source"
-        kind = "linear" if self.settings.linear_navigation else "structural"
-        navigation = f"exploration mode, {kind} navigation (F10 writes)"
-        return f"Professional mode — {navigation}; Space reads; Shift+Space context; Alt+Space zone; F2 source"
+            return _("Professional mode — writing mode: Space types; Up/Down read rows; F10 explores; F2 source")
+        if self.settings.linear_navigation:
+            return _(
+                "Professional mode — exploration mode, linear navigation (F10 writes); "
+                "Space reads; Shift+Space context; Alt+Space zone; F2 source"
+            )
+        return _(
+            "Professional mode — exploration mode, structural navigation (F10 writes); "
+            "Space reads; Shift+Space context; Alt+Space zone; F2 source"
+        )
 
     def _suggestions_text(self) -> str:
         """The control-word suggestions around the current one, for the line under the source."""
@@ -113,7 +122,10 @@ class EditorDrawingMixin:
             f"[\\{s.word} {s.symbol}]" if first + offset == completion.index else f"\\{s.word}"
             for offset, s in enumerate(shown)
         ]
-        return f"{'  '.join(words)}  ({completion.index + 1} of {len(completion.suggestions)}; Tab completes)"
+        counter = _("{position} of {count}; Tab completes").format(
+            position=completion.index + 1, count=len(completion.suggestions)
+        )
+        return f"{'  '.join(words)}  ({counter})"
 
     def _draw_editor_chrome(self, dc: wx.DC, colors: Palette) -> None:
         width, height = self.GetClientSize()
@@ -126,11 +138,11 @@ class EditorDrawingMixin:
         dc.DrawRectangle(0, 0, width, self._HEADER_HEIGHT)
         dc.DrawRectangle(0, max(0, height - self._STATUS_HEIGHT), width, self._STATUS_HEIGHT)
 
-        title = "Linear (UnicodeMath source)" if self.mode == "linear" else "Professional (built equation)"
+        title = _("Linear (UnicodeMath source)") if self.mode == "linear" else _("Professional (built equation)")
         dc.SetFont(self._ui_font(13, wx.FONTWEIGHT_BOLD))
         dc.SetTextForeground(self._colour(colors.text))
         dc.DrawText(title, 16, 9)
-        hint = "F2 switches view"
+        hint = _("F2 switches view")
         dc.SetFont(self._ui_font(12))
         dc.SetTextForeground(self._colour(colors.subtle_text))
         dc.DrawText(hint, width - 16 - dc.GetTextExtent(hint).width, 10)
@@ -186,7 +198,7 @@ class EditorDrawingMixin:
                 preview = self._renderer_rect()
                 dc.SetFont(self._ui_font(12))
                 dc.SetTextForeground(self._colour(colors.subtle_text))
-                message = self._renderer_error or ("" if self._renderer_ready else "Loading the math renderer…")
+                message = self._renderer_error or ("" if self._renderer_ready else _("Loading the math renderer…"))
                 dc.DrawText(message, preview.x + 14, preview.y + 12)
             return
         if self._webview is None or not self._webview.IsShown():
@@ -194,7 +206,7 @@ class EditorDrawingMixin:
             content = self._content_rect()
             dc.SetFont(self._ui_font(12))
             dc.SetTextForeground(self._colour(colors.subtle_text))
-            dc.DrawText(self._renderer_error or "The math renderer is not available", content.x + 14, content.y + 12)
+            dc.DrawText(self._renderer_error or _("The math renderer is not available"), content.x + 14, content.y + 12)
 
     def _draw_source(self, dc: wx.DC, colors: Palette) -> None:
         content = self._source_rect()
@@ -215,7 +227,7 @@ class EditorDrawingMixin:
             dc.DrawText(self.document.source, x, y)
         else:
             dc.SetTextForeground(self._colour(colors.subtle_text))
-            dc.DrawText("Type UnicodeMath here, e.g. (a+b)/2", x, y)
+            dc.DrawText(_("Type UnicodeMath here, e.g. (a+b)/2"), x, y)
         prefix_width = dc.GetTextExtent(self.document.source[: self.caret]).width
         dc.SetPen(wx.Pen(self._colour(colors.focus), 2))
         dc.DrawLine(x + prefix_width, y - 2, x + prefix_width, y + line_height + 2)

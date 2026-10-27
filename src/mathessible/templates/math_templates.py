@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from mathessible.i18n import N_, spoken
 from mathessible.settings import DEFAULT_RECOGNIZED_FUNCTIONS
 from mathessible.templates.matrix_templates import matrix_cells, matrix_label, past_fence
 from mathessible.templates.template_source import TemplateEdit, insert_template, matching_parens, operand_end
@@ -9,11 +10,11 @@ from mathessible.templates.template_source import TemplateEdit, insert_template,
 # N-ary operators whose `_(...)`/`^(...)` groups are limits, not scripts.
 NARY_LABELS = {
     "∫": "integral",
-    "∬": "double integral",
-    "∭": "triple integral",
-    "∮": "contour integral",
-    "∯": "surface integral",
-    "∰": "volume integral",
+    "∬": N_("double integral"),
+    "∭": N_("triple integral"),
+    "∮": N_("contour integral"),
+    "∯": N_("surface integral"),
+    "∰": N_("volume integral"),
     "∑": "sum",
     "∏": "product",
     "∐": "coproduct",
@@ -21,11 +22,11 @@ NARY_LABELS = {
     "⋂": "intersection",
 }
 # Paired brackets with a value between (no parens): opening -> (closing, name).
-BRACKET_PAIRS = {"‖": ("‖", "norm"), "⌊": ("⌋", "floor"), "⌈": ("⌉", "ceiling"), "⟨": ("⟩", "angle brackets")}
+BRACKET_PAIRS = {"‖": ("‖", "norm"), "⌊": ("⌋", "floor"), "⌈": ("⌉", "ceiling"), "⟨": ("⟩", N_("angle brackets"))}
 # Signs whose "(...)" right after them is a structure's content: sign -> (structure, role).
 CONTENT_SIGNS = {
     "▭": ("box", "content"),
-    "#": ("equation number", "number"),
+    "#": (N_("equation number"), "number"),
     "⏞": ("overbrace", "content"),
     "⏟": ("underbrace", "content"),
     "¯": ("overbar", "content"),
@@ -37,10 +38,10 @@ FRACTION_SIGNS = "/⁄∕⊘"
 # The argument follows a space ("lim_(n→∞) a_n"): with no separator the
 # converter folds it into the subscript, and "▒" is a parse error there.
 FUNCTION_SCRIPTS = {
-    "lim": ("limit", "limit condition"),
+    "lim": ("limit", N_("limit condition")),
     "log": ("logarithm", "base"),
-    "lim\u00a0inf": ("limit inferior", "limit condition"),
-    "lim\u00a0sup": ("limit superior", "limit condition"),
+    "lim\u00a0inf": (N_("limit inferior"), N_("limit condition")),
+    "lim\u00a0sup": (N_("limit superior"), N_("limit condition")),
 }
 # Functions typed as one word but written as the converter's grammar wants:
 # "lim inf"/"lim sup" with a no-break space (UnicodeMathML's functionName).
@@ -55,12 +56,12 @@ def function_script(text: str) -> tuple[str, str] | None:
 
 
 # Radical signs whose "〖...〗" right after them is the radicand.
-ROOT_SIGN_LABELS = {"√": "square root", "∛": "cube root", "∜": "fourth root"}
+ROOT_SIGN_LABELS = {"√": N_("square root"), "∛": N_("cube root"), "∜": N_("fourth root")}
 FUNCTION_TEMPLATES = frozenset(template for template, _role in FUNCTION_SCRIPTS.values())
 # Word's operator structures: an operator with text above (`→┴(...)`) or
 # below (`→┬(...)`); both stack as `→┬(below)┴(above)`. Like lim, a space
 # must follow, or the converter folds the next operand into the text.
-OPERATOR_TEXT_ROLES = {"┴": "text above", "┬": "text below"}
+OPERATOR_TEXT_ROLES = {"┴": N_("text above"), "┬": N_("text below")}
 ARROWS = frozenset("→←↔⇒⇐⇔⟶⟵⟷⟹⟸⟺↦⇌")
 # What Tab past a template's last slot lands in, after its "▒" or space
 # (the n-ary names are the ones MathMLDocument uses too).
@@ -85,14 +86,14 @@ NARYAND_ROLES = {
 
 def insert_fraction_template(source: str, caret: int) -> TemplateEdit:
     return insert_template(
-        source, caret, "()/()", first_slot_offset=1, announcement="fraction template, empty numerator"
+        source, caret, "()/()", first_slot_offset=1, announcement=spoken("fraction template, empty numerator")
     )
 
 
 def insert_square_root_template(source: str, caret: int) -> TemplateEdit:
     """`√〖〗`: the radicand is an invisible group, like a function's argument (see group_function_argument)."""
     return insert_template(
-        source, caret, "√〖〗", first_slot_offset=2, announcement="square root template, empty radicand"
+        source, caret, "√〖〗", first_slot_offset=2, announcement=spoken("square root template, empty radicand")
     )
 
 
@@ -104,7 +105,7 @@ def insert_limit_template(source: str, caret: int) -> TemplateEdit:
     on top, while `lim_(x→∞) 〖(a)/(b)〗` is the limit of the fraction.
     """
     return insert_template(
-        source, caret, "lim_() 〖〗", first_slot_offset=5, announcement="limit template, empty limit condition"
+        source, caret, "lim_() 〖〗", first_slot_offset=5, announcement=spoken("limit template, empty limit condition")
     )
 
 
@@ -127,17 +128,25 @@ def group_function_argument(source: str, caret: int, functions: tuple[str, ...] 
     nary = _nary_before(source, caret)
     if nary is not None:
         role = NARYAND_ROLES.get(nary, "argument")
-        return TemplateEdit(source[:caret] + "▒〖〗" + source[caret:], caret + 2, f"{nary}, empty {role}")
+        return TemplateEdit(
+            source[:caret] + "▒〖〗" + source[caret:],
+            caret + 2,
+            spoken("{structure}, empty {role}").format(structure=spoken(nary), role=spoken(role)),
+        )
     if source[caret - 1] in ROOT_SIGN_LABELS:
         # A radical: the group goes right after the sign (`√ 〖x〗` does not build).
         label = ROOT_SIGN_LABELS[source[caret - 1]]
-        return TemplateEdit(source[:caret] + "〖〗" + source[caret:], caret + 1, f"{label}, empty radicand")
+        return TemplateEdit(
+            source[:caret] + "〖〗" + source[caret:],
+            caret + 1,
+            spoken("{structure}, empty radicand").format(structure=spoken(label)),
+        )
     if source[caret - 1] == ")":
         pairs = matching_parens(source)
         opening = next((start for start, end in pairs.items() if end == caret - 1), None)
         if opening is None or _function_script(source, opening, caret - 1) is None:
             return None
-        return TemplateEdit(source[:caret] + " 〖〗" + source[caret:], caret + 2, "empty argument")
+        return TemplateEdit(source[:caret] + " 〖〗" + source[caret:], caret + 2, spoken("empty argument"))
     start = caret
     while start > 0 and source[start - 1].isalpha():
         start -= 1
@@ -146,11 +155,16 @@ def group_function_argument(source: str, caret: int, functions: tuple[str, ...] 
         spelled = FUNCTION_SPELLINGS.get(name, name)
         source = source[:start] + spelled + source[caret:]
         caret = start + len(spelled)
-        spoken = spelled.replace("\u00a0", " ")  # "lim sup", not "limsup".
-        return TemplateEdit(source[:caret] + " 〖〗" + source[caret:], caret + 2, f"{spoken}, empty argument")
+        said = spelled.replace("\u00a0", " ")  # "lim sup", not "limsup".
+        announcement = spoken("{function}, empty argument").format(function=said)
+        return TemplateEdit(source[:caret] + " 〖〗" + source[caret:], caret + 2, announcement)
     scripted = _unparenthesized_script(source, caret, functions)
     if scripted is not None:
-        return TemplateEdit(source[:caret] + " 〖〗" + source[caret:], caret + 2, f"{scripted}, empty argument")
+        return TemplateEdit(
+            source[:caret] + " 〖〗" + source[caret:],
+            caret + 2,
+            spoken("{function}, empty argument").format(function=scripted),
+        )
     return None
 
 
@@ -236,7 +250,7 @@ def _unparenthesized_script(source: str, caret: int, functions: tuple[str, ...])
 def insert_logarithm_template(source: str, caret: int) -> TemplateEdit:
     """`log_() 〖〗`: caret in the base; Tab goes on to the argument, an invisible group as for lim."""
     return insert_template(
-        source, caret, "log_() 〖〗", first_slot_offset=5, announcement="logarithm template, empty base"
+        source, caret, "log_() 〖〗", first_slot_offset=5, announcement=spoken("logarithm template, empty base")
     )
 
 
@@ -249,7 +263,9 @@ def insert_operator_template(source: str, caret: int, operator: str = "→", abo
         caret,
         f"{operator}{mark}() ",
         first_slot_offset=len(operator) + 2,
-        announcement=f"{label} template, empty {OPERATOR_TEXT_ROLES[mark]}",
+        announcement=spoken("{structure} template, empty {role}").format(
+            structure=spoken(label), role=spoken(OPERATOR_TEXT_ROLES[mark])
+        ),
     )
 
 
@@ -260,7 +276,9 @@ def insert_root_template(source: str, caret: int) -> TemplateEdit:
     converter (`√(&x)` fails, `√(3&x)` is an mroot), the usual transient
     state of a template that has not been filled in yet.
     """
-    return insert_template(source, caret, "√(&)", first_slot_offset=2, announcement="root template, empty index")
+    return insert_template(
+        source, caret, "√(&)", first_slot_offset=2, announcement=spoken("root template, empty index")
+    )
 
 
 def insert_nary_operator_template(source: str, caret: int, symbol: str, limits: bool = False) -> TemplateEdit:
@@ -271,51 +289,62 @@ def insert_nary_operator_template(source: str, caret: int, symbol: str, limits: 
 def insert_cases_template(source: str, caret: int) -> TemplateEdit:
     """`{■(&@&)┤`: a piecewise definition, two cases of value & condition, caret in the first value."""
     return insert_template(
-        source, caret, "{■(&@&)┤", first_slot_offset=3, announcement="cases template, empty value, case 1"
+        source, caret, "{■(&@&)┤", first_slot_offset=3, announcement=spoken("cases template, empty value, case 1")
     )
 
 
 def insert_equation_array_template(source: str, caret: int) -> TemplateEdit:
     """`█(@)`: lines of an equation array (a derivation step by step); `&` aligns them where typed."""
     return insert_template(
-        source, caret, "█(@)", first_slot_offset=2, announcement="equation array template, empty line 1"
+        source, caret, "█(@)", first_slot_offset=2, announcement=spoken("equation array template, empty line 1")
     )
 
 
 def insert_binomial_template(source: str, caret: int) -> TemplateEdit:
     """`(¦)`: n choose k, caret on top. An empty side is filled in for building (build_repair)."""
-    return insert_template(source, caret, "(¦)", first_slot_offset=1, announcement="binomial template, empty top")
+    return insert_template(
+        source, caret, "(¦)", first_slot_offset=1, announcement=spoken("binomial template, empty top")
+    )
 
 
 def insert_bracket_template(source: str, caret: int, opening: str) -> TemplateEdit:
     """A pair of BRACKET_PAIRS (`‖‖`, `⌊⌋`, `⌈⌉`, `⟨⟩`), caret between."""
     closing, name = BRACKET_PAIRS[opening]
     return insert_template(
-        source, caret, opening + closing, first_slot_offset=1, announcement=f"{name} template, empty value"
+        source,
+        caret,
+        opening + closing,
+        first_slot_offset=1,
+        announcement=spoken("{structure} template, empty value").format(structure=spoken(name)),
     )
 
 
 def insert_box_template(source: str, caret: int) -> TemplateEdit:
     """`▭()`: a boxed formula (a final answer)."""
-    return insert_template(source, caret, "▭()", first_slot_offset=2, announcement="box template, empty content")
+    return insert_template(
+        source, caret, "▭()", first_slot_offset=2, announcement=spoken("box template, empty content")
+    )
 
 
 def insert_equation_number_template(source: str, caret: int) -> TemplateEdit:
     """`#()` at the end of the equation, wherever the caret is: its number ("1 equation, with label 1")."""
     end = len(source)
-    return insert_template(source, end, "#()", first_slot_offset=2, announcement="equation number, empty number")
+    return insert_template(
+        source, end, "#()", first_slot_offset=2, announcement=spoken("equation number, empty number")
+    )
 
 
 def insert_brace_template(source: str, caret: int, above: bool = True) -> TemplateEdit:
     """`⏞()┴()` / `⏟()┬()`: a brace over/under an expression with a label, caret in the expression."""
     template = "⏞()┴()" if above else "⏟()┬()"
     name = "overbrace" if above else "underbrace"
-    return insert_template(source, caret, template, first_slot_offset=2, announcement=f"{name} template, empty content")
+    announcement = spoken("{structure} template, empty content").format(structure=spoken(name))
+    return insert_template(source, caret, template, first_slot_offset=2, announcement=announcement)
 
 
 def insert_absolute_value_template(source: str, caret: int) -> TemplateEdit:
     return insert_template(
-        source, caret, "|()|", first_slot_offset=2, announcement="absolute value template, empty value"
+        source, caret, "|()|", first_slot_offset=2, announcement=spoken("absolute value template, empty value")
     )
 
 
@@ -355,10 +384,14 @@ def _insert_nary_template(source: str, caret: int, symbol: str, limits: bool) ->
             caret,
             f"{symbol}_()^()▒〖〗",
             first_slot_offset=3,
-            announcement=f"{label} template, empty lower limit",
+            announcement=spoken("{structure} template, empty lower limit").format(structure=spoken(label)),
         )
     return insert_template(
-        source, caret, f"{symbol}▒〖〗", first_slot_offset=3, announcement=f"{label} template, empty {role}"
+        source,
+        caret,
+        f"{symbol}▒〖〗",
+        first_slot_offset=3,
+        announcement=spoken("{structure} template, empty {role}").format(structure=spoken(label), role=spoken(role)),
     )
 
 
@@ -384,10 +417,20 @@ def _insert_script_template(source: str, caret: int, connector: str, label: str)
     if has_base:
         # Offset 2: past the connector and the slot's opening "(".
         return insert_template(
-            source, caret, f"{connector}()", first_slot_offset=2, announcement=f"{label} template, empty {label}"
+            source,
+            caret,
+            f"{connector}()",
+            first_slot_offset=2,
+            announcement=spoken("{structure} template, empty {role}").format(
+                structure=spoken(label), role=spoken(label)
+            ),
         )
     return insert_template(
-        source, caret, f"(){connector}()", first_slot_offset=1, announcement=f"{label} template, empty base"
+        source,
+        caret,
+        f"(){connector}()",
+        first_slot_offset=1,
+        announcement=spoken("{structure} template, empty base").format(structure=spoken(label)),
     )
 
 
@@ -551,7 +594,7 @@ def _structure_slots(source: str, pairs: dict[int, int]) -> list[_Slot]:
             # Each line between the array's own "@"s ("&" only aligns, it does not split).
             start, line = opening + 1, 1
             for index in _top_level(source, opening, closing, pairs, "@") + [closing]:
-                found.append(_Slot(start, index, "equation array", f"line {line}", closing + 1))
+                found.append(_Slot(start, index, N_("equation array"), f"line {line}", closing + 1))
                 start, line = index + 1, line + 1
             continue
         separators = _top_level(source, opening, closing, pairs, "¦")
@@ -649,7 +692,7 @@ def _nary_limit(source: str, opening: int, closing: int) -> tuple[str, str, int]
     label = NARY_LABELS.get(source[base])
     if label is None:
         return None
-    role = "lower limit" if source[opening - 1] == "_" else "upper limit"
+    role = N_("lower limit") if source[opening - 1] == "_" else N_("upper limit")
     exit = closing + 1
     if source[exit : exit + 2].startswith("^("):
         return label, role, exit  # An upper limit follows; it is the next slot.
@@ -736,9 +779,9 @@ def _detect_group(source: str, opening: int, closing: int) -> tuple[str, str, in
     if before == "^":
         return "scripts", "superscript", closing + 1
     if before == "√":
-        return "square root", "radicand", closing + 1
+        return N_("square root"), "radicand", closing + 1
     if before == "|" and after == "|":
-        return "absolute value", "value", closing + 2
+        return N_("absolute value"), "value", closing + 2
     if before and (before.isalnum() or before in ")]}"):
         return None
     if after in ("_", "^"):

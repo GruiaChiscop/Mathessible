@@ -10,6 +10,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from mathessible.i18n import N_
 from mathessible.templates.math_templates import (
     insert_absolute_value_template,
     insert_binomial_template,
@@ -59,88 +60,91 @@ class InsertItem:
 # The Insert menu, one tuple per section (separators between them).
 INSERT_GROUPS = (
     (
-        InsertItem("&Fraction", insert_fraction_template, "/", "command"),
-        InsertItem("&Subscript", insert_subscript_template, "=", "command"),
-        InsertItem("Su&perscript", insert_superscript_template, "=", "command", shift=True),
+        InsertItem(N_("&Fraction"), insert_fraction_template, "/", "command"),
+        InsertItem(N_("&Subscript"), insert_subscript_template, "=", "command"),
+        InsertItem(N_("Su&perscript"), insert_superscript_template, "=", "command", shift=True),
     ),
     (
-        InsertItem("&Square Root", insert_square_root_template, "R", "command"),
-        InsertItem("&Root with Index", insert_root_template, "R", "variant"),
+        InsertItem(N_("&Square Root"), insert_square_root_template, "R", "command"),
+        InsertItem(N_("&Root with Index"), insert_root_template, "R", "variant"),
     ),
     (
-        InsertItem("&Integral", insert_integral_template, "I", "command"),
+        InsertItem(N_("&Integral"), insert_integral_template, "I", "command"),
         InsertItem(
-            "Integral with &Limits",
+            N_("Integral with &Limits"),
             lambda source, caret: insert_integral_template(source, caret, limits=True),
             "I",
             "variant",
         ),
-        InsertItem("&Sum", insert_sum_template, "S", "command"),
+        InsertItem(N_("&Sum"), insert_sum_template, "S", "command"),
         InsertItem(
-            "Sum with Li&mits", lambda source, caret: insert_sum_template(source, caret, limits=True), "S", "variant"
+            N_("Sum with Li&mits"),
+            lambda source, caret: insert_sum_template(source, caret, limits=True),
+            "S",
+            "variant",
         ),
-        InsertItem("&Product", insert_product_template, "P", "command"),
+        InsertItem(N_("&Product"), insert_product_template, "P", "command"),
         InsertItem(
-            "Product with Limi&ts",
+            N_("Product with Limi&ts"),
             lambda source, caret: insert_product_template(source, caret, limits=True),
             "P",
             "variant",
         ),
     ),
     (
-        InsertItem("&Absolute Value", insert_absolute_value_template, "\\", "command"),
-        InsertItem("&Limit", insert_limit_template, "L", "command"),
-        InsertItem("L&ogarithm", insert_logarithm_template, "L", "variant"),
+        InsertItem(N_("&Absolute Value"), insert_absolute_value_template, "\\", "command"),
+        InsertItem(N_("&Limit"), insert_limit_template, "L", "command"),
+        InsertItem(N_("L&ogarithm"), insert_logarithm_template, "L", "variant"),
     ),
     (
         # Shift avoids the frame's File > Open (Command+O).
-        InsertItem("Arrow with Text &Above", insert_operator_template, "O", "command", shift=True),
+        InsertItem(N_("Arrow with Text &Above"), insert_operator_template, "O", "command", shift=True),
         InsertItem(
-            "Arrow with Text &Below",
+            N_("Arrow with Text &Below"),
             lambda source, caret: insert_operator_template(source, caret, above=False),
             "O",
             "variant",
         ),
         InsertItem(
-            "&Equals with Text Above", lambda source, caret: insert_operator_template(source, caret, operator="=")
+            N_("&Equals with Text Above"), lambda source, caret: insert_operator_template(source, caret, operator="=")
         ),
     ),
     (
-        InsertItem("&Norm", lambda source, caret: insert_bracket_template(source, caret, "‖")),
-        InsertItem("Floo&r", lambda source, caret: insert_bracket_template(source, caret, "⌊")),
-        InsertItem("Ceili&ng", lambda source, caret: insert_bracket_template(source, caret, "⌈")),
-        InsertItem("Angle Brac&kets", lambda source, caret: insert_bracket_template(source, caret, "⟨")),
-        InsertItem("Bino&mial", insert_binomial_template),
+        InsertItem(N_("&Norm"), lambda source, caret: insert_bracket_template(source, caret, "‖")),
+        InsertItem(N_("Floo&r"), lambda source, caret: insert_bracket_template(source, caret, "⌊")),
+        InsertItem(N_("Ceili&ng"), lambda source, caret: insert_bracket_template(source, caret, "⌈")),
+        InsertItem(N_("Angle Brac&kets"), lambda source, caret: insert_bracket_template(source, caret, "⟨")),
+        InsertItem(N_("Bino&mial"), insert_binomial_template),
     ),
     (
-        InsertItem("Double Inte&gral", lambda source, caret: insert_nary_operator_template(source, caret, "∬")),
-        InsertItem("Triple Integral", lambda source, caret: insert_nary_operator_template(source, caret, "∭")),
-        InsertItem("Contour Integral", lambda source, caret: insert_nary_operator_template(source, caret, "∮")),
-        InsertItem("&Union", lambda source, caret: insert_nary_operator_template(source, caret, "⋃", limits=True)),
+        InsertItem(N_("Double Inte&gral"), lambda source, caret: insert_nary_operator_template(source, caret, "∬")),
+        InsertItem(N_("Triple Integral"), lambda source, caret: insert_nary_operator_template(source, caret, "∭")),
+        InsertItem(N_("Contour Integral"), lambda source, caret: insert_nary_operator_template(source, caret, "∮")),
+        InsertItem(N_("&Union"), lambda source, caret: insert_nary_operator_template(source, caret, "⋃", limits=True)),
         InsertItem(
-            "Intersection", lambda source, caret: insert_nary_operator_template(source, caret, "⋂", limits=True)
+            N_("Intersection"), lambda source, caret: insert_nary_operator_template(source, caret, "⋂", limits=True)
         ),
     ),
     (
-        InsertItem("&Cases", insert_cases_template),
-        InsertItem("E&quation Array", insert_equation_array_template),
-        InsertItem("Bo&x", insert_box_template),
-        InsertItem("Equation &Number", insert_equation_number_template),
-        InsertItem("Overbrace", insert_brace_template),
-        InsertItem("Underbrace", lambda source, caret: insert_brace_template(source, caret, above=False)),
+        InsertItem(N_("&Cases"), insert_cases_template),
+        InsertItem(N_("E&quation Array"), insert_equation_array_template),
+        InsertItem(N_("Bo&x"), insert_box_template),
+        InsertItem(N_("Equation &Number"), insert_equation_number_template),
+        InsertItem(N_("Overbrace"), insert_brace_template),
+        InsertItem(N_("Underbrace"), lambda source, caret: insert_brace_template(source, caret, above=False)),
     ),
     # Shift is required: plain Command+M is macOS's Minimize, which the
     # frame's Window menu claims before the editor sees it.
     (
-        InsertItem("&Matrix…", None, "M", "command", shift=True, dialog="matrix"),
+        InsertItem(N_("&Matrix…"), None, "M", "command", shift=True, dialog="matrix"),
         # Searches control words and symbols by name (completion.py).
-        InsertItem("S&ymbol…", None, "S", "command", shift=True, dialog="symbol"),
+        InsertItem(N_("S&ymbol…"), None, "S", "command", shift=True, dialog="symbol"),
         # Word's structure gallery: every template by category (structure_gallery.py).
-        InsertItem("Structure Gallery…", None, "G", "command", shift=True, dialog="gallery"),
+        InsertItem(N_("Structure Gallery…"), None, "G", "command", shift=True, dialog="gallery"),
     ),
     (
         # Word's Normal Text: starts or ends quoted text, or quotes the selection (normal_text.py).
-        InsertItem("Normal &Text", None, "T", "command", shift=True, dialog="normal_text"),
+        InsertItem(N_("Normal &Text"), None, "T", "command", shift=True, dialog="normal_text"),
     ),
 )
 

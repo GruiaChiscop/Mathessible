@@ -7,6 +7,7 @@ from dataclasses import dataclass
 
 from mathessible.editing.source_map import anchor_offset
 from mathessible.editing.source_view import edit_in_view, in_view, view_of
+from mathessible.i18n import _, spoken
 from mathessible.mathcat.mathml_model import MathMLDocument, MathMLNode
 from mathessible.templates.fraction_styles import FRACTION_STYLES, built_fractions, fraction_at, restyle_fraction
 from mathessible.templates.insert_catalog import INSERT_GROUPS, InsertItem
@@ -110,6 +111,12 @@ _NARY_OPERATORS = _StructureKind(
 )
 
 
+def _menu_label(name: str) -> str:
+    """A structure's name (`N_` where it is defined) as a menu item: translated, capitalised, its access key first."""
+    label = _(name)
+    return f"&{label[:1].upper()}{label[1:]}"
+
+
 def append_insert_items(menu: wx.Menu) -> dict[int, InsertItem]:
     """Fill `menu` with the Insert entries, sections apart; returns them by menu id."""
     mac = wx.Platform == "__WXMAC__"
@@ -119,7 +126,8 @@ def append_insert_items(menu: wx.Menu) -> dict[int, InsertItem]:
             menu.AppendSeparator()
         for entry in group:
             accelerator = entry.accelerator(mac)
-            item = menu.Append(wx.ID_ANY, f"{entry.label}\t{accelerator}" if accelerator else entry.label)
+            label = _(entry.label)
+            item = menu.Append(wx.ID_ANY, f"{label}\t{accelerator}" if accelerator else label)
             entries[item.GetId()] = entry
     return entries
 
@@ -137,8 +145,8 @@ class StructureActionsMixin:
         self._append_caret_structure_menus(menu)
         if menu.GetMenuItemCount():
             menu.AppendSeparator()
-        other_view = "Professional" if self.mode == "linear" else "Linear"
-        view_item = menu.Append(wx.ID_ANY, f"Switch to {other_view} View\tF2")
+        switch = _("Switch to Professional View") if self.mode == "linear" else _("Switch to Linear View")
+        view_item = menu.Append(wx.ID_ANY, switch + "\tF2")
         self.Bind(wx.EVT_MENU, lambda _e: self._toggle_mode(), view_item)
         self.PopupMenu(menu, position)
         menu.Destroy()
@@ -148,16 +156,16 @@ class StructureActionsMixin:
         if self.mode != "linear":
             return
         has_content = bool(self.document.source)
-        cut_item = menu.Append(wx.ID_ANY, "Cu&t\tCtrl+X")
-        copy_item = menu.Append(wx.ID_ANY, "&Copy\tCtrl+C")
-        paste_item = menu.Append(wx.ID_ANY, "&Paste\tCtrl+V")
+        cut_item = menu.Append(wx.ID_ANY, _("Cu&t") + "\tCtrl+X")
+        copy_item = menu.Append(wx.ID_ANY, _("&Copy") + "\tCtrl+C")
+        paste_item = menu.Append(wx.ID_ANY, _("&Paste") + "\tCtrl+V")
         menu.AppendSeparator()
-        select_all_item = menu.Append(wx.ID_ANY, "Select &All\tCtrl+A")
+        select_all_item = menu.Append(wx.ID_ANY, _("Select &All") + "\tCtrl+A")
         menu.AppendSeparator()
         insert_menu = wx.Menu()
         for item_id, entry in append_insert_items(insert_menu).items():
             self.Bind(wx.EVT_MENU, lambda _e, entry=entry: self.insert_item(entry), id=item_id)
-        menu.AppendSubMenu(insert_menu, "&Insert")
+        menu.AppendSubMenu(insert_menu, _("&Insert"))
         cut_item.Enable(has_content)
         copy_item.Enable(has_content)
         paste_item.Enable(get_clipboard_text() is not None)
@@ -176,34 +184,39 @@ class StructureActionsMixin:
         caret = self._matrix_caret()
         position_in_matrix = in_view(self.document.source, caret, table_position_at) if caret is not None else None
         if position_in_matrix is not None and position_in_matrix.kind in ("cases", "equations"):
-            part = "Case" if position_in_matrix.kind == "cases" else "Equation"
+            cases = position_in_matrix.kind == "cases"
             rows_menu = wx.Menu()
+            above, below, delete = (
+                (_("Insert Case &Above"), _("Insert Case &Below"), _("&Delete Case"))
+                if cases
+                else (_("Insert Equation &Above"), _("Insert Equation &Below"), _("&Delete Equation"))
+            )
             rows_actions = [
-                (f"Insert {part} &Above", lambda: self._edit(lambda s, c: insert_table_row(s, c, below=False), caret)),
-                (f"Insert {part} &Below", lambda: self._edit(lambda s, c: insert_table_row(s, c, below=True), caret)),
-                (f"&Delete {part}", lambda: self._edit(delete_table_row, caret)),
+                (above, lambda: self._edit(lambda s, c: insert_table_row(s, c, below=False), caret)),
+                (below, lambda: self._edit(lambda s, c: insert_table_row(s, c, below=True), caret)),
+                (delete, lambda: self._edit(delete_table_row, caret)),
             ]
             for label, build in rows_actions:
                 item = rows_menu.Append(wx.ID_ANY, label)
                 self.Bind(wx.EVT_MENU, lambda _e, build=build: self._apply_matrix_edit(build()), item)
             rows_menu.GetMenuItems()[-1].Enable(position_in_matrix.rows > 1)
-            menu.AppendSubMenu(rows_menu, "&Cases" if part == "Case" else "&Equations")
+            menu.AppendSubMenu(rows_menu, _("&Cases") if cases else _("&Equations"))
         elif position_in_matrix is not None:
             matrix_menu = wx.Menu()
             matrix_actions = [
-                ("Insert Row &Above", lambda: self._edit(lambda s, c: insert_matrix_row(s, c, below=False), caret)),
-                ("Insert Row &Below", lambda: self._edit(lambda s, c: insert_matrix_row(s, c, below=True), caret)),
+                (_("Insert Row &Above"), lambda: self._edit(lambda s, c: insert_matrix_row(s, c, below=False), caret)),
+                (_("Insert Row &Below"), lambda: self._edit(lambda s, c: insert_matrix_row(s, c, below=True), caret)),
                 (
-                    "Insert Column &Left",
+                    _("Insert Column &Left"),
                     lambda: self._edit(lambda s, c: insert_matrix_column(s, c, right=False), caret),
                 ),
                 (
-                    "Insert Column &Right",
+                    _("Insert Column &Right"),
                     lambda: self._edit(lambda s, c: insert_matrix_column(s, c, right=True), caret),
                 ),
                 None,
-                ("Delete R&ow", lambda: self._edit(delete_matrix_row, caret)),
-                ("Delete C&olumn", lambda: self._edit(delete_matrix_column, caret)),
+                (_("Delete R&ow"), lambda: self._edit(delete_matrix_row, caret)),
+                (_("Delete C&olumn"), lambda: self._edit(delete_matrix_column, caret)),
             ]
             for action in matrix_actions:
                 if action is None:
@@ -215,7 +228,7 @@ class StructureActionsMixin:
             delete_row, delete_column = matrix_menu.GetMenuItems()[-2:]
             delete_row.Enable(position_in_matrix.rows > 1)
             delete_column.Enable(position_in_matrix.columns > 1)
-            menu.AppendSubMenu(matrix_menu, "Matri&x")
+            menu.AppendSubMenu(matrix_menu, _("Matri&x"))
 
     def _append_fraction_menu(self, menu: wx.Menu) -> None:
         """Fraction: Word's four styles, for the fraction the user is in."""
@@ -225,14 +238,14 @@ class StructureActionsMixin:
         fraction_menu = wx.Menu()
         current_style = in_view(self.document.source, fraction_caret, fraction_at).style
         for style in FRACTION_STYLES:
-            item = fraction_menu.AppendRadioItem(wx.ID_ANY, f"&{style.capitalize()}")
+            item = fraction_menu.AppendRadioItem(wx.ID_ANY, _menu_label(style))
             item.Check(style == current_style)
             self.Bind(
                 wx.EVT_MENU,
                 lambda _e, style=style: self._apply_fraction_style(fraction_caret, style),
                 item,
             )
-        menu.AppendSubMenu(fraction_menu, "&Fraction")
+        menu.AppendSubMenu(fraction_menu, _("&Fraction"))
 
     def _append_root_menu(self, menu: wx.Menu) -> None:
         """Root: add or remove the index."""
@@ -241,15 +254,15 @@ class StructureActionsMixin:
             return
         has_index = in_view(self.document.source, root_caret, root_at).has_index
         root_menu = wx.Menu()
-        add_item = root_menu.Append(wx.ID_ANY, "&Add Index")
-        remove_item = root_menu.Append(wx.ID_ANY, "&Remove Index")
+        add_item = root_menu.Append(wx.ID_ANY, _("&Add Index"))
+        remove_item = root_menu.Append(wx.ID_ANY, _("&Remove Index"))
         add_item.Enable(not has_index)
         remove_item.Enable(has_index)
         self.Bind(wx.EVT_MENU, lambda _e: self._apply_structure_edit(add_root_index, root_caret, _ROOTS), add_item)
         self.Bind(
             wx.EVT_MENU, lambda _e: self._apply_structure_edit(remove_root_index, root_caret, _ROOTS), remove_item
         )
-        menu.AppendSubMenu(root_menu, "&Root")
+        menu.AppendSubMenu(root_menu, _("&Root"))
 
     def _append_nary_menu(self, menu: wx.Menu) -> None:
         """Integral, Sum, Product…: add or remove the limits."""
@@ -261,8 +274,8 @@ class StructureActionsMixin:
         has_limits = nary.has_limits
         label = NARY_LABELS[view.text[nary.symbol]]
         nary_menu = wx.Menu()
-        add_item = nary_menu.Append(wx.ID_ANY, "&Add Limits")
-        remove_item = nary_menu.Append(wx.ID_ANY, "&Remove Limits")
+        add_item = nary_menu.Append(wx.ID_ANY, _("&Add Limits"))
+        remove_item = nary_menu.Append(wx.ID_ANY, _("&Remove Limits"))
         add_item.Enable(not has_limits)
         remove_item.Enable(has_limits)
         self.Bind(
@@ -275,7 +288,7 @@ class StructureActionsMixin:
             lambda _e: self._apply_structure_edit(remove_nary_limits, nary_caret, _NARY_OPERATORS),
             remove_item,
         )
-        menu.AppendSubMenu(nary_menu, f"&{label.capitalize()}")
+        menu.AppendSubMenu(nary_menu, _menu_label(label))
 
     def _append_caret_structure_menus(self, menu: wx.Menu) -> None:
         """Word's Script, Brackets, Accent and Bar options for the structure at the caret (or MathCAT's node)."""
@@ -294,11 +307,11 @@ class StructureActionsMixin:
         script = script_at(view.text, at, end)
         if script is not None:
             script_menu = wx.Menu()
-            add(script_menu, "Add &Subscript", add_subscript, script.subscript is None)
-            add(script_menu, "Add Su&perscript", add_superscript, script.superscript is None)
-            add(script_menu, "&Remove Subscript", remove_subscript, script.subscript is not None)
-            add(script_menu, "Remove Superscrip&t", remove_superscript, script.superscript is not None)
-            menu.AppendSubMenu(script_menu, "&Script")
+            add(script_menu, _("Add &Subscript"), add_subscript, script.subscript is None)
+            add(script_menu, _("Add Su&perscript"), add_superscript, script.superscript is None)
+            add(script_menu, _("&Remove Subscript"), remove_subscript, script.subscript is not None)
+            add(script_menu, _("Remove Superscrip&t"), remove_superscript, script.superscript is not None)
+            menu.AppendSubMenu(script_menu, _("&Script"))
         bracket = bracket_at(view.text, at, end)
         if bracket is not None:
             bracket_menu = wx.Menu()
@@ -307,7 +320,7 @@ class StructureActionsMixin:
             for opening, name in BRACKET_NAMES.items():
                 if matrix and opening not in "([|":
                     continue  # Other fences leave the matrix loose or misread (‖ is two loose bars).
-                item = bracket_menu.AppendRadioItem(wx.ID_ANY, f"&{name.capitalize()}")
+                item = bracket_menu.AppendRadioItem(wx.ID_ANY, _menu_label(name))
                 item.Check(opening == current)
                 self.Bind(
                     wx.EVT_MENU,
@@ -322,23 +335,23 @@ class StructureActionsMixin:
                 closing_hidden = view.text[bracket.closing] == "┤"
                 add(
                     bracket_menu,
-                    "Show &Opening Bracket" if opening_hidden else "Hide &Opening Bracket",
+                    _("Show &Opening Bracket") if opening_hidden else _("Hide &Opening Bracket"),
                     lambda source, at: hide_bracket(source, at, closing=False),
                 )
                 add(
                     bracket_menu,
-                    "Show &Closing Bracket" if closing_hidden else "Hide &Closing Bracket",
+                    _("Show &Closing Bracket") if closing_hidden else _("Hide &Closing Bracket"),
                     lambda source, at: hide_bracket(source, at, closing=True),
                 )
             if not matrix:
                 bracket_menu.AppendSeparator()
-                add(bracket_menu, "&Remove Brackets", remove_brackets)
-            menu.AppendSubMenu(bracket_menu, "&Brackets")
+                add(bracket_menu, _("&Remove Brackets"), remove_brackets)
+            menu.AppendSubMenu(bracket_menu, _("&Brackets"))
         accent = accent_at(view.text, at, end)
         if accent is not None:
             accent_menu = wx.Menu()
             for mark, name in ACCENTS.items():
-                item = accent_menu.AppendRadioItem(wx.ID_ANY, f"&{name.capitalize()}")
+                item = accent_menu.AppendRadioItem(wx.ID_ANY, _menu_label(name))
                 item.Check(view.text[accent.mark] == mark)
                 self.Bind(
                     wx.EVT_MENU,
@@ -348,15 +361,14 @@ class StructureActionsMixin:
                     item,
                 )
             accent_menu.AppendSeparator()
-            add(accent_menu, "&Remove Accent", remove_accent)
-            menu.AppendSubMenu(accent_menu, "&Accent")
+            add(accent_menu, _("&Remove Accent"), remove_accent)
+            menu.AppendSubMenu(accent_menu, _("&Accent"))
         bar = bar_at(view.text, at, end)
         if bar is not None:
             bar_menu = wx.Menu()
-            other = "Underbar" if view.text[bar[0]] == "¯" else "Overbar"
-            add(bar_menu, f"Change to &{other}", switch_bar)
-            add(bar_menu, "&Remove Bar", remove_bar)
-            menu.AppendSubMenu(bar_menu, f"&{BARS[view.text[bar[0]]].capitalize()}")
+            add(bar_menu, _("Change to &Underbar") if view.text[bar[0]] == "¯" else _("Change to &Overbar"), switch_bar)
+            add(bar_menu, _("&Remove Bar"), remove_bar)
+            menu.AppendSubMenu(bar_menu, _menu_label(BARS[view.text[bar[0]]]))
 
     def _structure_span(self) -> tuple[int, int] | None:
         """Where the user is, in the source: the caret, or MathCAT's node's whole span.
@@ -450,7 +462,7 @@ class StructureActionsMixin:
         if self._writing_off():
             return
         if edit is None:
-            self._announce("not available here")
+            self._announce(spoken("not available here"))
             return
         self._clear_selection()
         self._replace_linear(edit.source, edit.caret)
@@ -466,7 +478,7 @@ class StructureActionsMixin:
             # An empty root index is a parse error until it is typed in.
             self.mode = "linear"
             self._update_braille_display()
-            self._announce(f"{edit.announcement}, linear mode")
+            self._announce(f"{edit.announcement}, {spoken('linear mode')}")
             self.Refresh()
             return
         place = self._place_after_caret if kind is None else (lambda: self._place_on(kind))
@@ -489,7 +501,7 @@ class StructureActionsMixin:
         if self._writing_off():
             return
         if edit is None:
-            self._announce("not in a table")
+            self._announce(spoken("not in a table"))
             return
         self._clear_selection()
         self._replace_linear(edit.source, edit.caret)
@@ -523,7 +535,11 @@ class StructureActionsMixin:
         except (UnicodeMathError, OSError, RuntimeError, ValueError) as error:
             self.mode = "linear"
             self._update_braille_display()
-            self._announce(f"{announcement}. Professional mode could not be rebuilt, linear mode. {error}")
+            self._announce(
+                spoken("{announcement}. Professional mode could not be rebuilt, linear mode. {error}").format(
+                    announcement=announcement, error=error
+                )
+            )
             self.Refresh()
             return
         if announcement:

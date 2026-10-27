@@ -4,6 +4,8 @@ import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
+from mathessible.i18n import LANGUAGES, N_
+
 # Word's own Recognized Functions (Equation Options), with the Romanian tg/ctg
 # and sqrt. Not lim (its own template). liminf/limsup are typed as one word
 # and written `lim inf` with a no-break space, the converter's own spelling
@@ -58,15 +60,15 @@ _CANONICAL_FUNCTIONS = {name.lower(): name for name in DEFAULT_RECOGNIZED_FUNCTI
 # The braille codes MathCAT ships (its Rules/Braille), with how they are
 # offered in Settings. ASCIIMath and LaTeX are text, for a braille display.
 BRAILLE_CODES: tuple[tuple[str, str], ...] = (
-    ("Nemeth", "Nemeth (US)"),
-    ("UEB", "UEB (Unified English Braille)"),
-    ("CMU", "CMU (Spanish, Portuguese)"),
-    ("French", "French"),
-    ("Russian", "Russian"),
-    ("Swedish", "Swedish"),
-    ("Vietnam", "Vietnamese"),
-    ("ASCIIMath", "ASCIIMath (text)"),
-    ("LaTeX", "LaTeX (text)"),
+    ("Nemeth", N_("Nemeth (US)")),
+    ("UEB", N_("UEB (Unified English Braille)")),
+    ("CMU", N_("CMU (Spanish, Portuguese)")),
+    ("French", N_("French")),
+    ("Russian", N_("Russian")),
+    ("Swedish", N_("Swedish")),
+    ("Vietnam", N_("Vietnamese")),
+    ("ASCIIMath", N_("ASCIIMath (text)")),
+    ("LaTeX", N_("LaTeX (text)")),
 )
 
 
@@ -87,6 +89,10 @@ class AppSettings:
     # and MathCAT's speech alike: "," (1,5 is a number; a list needs a
     # space, {1, 2, 3}) or "." (3.14; {1,2,3} is a list).
     decimal_separator: str = ","
+    # The interface's language ("" follows the system) and MathCAT's speech of equations
+    # ("" is the interface's): i18n.LANGUAGES, MathCAT's languages.
+    interface_language: str = ""
+    speech_language: str = ""
     # MathCAT's braille code for the braille strip (BRAILLE_CODES).
     braille_code: str = "Nemeth"
     # BRF export: liblouis's table for the text ("" is the system language's), and the page.
@@ -192,6 +198,8 @@ def load_settings(path: Path | None = None) -> AppSettings:
         complete_control_words=bool(data.get("complete_control_words", True)),
         decimal_separator="." if data.get("decimal_separator") == "." else ",",
         braille_code=_braille_code(data.get("braille_code")),
+        interface_language=_language(data.get("interface_language")),
+        speech_language=_language(data.get("speech_language")),
         braille_text_table=str(data.get("braille_text_table", "")),
         brf_cells_per_line=_bounded(data.get("brf_cells_per_line"), 40, BRF_CELLS),
         brf_lines_per_page=_bounded(data.get("brf_lines_per_page"), 25, BRF_LINES),
@@ -321,35 +329,39 @@ ZOOM_LEVELS = (50, 67, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300)
 
 
 # PDF export choices: (value, label) as Settings shows them.
-PDF_PAPERS = (("a4", "A4"), ("a5", "A5"), ("a3", "A3"), ("us-letter", "US Letter"), ("us-legal", "US Legal"))
+PDF_PAPERS = (("a4", "A4"), ("a5", "A5"), ("a3", "A3"), ("us-letter", N_("US Letter")), ("us-legal", N_("US Legal")))
 PDF_NUMBER_POSITIONS = (
-    ("bottom-center", "Bottom, centred"),
-    ("bottom-right", "Bottom, right"),
-    ("top-right", "Top, right"),
+    ("bottom-center", N_("Bottom, centred")),
+    ("bottom-right", N_("Bottom, right")),
+    ("top-right", N_("Top, right")),
 )
 # Typst's standards for each choice ("tagged": a tagged PDF, no standard checked).
 PDF_STANDARDS = (
-    ("tagged", "Tagged PDF"),
-    ("ua-1", "PDF/UA-1 (accessible, checked)"),
-    ("ua-1+a-3a", "PDF/UA-1 and PDF/A-3a (accessible and archival)"),
-    ("a-3a", "PDF/A-3a (archival)"),
+    ("tagged", N_("Tagged PDF")),
+    ("ua-1", N_("PDF/UA-1 (accessible, checked)")),
+    ("ua-1+a-3a", N_("PDF/UA-1 and PDF/A-3a (accessible and archival)")),
+    ("a-3a", N_("PDF/A-3a (archival)")),
 )
-PDF_EQUATION_NUMBERING = (("", "None"), ("(1)", "(1), (2), (3)"), ("[1]", "[1], [2], [3]"))
-PDF_HEADING_NUMBERING = (("", "None"), ("1.", "1., 2., 3."), ("1.1", "1, 1.1, 1.1.1"))
+PDF_EQUATION_NUMBERING = (("", N_("None")), ("(1)", "(1), (2), (3)"), ("[1]", "[1], [2], [3]"))
+PDF_HEADING_NUMBERING = (("", N_("None")), ("1.", "1., 2., 3."), ("1.1", "1, 1.1, 1.1.1"))
 # Named colours, all dark enough for text on white (WCAG AA); "" is the default black.
 PDF_COLOURS = (
-    ("", "Default (black)"),
-    ("#333333", "Dark grey"),
-    ("#1F4E79", "Dark blue"),
-    ("#0645AD", "Link blue"),
-    ("#1E5E2F", "Dark green"),
-    ("#8B1A1A", "Dark red"),
-    ("#5B2C6F", "Dark purple"),
+    ("", N_("Default (black)")),
+    ("#333333", N_("Dark grey")),
+    ("#1F4E79", N_("Dark blue")),
+    ("#0645AD", N_("Link blue")),
+    ("#1E5E2F", N_("Dark green")),
+    ("#8B1A1A", N_("Dark red")),
+    ("#5B2C6F", N_("Dark purple")),
 )
 PDF_COLUMNS = (1, 3)
-DOCX_LINE_SPACINGS = (("1.0", "Single"), ("1.15", "1.15"), ("1.5", "1.5 lines"), ("2.0", "Double"))
-HTML_FONTS = (("sans", "Sans serif (the system's)"), ("serif", "Serif"))
-HTML_COLOUR_SCHEMES = (("auto", "Light or dark, as the reader's system"), ("light", "Light"), ("dark", "Dark"))
+DOCX_LINE_SPACINGS = (("1.0", N_("Single")), ("1.15", "1.15"), ("1.5", N_("1.5 lines")), ("2.0", N_("Double")))
+HTML_FONTS = (("sans", N_("Sans serif (the system's)")), ("serif", N_("Serif")))
+HTML_COLOUR_SCHEMES = (
+    ("auto", N_("Light or dark, as the reader's system")),
+    ("light", N_("Light")),
+    ("dark", N_("Dark")),
+)
 PDF_FONT_SIZES = (6, 36)
 PDF_MARGINS = (0, 100)
 
@@ -376,6 +388,10 @@ def _spacing(value: object) -> float:
 # The BRF page sizes Settings allows: cells per line, lines per page.
 BRF_CELLS = (10, 100)
 BRF_LINES = (5, 100)
+
+
+def _language(value: object) -> str:
+    return value if isinstance(value, str) and value in dict(LANGUAGES) else ""
 
 
 def _bounded(value: object, default: int, bounds: tuple[int, int]) -> int:

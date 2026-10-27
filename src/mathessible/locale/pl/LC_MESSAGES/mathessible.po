@@ -1,0 +1,3989 @@
+# Polski translation of Mathessible.
+# Distributed under the same license as Mathessible.
+msgid ""
+msgstr ""
+"Project-Id-Version: Mathessible VERSION\n"
+"Report-Msgid-Bugs-To: https://github.com/GruiaChiscop/Mathessible/issues\n"
+"POT-Creation-Date: 2026-10-27 12:13+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Draft by Claude, not yet reviewed by a native speaker\n"
+"Language: pl\n"
+"Language-Team: pl <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : "
+"2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: src/mathessible/documents/notebook.py:42
+msgid "The selected folder is not empty"
+msgstr "Wybrany folder nie jest pusty"
+
+#: src/mathessible/documents/notebook.py:56
+#, python-brace-format
+msgid "The selected folder does not contain {name}"
+msgstr "Wybrany folder nie zawiera {name}"
+
+#: src/mathessible/documents/notebook.py:58
+#, python-brace-format
+msgid "The notebook manifest could not be read: {error}"
+msgstr "Nie można odczytać manifestu notatnika: {error}"
+
+#: src/mathessible/documents/notebook.py:60
+msgid "Unknown or incompatible notebook format"
+msgstr "Nieznany lub niezgodny format notatnika"
+
+#: src/mathessible/documents/notebook.py:64
+msgid "The notebook manifest is incomplete"
+msgstr "Manifest notatnika jest niekompletny"
+
+#: src/mathessible/documents/notebook.py:69
+msgid "The manifest contains an invalid page"
+msgstr "Manifest zawiera nieprawidłową stronę"
+
+#: src/mathessible/documents/notebook.py:74
+msgid "The manifest contains an incomplete page"
+msgstr "Manifest zawiera niekompletną stronę"
+
+#: src/mathessible/documents/notebook.py:76
+msgid "The manifest contains duplicate page identifiers"
+msgstr "Manifest zawiera powtórzone identyfikatory stron"
+
+#: src/mathessible/documents/notebook.py:80
+#, python-brace-format
+msgid "Page file is missing: {file}"
+msgstr "Brak pliku strony: {file}"
+
+#: src/mathessible/documents/notebook.py:84
+msgid "A notebook must contain at least one page"
+msgstr "Notatnik musi zawierać co najmniej jedną stronę"
+
+#: src/mathessible/documents/notebook.py:106 src/mathessible/documents/notebook.py:131
+msgid "A page must have a title"
+msgstr "Strona musi mieć tytuł"
+
+#: src/mathessible/documents/notebook.py:156
+msgid "A notebook must keep at least one page"
+msgstr "Notatnik musi zachować co najmniej jedną stronę"
+
+#: src/mathessible/documents/notebook.py:184
+#, python-brace-format
+msgid "Unsafe page path: {file}"
+msgstr "Niebezpieczna ścieżka strony: {file}"
+
+#: src/mathessible/documents/portable_notebook.py:43
+msgid "The temporary notebook folder is not empty"
+msgstr "Tymczasowy folder notatnika nie jest pusty"
+
+#: src/mathessible/documents/portable_notebook.py:49
+msgid "The .msnb archive contains too many files"
+msgstr "Archiwum .msnb zawiera zbyt wiele plików"
+
+#: src/mathessible/documents/portable_notebook.py:51
+msgid "The .msnb archive is too large after decompression"
+msgstr "Archiwum .msnb jest zbyt duże po rozpakowaniu"
+
+#: src/mathessible/documents/portable_notebook.py:55
+msgid "The .msnb archive contains duplicate files"
+msgstr "Archiwum .msnb zawiera powtórzone pliki"
+
+#: src/mathessible/documents/portable_notebook.py:57
+#, python-brace-format
+msgid "The .msnb archive does not contain {name}"
+msgstr "Archiwum .msnb nie zawiera {name}"
+
+#: src/mathessible/documents/portable_notebook.py:68
+msgid "The file is not a valid .msnb notebook"
+msgstr "Plik nie jest prawidłowym notatnikiem .msnb"
+
+#: src/mathessible/documents/portable_notebook.py:74 src/mathessible/documents/portable_notebook.py:81
+#, python-brace-format
+msgid "Invalid path in .msnb archive: {file}"
+msgstr "Nieprawidłowa ścieżka w archiwum .msnb: {file}"
+
+#: src/mathessible/documents/portable_notebook.py:77
+#, python-brace-format
+msgid "Unsafe path in .msnb archive: {file}"
+msgstr "Niebezpieczna ścieżka w archiwum .msnb: {file}"
+
+#: src/mathessible/documents/portable_notebook.py:79
+#, python-brace-format
+msgid "Unknown file in .msnb archive: {file}"
+msgstr "Nieznany plik w archiwum .msnb: {file}"
+
+#: src/mathessible/documents/portable_notebook.py:84
+#, python-brace-format
+msgid "Symbolic links are not allowed in .msnb: {file}"
+msgstr "Dowiązania symboliczne nie są dozwolone w .msnb: {file}"
+
+#: src/mathessible/editing/equation_errors.py:37
+msgid "fraction without denominator"
+msgstr "ułamek bez mianownika"
+
+#: src/mathessible/editing/equation_errors.py:38
+msgid "superscript without anything after ^"
+msgstr "indeks górny bez niczego po ^"
+
+#: src/mathessible/editing/equation_errors.py:39
+msgid "subscript without anything after _"
+msgstr "indeks dolny bez niczego po _"
+
+#: src/mathessible/editing/equation_errors.py:40
+msgid "nothing above the operator"
+msgstr "nic nad operatorem"
+
+#: src/mathessible/editing/equation_errors.py:41
+msgid "nothing below the operator"
+msgstr "nic pod operatorem"
+
+#: src/mathessible/editing/equation_errors.py:42
+msgid "empty integrand or argument"
+msgstr "pusta funkcja podcałkowa lub pusty argument"
+
+#: src/mathessible/editing/equation_errors.py:47
+msgid "& outside a matrix or equation array"
+msgstr "& poza macierzą lub układem równań"
+
+#: src/mathessible/editing/equation_errors.py:48
+msgid "@ outside a matrix or equation array"
+msgstr "@ poza macierzą lub układem równań"
+
+#: src/mathessible/editing/equation_errors.py:63
+#, python-brace-format
+msgid "{message}, at character {position}: {context}"
+msgstr "{message}, przy znaku {position}: {context}"
+
+#: src/mathessible/editing/equation_errors.py:110
+#, python-brace-format
+msgid "closing {name} without an opening one"
+msgstr "zamykający element {name} bez otwierającego"
+
+#: src/mathessible/editing/equation_errors.py:113
+#, python-brace-format
+msgid "unclosed {name}"
+msgstr "niezamknięty element {name}"
+
+#: src/mathessible/editing/equation_errors.py:115
+msgid "text not closed: missing quote"
+msgstr "niezamknięty tekst: brak cudzysłowu"
+
+#: src/mathessible/editing/equation_errors.py:126
+msgid "fraction without numerator"
+msgstr "ułamek bez licznika"
+
+#: src/mathessible/editing/equation_errors.py:129
+msgid "root without an index"
+msgstr "pierwiastek bez stopnia"
+
+#: src/mathessible/editing/equation_errors.py:133
+msgid "absolute value bar without its pair"
+msgstr "kreska wartości bezwzględnej bez pary"
+
+#: src/mathessible/editing/equation_errors.py:144
+msgid "the equation ends too early"
+msgstr "równanie kończy się zbyt wcześnie"
+
+#: src/mathessible/editing/equation_errors.py:149
+#, python-brace-format
+msgid "cannot continue with {found}"
+msgstr "nie można kontynuować od {found}"
+
+#: src/mathessible/editing/equation_errors.py:153
+msgid "the equation cannot be read"
+msgstr "nie można odczytać równania"
+
+#: src/mathessible/editing/equation_errors.py:170
+#, python-brace-format
+msgid "unknown command {command}"
+msgstr "nieznane polecenie {command}"
+
+#: src/mathessible/editor/assist.py:70
+msgid "suggestions closed"
+msgstr "podpowiedzi zamknięte"
+
+#: src/mathessible/editor/assist.py:139
+msgid "nothing to save, the equation is empty"
+msgstr "nic do zapisania, równanie jest puste"
+
+#: src/mathessible/editor/assist.py:141
+msgid "Name"
+msgstr "Nazwa"
+
+#: src/mathessible/editor/assist.py:141 src/mathessible/editor/assist.py:158
+msgid "Save as New Equation"
+msgstr "Zapisz jako nowe równanie"
+
+#: src/mathessible/editor/assist.py:151
+msgid "not saved, the name is empty"
+msgstr "nie zapisano, nazwa jest pusta"
+
+#: src/mathessible/editor/assist.py:157
+#, python-brace-format
+msgid "An equation named “{name}” is saved already. Replace it?"
+msgstr "Równanie o nazwie „{name}” jest już zapisane. Zastąpić je?"
+
+#: src/mathessible/editor/assist.py:168
+#, python-brace-format
+msgid "could not save the equation: {error}"
+msgstr "nie można zapisać równania: {error}"
+
+#: src/mathessible/editor/assist.py:171
+#, python-brace-format
+msgid "saved in My Equations as {name}"
+msgstr "zapisano w Moich równaniach jako {name}"
+
+#: src/mathessible/editor/assist.py:199
+msgid "no errors found"
+msgstr "nie znaleziono błędów"
+
+#: src/mathessible/editor/assist.py:202
+#, python-brace-format
+msgid "{count} error: {message}, F8 lists errors"
+msgid_plural "{count} errors: {message}, F8 lists errors"
+msgstr[0] "{count} błąd: {message}, F8 wyświetla błędy"
+msgstr[1] "{count} błędy: {message}, F8 wyświetla błędy"
+msgstr[2] "{count} błędów: {message}, F8 wyświetla błędy"
+
+#: src/mathessible/editor/assist.py:211
+msgid "no errors"
+msgstr "brak błędów"
+
+#: src/mathessible/editor/assist.py:235 src/mathessible/editor/assist.py:245
+#, python-brace-format
+msgid "{message}, selected {span}"
+msgstr "{message}, zaznaczono {span}"
+
+#: src/mathessible/editor/built.py:119 src/mathessible/editor/equation_editor.py:955
+msgid "could not cut"
+msgstr "nie można wyciąć"
+
+#: src/mathessible/editor/built.py:432 src/mathessible/editor/equation_editor.py:920
+msgid "nothing to select"
+msgstr "nic do zaznaczenia"
+
+#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:882
+msgid "nothing to undo"
+msgstr "nic do cofnięcia"
+
+#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:882
+msgid "nothing to redo"
+msgstr "nic do ponowienia"
+
+#: src/mathessible/editor/drawing.py:98
+msgid "UnicodeMath source — empty equation"
+msgstr "Źródło UnicodeMath — puste równanie"
+
+#: src/mathessible/editor/drawing.py:99
+#, python-brace-format
+msgid "UnicodeMath source — character {position} of {length}"
+msgstr "Źródło UnicodeMath — znak {position} z {length}"
+
+#: src/mathessible/editor/drawing.py:103
+msgid "Professional mode — writing mode: Space types; Up/Down read rows; F10 explores; F2 source"
+msgstr ""
+"Tryb profesjonalny — tryb pisania: Spacja pisze; Góra/Dół czytają wiersze; F10 eksploruje; F2 "
+"źródło"
+
+#: src/mathessible/editor/drawing.py:106
+msgid ""
+"Professional mode — exploration mode, linear navigation (F10 writes); Space reads; Shift+Space "
+"context; Alt+Space zone; F2 source"
+msgstr ""
+"Tryb profesjonalny — tryb eksploracji, nawigacja liniowa (F10 pisze); Spacja czyta; Shift+Spacja "
+"kontekst; Alt+Spacja strefa; F2 źródło"
+
+#: src/mathessible/editor/drawing.py:110
+msgid ""
+"Professional mode — exploration mode, structural navigation (F10 writes); Space reads; "
+"Shift+Space context; Alt+Space zone; F2 source"
+msgstr ""
+"Tryb profesjonalny — tryb eksploracji, nawigacja strukturalna (F10 pisze); Spacja czyta; "
+"Shift+Spacja kontekst; Alt+Spacja strefa; F2 źródło"
+
+#: src/mathessible/editor/drawing.py:125
+#, python-brace-format
+msgid "{position} of {count}; Tab completes"
+msgstr "{position} z {count}; Tab uzupełnia"
+
+#: src/mathessible/editor/drawing.py:141
+msgid "Linear (UnicodeMath source)"
+msgstr "Liniowy (źródło UnicodeMath)"
+
+#: src/mathessible/editor/drawing.py:141
+msgid "Professional (built equation)"
+msgstr "Profesjonalny (zbudowane równanie)"
+
+#: src/mathessible/editor/drawing.py:145
+msgid "F2 switches view"
+msgstr "F2 przełącza widok"
+
+#: src/mathessible/editor/drawing.py:201
+msgid "Loading the math renderer…"
+msgstr "Wczytywanie mechanizmu renderowania matematyki…"
+
+#: src/mathessible/editor/drawing.py:209
+msgid "The math renderer is not available"
+msgstr "Mechanizm renderowania matematyki jest niedostępny"
+
+#: src/mathessible/editor/drawing.py:230
+msgid "Type UnicodeMath here, e.g. (a+b)/2"
+msgstr "Wpisz tu UnicodeMath, np. (a+b)/2"
+
+#: src/mathessible/editor/equation_editor.py:110
+msgid "Equation editor"
+msgstr "Edytor równań"
+
+#: src/mathessible/editor/equation_editor.py:207 src/mathessible/ui/braille_signs_dialog.py:61
+#: src/mathessible/ui/settings_dialog.py:74
+msgid "Braille"
+msgstr "Braille"
+
+#: src/mathessible/editor/equation_editor.py:210
+msgid "Equation braille"
+msgstr "Braille równania"
+
+#: src/mathessible/editor/equation_editor.py:266
+msgid "equation ready"
+msgstr "równanie gotowe"
+
+#: src/mathessible/editor/equation_editor.py:429
+msgid "Equation editor, professional mode"
+msgstr "Edytor równań, tryb profesjonalny"
+
+#: src/mathessible/editor/equation_editor.py:431
+msgid "Equation editor, linear mode"
+msgstr "Edytor równań, tryb liniowy"
+
+#: src/mathessible/editor/equation_editor.py:503
+#, python-brace-format
+msgid "zoom {percent} percent"
+msgstr "powiększenie {percent} procent"
+
+#: src/mathessible/editor/equation_editor.py:557
+msgid "The equation could not be built"
+msgstr "Nie można zbudować równania"
+
+#: src/mathessible/editor/equation_editor.py:569
+#, python-brace-format
+msgid "The equation could not be read. {error}"
+msgstr "Nie można odczytać równania. {error}"
+
+#: src/mathessible/editor/equation_editor.py:593
+msgid "empty equation"
+msgstr "puste równanie"
+
+#: src/mathessible/editor/equation_editor.py:599
+#, python-brace-format
+msgid "Professional mode could not be built. {error}"
+msgstr "Nie można zbudować trybu profesjonalnego. {error}"
+
+#: src/mathessible/editor/equation_editor.py:604
+#, python-brace-format
+msgid "cannot be built, {errors}"
+msgstr "nie można zbudować, {errors}"
+
+#: src/mathessible/editor/equation_editor.py:607
+msgid "Professional mode could not be built"
+msgstr "Nie można zbudować trybu profesjonalnego"
+
+#: src/mathessible/editor/equation_editor.py:634
+#, python-brace-format
+msgid "professional mode, {speech}"
+msgstr "tryb profesjonalny, {speech}"
+
+#: src/mathessible/editor/equation_editor.py:750
+msgid "writing mode"
+msgstr "tryb pisania"
+
+#: src/mathessible/editor/equation_editor.py:750
+msgid "exploration mode"
+msgstr "tryb eksploracji"
+
+#: src/mathessible/editor/equation_editor.py:753
+msgid "exploration mode, F10 to write"
+msgstr "tryb eksploracji, F10, aby pisać"
+
+#: src/mathessible/editor/equation_editor.py:915
+#, python-brace-format
+msgid "{count} character selected"
+msgid_plural "{count} characters selected"
+msgstr[0] "zaznaczono {count} znak"
+msgstr[1] "zaznaczono {count} znaki"
+msgstr[2] "zaznaczono {count} znaków"
+
+#: src/mathessible/editor/equation_editor.py:934
+#, python-brace-format
+msgid "copied {item}"
+msgstr "skopiowano: {item}"
+
+#: src/mathessible/editor/equation_editor.py:936 src/mathessible/editor/equation_editor.py:944
+msgid "could not copy"
+msgstr "nie można skopiować"
+
+#: src/mathessible/editor/equation_editor.py:941
+msgid "nothing to copy"
+msgstr "nic do skopiowania"
+
+#: src/mathessible/editor/equation_editor.py:946
+msgid "selection copied"
+msgstr "skopiowano zaznaczenie"
+
+#: src/mathessible/editor/equation_editor.py:946
+msgid "equation copied"
+msgstr "skopiowano równanie"
+
+#: src/mathessible/editor/equation_editor.py:952
+msgid "nothing to cut"
+msgstr "nic do wycięcia"
+
+#: src/mathessible/editor/equation_editor.py:959
+msgid "selection cut"
+msgstr "wycięto zaznaczenie"
+
+#: src/mathessible/editor/equation_editor.py:962
+msgid "equation cut"
+msgstr "wycięto równanie"
+
+#: src/mathessible/editor/equation_editor.py:980
+msgid "the pasted MathML could not be converted"
+msgstr "nie można przekonwertować wklejonego MathML"
+
+#: src/mathessible/editor/equation_editor.py:983 src/mathessible/editor/equation_editor.py:989
+msgid "clipboard is empty"
+msgstr "schowek jest pusty"
+
+#: src/mathessible/editor/equation_editor.py:996
+msgid "equation pasted"
+msgstr "wklejono równanie"
+
+#: src/mathessible/editor/equation_editor.py:1038
+msgid "still preparing the equation, please wait"
+msgstr "równanie jest jeszcze przygotowywane, proszę czekać"
+
+#: src/mathessible/editor/equation_editor.py:1218 src/mathessible/editor/equation_editor.py:1229
+msgid "selection deleted"
+msgstr "usunięto zaznaczenie"
+
+#: src/mathessible/editor/equation_editor.py:1415
+msgid "cannot move there"
+msgstr "nie można tam przejść"
+
+#: src/mathessible/editor/equation_editor.py:1419
+#, python-brace-format
+msgid "MathCAT could not read the equation, linear mode. {error}"
+msgstr "MathCAT nie mógł odczytać równania, tryb liniowy. {error}"
+
+#: src/mathessible/editor/equation_editor.py:1489 src/mathessible/editor/equation_editor.py:1495
+msgid "start"
+msgstr "początek"
+
+#: src/mathessible/editor/equation_editor.py:1497
+msgid "end"
+msgstr "koniec"
+
+#: src/mathessible/editor/renderer.py:65
+msgid "the UnicodeMathML engine did not initialize"
+msgstr "silnik UnicodeMathML się nie zainicjował"
+
+#: src/mathessible/editor/renderer.py:205
+msgid "the UnicodeMathML converter is still loading"
+msgstr "konwerter UnicodeMathML jeszcze się wczytuje"
+
+#: src/mathessible/editor/renderer.py:212
+msgid "the UnicodeMathML converter is busy"
+msgstr "konwerter UnicodeMathML jest zajęty"
+
+#: src/mathessible/editor/renderer.py:242
+msgid "the UnicodeMathML converter could not run"
+msgstr "nie można uruchomić konwertera UnicodeMathML"
+
+#: src/mathessible/editor/structures.py:148
+msgid "Switch to Professional View"
+msgstr "Przełącz na widok profesjonalny"
+
+#: src/mathessible/editor/structures.py:148
+msgid "Switch to Linear View"
+msgstr "Przełącz na widok liniowy"
+
+#: src/mathessible/editor/structures.py:159 src/mathessible/ui/document_editor.py:113
+#: src/mathessible/ui/main_frame.py:217
+msgid "Cu&t"
+msgstr "&Wytnij"
+
+#: src/mathessible/editor/structures.py:160 src/mathessible/ui/document_editor.py:114
+#: src/mathessible/ui/main_frame.py:218
+msgid "&Copy"
+msgstr "&Kopiuj"
+
+#: src/mathessible/editor/structures.py:161 src/mathessible/ui/document_editor.py:115
+#: src/mathessible/ui/main_frame.py:219
+msgid "&Paste"
+msgstr "Wkl&ej"
+
+#: src/mathessible/editor/structures.py:163 src/mathessible/ui/document_editor.py:117
+#: src/mathessible/ui/main_frame.py:222
+msgid "Select &All"
+msgstr "Zaznacz wszys&tko"
+
+#: src/mathessible/editor/structures.py:168 src/mathessible/ui/document_editor.py:136
+msgid "&Insert"
+msgstr "Wst&aw"
+
+#: src/mathessible/editor/structures.py:190
+msgid "Insert Case &Above"
+msgstr "Wstaw przypadek &powyżej"
+
+#: src/mathessible/editor/structures.py:190
+msgid "Insert Case &Below"
+msgstr "Wstaw przypadek poni&żej"
+
+#: src/mathessible/editor/structures.py:190
+msgid "&Delete Case"
+msgstr "&Usuń przypadek"
+
+#: src/mathessible/editor/structures.py:192
+msgid "Insert Equation &Above"
+msgstr "Wstaw równanie &powyżej"
+
+#: src/mathessible/editor/structures.py:192
+msgid "Insert Equation &Below"
+msgstr "Wstaw równanie poni&żej"
+
+#: src/mathessible/editor/structures.py:192
+msgid "&Delete Equation"
+msgstr "&Usuń równanie"
+
+#: src/mathessible/editor/structures.py:203
+msgid "&Equations"
+msgstr "&Równania"
+
+#: src/mathessible/editor/structures.py:203 src/mathessible/templates/insert_catalog.py:129
+msgid "&Cases"
+msgstr "Przy&padki"
+
+#: src/mathessible/editor/structures.py:207
+msgid "Insert Row &Above"
+msgstr "Wstaw wiersz &powyżej"
+
+#: src/mathessible/editor/structures.py:208
+msgid "Insert Row &Below"
+msgstr "Wstaw wiersz poni&żej"
+
+#: src/mathessible/editor/structures.py:210
+msgid "Insert Column &Left"
+msgstr "Wstaw kolumnę z &lewej"
+
+#: src/mathessible/editor/structures.py:214
+msgid "Insert Column &Right"
+msgstr "Wstaw kolumnę z p&rawej"
+
+#: src/mathessible/editor/structures.py:218
+msgid "Delete R&ow"
+msgstr "Usuń &wiersz"
+
+#: src/mathessible/editor/structures.py:219
+msgid "Delete C&olumn"
+msgstr "Usuń &kolumnę"
+
+#: src/mathessible/editor/structures.py:231
+msgid "Matri&x"
+msgstr "&Macierz"
+
+#: src/mathessible/editor/structures.py:248 src/mathessible/templates/insert_catalog.py:63
+msgid "&Fraction"
+msgstr "&Ułamek"
+
+#: src/mathessible/editor/structures.py:257
+msgid "&Add Index"
+msgstr "&Dodaj stopień pierwiastka"
+
+#: src/mathessible/editor/structures.py:258
+msgid "&Remove Index"
+msgstr "U&suń stopień pierwiastka"
+
+#: src/mathessible/editor/structures.py:265
+msgid "&Root"
+msgstr "&Pierwiastek"
+
+#: src/mathessible/editor/structures.py:277
+msgid "&Add Limits"
+msgstr "&Dodaj granice"
+
+#: src/mathessible/editor/structures.py:278
+msgid "&Remove Limits"
+msgstr "U&suń granice"
+
+#: src/mathessible/editor/structures.py:310
+msgid "Add &Subscript"
+msgstr "Dodaj indeks &dolny"
+
+#: src/mathessible/editor/structures.py:311
+msgid "Add Su&perscript"
+msgstr "Dodaj indeks &górny"
+
+#: src/mathessible/editor/structures.py:312
+msgid "&Remove Subscript"
+msgstr "U&suń indeks dolny"
+
+#: src/mathessible/editor/structures.py:313
+msgid "Remove Superscrip&t"
+msgstr "Usuń indeks gó&rny"
+
+#: src/mathessible/editor/structures.py:314
+msgid "&Script"
+msgstr "&Indeksy"
+
+#: src/mathessible/editor/structures.py:338
+msgid "Show &Opening Bracket"
+msgstr "Pokaż nawias &otwierający"
+
+#: src/mathessible/editor/structures.py:338
+msgid "Hide &Opening Bracket"
+msgstr "Ukryj nawias &otwierający"
+
+#: src/mathessible/editor/structures.py:343
+msgid "Show &Closing Bracket"
+msgstr "Pokaż nawias &zamykający"
+
+#: src/mathessible/editor/structures.py:343
+msgid "Hide &Closing Bracket"
+msgstr "Ukryj nawias &zamykający"
+
+#: src/mathessible/editor/structures.py:348
+msgid "&Remove Brackets"
+msgstr "U&suń nawiasy"
+
+#: src/mathessible/editor/structures.py:349 src/mathessible/ui/matrix_dialog.py:37
+msgid "&Brackets"
+msgstr "&Nawiasy"
+
+#: src/mathessible/editor/structures.py:364
+msgid "&Remove Accent"
+msgstr "U&suń akcent"
+
+#: src/mathessible/editor/structures.py:365
+msgid "&Accent"
+msgstr "&Akcent"
+
+#: src/mathessible/editor/structures.py:369
+msgid "Change to &Underbar"
+msgstr "Zmień na &podkreślenie"
+
+#: src/mathessible/editor/structures.py:369
+msgid "Change to &Overbar"
+msgstr "Zmień na &nadkreślenie"
+
+#: src/mathessible/editor/structures.py:370
+msgid "&Remove Bar"
+msgstr "U&suń kreskę"
+
+#: src/mathessible/editor/structures.py:465
+msgid "not available here"
+msgstr "niedostępne tutaj"
+
+#: src/mathessible/editor/structures.py:539
+#, python-brace-format
+msgid "{announcement}. Professional mode could not be rebuilt, linear mode. {error}"
+msgstr "{announcement}. Nie można odbudować trybu profesjonalnego, tryb liniowy. {error}"
+
+#: src/mathessible/error_messages.py:11
+msgid "PDF/UA requires a title: give one in the export's Document tab."
+msgstr "PDF/UA wymaga tytułu: podaj go na karcie Dokument eksportu."
+
+#: src/mathessible/error_messages.py:14
+msgid "PDF/UA requires every equation to be readable, and one could not be: export as Tagged PDF."
+msgstr ""
+"PDF/UA wymaga, aby każde równanie było czytelne, a jedno nie jest: eksportuj jako PDF ze "
+"znacznikami."
+
+#: src/mathessible/error_messages.py:16
+msgid "PDF/A-2 does not allow attachments: choose PDF/A-3a, or do not attach the source."
+msgstr "PDF/A-2 nie pozwala na załączniki: wybierz PDF/A-3a albo nie dołączaj źródła."
+
+#: src/mathessible/error_messages.py:17
+msgid "A font is not installed: choose another in the export's Layout tab."
+msgstr "Czcionka nie jest zainstalowana: wybierz inną na karcie Układ eksportu."
+
+#: src/mathessible/error_messages.py:25
+msgid ""
+"Mathessible is not allowed to use this file or folder. Choose another place, or check its "
+"permissions."
+msgstr ""
+"Mathessible nie ma uprawnień do tego pliku lub folderu. Wybierz inne miejsce albo sprawdź "
+"uprawnienia."
+
+#: src/mathessible/error_messages.py:28
+msgid "The file or folder is not there any more."
+msgstr "Plik lub folder już nie istnieje."
+
+#: src/mathessible/error_messages.py:30
+msgid "That is a folder, not a file."
+msgstr "To jest folder, a nie plik."
+
+#: src/mathessible/error_messages.py:32
+msgid "The disk is full."
+msgstr "Dysk jest pełny."
+
+#: src/mathessible/error_messages.py:34
+msgid "The file is not text in UTF-8, so Mathessible cannot read it."
+msgstr "Plik nie jest tekstem w UTF-8, więc Mathessible nie może go odczytać."
+
+#: src/mathessible/error_messages.py:36
+msgid "Mathessible's native part (MathCAT and liblouis) is missing. Run scripts/bootstrap.sh."
+msgstr "Brak natywnej części Mathessible (MathCAT i liblouis). Uruchom scripts/bootstrap.sh."
+
+#: src/mathessible/error_messages.py:43
+#, python-brace-format
+msgid "Typst could not typeset the PDF: {error}"
+msgstr "Typst nie mógł złożyć pliku PDF: {error}"
+
+#: src/mathessible/error_messages.py:45
+msgid "The braille table could not be loaded. Choose another in the export's dialog."
+msgstr "Nie można wczytać tablicy brajlowskiej. Wybierz inną w oknie dialogowym eksportu."
+
+#: src/mathessible/help_links.py:14
+msgid "&Quick Start Guide"
+msgstr "&Szybki start"
+
+#: src/mathessible/help_links.py:15
+msgid "&User Guide"
+msgstr "&Podręcznik użytkownika"
+
+#: src/mathessible/help_links.py:16
+msgid "&Keyboard Shortcuts"
+msgstr "Skróty &klawiszowe"
+
+#: src/mathessible/help_links.py:20
+msgid ""
+"An accessible maths editor: UnicodeMath equations in Markdown, read, navigated and brailled "
+"through MathCAT.\n"
+"\n"
+"Built on MathCAT (DAISY Consortium) and UnicodeMathML (Murray Sargent III), both under the MIT "
+"licence. NVDA's symbol dictionaries, downloaded on request, are under NVDA's licence (GPL-2.0).\n"
+"\n"
+"Mathessible is distributed under the GNU General Public License, version 2 or later."
+msgstr ""
+"Dostępny edytor matematyczny: równania UnicodeMath w Markdownie, odczytywane, przeglądane i "
+"zapisywane brajlem dzięki MathCAT.\n"
+"\n"
+"Zbudowany na MathCAT (DAISY Consortium) i UnicodeMathML (Murray Sargent III), oba na licencji "
+"MIT. Słowniki symboli NVDA, pobierane na żądanie, są objęte licencją NVDA (GPL-2.0).\n"
+"\n"
+"Mathessible jest rozpowszechniany na warunkach Powszechnej Licencji Publicznej GNU w wersji 2 lub"
+" późniejszej."
+
+#: src/mathessible/settings.py:63
+msgid "Nemeth (US)"
+msgstr "Nemeth (USA)"
+
+#: src/mathessible/settings.py:64
+msgid "UEB (Unified English Braille)"
+msgstr "UEB (Unified English Braille)"
+
+#: src/mathessible/settings.py:65
+msgid "CMU (Spanish, Portuguese)"
+msgstr "CMU (hiszpański, portugalski)"
+
+#: src/mathessible/settings.py:66
+msgid "French"
+msgstr "Francuski"
+
+#: src/mathessible/settings.py:67
+msgid "Russian"
+msgstr "Rosyjski"
+
+#: src/mathessible/settings.py:68
+msgid "Swedish"
+msgstr "Szwedzki"
+
+#: src/mathessible/settings.py:69
+msgid "Vietnamese"
+msgstr "Wietnamski"
+
+#: src/mathessible/settings.py:70
+msgid "ASCIIMath (text)"
+msgstr "ASCIIMath (tekst)"
+
+#: src/mathessible/settings.py:71
+msgid "LaTeX (text)"
+msgstr "LaTeX (tekst)"
+
+#: src/mathessible/settings.py:332
+msgid "US Letter"
+msgstr "US Letter"
+
+#: src/mathessible/settings.py:332
+msgid "US Legal"
+msgstr "US Legal"
+
+#: src/mathessible/settings.py:334
+msgid "Bottom, centred"
+msgstr "Na dole, wyśrodkowany"
+
+#: src/mathessible/settings.py:335
+msgid "Bottom, right"
+msgstr "Na dole, po prawej"
+
+#: src/mathessible/settings.py:336
+msgid "Top, right"
+msgstr "Na górze, po prawej"
+
+#: src/mathessible/settings.py:340
+msgid "Tagged PDF"
+msgstr "PDF ze znacznikami"
+
+#: src/mathessible/settings.py:341
+msgid "PDF/UA-1 (accessible, checked)"
+msgstr "PDF/UA-1 (dostępny, sprawdzony)"
+
+#: src/mathessible/settings.py:342
+msgid "PDF/UA-1 and PDF/A-3a (accessible and archival)"
+msgstr "PDF/UA-1 i PDF/A-3a (dostępny i archiwalny)"
+
+#: src/mathessible/settings.py:343
+msgid "PDF/A-3a (archival)"
+msgstr "PDF/A-3a (archiwalny)"
+
+#: src/mathessible/settings.py:345 src/mathessible/settings.py:346
+msgid "None"
+msgstr "Brak"
+
+#: src/mathessible/settings.py:349
+msgid "Default (black)"
+msgstr "Domyślny (czarny)"
+
+#: src/mathessible/settings.py:350
+msgid "Dark grey"
+msgstr "Ciemnoszary"
+
+#: src/mathessible/settings.py:351
+msgid "Dark blue"
+msgstr "Ciemnoniebieski"
+
+#: src/mathessible/settings.py:352
+msgid "Link blue"
+msgstr "Niebieski odnośnika"
+
+#: src/mathessible/settings.py:353
+msgid "Dark green"
+msgstr "Ciemnozielony"
+
+#: src/mathessible/settings.py:354
+msgid "Dark red"
+msgstr "Ciemnoczerwony"
+
+#: src/mathessible/settings.py:355
+msgid "Dark purple"
+msgstr "Ciemnofioletowy"
+
+#: src/mathessible/settings.py:358
+msgid "Single"
+msgstr "Pojedyncza"
+
+#: src/mathessible/settings.py:358
+msgid "1.5 lines"
+msgstr "1,5 wiersza"
+
+#: src/mathessible/settings.py:358
+msgid "Double"
+msgstr "Podwójna"
+
+#: src/mathessible/settings.py:359
+msgid "Sans serif (the system's)"
+msgstr "Bezszeryfowa (systemowa)"
+
+#: src/mathessible/settings.py:359
+msgid "Serif"
+msgstr "Szeryfowa"
+
+#: src/mathessible/settings.py:361
+msgid "Light or dark, as the reader's system"
+msgstr "Jasny lub ciemny, jak system czytelnika"
+
+#: src/mathessible/settings.py:362
+msgid "Light"
+msgstr "Jasny"
+
+#: src/mathessible/settings.py:363
+msgid "Dark"
+msgstr "Ciemny"
+
+#: src/mathessible/spoken.py:21 src/mathessible/templates/math_templates.py:784
+#: src/mathessible/templates/structure_edits.py:326
+msgid "absolute value"
+msgstr "wartość bezwzględna"
+
+#: src/mathessible/spoken.py:22
+msgid "after space"
+msgstr "po spacji"
+
+#: src/mathessible/editing/equation_errors.py:28 src/mathessible/editing/equation_errors.py:29
+#: src/mathessible/spoken.py:23
+msgid "angle bracket"
+msgstr "nawias ostry"
+
+#: src/mathessible/editor/equation_editor.py:1170 src/mathessible/spoken.py:24
+msgid "argument"
+msgstr "argument"
+
+#: src/mathessible/spoken.py:25
+msgid "arrow"
+msgstr "strzałka"
+
+#: src/mathessible/spoken.py:26
+msgid "at equation"
+msgstr "przy równaniu"
+
+#: src/mathessible/spoken.py:27
+msgid "base"
+msgstr "podstawa"
+
+#: src/mathessible/editor/equation_editor.py:1208 src/mathessible/spoken.py:28
+msgid "blank"
+msgstr "puste"
+
+#: src/mathessible/editing/equation_errors.py:26 src/mathessible/editing/equation_errors.py:27
+#: src/mathessible/spoken.py:29
+msgid "brace"
+msgstr "nawias klamrowy"
+
+#: src/mathessible/editing/equation_errors.py:24 src/mathessible/editing/equation_errors.py:25
+#: src/mathessible/editing/equation_errors.py:32 src/mathessible/editing/equation_errors.py:33
+#: src/mathessible/spoken.py:30
+msgid "bracket"
+msgstr "nawias kwadratowy"
+
+#: src/mathessible/editor/assist.py:90 src/mathessible/editor/equation_editor.py:1175
+#: src/mathessible/editor/equation_editor.py:1353 src/mathessible/spoken.py:31
+msgid "built"
+msgstr "zbudowano"
+
+#: src/mathessible/spoken.py:32
+msgid "case"
+msgstr "przypadek"
+
+#: src/mathessible/spoken.py:33
+msgid "cases"
+msgstr "przypadki"
+
+#: src/mathessible/spoken.py:34
+msgid "cell"
+msgstr "komórka"
+
+#: src/mathessible/spoken.py:35
+msgid "condition"
+msgstr "warunek"
+
+#: src/mathessible/spoken.py:36
+msgid "denominator"
+msgstr "mianownik"
+
+#: src/mathessible/spoken.py:37
+msgid "determinant"
+msgstr "wyznacznik"
+
+#: src/mathessible/spoken.py:38
+msgid "empty"
+msgstr "pusty"
+
+#: src/mathessible/spoken.py:39
+msgid "empty slot"
+msgstr "puste miejsce"
+
+#: src/mathessible/spoken.py:40
+msgid "end of math"
+msgstr "koniec matematyki"
+
+#: src/mathessible/spoken.py:41
+msgid "equation"
+msgstr "równanie"
+
+#: src/mathessible/spoken.py:42 src/mathessible/templates/math_templates.py:29
+msgid "equation number"
+msgstr "numer równania"
+
+#: src/mathessible/spoken.py:43
+msgid "equations"
+msgstr "równania"
+
+#: src/mathessible/spoken.py:44
+msgid "factor"
+msgstr "czynnik"
+
+#: src/mathessible/spoken.py:45
+msgid "fraction"
+msgstr "ułamek"
+
+#: src/mathessible/spoken.py:46
+msgid "function name"
+msgstr "nazwa funkcji"
+
+#: src/mathessible/editing/equation_errors.py:30 src/mathessible/editing/equation_errors.py:31
+#: src/mathessible/spoken.py:47
+msgid "group"
+msgstr "grupa"
+
+#: src/mathessible/spoken.py:48
+msgid "in an empty slot"
+msgstr "w pustym miejscu"
+
+#: src/mathessible/spoken.py:49
+msgid "index"
+msgstr "stopień pierwiastka"
+
+#: src/mathessible/spoken.py:50
+msgid "integral"
+msgstr "całka"
+
+#: src/mathessible/spoken.py:51
+msgid "integrand"
+msgstr "funkcja podcałkowa"
+
+#: src/mathessible/spoken.py:52
+msgid "label"
+msgstr "etykieta"
+
+#: src/mathessible/spoken.py:53
+msgid "limit"
+msgstr "granica"
+
+#: src/mathessible/spoken.py:54 src/mathessible/templates/math_templates.py:41
+#: src/mathessible/templates/math_templates.py:43 src/mathessible/templates/math_templates.py:44
+msgid "limit condition"
+msgstr "warunek granicy"
+
+#: src/mathessible/spoken.py:55
+msgid "limits"
+msgstr "granice"
+
+#: src/mathessible/spoken.py:56 src/mathessible/templates/fraction_styles.py:14
+msgid "linear"
+msgstr "liniowy"
+
+#: src/mathessible/editor/assist.py:243 src/mathessible/editor/equation_editor.py:612
+#: src/mathessible/editor/structures.py:481 src/mathessible/spoken.py:57
+msgid "linear mode"
+msgstr "tryb liniowy"
+
+#: src/mathessible/spoken.py:58
+msgid "logarithm"
+msgstr "logarytm"
+
+#: src/mathessible/spoken.py:59 src/mathessible/templates/math_templates.py:695
+msgid "lower limit"
+msgstr "dolna granica"
+
+#: src/mathessible/spoken.py:60
+msgid "matrix"
+msgstr "macierz"
+
+#: src/mathessible/editor/built.py:828 src/mathessible/editor/equation_editor.py:1134
+#: src/mathessible/spoken.py:61
+msgid "no slot"
+msgstr "brak miejsca"
+
+#: src/mathessible/spoken.py:62 src/mathessible/templates/structure_edits.py:327
+msgid "norm"
+msgstr "norma"
+
+#: src/mathessible/editor/structures.py:504 src/mathessible/spoken.py:63
+msgid "not in a table"
+msgstr "nie w tabeli"
+
+#: src/mathessible/spoken.py:64
+msgid "nothing selected"
+msgstr "nic nie zaznaczono"
+
+#: src/mathessible/spoken.py:65
+msgid "numbered equation"
+msgstr "równanie numerowane"
+
+#: src/mathessible/spoken.py:66
+msgid "numerator"
+msgstr "licznik"
+
+#: src/mathessible/spoken.py:67
+msgid "operator"
+msgstr "operator"
+
+#: src/mathessible/spoken.py:68
+msgid "overscript"
+msgstr "nadpis"
+
+#: src/mathessible/spoken.py:69 src/mathessible/templates/structure_edits.py:320
+msgid "parentheses"
+msgstr "nawiasy okrągłe"
+
+#: src/mathessible/editing/equation_errors.py:22 src/mathessible/editing/equation_errors.py:23
+#: src/mathessible/spoken.py:70
+msgid "parenthesis"
+msgstr "nawias okrągły"
+
+#: src/mathessible/spoken.py:71
+msgid "press again to delete it"
+msgstr "naciśnij ponownie, aby to usunąć"
+
+#: src/mathessible/spoken.py:72
+msgid "radicand"
+msgstr "wyrażenie podpierwiastkowe"
+
+#: src/mathessible/spoken.py:73
+msgid "root"
+msgstr "pierwiastek"
+
+#: src/mathessible/spoken.py:74
+msgid "row"
+msgstr "wiersz"
+
+#: src/mathessible/spoken.py:75
+msgid "script"
+msgstr "indeks"
+
+#: src/mathessible/spoken.py:76
+msgid "scripts"
+msgstr "indeksy"
+
+#: src/mathessible/spoken.py:77
+msgid "selected"
+msgstr "zaznaczono"
+
+#: src/mathessible/editor/equation_editor.py:911 src/mathessible/spoken.py:78
+msgid "selection cleared"
+msgstr "anulowano zaznaczenie"
+
+#: src/mathessible/spoken.py:79 src/mathessible/templates/math_templates.py:59
+#: src/mathessible/templates/math_templates.py:782
+msgid "square root"
+msgstr "pierwiastek kwadratowy"
+
+#: src/mathessible/spoken.py:80
+msgid "start of math"
+msgstr "początek matematyki"
+
+#: src/mathessible/spoken.py:81
+msgid "subscript"
+msgstr "indeks dolny"
+
+#: src/mathessible/spoken.py:82
+msgid "sum"
+msgstr "suma"
+
+#: src/mathessible/spoken.py:83
+msgid "summand"
+msgstr "składnik"
+
+#: src/mathessible/spoken.py:84
+msgid "superscript"
+msgstr "indeks górny"
+
+#: src/mathessible/spoken.py:85 src/mathessible/templates/math_templates.py:64
+msgid "text above"
+msgstr "tekst powyżej"
+
+#: src/mathessible/spoken.py:86 src/mathessible/templates/math_templates.py:64
+msgid "text below"
+msgstr "tekst poniżej"
+
+#: src/mathessible/spoken.py:87
+msgid "underscript"
+msgstr "podpis"
+
+#: src/mathessible/spoken.py:88
+msgid "unselected"
+msgstr "odznaczono"
+
+#: src/mathessible/spoken.py:89 src/mathessible/templates/math_templates.py:695
+msgid "upper limit"
+msgstr "górna granica"
+
+#: src/mathessible/spoken.py:90
+msgid "value"
+msgstr "wartość"
+
+#: src/mathessible/spoken.py:95 src/mathessible/templates/matrix_templates.py:285
+#, python-brace-format
+msgid "row {row}, column {column}"
+msgstr "wiersz {row}, kolumna {column}"
+
+#: src/mathessible/spoken.py:96
+#, python-brace-format
+msgid "cell row {row}, column {column}, {content}"
+msgstr "komórka wiersz {row}, kolumna {column}, {content}"
+
+#: src/mathessible/spoken.py:97
+#, python-brace-format
+msgid "equation number {number}"
+msgstr "numer równania {number}"
+
+#: src/mathessible/spoken.py:98
+#, python-brace-format
+msgid "equation {number}"
+msgstr "równanie {number}"
+
+#: src/mathessible/spoken.py:99
+#, python-brace-format
+msgid "case {number}"
+msgstr "przypadek {number}"
+
+#: src/mathessible/spoken.py:100
+#, python-brace-format
+msgid "row {row}"
+msgstr "wiersz {row}"
+
+#: src/mathessible/spoken.py:101
+#, python-brace-format
+msgid "column {column}"
+msgstr "kolumna {column}"
+
+#: src/mathessible/spoken.py:102
+#, python-brace-format
+msgid "start of {region}"
+msgstr "początek: {region}"
+
+#: src/mathessible/spoken.py:103
+#, python-brace-format
+msgid "end of {region}"
+msgstr "koniec: {region}"
+
+#: src/mathessible/spoken.py:104
+#, python-brace-format
+msgid "start {region}"
+msgstr "początek {region}"
+
+#: src/mathessible/spoken.py:105
+#, python-brace-format
+msgid "end {region}"
+msgstr "koniec {region}"
+
+#: src/mathessible/spoken.py:106
+#, python-brace-format
+msgid "inside {region}"
+msgstr "wewnątrz: {region}"
+
+#: src/mathessible/spoken.py:107
+#, python-brace-format
+msgid "in empty {region}"
+msgstr "w pustym elemencie: {region}"
+
+#: src/mathessible/spoken.py:108
+#, python-brace-format
+msgid "after {item}"
+msgstr "po: {item}"
+
+#: src/mathessible/spoken.py:109
+#, python-brace-format
+msgid "before {item}"
+msgstr "przed: {item}"
+
+#: src/mathessible/spoken.py:110
+#, python-brace-format
+msgid "the {structure}"
+msgstr "{structure}"
+
+#: src/mathessible/spoken.py:111
+#, python-brace-format
+msgid "deleted {item}"
+msgstr "usunięto: {item}"
+
+#: src/mathessible/spoken.py:112
+#, python-brace-format
+msgid "cut {item}"
+msgstr "wycięto: {item}"
+
+#: src/mathessible/spoken.py:113
+#, python-brace-format
+msgid "selected {item}"
+msgstr "zaznaczono: {item}"
+
+#: src/mathessible/spoken.py:114
+#, python-brace-format
+msgid "built {structure}"
+msgstr "zbudowano: {structure}"
+
+#: src/mathessible/templates/fraction_styles.py:14
+msgid "stacked"
+msgstr "piętrowy"
+
+#: src/mathessible/templates/fraction_styles.py:14
+msgid "skewed"
+msgstr "ukośny"
+
+#: src/mathessible/templates/fraction_styles.py:14
+msgid "small"
+msgstr "mały"
+
+#: src/mathessible/templates/fraction_styles.py:16
+msgid "stacked fraction"
+msgstr "ułamek piętrowy"
+
+#: src/mathessible/templates/fraction_styles.py:17
+msgid "skewed fraction"
+msgstr "ułamek ukośny"
+
+#: src/mathessible/templates/fraction_styles.py:18
+msgid "linear fraction"
+msgstr "ułamek liniowy"
+
+#: src/mathessible/templates/fraction_styles.py:19
+msgid "small fraction"
+msgstr "mały ułamek"
+
+#: src/mathessible/templates/insert_catalog.py:64
+msgid "&Subscript"
+msgstr "Indeks &dolny"
+
+#: src/mathessible/templates/insert_catalog.py:65
+msgid "Su&perscript"
+msgstr "Indeks &górny"
+
+#: src/mathessible/templates/insert_catalog.py:68
+msgid "&Square Root"
+msgstr "Pierwiastek &kwadratowy"
+
+#: src/mathessible/templates/insert_catalog.py:69
+msgid "&Root with Index"
+msgstr "&Pierwiastek stopnia n"
+
+#: src/mathessible/templates/insert_catalog.py:72
+msgid "&Integral"
+msgstr "&Całka"
+
+#: src/mathessible/templates/insert_catalog.py:74
+msgid "Integral with &Limits"
+msgstr "Całka z &granicami"
+
+#: src/mathessible/templates/insert_catalog.py:79
+msgid "&Sum"
+msgstr "&Suma"
+
+#: src/mathessible/templates/insert_catalog.py:81
+msgid "Sum with Li&mits"
+msgstr "Suma z gra&nicami"
+
+#: src/mathessible/templates/insert_catalog.py:86
+msgid "&Product"
+msgstr "&Iloczyn"
+
+#: src/mathessible/templates/insert_catalog.py:88
+msgid "Product with Limi&ts"
+msgstr "Iloczyn z granica&mi"
+
+#: src/mathessible/templates/insert_catalog.py:95
+msgid "&Absolute Value"
+msgstr "&Wartość bezwzględna"
+
+#: src/mathessible/templates/insert_catalog.py:96
+msgid "&Limit"
+msgstr "G&ranica"
+
+#: src/mathessible/templates/insert_catalog.py:97
+msgid "L&ogarithm"
+msgstr "&Logarytm"
+
+#: src/mathessible/templates/insert_catalog.py:101
+msgid "Arrow with Text &Above"
+msgstr "Strzałka z tekstem p&owyżej"
+
+#: src/mathessible/templates/insert_catalog.py:103
+msgid "Arrow with Text &Below"
+msgstr "Strzałka z tekstem poni&żej"
+
+#: src/mathessible/templates/insert_catalog.py:109
+msgid "&Equals with Text Above"
+msgstr "Równa &się z tekstem powyżej"
+
+#: src/mathessible/templates/insert_catalog.py:113
+msgid "&Norm"
+msgstr "N&orma"
+
+#: src/mathessible/templates/insert_catalog.py:114
+msgid "Floo&r"
+msgstr "&Podłoga"
+
+#: src/mathessible/templates/insert_catalog.py:115
+msgid "Ceili&ng"
+msgstr "&Sufit"
+
+#: src/mathessible/templates/insert_catalog.py:116
+msgid "Angle Brac&kets"
+msgstr "Nawiasy &ostre"
+
+#: src/mathessible/templates/insert_catalog.py:117
+msgid "Bino&mial"
+msgstr "&Symbol Newtona"
+
+#: src/mathessible/templates/insert_catalog.py:120
+msgid "Double Inte&gral"
+msgstr "Całka po&dwójna"
+
+#: src/mathessible/templates/insert_catalog.py:121 src/mathessible/templates/structure_gallery.py:134
+msgid "Triple Integral"
+msgstr "Całka potrójna"
+
+#: src/mathessible/templates/insert_catalog.py:122 src/mathessible/templates/structure_gallery.py:139
+msgid "Contour Integral"
+msgstr "Całka krzywoliniowa"
+
+#: src/mathessible/templates/insert_catalog.py:123
+msgid "&Union"
+msgstr "S&uma zbiorów"
+
+#: src/mathessible/templates/insert_catalog.py:125 src/mathessible/templates/structure_gallery.py:164
+msgid "Intersection"
+msgstr "Iloczyn zbiorów"
+
+#: src/mathessible/templates/insert_catalog.py:130
+msgid "E&quation Array"
+msgstr "&Układ równań"
+
+#: src/mathessible/templates/insert_catalog.py:131
+msgid "Bo&x"
+msgstr "R&amka"
+
+#: src/mathessible/templates/insert_catalog.py:132
+msgid "Equation &Number"
+msgstr "&Numer równania"
+
+#: src/mathessible/templates/insert_catalog.py:133 src/mathessible/templates/structure_gallery.py:204
+msgid "Overbrace"
+msgstr "Klamra górna"
+
+#: src/mathessible/templates/insert_catalog.py:134 src/mathessible/templates/structure_gallery.py:205
+msgid "Underbrace"
+msgstr "Klamra dolna"
+
+#: src/mathessible/templates/insert_catalog.py:139
+msgid "&Matrix…"
+msgstr "&Macierz…"
+
+#: src/mathessible/templates/insert_catalog.py:141
+msgid "S&ymbol…"
+msgstr "S&ymbol…"
+
+#: src/mathessible/templates/insert_catalog.py:143
+msgid "Structure Gallery…"
+msgstr "Galeria struktur…"
+
+#: src/mathessible/templates/insert_catalog.py:147
+msgid "Normal &Text"
+msgstr "Zwykły &tekst"
+
+#: src/mathessible/templates/math_templates.py:13
+msgid "double integral"
+msgstr "całka podwójna"
+
+#: src/mathessible/templates/math_templates.py:14
+msgid "triple integral"
+msgstr "całka potrójna"
+
+#: src/mathessible/templates/math_templates.py:15
+msgid "contour integral"
+msgstr "całka krzywoliniowa"
+
+#: src/mathessible/templates/math_templates.py:16
+msgid "surface integral"
+msgstr "całka powierzchniowa"
+
+#: src/mathessible/templates/math_templates.py:17
+msgid "volume integral"
+msgstr "całka objętościowa"
+
+#: src/mathessible/templates/math_templates.py:25 src/mathessible/templates/structure_edits.py:323
+msgid "angle brackets"
+msgstr "nawiasy ostre"
+
+#: src/mathessible/templates/math_templates.py:43
+msgid "limit inferior"
+msgstr "granica dolna (lim inf)"
+
+#: src/mathessible/templates/math_templates.py:44
+msgid "limit superior"
+msgstr "granica górna (lim sup)"
+
+#: src/mathessible/templates/math_templates.py:59
+msgid "cube root"
+msgstr "pierwiastek sześcienny"
+
+#: src/mathessible/templates/math_templates.py:59
+msgid "fourth root"
+msgstr "pierwiastek czwartego stopnia"
+
+#: src/mathessible/templates/math_templates.py:89
+msgid "fraction template, empty numerator"
+msgstr "szablon ułamka, pusty licznik"
+
+#: src/mathessible/templates/math_templates.py:96
+msgid "square root template, empty radicand"
+msgstr "szablon pierwiastka kwadratowego, puste wyrażenie podpierwiastkowe"
+
+#: src/mathessible/templates/math_templates.py:108
+msgid "limit template, empty limit condition"
+msgstr "szablon granicy, pusty warunek granicy"
+
+#: src/mathessible/templates/math_templates.py:134
+#, python-brace-format
+msgid "{structure}, empty {role}"
+msgstr "{structure}, puste: {role}"
+
+#: src/mathessible/templates/math_templates.py:142
+#, python-brace-format
+msgid "{structure}, empty radicand"
+msgstr "{structure}, puste wyrażenie podpierwiastkowe"
+
+#: src/mathessible/templates/math_templates.py:149
+msgid "empty argument"
+msgstr "pusty argument"
+
+#: src/mathessible/templates/math_templates.py:159 src/mathessible/templates/math_templates.py:166
+#, python-brace-format
+msgid "{function}, empty argument"
+msgstr "{function}, pusty argument"
+
+#: src/mathessible/templates/math_templates.py:253
+msgid "logarithm template, empty base"
+msgstr "szablon logarytmu, pusta podstawa"
+
+#: src/mathessible/templates/math_templates.py:266 src/mathessible/templates/math_templates.py:394
+#: src/mathessible/templates/math_templates.py:424
+#, python-brace-format
+msgid "{structure} template, empty {role}"
+msgstr "szablon {structure}, puste: {role}"
+
+#: src/mathessible/templates/math_templates.py:280
+msgid "root template, empty index"
+msgstr "szablon pierwiastka, pusty stopień"
+
+#: src/mathessible/templates/math_templates.py:292
+msgid "cases template, empty value, case 1"
+msgstr "szablon przypadków, pusta wartość, przypadek 1"
+
+#: src/mathessible/templates/math_templates.py:299
+msgid "equation array template, empty line 1"
+msgstr "szablon układu równań, pusty wiersz 1"
+
+#: src/mathessible/templates/math_templates.py:306
+msgid "binomial template, empty top"
+msgstr "szablon symbolu Newtona, pusta górna część"
+
+#: src/mathessible/templates/math_templates.py:318
+#, python-brace-format
+msgid "{structure} template, empty value"
+msgstr "szablon {structure}, pusta wartość"
+
+#: src/mathessible/templates/math_templates.py:325
+msgid "box template, empty content"
+msgstr "szablon ramki, pusta zawartość"
+
+#: src/mathessible/templates/math_templates.py:333
+msgid "equation number, empty number"
+msgstr "numer równania, pusty numer"
+
+#: src/mathessible/templates/math_templates.py:341
+#, python-brace-format
+msgid "{structure} template, empty content"
+msgstr "szablon {structure}, pusta zawartość"
+
+#: src/mathessible/templates/math_templates.py:347
+msgid "absolute value template, empty value"
+msgstr "szablon wartości bezwzględnej, pusta wartość"
+
+#: src/mathessible/templates/math_templates.py:387
+#, python-brace-format
+msgid "{structure} template, empty lower limit"
+msgstr "szablon {structure}, pusta dolna granica"
+
+#: src/mathessible/templates/math_templates.py:433
+#, python-brace-format
+msgid "{structure} template, empty base"
+msgstr "szablon {structure}, pusta podstawa"
+
+#: src/mathessible/templates/math_templates.py:597
+msgid "equation array"
+msgstr "układ równań"
+
+#: src/mathessible/templates/matrix_templates.py:58
+#, python-brace-format
+msgid "{rows} by {columns} determinant template, empty cell, row 1, column 1"
+msgstr "szablon wyznacznika {rows} na {columns}, pusta komórka, wiersz 1, kolumna 1"
+
+#: src/mathessible/templates/matrix_templates.py:60
+#, python-brace-format
+msgid "{rows} by {columns} matrix template, empty cell, row 1, column 1"
+msgstr "szablon macierzy {rows} na {columns}, pusta komórka, wiersz 1, kolumna 1"
+
+#: src/mathessible/templates/matrix_templates.py:130 src/mathessible/templates/matrix_templates.py:189
+#, python-brace-format
+msgid "inserted row {row}"
+msgstr "wstawiono wiersz {row}"
+
+#: src/mathessible/templates/matrix_templates.py:146
+#, python-brace-format
+msgid "inserted column {column}"
+msgstr "wstawiono kolumnę {column}"
+
+#: src/mathessible/templates/matrix_templates.py:158 src/mathessible/templates/matrix_templates.py:211
+#, python-brace-format
+msgid "deleted row {row}"
+msgstr "usunięto wiersz {row}"
+
+#: src/mathessible/templates/matrix_templates.py:173
+#, python-brace-format
+msgid "deleted column {column}"
+msgstr "usunięto kolumnę {column}"
+
+#: src/mathessible/templates/matrix_templates.py:193
+#, python-brace-format
+msgid "inserted case {number}, {count}, empty value, case {number}"
+msgstr "wstawiono przypadek {number}, {count}, pusta wartość, przypadek {number}"
+
+#: src/mathessible/templates/matrix_templates.py:195
+#, python-brace-format
+msgid "inserted equation {number}, {count}, empty equation {number}"
+msgstr "wstawiono równanie {number}, {count}, puste równanie {number}"
+
+#: src/mathessible/templates/matrix_templates.py:215
+#, python-brace-format
+msgid "deleted case {number}, {count}, case {current}"
+msgstr "usunięto przypadek {number}, {count}, przypadek {current}"
+
+#: src/mathessible/templates/matrix_templates.py:217
+#, python-brace-format
+msgid "deleted equation {number}, {count}, equation {current}"
+msgstr "usunięto równanie {number}, {count}, równanie {current}"
+
+#: src/mathessible/templates/matrix_templates.py:227
+#, python-brace-format
+msgid "{count} case"
+msgid_plural "{count} cases"
+msgstr[0] "{count} przypadek"
+msgstr[1] "{count} przypadki"
+msgstr[2] "{count} przypadków"
+
+#: src/mathessible/templates/matrix_templates.py:228
+#, python-brace-format
+msgid "{count} equation"
+msgid_plural "{count} equations"
+msgstr[0] "{count} równanie"
+msgstr[1] "{count} równania"
+msgstr[2] "{count} równań"
+
+#: src/mathessible/templates/matrix_templates.py:281
+#, python-brace-format
+msgid "{rows} by {columns} {structure}"
+msgstr "{structure} {rows} na {columns}"
+
+#: src/mathessible/templates/matrix_templates.py:284
+msgid "empty cell"
+msgstr "pusta komórka"
+
+#: src/mathessible/templates/structure_edits.py:84
+msgid "root with index, empty index"
+msgstr "pierwiastek stopnia n, pusty stopień"
+
+#: src/mathessible/templates/structure_edits.py:97
+msgid "square root, index removed"
+msgstr "pierwiastek kwadratowy, usunięto stopień"
+
+#: src/mathessible/templates/structure_edits.py:150
+#, python-brace-format
+msgid "{structure} with limits, empty lower limit"
+msgstr "{structure} z granicami, pusta dolna granica"
+
+#: src/mathessible/templates/structure_edits.py:165
+#, python-brace-format
+msgid "{structure}, limits removed"
+msgstr "{structure}, usunięto granice"
+
+#: src/mathessible/templates/structure_edits.py:253
+msgid "subscript added, empty subscript"
+msgstr "dodano indeks dolny, pusty indeks dolny"
+
+#: src/mathessible/templates/structure_edits.py:262
+msgid "superscript added, empty superscript"
+msgstr "dodano indeks górny, pusty indeks górny"
+
+#: src/mathessible/templates/structure_edits.py:270
+msgid "subscript removed"
+msgstr "usunięto indeks dolny"
+
+#: src/mathessible/templates/structure_edits.py:278
+msgid "superscript removed"
+msgstr "usunięto indeks górny"
+
+#: src/mathessible/templates/structure_edits.py:321
+msgid "square brackets"
+msgstr "nawiasy kwadratowe"
+
+#: src/mathessible/templates/structure_edits.py:322
+msgid "braces"
+msgstr "nawiasy klamrowe"
+
+#: src/mathessible/templates/structure_edits.py:324
+msgid "floor"
+msgstr "podłoga"
+
+#: src/mathessible/templates/structure_edits.py:325
+msgid "ceiling"
+msgstr "sufit"
+
+#: src/mathessible/templates/structure_edits.py:396
+msgid "brackets removed"
+msgstr "usunięto nawiasy"
+
+#: src/mathessible/templates/structure_edits.py:408
+msgid "closing bracket shown"
+msgstr "pokazano nawias zamykający"
+
+#: src/mathessible/templates/structure_edits.py:408
+msgid "closing bracket hidden"
+msgstr "ukryto nawias zamykający"
+
+#: src/mathessible/templates/structure_edits.py:410
+msgid "opening bracket shown"
+msgstr "pokazano nawias otwierający"
+
+#: src/mathessible/templates/structure_edits.py:410
+msgid "opening bracket hidden"
+msgstr "ukryto nawias otwierający"
+
+#: src/mathessible/templates/structure_edits.py:429 src/mathessible/templates/structure_gallery.py:192
+msgid "vector arrow"
+msgstr "strzałka wektora"
+
+#: src/mathessible/templates/structure_edits.py:430 src/mathessible/templates/structure_gallery.py:193
+msgid "hat"
+msgstr "daszek"
+
+#: src/mathessible/templates/structure_edits.py:431 src/mathessible/templates/structure_gallery.py:194
+msgid "bar"
+msgstr "kreska"
+
+#: src/mathessible/templates/structure_edits.py:432 src/mathessible/templates/structure_gallery.py:195
+msgid "dot"
+msgstr "kropka"
+
+#: src/mathessible/templates/structure_edits.py:433 src/mathessible/templates/structure_gallery.py:196
+msgid "double dot"
+msgstr "dwie kropki"
+
+#: src/mathessible/templates/structure_edits.py:434 src/mathessible/templates/structure_gallery.py:197
+msgid "tilde"
+msgstr "tylda"
+
+#: src/mathessible/templates/structure_edits.py:435 src/mathessible/templates/structure_gallery.py:198
+msgid "check"
+msgstr "haczek"
+
+#: src/mathessible/templates/structure_edits.py:436 src/mathessible/templates/structure_gallery.py:199
+msgid "acute"
+msgstr "akcent ostry"
+
+#: src/mathessible/templates/structure_edits.py:437 src/mathessible/templates/structure_gallery.py:200
+msgid "grave"
+msgstr "akcent słaby"
+
+#: src/mathessible/templates/structure_edits.py:438 src/mathessible/templates/structure_gallery.py:201
+msgid "breve"
+msgstr "brewis"
+
+#: src/mathessible/templates/structure_edits.py:486
+#, python-brace-format
+msgid "{accent} removed"
+msgstr "usunięto: {accent}"
+
+#: src/mathessible/templates/structure_edits.py:491
+msgid "overbar"
+msgstr "nadkreślenie"
+
+#: src/mathessible/templates/structure_edits.py:491
+msgid "underbar"
+msgstr "podkreślenie"
+
+#: src/mathessible/templates/structure_edits.py:523
+#, python-brace-format
+msgid "{bar} removed"
+msgstr "usunięto: {bar}"
+
+#: src/mathessible/templates/structure_gallery.py:54
+#, python-brace-format
+msgid "{accent}: type the base first, then the accent"
+msgstr "{accent}: najpierw wpisz podstawę, potem akcent"
+
+#: src/mathessible/templates/structure_gallery.py:56
+#, python-brace-format
+msgid "{accent} on {base}"
+msgstr "{accent} nad {base}"
+
+#: src/mathessible/templates/structure_gallery.py:66
+#, python-brace-format
+msgid "{matrix}, empty cell, row 1, column 1"
+msgstr "{matrix}, pusta komórka, wiersz 1, kolumna 1"
+
+#: src/mathessible/templates/structure_gallery.py:73 src/mathessible/templates/structure_gallery.py:250
+msgid "Matrix"
+msgstr "Macierz"
+
+#: src/mathessible/templates/structure_gallery.py:73 src/mathessible/ui/braille_signs_dialog.py:58
+msgid "Symbol"
+msgstr "Symbol"
+
+#: src/mathessible/templates/structure_gallery.py:85
+#, python-brace-format
+msgid "{function} template, empty argument"
+msgstr "szablon {function}, pusty argument"
+
+#: src/mathessible/templates/structure_gallery.py:91 src/mathessible/templates/structure_gallery.py:93
+msgid "Fraction"
+msgstr "Ułamek"
+
+#: src/mathessible/templates/structure_gallery.py:94
+msgid "Skewed fraction"
+msgstr "Ułamek ukośny"
+
+#: src/mathessible/templates/structure_gallery.py:94
+msgid "skewed fraction template, empty numerator"
+msgstr "szablon ułamka ukośnego, pusty licznik"
+
+#: src/mathessible/templates/structure_gallery.py:95
+msgid "Linear fraction"
+msgstr "Ułamek liniowy"
+
+#: src/mathessible/templates/structure_gallery.py:95
+msgid "linear fraction template, empty numerator"
+msgstr "szablon ułamka liniowego, pusty licznik"
+
+#: src/mathessible/templates/structure_gallery.py:96
+msgid "Small fraction"
+msgstr "Mały ułamek"
+
+#: src/mathessible/templates/structure_gallery.py:96
+msgid "small fraction template, empty numerator"
+msgstr "szablon małego ułamka, pusty licznik"
+
+#: src/mathessible/templates/structure_gallery.py:97
+msgid "dy over dx"
+msgstr "dy po dx"
+
+#: src/mathessible/templates/structure_gallery.py:97
+msgid "d y over d x"
+msgstr "d y po d x"
+
+#: src/mathessible/templates/structure_gallery.py:98
+msgid "Partial y over partial x"
+msgstr "Pochodna cząstkowa y po x"
+
+#: src/mathessible/templates/structure_gallery.py:98
+msgid "partial y over partial x"
+msgstr "pochodna cząstkowa y po x"
+
+#: src/mathessible/templates/structure_gallery.py:99
+msgid "Delta y over delta x"
+msgstr "Delta y przez delta x"
+
+#: src/mathessible/templates/structure_gallery.py:99
+msgid "delta y over delta x"
+msgstr "delta y przez delta x"
+
+#: src/mathessible/templates/structure_gallery.py:100
+msgid "Pi over 2"
+msgstr "Pi przez 2"
+
+#: src/mathessible/templates/structure_gallery.py:100
+msgid "pi over 2"
+msgstr "pi przez 2"
+
+#: src/mathessible/templates/structure_gallery.py:104
+msgid "Script"
+msgstr "Indeksy"
+
+#: src/mathessible/templates/structure_gallery.py:106
+msgid "Subscript"
+msgstr "Indeks dolny"
+
+#: src/mathessible/templates/structure_gallery.py:107
+msgid "Superscript"
+msgstr "Indeks górny"
+
+#: src/mathessible/templates/structure_gallery.py:108
+msgid "Subscript and superscript"
+msgstr "Indeks dolny i górny"
+
+#: src/mathessible/templates/structure_gallery.py:109
+msgid "x squared"
+msgstr "x do kwadratu"
+
+#: src/mathessible/templates/structure_gallery.py:110
+msgid "e to the minus i omega t"
+msgstr "e do potęgi minus i omega t"
+
+#: src/mathessible/templates/structure_gallery.py:111
+msgid "x sub y squared"
+msgstr "x indeks y do kwadratu"
+
+#: src/mathessible/templates/structure_gallery.py:115
+msgid "Radical"
+msgstr "Pierwiastek"
+
+#: src/mathessible/templates/structure_gallery.py:117
+msgid "Square Root"
+msgstr "Pierwiastek kwadratowy"
+
+#: src/mathessible/templates/structure_gallery.py:118
+msgid "Root with Index"
+msgstr "Pierwiastek stopnia n"
+
+#: src/mathessible/templates/structure_gallery.py:119
+msgid "Cube root"
+msgstr "Pierwiastek sześcienny"
+
+#: src/mathessible/templates/structure_gallery.py:119
+msgid "cube root template, empty radicand"
+msgstr "szablon pierwiastka sześciennego, puste wyrażenie podpierwiastkowe"
+
+#: src/mathessible/templates/structure_gallery.py:120
+msgid "Fourth root"
+msgstr "Pierwiastek czwartego stopnia"
+
+#: src/mathessible/templates/structure_gallery.py:120
+msgid "fourth root template, empty radicand"
+msgstr "szablon pierwiastka czwartego stopnia, puste wyrażenie podpierwiastkowe"
+
+#: src/mathessible/templates/structure_gallery.py:121
+msgid "Quadratic formula"
+msgstr "Wzór na pierwiastki równania kwadratowego"
+
+#: src/mathessible/templates/structure_gallery.py:121
+msgid "quadratic formula"
+msgstr "wzór na pierwiastki równania kwadratowego"
+
+#: src/mathessible/templates/structure_gallery.py:125
+#: src/mathessible/templates/structure_gallery.py:127
+msgid "Integral"
+msgstr "Całka"
+
+#: src/mathessible/templates/structure_gallery.py:128
+msgid "Integral with Limits"
+msgstr "Całka z granicami"
+
+#: src/mathessible/templates/structure_gallery.py:129
+msgid "Double Integral"
+msgstr "Całka podwójna"
+
+#: src/mathessible/templates/structure_gallery.py:131
+msgid "Double integral with limits"
+msgstr "Całka podwójna z granicami"
+
+#: src/mathessible/templates/structure_gallery.py:136
+msgid "Triple integral with limits"
+msgstr "Całka potrójna z granicami"
+
+#: src/mathessible/templates/structure_gallery.py:141
+msgid "Contour integral with limits"
+msgstr "Całka krzywoliniowa z granicami"
+
+#: src/mathessible/templates/structure_gallery.py:144
+msgid "Surface integral"
+msgstr "Całka powierzchniowa"
+
+#: src/mathessible/templates/structure_gallery.py:145
+msgid "Volume integral"
+msgstr "Całka objętościowa"
+
+#: src/mathessible/templates/structure_gallery.py:146
+msgid "Differential dx"
+msgstr "Różniczka dx"
+
+#: src/mathessible/templates/structure_gallery.py:146
+msgid "d x"
+msgstr "d x"
+
+#: src/mathessible/templates/structure_gallery.py:147
+msgid "Differential dy"
+msgstr "Różniczka dy"
+
+#: src/mathessible/templates/structure_gallery.py:147
+msgid "d y"
+msgstr "d y"
+
+#: src/mathessible/templates/structure_gallery.py:148
+msgid "Differential d theta"
+msgstr "Różniczka d theta"
+
+#: src/mathessible/templates/structure_gallery.py:148
+msgid "d theta"
+msgstr "d theta"
+
+#: src/mathessible/templates/structure_gallery.py:152
+msgid "Large Operator"
+msgstr "Duży operator"
+
+#: src/mathessible/templates/structure_gallery.py:154
+msgid "Sum"
+msgstr "Suma"
+
+#: src/mathessible/templates/structure_gallery.py:155
+msgid "Sum with Limits"
+msgstr "Suma z granicami"
+
+#: src/mathessible/templates/structure_gallery.py:156
+msgid "Product"
+msgstr "Iloczyn"
+
+#: src/mathessible/templates/structure_gallery.py:157
+msgid "Product with Limits"
+msgstr "Iloczyn z granicami"
+
+#: src/mathessible/templates/structure_gallery.py:158
+msgid "Coproduct"
+msgstr "Koiloczyn"
+
+#: src/mathessible/templates/structure_gallery.py:160
+msgid "Coproduct with limits"
+msgstr "Koiloczyn z granicami"
+
+#: src/mathessible/templates/structure_gallery.py:163
+msgid "Union"
+msgstr "Suma zbiorów"
+
+#: src/mathessible/templates/structure_gallery.py:168
+msgid "Bracket"
+msgstr "Nawias"
+
+#: src/mathessible/templates/structure_gallery.py:170
+msgid "Parentheses"
+msgstr "Nawiasy okrągłe"
+
+#: src/mathessible/templates/structure_gallery.py:170
+msgid "parentheses, empty"
+msgstr "nawiasy okrągłe, puste"
+
+#: src/mathessible/templates/structure_gallery.py:171
+msgid "Square brackets"
+msgstr "Nawiasy kwadratowe"
+
+#: src/mathessible/templates/structure_gallery.py:171
+msgid "square brackets, empty"
+msgstr "nawiasy kwadratowe, puste"
+
+#: src/mathessible/templates/structure_gallery.py:172
+msgid "Braces"
+msgstr "Nawiasy klamrowe"
+
+#: src/mathessible/templates/structure_gallery.py:172
+msgid "braces, empty"
+msgstr "nawiasy klamrowe, puste"
+
+#: src/mathessible/templates/structure_gallery.py:173
+msgid "Angle Brackets"
+msgstr "Nawiasy ostre"
+
+#: src/mathessible/templates/structure_gallery.py:174
+msgid "Absolute Value"
+msgstr "Wartość bezwzględna"
+
+#: src/mathessible/templates/structure_gallery.py:175
+msgid "Norm"
+msgstr "Norma"
+
+#: src/mathessible/templates/structure_gallery.py:176
+msgid "Floor"
+msgstr "Podłoga"
+
+#: src/mathessible/templates/structure_gallery.py:177
+msgid "Ceiling"
+msgstr "Sufit"
+
+#: src/mathessible/templates/structure_gallery.py:178
+msgid "Binomial"
+msgstr "Symbol Newtona"
+
+#: src/mathessible/templates/structure_gallery.py:179
+msgid "Cases"
+msgstr "Przypadki"
+
+#: src/mathessible/templates/structure_gallery.py:183 src/mathessible/ui/functions_dialog.py:43
+msgid "Function"
+msgstr "Funkcja"
+
+#: src/mathessible/templates/structure_gallery.py:190
+msgid "Accent"
+msgstr "Akcent"
+
+#: src/mathessible/templates/structure_gallery.py:192
+msgid "Vector arrow"
+msgstr "Strzałka wektora"
+
+#: src/mathessible/templates/structure_gallery.py:193
+msgid "Hat"
+msgstr "Daszek"
+
+#: src/mathessible/templates/structure_gallery.py:194
+msgid "Bar"
+msgstr "Kreska"
+
+#: src/mathessible/templates/structure_gallery.py:195
+msgid "Dot"
+msgstr "Kropka"
+
+#: src/mathessible/templates/structure_gallery.py:196
+msgid "Double dot"
+msgstr "Dwie kropki"
+
+#: src/mathessible/templates/structure_gallery.py:197
+msgid "Tilde"
+msgstr "Tylda"
+
+#: src/mathessible/templates/structure_gallery.py:198
+msgid "Check"
+msgstr "Haczek"
+
+#: src/mathessible/templates/structure_gallery.py:199
+msgid "Acute"
+msgstr "Akcent ostry"
+
+#: src/mathessible/templates/structure_gallery.py:200
+msgid "Grave"
+msgstr "Akcent słaby"
+
+#: src/mathessible/templates/structure_gallery.py:201
+msgid "Breve"
+msgstr "Brewis"
+
+#: src/mathessible/templates/structure_gallery.py:202
+msgid "Overbar"
+msgstr "Nadkreślenie"
+
+#: src/mathessible/templates/structure_gallery.py:202
+msgid "overbar template, empty content"
+msgstr "szablon nadkreślenia, pusta zawartość"
+
+#: src/mathessible/templates/structure_gallery.py:203
+msgid "Underbar"
+msgstr "Podkreślenie"
+
+#: src/mathessible/templates/structure_gallery.py:203
+msgid "underbar template, empty content"
+msgstr "szablon podkreślenia, pusta zawartość"
+
+#: src/mathessible/templates/structure_gallery.py:206
+msgid "Box"
+msgstr "Ramka"
+
+#: src/mathessible/templates/structure_gallery.py:210
+msgid "Limit and Log"
+msgstr "Granica i logarytm"
+
+#: src/mathessible/templates/structure_gallery.py:212
+msgid "Limit"
+msgstr "Granica"
+
+#: src/mathessible/templates/structure_gallery.py:214
+msgid "Limit as n goes to infinity"
+msgstr "Granica przy n dążącym do nieskończoności"
+
+#: src/mathessible/templates/structure_gallery.py:215
+msgid "limit as n goes to infinity, empty argument"
+msgstr "granica przy n dążącym do nieskończoności, pusty argument"
+
+#: src/mathessible/templates/structure_gallery.py:218
+msgid "Limit inferior"
+msgstr "Granica dolna (lim inf)"
+
+#: src/mathessible/templates/structure_gallery.py:219
+msgid "limit inferior template, empty limit condition"
+msgstr "szablon lim inf, pusty warunek granicy"
+
+#: src/mathessible/templates/structure_gallery.py:222
+msgid "Limit superior"
+msgstr "Granica górna (lim sup)"
+
+#: src/mathessible/templates/structure_gallery.py:223
+msgid "limit superior template, empty limit condition"
+msgstr "szablon lim sup, pusty warunek granicy"
+
+#: src/mathessible/templates/structure_gallery.py:225
+msgid "Logarithm"
+msgstr "Logarytm"
+
+#: src/mathessible/templates/structure_gallery.py:231
+msgid "Operator"
+msgstr "Operator"
+
+#: src/mathessible/templates/structure_gallery.py:233
+msgid "Arrow with Text Above"
+msgstr "Strzałka z tekstem powyżej"
+
+#: src/mathessible/templates/structure_gallery.py:234
+msgid "Arrow with Text Below"
+msgstr "Strzałka z tekstem poniżej"
+
+#: src/mathessible/templates/structure_gallery.py:235
+msgid "Equals with Text Above"
+msgstr "Równa się z tekstem powyżej"
+
+#: src/mathessible/templates/structure_gallery.py:237
+msgid "Left arrow with text above"
+msgstr "Strzałka w lewo z tekstem powyżej"
+
+#: src/mathessible/templates/structure_gallery.py:241
+msgid "Double arrow with text above"
+msgstr "Podwójna strzałka z tekstem powyżej"
+
+#: src/mathessible/templates/structure_gallery.py:244
+msgid "Colon equals"
+msgstr "Dwukropek równa się"
+
+#: src/mathessible/templates/structure_gallery.py:244
+msgid "colon equals"
+msgstr "dwukropek równa się"
+
+#: src/mathessible/templates/structure_gallery.py:245
+msgid "Equal by definition"
+msgstr "Równe z definicji"
+
+#: src/mathessible/templates/structure_gallery.py:245
+msgid "equal by definition"
+msgstr "równe z definicji"
+
+#: src/mathessible/templates/structure_gallery.py:246
+msgid "Delta equals"
+msgstr "Delta równa się"
+
+#: src/mathessible/templates/structure_gallery.py:246
+msgid "delta equals"
+msgstr "delta równa się"
+
+#: src/mathessible/templates/structure_gallery.py:253
+msgid "1 by 2 matrix"
+msgstr "Macierz 1 na 2"
+
+#: src/mathessible/templates/structure_gallery.py:254
+msgid "2 by 1 matrix"
+msgstr "Macierz 2 na 1"
+
+#: src/mathessible/templates/structure_gallery.py:255
+msgid "2 by 2 matrix"
+msgstr "Macierz 2 na 2"
+
+#: src/mathessible/templates/structure_gallery.py:256
+msgid "2 by 2 matrix in brackets"
+msgstr "Macierz 2 na 2 w nawiasach kwadratowych"
+
+#: src/mathessible/templates/structure_gallery.py:257
+msgid "2 by 2 determinant"
+msgstr "Wyznacznik 2 na 2"
+
+#: src/mathessible/templates/structure_gallery.py:258
+msgid "3 by 3 matrix"
+msgstr "Macierz 3 na 3"
+
+#: src/mathessible/templates/structure_gallery.py:259
+msgid "2 by 2 identity matrix"
+msgstr "Macierz jednostkowa 2 na 2"
+
+#: src/mathessible/templates/structure_gallery.py:260
+msgid "Equation Array"
+msgstr "Układ równań"
+
+#: src/mathessible/templates/structure_gallery.py:264
+msgid "Other"
+msgstr "Inne"
+
+#: src/mathessible/templates/structure_gallery.py:266
+msgid "Equation Number"
+msgstr "Numer równania"
+
+#: src/mathessible/templates/structure_gallery.py:274
+msgid "My Equations"
+msgstr "Moje równania"
+
+#: src/mathessible/templates/structure_gallery.py:291
+msgid "scripts template, empty subscript"
+msgstr "szablon indeksów, pusty indeks dolny"
+
+#: src/mathessible/templates/structure_gallery.py:294
+msgid "scripts template, empty base"
+msgstr "szablon indeksów, pusta podstawa"
+
+#: src/mathessible/ui/autocorrect_dialog.py:31
+msgid "Math AutoCorrect"
+msgstr "Autokorekta matematyczna"
+
+#: src/mathessible/ui/autocorrect_dialog.py:32
+msgid "Math AutoCorrect dialog"
+msgstr "Okno dialogowe Autokorekta matematyczna"
+
+#: src/mathessible/ui/autocorrect_dialog.py:40 src/mathessible/ui/autocorrect_dialog.py:107
+#: src/mathessible/ui/braille_signs_dialog.py:131
+msgid "&Replace"
+msgstr "&Zamień"
+
+#: src/mathessible/ui/autocorrect_dialog.py:42 src/mathessible/ui/main_frame.py:472
+msgid "Replace"
+msgstr "Zamień"
+
+#: src/mathessible/ui/autocorrect_dialog.py:43
+msgid "&With"
+msgstr "&Na"
+
+#: src/mathessible/ui/autocorrect_dialog.py:45
+msgid "With"
+msgstr "Na"
+
+#: src/mathessible/ui/autocorrect_dialog.py:50
+msgid "&Entries"
+msgstr "&Wpisy"
+
+#: src/mathessible/ui/autocorrect_dialog.py:52
+msgid "Math AutoCorrect entries"
+msgstr "Wpisy autokorekty matematycznej"
+
+#: src/mathessible/ui/autocorrect_dialog.py:54 src/mathessible/ui/autocorrect_dialog.py:107
+#: src/mathessible/ui/braille_signs_dialog.py:70 src/mathessible/ui/braille_signs_dialog.py:131
+#: src/mathessible/ui/functions_dialog.py:48
+msgid "&Add"
+msgstr "&Dodaj"
+
+#: src/mathessible/ui/autocorrect_dialog.py:55 src/mathessible/ui/braille_signs_dialog.py:71
+#: src/mathessible/ui/functions_dialog.py:49 src/mathessible/ui/gallery_dialog.py:56
+#: src/mathessible/ui/main_frame.py:220
+msgid "&Delete"
+msgstr "&Usuń"
+
+#: src/mathessible/ui/autocorrect_dialog.py:56 src/mathessible/ui/functions_dialog.py:50
+msgid "Reset to De&faults"
+msgstr "Przywróć &domyślne"
+
+#: src/mathessible/ui/braille_signs_dialog.py:36
+#, python-brace-format
+msgid "Braille signs: {code}"
+msgstr "Znaki brajlowskie: {code}"
+
+#: src/mathessible/ui/braille_signs_dialog.py:39
+msgid "Braille signs dialog"
+msgstr "Okno dialogowe Znaki brajlowskie"
+
+#: src/mathessible/ui/braille_signs_dialog.py:48
+#, python-brace-format
+msgid ""
+"Your own braille for symbols in {code}; each replaces the code's sign. Symbol: the character, a "
+"control word (\\sqsubset) or a code (U+228F). Braille: cells, or dot numbers with hyphens between"
+" cells (4-456-126)."
+msgstr ""
+"Własny zapis brajlowski symboli w kodzie {code}; każdy zastępuje znak kodu. Symbol: znak, słowo "
+"sterujące (\\sqsubset) lub kod (U+228F). Braille: komórki albo numery punktów z łącznikami między"
+" komórkami (4-456-126)."
+
+#: src/mathessible/ui/braille_signs_dialog.py:56
+msgid "S&ymbol"
+msgstr "S&ymbol"
+
+#: src/mathessible/ui/braille_signs_dialog.py:59
+msgid "&Braille"
+msgstr "&Braille"
+
+#: src/mathessible/ui/braille_signs_dialog.py:66
+msgid "&Signs"
+msgstr "&Znaki"
+
+#: src/mathessible/ui/braille_signs_dialog.py:68
+msgid "Braille signs"
+msgstr "Znaki brajlowskie"
+
+#: src/mathessible/ui/braille_signs_dialog.py:107
+#, python-brace-format
+msgid "{symbol}  {name}: {cells} (dots {dots})"
+msgstr "{symbol}  {name}: {cells} (punkty {dots})"
+
+#: src/mathessible/ui/document_editor.py:62
+msgid "Equation Editor"
+msgstr "Edytor równań"
+
+#: src/mathessible/ui/document_editor.py:67
+msgid "Equation Editor window"
+msgstr "Okno Edytor równań"
+
+#: src/mathessible/ui/document_editor.py:74
+#, python-brace-format
+msgid "Enter or {shortcut} saves. Escape cancels."
+msgstr "Enter lub {shortcut} zapisuje. Escape anuluje."
+
+#: src/mathessible/ui/document_editor.py:89
+msgid "&Save Equation (Enter)"
+msgstr "&Zapisz równanie (Enter)"
+
+#: src/mathessible/ui/document_editor.py:90
+msgid "&Cancel (Escape)"
+msgstr "&Anuluj (Escape)"
+
+#: src/mathessible/ui/document_editor.py:94
+msgid "&Errors…"
+msgstr "&Błędy…"
+
+#: src/mathessible/ui/document_editor.py:96
+msgid "Save as &New Equation…"
+msgstr "Zapisz jako &nowe równanie…"
+
+#: src/mathessible/ui/document_editor.py:98 src/mathessible/ui/document_editor.py:103
+msgid "Change to &Display"
+msgstr "Zmień na &wydzielone"
+
+#: src/mathessible/ui/document_editor.py:103
+msgid "Change to &Inline"
+msgstr "Zmień na w &tekście"
+
+#: src/mathessible/ui/document_editor.py:107
+msgid "E&quation"
+msgstr "&Równanie"
+
+#: src/mathessible/ui/document_editor.py:110 src/mathessible/ui/main_frame.py:214
+msgid "&Undo"
+msgstr "&Cofnij"
+
+#: src/mathessible/ui/document_editor.py:111 src/mathessible/ui/main_frame.py:215
+msgid "&Redo"
+msgstr "&Ponów"
+
+#: src/mathessible/ui/document_editor.py:131 src/mathessible/ui/main_frame.py:237
+msgid "&Edit"
+msgstr "&Edycja"
+
+#: src/mathessible/ui/document_editor.py:138
+msgid "&Professional View"
+msgstr "Widok &profesjonalny"
+
+#: src/mathessible/ui/document_editor.py:139
+msgid "&Writing Mode"
+msgstr "&Tryb pisania"
+
+#: src/mathessible/ui/document_editor.py:141
+msgid "Zoom &In"
+msgstr "Po&większ"
+
+#: src/mathessible/ui/document_editor.py:142
+msgid "Zoom &Out"
+msgstr "Po&mniejsz"
+
+#: src/mathessible/ui/document_editor.py:143
+msgid "&Actual Size"
+msgstr "&Rzeczywisty rozmiar"
+
+#: src/mathessible/ui/document_editor.py:155 src/mathessible/ui/main_frame.py:241
+msgid "&View"
+msgstr "&Widok"
+
+#: src/mathessible/ui/document_editor.py:179 src/mathessible/ui/document_editor.py:364
+msgid "display equation"
+msgstr "równanie wydzielone"
+
+#: src/mathessible/ui/document_editor.py:179 src/mathessible/ui/document_editor.py:364
+msgid "inline equation"
+msgstr "równanie w tekście"
+
+#: src/mathessible/ui/document_editor.py:186
+#, python-brace-format
+msgid "Edit display equation — Enter or {shortcut} saves. Escape cancels."
+msgstr "Edytuj równanie wydzielone — Enter lub {shortcut} zapisuje. Escape anuluje."
+
+#: src/mathessible/ui/document_editor.py:188
+#, python-brace-format
+msgid "Edit inline equation — Enter or {shortcut} saves. Escape cancels."
+msgstr "Edytuj równanie w tekście — Enter lub {shortcut} zapisuje. Escape anuluje."
+
+#: src/mathessible/ui/document_editor.py:265
+msgid "Markdown editor"
+msgstr "Edytor Markdown"
+
+#: src/mathessible/ui/document_editor.py:356
+msgid "this equation cannot be inline"
+msgstr "to równanie nie może być w tekście"
+
+#: src/mathessible/ui/document_editor.py:463
+msgid "equation saved, new line"
+msgstr "zapisano równanie, nowy wiersz"
+
+#: src/mathessible/ui/document_editor.py:463
+msgid "equation saved"
+msgstr "zapisano równanie"
+
+#: src/mathessible/ui/document_editor.py:466
+msgid "equation editing canceled"
+msgstr "anulowano edycję równania"
+
+#: src/mathessible/ui/error_dialog.py:20
+#, python-brace-format
+msgid "Errors ({count})"
+msgstr "Błędy ({count})"
+
+#: src/mathessible/ui/error_dialog.py:23
+msgid "Equation errors dialog"
+msgstr "Okno dialogowe Błędy równania"
+
+#: src/mathessible/ui/error_dialog.py:28
+#, python-brace-format
+msgid "&{count} error; Enter goes to the error"
+msgid_plural "&{count} errors; Enter goes to the error"
+msgstr[0] "&{count} błąd; Enter przechodzi do błędu"
+msgstr[1] "&{count} błędy; Enter przechodzi do błędu"
+msgstr[2] "&{count} błędów; Enter przechodzi do błędu"
+
+#: src/mathessible/ui/error_dialog.py:32
+msgid "Errors"
+msgstr "Błędy"
+
+#: src/mathessible/ui/error_dialog.py:42
+msgid "&Go to Error"
+msgstr "&Przejdź do błędu"
+
+#: src/mathessible/ui/export_controls.py:41
+msgid "&Top"
+msgstr "&Górny"
+
+#: src/mathessible/ui/export_controls.py:41
+msgid "Top margin (mm)"
+msgstr "Górny margines (mm)"
+
+#: src/mathessible/ui/export_controls.py:42
+msgid "&Right"
+msgstr "&Prawy"
+
+#: src/mathessible/ui/export_controls.py:42
+msgid "Right margin (mm)"
+msgstr "Prawy margines (mm)"
+
+#: src/mathessible/ui/export_controls.py:43
+msgid "&Bottom"
+msgstr "&Dolny"
+
+#: src/mathessible/ui/export_controls.py:43
+msgid "Bottom margin (mm)"
+msgstr "Dolny margines (mm)"
+
+#: src/mathessible/ui/export_controls.py:44
+msgid "&Left"
+msgstr "&Lewy"
+
+#: src/mathessible/ui/export_controls.py:44
+msgid "Left margin (mm)"
+msgstr "Lewy margines (mm)"
+
+#: src/mathessible/ui/export_controls.py:111 src/mathessible/ui/export_controls.py:287
+msgid "&Paper"
+msgstr "P&apier"
+
+#: src/mathessible/ui/export_controls.py:111 src/mathessible/ui/export_controls.py:287
+msgid "Paper"
+msgstr "Papier"
+
+#: src/mathessible/ui/export_controls.py:120 src/mathessible/ui/export_controls.py:296
+msgid "Margins (mm)"
+msgstr "Marginesy (mm)"
+
+#: src/mathessible/ui/export_controls.py:121
+msgid "Colu&mns"
+msgstr "Ko&lumny"
+
+#: src/mathessible/ui/export_controls.py:121 src/mathessible/ui/matrix_dialog.py:36
+msgid "Columns"
+msgstr "Kolumny"
+
+#: src/mathessible/ui/export_controls.py:124 src/mathessible/ui/export_controls.py:267
+#: src/mathessible/ui/export_controls.py:298
+msgid "&Font"
+msgstr "&Czcionka"
+
+#: src/mathessible/ui/export_controls.py:124 src/mathessible/ui/export_controls.py:267
+#: src/mathessible/ui/export_controls.py:298
+msgid "Font"
+msgstr "Czcionka"
+
+#: src/mathessible/ui/export_controls.py:128 src/mathessible/ui/export_controls.py:302
+msgid "Font si&ze (pt)"
+msgstr "&Rozmiar czcionki (pt)"
+
+#: src/mathessible/ui/export_controls.py:128 src/mathessible/ui/export_controls.py:302
+msgid "Font size"
+msgstr "Rozmiar czcionki"
+
+#: src/mathessible/ui/export_controls.py:131
+msgid "Line s&pacing (em)"
+msgstr "&Interlinia (em)"
+
+#: src/mathessible/ui/export_controls.py:133 src/mathessible/ui/export_controls.py:305
+msgid "Line spacing"
+msgstr "Interlinia"
+
+#: src/mathessible/ui/export_controls.py:136 src/mathessible/ui/export_controls.py:307
+msgid "Lan&dscape"
+msgstr "&Pozioma"
+
+#: src/mathessible/ui/export_controls.py:136 src/mathessible/ui/export_controls.py:307
+msgid "Landscape"
+msgstr "Pozioma"
+
+#: src/mathessible/ui/export_controls.py:137 src/mathessible/ui/export_controls.py:308
+msgid "&Justify the text"
+msgstr "&Wyjustuj tekst"
+
+#: src/mathessible/ui/export_controls.py:137 src/mathessible/ui/export_controls.py:308
+msgid "Justify the text"
+msgstr "Wyjustuj tekst"
+
+#: src/mathessible/ui/export_controls.py:156
+msgid "Page number p&osition"
+msgstr "P&ołożenie numeru strony"
+
+#: src/mathessible/ui/export_controls.py:158
+msgid "Page number position"
+msgstr "Położenie numeru strony"
+
+#: src/mathessible/ui/export_controls.py:161
+msgid "Heading n&umbers"
+msgstr "&Numery nagłówków"
+
+#: src/mathessible/ui/export_controls.py:163
+msgid "Heading numbers"
+msgstr "Numery nagłówków"
+
+#: src/mathessible/ui/export_controls.py:166
+msgid "E&quation numbers"
+msgstr "Numery &równań"
+
+#: src/mathessible/ui/export_controls.py:168
+msgid "Equation numbers"
+msgstr "Numery równań"
+
+#: src/mathessible/ui/export_controls.py:171
+msgid "Te&xt colour"
+msgstr "Kolor te&kstu"
+
+#: src/mathessible/ui/export_controls.py:171
+msgid "Text colour"
+msgstr "Kolor tekstu"
+
+#: src/mathessible/ui/export_controls.py:174
+msgid "Headin&g colour"
+msgstr "Kolor &nagłówków"
+
+#: src/mathessible/ui/export_controls.py:174
+msgid "Heading colour"
+msgstr "Kolor nagłówków"
+
+#: src/mathessible/ui/export_controls.py:177
+msgid "L&ink colour"
+msgstr "Kolor &odnośników"
+
+#: src/mathessible/ui/export_controls.py:177
+msgid "Link colour"
+msgstr "Kolor odnośników"
+
+#: src/mathessible/ui/export_controls.py:179 src/mathessible/ui/export_controls.py:238
+#: src/mathessible/ui/export_controls.py:309
+msgid "Number the pages"
+msgstr "Numeruj strony"
+
+#: src/mathessible/ui/export_controls.py:179 src/mathessible/ui/export_controls.py:309
+msgid "&Number the pages"
+msgstr "&Numeruj strony"
+
+#: src/mathessible/ui/export_controls.py:181
+msgid "Table of &contents (from the headings)"
+msgstr "&Spis treści (z nagłówków)"
+
+#: src/mathessible/ui/export_controls.py:181 src/mathessible/ui/export_controls.py:273
+#: src/mathessible/ui/export_controls.py:312
+msgid "Table of contents"
+msgstr "Spis treści"
+
+#: src/mathessible/ui/export_controls.py:184
+msgid "Attach the Markdown &source (the PDF can be opened in Mathessible again)"
+msgstr "Dołącz &źródło Markdown (plik PDF będzie można ponownie otworzyć w Mathessible)"
+
+#: src/mathessible/ui/export_controls.py:185
+msgid "Attach the Markdown source"
+msgstr "Dołącz źródło Markdown"
+
+#: src/mathessible/ui/export_controls.py:209
+msgid "&Standard"
+msgstr "&Standard"
+
+#: src/mathessible/ui/export_controls.py:209
+msgid "PDF standard"
+msgstr "Standard PDF"
+
+#: src/mathessible/ui/export_controls.py:222
+msgid "&Text braille table"
+msgstr "&Tablica brajlowska tekstu"
+
+#: src/mathessible/ui/export_controls.py:224
+msgid "Text braille table"
+msgstr "Tablica brajlowska tekstu"
+
+#: src/mathessible/ui/export_controls.py:231
+msgid "&Cells per line"
+msgstr "&Komórki w wierszu"
+
+#: src/mathessible/ui/export_controls.py:231
+msgid "Cells per line"
+msgstr "Komórki w wierszu"
+
+#: src/mathessible/ui/export_controls.py:234
+msgid "&Lines per page"
+msgstr "&Wiersze na stronie"
+
+#: src/mathessible/ui/export_controls.py:234
+msgid "Lines per page"
+msgstr "Wiersze na stronie"
+
+#: src/mathessible/ui/export_controls.py:237
+msgid "&Number the pages (at the right of each page's last line, as braille formats require)"
+msgstr "&Numeruj strony (z prawej w ostatnim wierszu każdej strony, jak wymagają formaty brajlowskie)"
+
+#: src/mathessible/ui/export_controls.py:255
+msgid "&Equations in"
+msgstr "&Równania w kodzie"
+
+#: src/mathessible/ui/export_controls.py:257
+msgid "Braille code for the equations"
+msgstr "Kod brajlowski równań"
+
+#: src/mathessible/ui/export_controls.py:269
+msgid "&Colours"
+msgstr "&Kolory"
+
+#: src/mathessible/ui/export_controls.py:269
+msgid "Colours"
+msgstr "Kolory"
+
+#: src/mathessible/ui/export_controls.py:272
+msgid "Table of &contents (the pages of a notebook, the headings of a document)"
+msgstr "&Spis treści (strony notatnika, nagłówki dokumentu)"
+
+#: src/mathessible/ui/export_controls.py:305
+msgid "Line s&pacing"
+msgstr "&Interlinia"
+
+#: src/mathessible/ui/export_controls.py:311
+msgid "Table of &contents (Word fills it in when the document is opened)"
+msgstr "&Spis treści (Word wypełni go przy otwarciu dokumentu)"
+
+#: src/mathessible/ui/export_dialogs.py:44
+msgid "Save as &Defaults"
+msgstr "Zapisz jako &domyślne"
+
+#: src/mathessible/ui/export_dialogs.py:46
+msgid "E&xport"
+msgstr "&Eksportuj"
+
+#: src/mathessible/ui/export_dialogs.py:57
+msgid "&Open the file once exported"
+msgstr "&Otwórz plik po eksporcie"
+
+#: src/mathessible/ui/export_dialogs.py:58
+msgid "Open the file once exported"
+msgstr "Otwórz plik po eksporcie"
+
+#: src/mathessible/ui/export_dialogs.py:63
+msgid "Save as Defaults"
+msgstr "Zapisz jako domyślne"
+
+#: src/mathessible/ui/export_dialogs.py:70
+#, python-brace-format
+msgid "{title} dialog"
+msgstr "Okno dialogowe {title}"
+
+#: src/mathessible/ui/export_dialogs.py:97
+msgid "These options are now the defaults."
+msgstr "Te opcje są teraz domyślne."
+
+#: src/mathessible/ui/export_dialogs.py:103 src/mathessible/ui/main_frame.py:950
+msgid "Export as BRF"
+msgstr "Eksportuj jako BRF"
+
+#: src/mathessible/ui/export_dialogs.py:123 src/mathessible/ui/main_frame.py:943
+msgid "Export as HTML"
+msgstr "Eksportuj jako HTML"
+
+#: src/mathessible/ui/export_dialogs.py:125 src/mathessible/ui/export_dialogs.py:158
+#: src/mathessible/ui/pdf_dialog.py:46
+msgid "&Title"
+msgstr "&Tytuł"
+
+#: src/mathessible/ui/export_dialogs.py:125 src/mathessible/ui/export_dialogs.py:158
+#: src/mathessible/ui/pdf_dialog.py:46
+msgid "Title"
+msgstr "Tytuł"
+
+#: src/mathessible/ui/export_dialogs.py:126 src/mathessible/ui/export_dialogs.py:159
+#: src/mathessible/ui/pdf_dialog.py:47
+msgid "&Author"
+msgstr "&Autor"
+
+#: src/mathessible/ui/export_dialogs.py:126 src/mathessible/ui/export_dialogs.py:159
+#: src/mathessible/ui/pdf_dialog.py:47
+msgid "Author"
+msgstr "Autor"
+
+#: src/mathessible/ui/export_dialogs.py:127
+msgid "D&escription"
+msgstr "&Opis"
+
+#: src/mathessible/ui/export_dialogs.py:127
+msgid "Description"
+msgstr "Opis"
+
+#: src/mathessible/ui/export_dialogs.py:128 src/mathessible/ui/export_dialogs.py:164
+#: src/mathessible/ui/pdf_dialog.py:52
+msgid "&Language (for example ro, en)"
+msgstr "&Język (na przykład ro, en)"
+
+#: src/mathessible/ui/export_dialogs.py:128 src/mathessible/ui/export_dialogs.py:164
+#: src/mathessible/ui/pdf_dialog.py:52 src/mathessible/ui/settings_dialog.py:69
+msgid "Language"
+msgstr "Język"
+
+#: src/mathessible/ui/export_dialogs.py:156 src/mathessible/ui/main_frame.py:947
+msgid "Export as Word Document"
+msgstr "Eksportuj jako dokument Word"
+
+#: src/mathessible/ui/export_dialogs.py:160 src/mathessible/ui/pdf_dialog.py:48
+msgid "&Subject"
+msgstr "T&emat"
+
+#: src/mathessible/ui/export_dialogs.py:160 src/mathessible/ui/pdf_dialog.py:48
+msgid "Subject"
+msgstr "Temat"
+
+#: src/mathessible/ui/export_dialogs.py:162 src/mathessible/ui/pdf_dialog.py:50
+msgid "&Keywords (comma-separated)"
+msgstr "&Słowa kluczowe (rozdzielone przecinkami)"
+
+#: src/mathessible/ui/export_dialogs.py:162 src/mathessible/ui/pdf_dialog.py:50
+msgid "Keywords"
+msgstr "Słowa kluczowe"
+
+#: src/mathessible/ui/functions_dialog.py:25
+msgid "Recognized Functions"
+msgstr "Rozpoznawane funkcje"
+
+#: src/mathessible/ui/functions_dialog.py:26
+msgid "Recognized functions dialog"
+msgstr "Okno dialogowe Rozpoznawane funkcje"
+
+#: src/mathessible/ui/functions_dialog.py:35
+msgid ""
+"Space after a recognized function opens its argument, and the function is navigated as its name "
+"and argument, as in Word."
+msgstr ""
+"Spacja po rozpoznanej funkcji otwiera jej argument, a funkcja jest przeglądana jako nazwa i "
+"argument, jak w Wordzie."
+
+#: src/mathessible/ui/functions_dialog.py:41
+msgid "&Function"
+msgstr "&Funkcja"
+
+#: src/mathessible/ui/functions_dialog.py:44
+msgid "&Recognized functions"
+msgstr "&Rozpoznawane funkcje"
+
+#: src/mathessible/ui/functions_dialog.py:46
+msgid "Recognized functions"
+msgstr "Rozpoznawane funkcje"
+
+#: src/mathessible/ui/gallery_dialog.py:37
+msgid "Insert Structure"
+msgstr "Wstaw strukturę"
+
+#: src/mathessible/ui/gallery_dialog.py:38
+msgid "Insert structure dialog"
+msgstr "Okno dialogowe Wstaw strukturę"
+
+#: src/mathessible/ui/gallery_dialog.py:47
+msgid "&Category"
+msgstr "&Kategoria"
+
+#: src/mathessible/ui/gallery_dialog.py:49
+msgid "Category"
+msgstr "Kategoria"
+
+#: src/mathessible/ui/gallery_dialog.py:50
+msgid "&Structure"
+msgstr "&Struktura"
+
+#: src/mathessible/ui/gallery_dialog.py:52
+msgid "Structure"
+msgstr "Struktura"
+
+#: src/mathessible/ui/gallery_dialog.py:53
+msgid "&Written as"
+msgstr "&Zapis"
+
+#: src/mathessible/ui/gallery_dialog.py:55
+msgid "Written as"
+msgstr "Zapis"
+
+#: src/mathessible/ui/gallery_dialog.py:120
+msgid "opens a dialog"
+msgstr "otwiera okno dialogowe"
+
+#: src/mathessible/ui/gallery_dialog.py:144
+#, python-brace-format
+msgid "Delete “{name}” from My Equations?"
+msgstr "Usunąć „{name}” z Moich równań?"
+
+#: src/mathessible/ui/gallery_dialog.py:145
+msgid "Delete Equation"
+msgstr "Usuń równanie"
+
+#: src/mathessible/ui/help_menu.py:24
+msgid "&Report a Problem"
+msgstr "&Zgłoś problem"
+
+#: src/mathessible/ui/help_menu.py:27
+msgid "&About Mathessible"
+msgstr "&O programie Mathessible"
+
+#: src/mathessible/ui/help_menu.py:29
+msgid "&Help"
+msgstr "Pomo&c"
+
+#: src/mathessible/ui/help_menu.py:38
+msgid "GNU General Public License, version 2 or later"
+msgstr "Powszechna Licencja Publiczna GNU, wersja 2 lub późniejsza"
+
+#: src/mathessible/ui/main_frame.py:98
+msgid "Pages"
+msgstr "Strony"
+
+#: src/mathessible/ui/main_frame.py:100
+msgid "Notebook pages"
+msgstr "Strony notatnika"
+
+#: src/mathessible/ui/main_frame.py:148
+#, python-brace-format
+msgid ""
+"MathCAT's native extension could not be loaded, so equations can only be edited as text, not read"
+" or navigated ({error}). Run scripts/bootstrap.sh."
+msgstr ""
+"Nie można wczytać natywnego rozszerzenia MathCAT, więc równania można edytować tylko jako tekst, "
+"bez odczytywania i przeglądania ({error}). Uruchom scripts/bootstrap.sh."
+
+#: src/mathessible/ui/main_frame.py:155
+msgid "No web view is available to convert and show equations (on Linux, install WebKitGTK for wxPython)."
+msgstr ""
+"Brak widoku internetowego do konwertowania i wyświetlania równań (w systemie Linux zainstaluj "
+"WebKitGTK dla wxPython)."
+
+#: src/mathessible/ui/main_frame.py:166
+#, python-brace-format
+msgid ""
+"Mathessible's fixes to MathCAT and UnicodeMathML are not applied, so some equations will be read "
+"or built wrongly. Run scripts/bootstrap.sh in the Mathessible folder, then start Mathessible "
+"again.\n"
+"\n"
+"Missing patches:\n"
+"{patches}"
+msgstr ""
+"Poprawki Mathessible do MathCAT i UnicodeMathML nie są zastosowane, więc niektóre równania będą "
+"odczytywane lub budowane błędnie. Uruchom scripts/bootstrap.sh w folderze Mathessible, a potem "
+"ponownie uruchom Mathessible.\n"
+"\n"
+"Brakujące poprawki:\n"
+"{patches}"
+
+#: src/mathessible/ui/main_frame.py:179
+msgid "Mathessible Setup"
+msgstr "Konfiguracja Mathessible"
+
+#: src/mathessible/ui/main_frame.py:188
+msgid "&New"
+msgstr "&Nowy"
+
+#: src/mathessible/ui/main_frame.py:189
+msgid "&Open…"
+msgstr "&Otwórz…"
+
+#: src/mathessible/ui/main_frame.py:193
+msgid "Open &Recent"
+msgstr "Otwórz o&statnie"
+
+#: src/mathessible/ui/main_frame.py:195
+msgid "&Close Window"
+msgstr "&Zamknij okno"
+
+#: src/mathessible/ui/main_frame.py:196
+msgid "&Save"
+msgstr "Za&pisz"
+
+#: src/mathessible/ui/main_frame.py:197
+msgid "Save &As…"
+msgstr "Zapisz &jako…"
+
+#: src/mathessible/ui/main_frame.py:198
+msgid "Re&vert to Saved"
+msgstr "P&rzywróć zapisaną wersję"
+
+#: src/mathessible/ui/main_frame.py:202
+msgid "&HTML…"
+msgstr "&HTML…"
+
+#: src/mathessible/ui/main_frame.py:203
+msgid "&PDF…"
+msgstr "&PDF…"
+
+#: src/mathessible/ui/main_frame.py:204
+msgid "&Word Document…"
+msgstr "Dokument &Word…"
+
+#: src/mathessible/ui/main_frame.py:205
+msgid "&BRF (Braille)…"
+msgstr "&BRF (braille)…"
+
+#: src/mathessible/ui/main_frame.py:206
+msgid "&Export"
+msgstr "&Eksportuj"
+
+#: src/mathessible/ui/main_frame.py:208
+msgid "&Print…"
+msgstr "&Drukuj…"
+
+#: src/mathessible/ui/main_frame.py:210
+msgid "&Quit"
+msgstr "Za&kończ"
+
+#: src/mathessible/ui/main_frame.py:212
+msgid "&File"
+msgstr "&Plik"
+
+#: src/mathessible/ui/main_frame.py:228
+msgid "&Find…"
+msgstr "&Znajdź…"
+
+#: src/mathessible/ui/main_frame.py:229
+msgid "Find &Next"
+msgstr "Znajdź &następny"
+
+#: src/mathessible/ui/main_frame.py:230
+msgid "Find Pre&vious"
+msgstr "Znajdź poprze&dni"
+
+#: src/mathessible/ui/main_frame.py:231
+msgid "R&eplace…"
+msgstr "Za&mień…"
+
+#: src/mathessible/ui/main_frame.py:234 src/mathessible/ui/main_frame.py:544
+msgid "Change Equation to &Display"
+msgstr "Zmień równanie na wydzie&lone"
+
+#: src/mathessible/ui/main_frame.py:236
+msgid "&Settings…"
+msgstr "Ust&awienia…"
+
+#: src/mathessible/ui/main_frame.py:240
+msgid "Document &Preview"
+msgstr "&Podgląd dokumentu"
+
+#: src/mathessible/ui/main_frame.py:255
+msgid "&New Notebook…"
+msgstr "&Nowy notatnik…"
+
+#: src/mathessible/ui/main_frame.py:256
+msgid "New Notebook &Folder…"
+msgstr "Nowy &folder notatnika…"
+
+#: src/mathessible/ui/main_frame.py:257
+msgid "&Open Notebook Folder…"
+msgstr "&Otwórz folder notatnika…"
+
+#: src/mathessible/ui/main_frame.py:258
+msgid "Save Notebook as &Single File…"
+msgstr "Zapisz notatnik jako &jeden plik…"
+
+#: src/mathessible/ui/main_frame.py:260
+msgid "&Add Page"
+msgstr "&Dodaj stronę"
+
+#: src/mathessible/ui/main_frame.py:261
+msgid "&Rename Page…"
+msgstr "Zmień nazw&ę strony…"
+
+#: src/mathessible/ui/main_frame.py:262
+msgid "&Delete Page…"
+msgstr "&Usuń stronę…"
+
+#: src/mathessible/ui/main_frame.py:264
+msgid "Move Page &Up"
+msgstr "Przenieś stronę w &górę"
+
+#: src/mathessible/ui/main_frame.py:265
+msgid "Move Page Do&wn"
+msgstr "Przenieś stronę w d&ół"
+
+#: src/mathessible/ui/main_frame.py:267
+msgid "&Previous Page"
+msgstr "&Poprzednia strona"
+
+#: src/mathessible/ui/main_frame.py:268
+msgid "Ne&xt Page"
+msgstr "Na&stępna strona"
+
+#: src/mathessible/ui/main_frame.py:269
+msgid "&Notebook"
+msgstr "&Notatnik"
+
+#: src/mathessible/ui/main_frame.py:274
+msgid "&Next Window"
+msgstr "&Następne okno"
+
+#: src/mathessible/ui/main_frame.py:275
+msgid "&Previous Window"
+msgstr "&Poprzednie okno"
+
+#: src/mathessible/ui/main_frame.py:277
+msgid "Bring All to &Front"
+msgstr "Przenieś wszystkie na &wierzch"
+
+#: src/mathessible/ui/main_frame.py:278
+msgid "&Window"
+msgstr "&Okno"
+
+#: src/mathessible/ui/main_frame.py:384
+msgid "show the document preview"
+msgstr "pokaż podgląd dokumentu"
+
+#: src/mathessible/ui/main_frame.py:386
+msgid "Document preview"
+msgstr "Podgląd dokumentu"
+
+#: src/mathessible/ui/main_frame.py:472 src/mathessible/ui/main_frame.py:495
+msgid "Find"
+msgstr "Znajdź"
+
+#: src/mathessible/ui/main_frame.py:494
+#, python-brace-format
+msgid "“{text}” was not found."
+msgstr "Nie znaleziono „{text}”."
+
+#: src/mathessible/ui/main_frame.py:528
+#, python-brace-format
+msgid "{count} replacement made."
+msgid_plural "{count} replacements made."
+msgstr[0] "Dokonano {count} zamiany."
+msgstr[1] "Dokonano {count} zamian."
+msgstr[2] "Dokonano {count} zamian."
+
+#: src/mathessible/ui/main_frame.py:529
+msgid "Replace All"
+msgstr "Zamień wszystko"
+
+#: src/mathessible/ui/main_frame.py:544
+msgid "Change Equation to &Inline"
+msgstr "Zmień równanie na w tekśc&ie"
+
+#: src/mathessible/ui/main_frame.py:565
+msgid "Untitled"
+msgstr "Bez tytułu"
+
+#: src/mathessible/ui/main_frame.py:567
+#, python-brace-format
+msgid "Mathessible — {name} — modified"
+msgstr "Mathessible — {name} — zmieniony"
+
+#: src/mathessible/ui/main_frame.py:569
+#, python-brace-format
+msgid "Mathessible — {name}"
+msgstr "Mathessible — {name}"
+
+#: src/mathessible/ui/main_frame.py:580
+#, python-brace-format
+msgid "{notebook} — Page {page} of {pages}"
+msgstr "{notebook} — Strona {page} z {pages}"
+
+#: src/mathessible/ui/main_frame.py:584
+msgid "Untitled Markdown document"
+msgstr "Dokument Markdown bez tytułu"
+
+#: src/mathessible/ui/main_frame.py:586
+#, python-brace-format
+msgid "Line {line}, Column {column}"
+msgstr "Wiersz {line}, kolumna {column}"
+
+#: src/mathessible/ui/main_frame.py:592
+#, python-brace-format
+msgid "Could not {action}."
+msgstr "Nie można wykonać czynności: {action}."
+
+#: src/mathessible/ui/main_frame.py:605
+msgid "The document has unsaved changes. Do you want to save them?"
+msgstr "Dokument ma niezapisane zmiany. Czy chcesz je zapisać?"
+
+#: src/mathessible/ui/main_frame.py:606
+msgid "Unsaved Changes"
+msgstr "Niezapisane zmiany"
+
+#: src/mathessible/ui/main_frame.py:626
+msgid "save settings"
+msgstr "zapisanie ustawień"
+
+#: src/mathessible/ui/main_frame.py:677
+msgid "Open"
+msgstr "Otwórz"
+
+#: src/mathessible/ui/main_frame.py:679
+msgid "Documents and notebooks"
+msgstr "Dokumenty i notatniki"
+
+#: src/mathessible/ui/main_frame.py:681
+msgid "Markdown documents"
+msgstr "Dokumenty Markdown"
+
+#: src/mathessible/ui/main_frame.py:683
+msgid "Notebooks"
+msgstr "Notatniki"
+
+#: src/mathessible/ui/main_frame.py:685 src/mathessible/ui/main_frame.py:882
+#: src/mathessible/ui/settings_dialog.py:470
+msgid "All files"
+msgstr "Wszystkie pliki"
+
+#: src/mathessible/ui/main_frame.py:731
+#, python-brace-format
+msgid "open {name}"
+msgstr "otwarcie {name}"
+
+#: src/mathessible/ui/main_frame.py:760
+msgid "&Clear Menu"
+msgstr "&Wyczyść listę"
+
+#: src/mathessible/ui/main_frame.py:786
+msgid "Revert to the saved version? The changes since it was saved will be lost."
+msgstr "Przywrócić zapisaną wersję? Zmiany wprowadzone od zapisu zostaną utracone."
+
+#: src/mathessible/ui/main_frame.py:787
+msgid "Revert to Saved"
+msgstr "Przywróć zapisaną wersję"
+
+#: src/mathessible/ui/main_frame.py:790
+msgid "&Revert"
+msgstr "&Przywróć"
+
+#: src/mathessible/ui/main_frame.py:790
+msgid "&Cancel"
+msgstr "&Anuluj"
+
+#: src/mathessible/ui/main_frame.py:802
+msgid "read the saved document"
+msgstr "odczytanie zapisanego dokumentu"
+
+#: src/mathessible/ui/main_frame.py:830
+msgid "read the notebook"
+msgstr "odczytanie notatnika"
+
+#: src/mathessible/ui/main_frame.py:839
+msgid "Mathessible document"
+msgstr "Dokument Mathessible"
+
+#: src/mathessible/ui/main_frame.py:853 src/mathessible/ui/main_frame.py:960
+msgid "The UnicodeMath converter is not ready yet. Please try again."
+msgstr "Konwerter UnicodeMath nie jest jeszcze gotowy. Spróbuj ponownie."
+
+#: src/mathessible/ui/main_frame.py:859
+msgid "print"
+msgstr "drukowanie"
+
+#: src/mathessible/ui/main_frame.py:879
+msgid "Save Markdown document"
+msgstr "Zapisz dokument Markdown"
+
+#: src/mathessible/ui/main_frame.py:882
+msgid "Markdown document"
+msgstr "Dokument Markdown"
+
+#: src/mathessible/ui/main_frame.py:909 src/mathessible/ui/main_frame.py:1269
+msgid "save the page"
+msgstr "zapisanie strony"
+
+#: src/mathessible/ui/main_frame.py:925
+msgid "save the document"
+msgstr "zapisanie dokumentu"
+
+#: src/mathessible/ui/main_frame.py:943
+msgid "export the HTML document"
+msgstr "eksport dokumentu HTML"
+
+#: src/mathessible/ui/main_frame.py:943
+msgid "HTML document"
+msgstr "Dokument HTML"
+
+#: src/mathessible/ui/main_frame.py:944
+msgid "export the PDF document"
+msgstr "eksport dokumentu PDF"
+
+#: src/mathessible/ui/main_frame.py:944
+msgid "PDF document"
+msgstr "Dokument PDF"
+
+#: src/mathessible/ui/main_frame.py:944 src/mathessible/ui/pdf_dialog.py:37
+msgid "Export as PDF"
+msgstr "Eksportuj jako PDF"
+
+#: src/mathessible/ui/main_frame.py:946
+msgid "export the Word document"
+msgstr "eksport dokumentu Word"
+
+#: src/mathessible/ui/main_frame.py:948
+msgid "Word document"
+msgstr "Dokument Word"
+
+#: src/mathessible/ui/main_frame.py:950
+msgid "export the BRF document"
+msgstr "eksport dokumentu BRF"
+
+#: src/mathessible/ui/main_frame.py:950
+msgid "Braille ready file"
+msgstr "Plik gotowy do druku brajlowskiego (BRF)"
+
+#: src/mathessible/ui/main_frame.py:1016
+#, python-brace-format
+msgid "Exported {name}"
+msgstr "Wyeksportowano {name}"
+
+#: src/mathessible/ui/main_frame.py:1017
+#, python-brace-format
+msgid "exported {name}"
+msgstr "wyeksportowano {name}"
+
+#: src/mathessible/ui/main_frame.py:1077
+msgid ""
+"PDF/A does not allow passwords or restrictions. Choose Tagged PDF or PDF/UA-1 under Security, or "
+"export without them."
+msgstr ""
+"PDF/A nie pozwala na hasła ani ograniczenia. Wybierz PDF ze znacznikami lub PDF/UA-1 w sekcji "
+"Bezpieczeństwo albo eksportuj bez nich."
+
+#: src/mathessible/ui/main_frame.py:1250
+msgid "open the page"
+msgstr "otwarcie strony"
+
+#: src/mathessible/ui/main_frame.py:1289
+msgid "Choose or create the new notebook folder"
+msgstr "Wybierz lub utwórz folder nowego notatnika"
+
+#: src/mathessible/ui/main_frame.py:1301
+msgid "create the notebook"
+msgstr "utworzenie notatnika"
+
+#: src/mathessible/ui/main_frame.py:1315
+msgid "Save portable notebook"
+msgstr "Zapisz przenośny notatnik"
+
+#: src/mathessible/ui/main_frame.py:1317
+msgid "Mathessible notebooks"
+msgstr "Notatniki Mathessible"
+
+#: src/mathessible/ui/main_frame.py:1337
+msgid "create the portable notebook"
+msgstr "utworzenie przenośnego notatnika"
+
+#: src/mathessible/ui/main_frame.py:1349
+msgid "Choose the notebook folder"
+msgstr "Wybierz folder notatnika"
+
+#: src/mathessible/ui/main_frame.py:1359
+msgid "Page title:"
+msgstr "Tytuł strony:"
+
+#: src/mathessible/ui/main_frame.py:1371
+msgid "Add Page"
+msgstr "Dodaj stronę"
+
+#: src/mathessible/ui/main_frame.py:1371
+#, python-brace-format
+msgid "Page {number}"
+msgstr "Strona {number}"
+
+#: src/mathessible/ui/main_frame.py:1377
+msgid "add the page"
+msgstr "dodanie strony"
+
+#: src/mathessible/ui/main_frame.py:1387
+msgid "Rename Page"
+msgstr "Zmień nazwę strony"
+
+#: src/mathessible/ui/main_frame.py:1393
+msgid "rename the page"
+msgstr "zmiana nazwy strony"
+
+#: src/mathessible/ui/main_frame.py:1405
+#, python-brace-format
+msgid "Delete the page “{title}”?"
+msgstr "Usunąć stronę „{title}”?"
+
+#: src/mathessible/ui/main_frame.py:1406
+msgid "Delete Page"
+msgstr "Usuń stronę"
+
+#: src/mathessible/ui/main_frame.py:1415
+msgid "delete the page"
+msgstr "usunięcie strony"
+
+#: src/mathessible/ui/main_frame.py:1431
+msgid "move the page"
+msgstr "przeniesienie strony"
+
+#: src/mathessible/ui/main_frame.py:1447
+msgid "update the portable notebook"
+msgstr "aktualizacja przenośnego notatnika"
+
+#: src/mathessible/ui/main_frame.py:1460
+#, python-brace-format
+msgid "Mathessible closed without saving {count} document. Recover the unsaved changes?"
+msgid_plural "Mathessible closed without saving {count} documents. Recover the unsaved changes?"
+msgstr[0] "Mathessible zamknął się bez zapisania {count} dokumentu. Odzyskać niezapisane zmiany?"
+msgstr[1] "Mathessible zamknął się bez zapisania {count} dokumentów. Odzyskać niezapisane zmiany?"
+msgstr[2] "Mathessible zamknął się bez zapisania {count} dokumentów. Odzyskać niezapisane zmiany?"
+
+#: src/mathessible/ui/main_frame.py:1464
+msgid "Recover Unsaved Changes"
+msgstr "Odzyskaj niezapisane zmiany"
+
+#: src/mathessible/ui/main_frame.py:1467
+msgid "&Recover"
+msgstr "&Odzyskaj"
+
+#: src/mathessible/ui/main_frame.py:1467
+msgid "&Discard"
+msgstr "&Odrzuć"
+
+#: src/mathessible/ui/matrix_dialog.py:13
+msgid "Parentheses ( )"
+msgstr "Nawiasy okrągłe ( )"
+
+#: src/mathessible/ui/matrix_dialog.py:14
+msgid "Brackets [ ]"
+msgstr "Nawiasy kwadratowe [ ]"
+
+#: src/mathessible/ui/matrix_dialog.py:15
+msgid "Vertical bars | | (determinant)"
+msgstr "Kreski pionowe | | (wyznacznik)"
+
+#: src/mathessible/ui/matrix_dialog.py:26
+msgid "Insert Matrix"
+msgstr "Wstaw macierz"
+
+#: src/mathessible/ui/matrix_dialog.py:27
+msgid "Insert matrix dialog"
+msgstr "Okno dialogowe Wstaw macierz"
+
+#: src/mathessible/ui/matrix_dialog.py:31
+msgid "&Rows"
+msgstr "&Wiersze"
+
+#: src/mathessible/ui/matrix_dialog.py:33
+msgid "Rows"
+msgstr "Wiersze"
+
+#: src/mathessible/ui/matrix_dialog.py:34
+msgid "&Columns"
+msgstr "&Kolumny"
+
+#: src/mathessible/ui/matrix_dialog.py:40
+msgid "Brackets"
+msgstr "Nawiasy"
+
+#: src/mathessible/ui/pdf_dialog.py:38
+msgid "Export as PDF dialog"
+msgstr "Okno dialogowe Eksportuj jako PDF"
+
+#: src/mathessible/ui/pdf_dialog.py:42
+msgid "PDF export categories"
+msgstr "Kategorie eksportu PDF"
+
+#: src/mathessible/ui/pdf_dialog.py:44
+msgid "Document"
+msgstr "Dokument"
+
+#: src/mathessible/ui/pdf_dialog.py:55
+msgid "Layout"
+msgstr "Układ"
+
+#: src/mathessible/ui/pdf_dialog.py:60
+msgid "Content"
+msgstr "Zawartość"
+
+#: src/mathessible/ui/pdf_dialog.py:62
+msgid "&Header text"
+msgstr "Tekst &nagłówka"
+
+#: src/mathessible/ui/pdf_dialog.py:62
+msgid "Header text"
+msgstr "Tekst nagłówka"
+
+#: src/mathessible/ui/pdf_dialog.py:63
+msgid "&Watermark text"
+msgstr "Tekst &znaku wodnego"
+
+#: src/mathessible/ui/pdf_dialog.py:63
+msgid "Watermark text"
+msgstr "Tekst znaku wodnego"
+
+#: src/mathessible/ui/pdf_dialog.py:67
+msgid "Security"
+msgstr "Bezpieczeństwo"
+
+#: src/mathessible/ui/pdf_dialog.py:71
+msgid "Password to &open"
+msgstr "Hasło &otwarcia"
+
+#: src/mathessible/ui/pdf_dialog.py:71
+msgid "Password to open"
+msgstr "Hasło otwarcia"
+
+#: src/mathessible/ui/pdf_dialog.py:74
+msgid "Password for &permissions"
+msgstr "Hasło &uprawnień"
+
+#: src/mathessible/ui/pdf_dialog.py:74
+msgid "Password for permissions"
+msgstr "Hasło uprawnień"
+
+#: src/mathessible/ui/pdf_dialog.py:77
+msgid "Allow p&rinting"
+msgstr "Zezwalaj na &drukowanie"
+
+#: src/mathessible/ui/pdf_dialog.py:77
+msgid "Allow printing"
+msgstr "Zezwalaj na drukowanie"
+
+#: src/mathessible/ui/pdf_dialog.py:80
+msgid "Allow &copying text (screen readers can always read)"
+msgstr "Zezwalaj na &kopiowanie tekstu (czytniki ekranu zawsze mogą czytać)"
+
+#: src/mathessible/ui/pdf_dialog.py:81
+msgid "Allow copying text"
+msgstr "Zezwalaj na kopiowanie tekstu"
+
+#: src/mathessible/ui/pdf_dialog.py:84
+msgid "Allow &editing"
+msgstr "Zezwalaj na &edycję"
+
+#: src/mathessible/ui/pdf_dialog.py:84
+msgid "Allow editing"
+msgstr "Zezwalaj na edycję"
+
+#: src/mathessible/ui/pdf_dialog.py:86
+msgid "Passwords are never kept. PDF/A does not allow them."
+msgstr "Hasła nigdy nie są zachowywane. PDF/A na nie nie pozwala."
+
+#: src/mathessible/ui/pdf_dialog.py:138
+msgid "This layout, content, standard and author are now the defaults."
+msgstr "Ten układ, zawartość, standard i autor są teraz domyślne."
+
+#: src/mathessible/ui/settings_dialog.py:68
+msgid "Settings categories"
+msgstr "Kategorie ustawień"
+
+#: src/mathessible/ui/settings_dialog.py:70
+msgid "Typing"
+msgstr "Pisanie"
+
+#: src/mathessible/ui/settings_dialog.py:71
+msgid "Building"
+msgstr "Budowanie"
+
+#: src/mathessible/ui/settings_dialog.py:72
+msgid "Navigation"
+msgstr "Nawigacja"
+
+#: src/mathessible/ui/settings_dialog.py:73
+msgid "Speech"
+msgstr "Mowa"
+
+#: src/mathessible/ui/settings_dialog.py:77
+msgid "Word"
+msgstr "Word"
+
+#: src/mathessible/ui/settings_dialog.py:96
+msgid "Convert control words (for example \\alpha) when Space or punctuation is typed"
+msgstr "Konwertuj słowa sterujące (na przykład \\alpha) po wpisaniu spacji lub znaku interpunkcyjnego"
+
+#: src/mathessible/ui/settings_dialog.py:97
+msgid "Convert control words while typing"
+msgstr "Konwertuj słowa sterujące podczas pisania"
+
+#: src/mathessible/ui/settings_dialog.py:102
+msgid "Suggest control words while one is typed (Up/Down browse, Tab completes)"
+msgstr "Podpowiadaj słowa sterujące podczas wpisywania (Góra/Dół przeglądają, Tab uzupełnia)"
+
+#: src/mathessible/ui/settings_dialog.py:103
+msgid "Suggest control words while typing"
+msgstr "Podpowiadaj słowa sterujące podczas pisania"
+
+#: src/mathessible/ui/settings_dialog.py:109
+msgid ""
+"Convert symbol shortcuts (for example << or ->) as soon as they are typed, in equations and the "
+"document"
+msgstr "Konwertuj skróty symboli (na przykład << lub ->) od razu po wpisaniu, w równaniach i w dokumencie"
+
+#: src/mathessible/ui/settings_dialog.py:111
+msgid "Convert symbol shortcuts immediately"
+msgstr "Konwertuj skróty symboli od razu"
+
+#: src/mathessible/ui/settings_dialog.py:114
+msgid "Math &AutoCorrect…"
+msgstr "&Autokorekta matematyczna…"
+
+#: src/mathessible/ui/settings_dialog.py:120
+msgid ""
+"Math AutoCorrect is one list, as in Word: the converter's control words, Mathessible's shortcuts "
+"and your own entries, each one can be changed or deleted."
+msgstr ""
+"Autokorekta matematyczna to jedna lista, jak w Wordzie: słowa sterujące konwertera, skróty "
+"Mathessible i Twoje własne wpisy; każdy można zmienić lub usunąć."
+
+#: src/mathessible/ui/settings_dialog.py:127
+msgid ""
+"Deleted AutoCorrect control words still show as their symbol (off: they stay the text typed, as "
+"in Word)"
+msgstr ""
+"Usunięte słowa sterujące autokorekty nadal są wyświetlane jako swój symbol (wyłączone: pozostają "
+"wpisanym tekstem, jak w Wordzie)"
+
+#: src/mathessible/ui/settings_dialog.py:129
+msgid "Deleted AutoCorrect control words still show as their symbol"
+msgstr "Usunięte słowa sterujące autokorekty nadal są wyświetlane jako swój symbol"
+
+#: src/mathessible/ui/settings_dialog.py:134
+msgid "Use Math AutoCorrect in an equation's normal text (control words and shortcuts convert there too)"
+msgstr ""
+"Używaj autokorekty matematycznej w zwykłym tekście równania (słowa sterujące i skróty są tam "
+"także konwertowane)"
+
+#: src/mathessible/ui/settings_dialog.py:135
+msgid "Use Math AutoCorrect in an equation's normal text"
+msgstr "Używaj autokorekty matematycznej w zwykłym tekście równania"
+
+#: src/mathessible/ui/settings_dialog.py:141
+msgid ""
+"Use Math AutoCorrect in the document too, text and equations alike (as Word's rule outside math "
+"regions)"
+msgstr ""
+"Używaj autokorekty matematycznej także w dokumencie, zarówno w tekście, jak i w równaniach (jak "
+"reguła Worda poza obszarami matematycznymi)"
+
+#: src/mathessible/ui/settings_dialog.py:143
+msgid "Use Math AutoCorrect in the document"
+msgstr "Używaj autokorekty matematycznej w dokumencie"
+
+#: src/mathessible/ui/settings_dialog.py:148
+msgid "Insert templates as control words (for example \\sum and \\sqrt instead of ∑ and √)"
+msgstr "Wstawiaj szablony jako słowa sterujące (na przykład \\sum i \\sqrt zamiast ∑ i √)"
+
+#: src/mathessible/ui/settings_dialog.py:149
+msgid "Insert templates as control words"
+msgstr "Wstawiaj szablony jako słowa sterujące"
+
+#: src/mathessible/ui/settings_dialog.py:155
+#, python-brace-format
+msgid ""
+"Decimal comma: 1,5 is a number and a set is written {1, 2, 3}; off: decimal point (3.14), and "
+"{1,2,3} is a set"
+msgstr ""
+"Przecinek dziesiętny: 1,5 to liczba, a zbiór zapisuje się {1, 2, 3}; wyłączone: kropka dziesiętna"
+" (3.14), a {1,2,3} to zbiór"
+
+#: src/mathessible/ui/settings_dialog.py:158
+msgid "Decimal comma"
+msgstr "Przecinek dziesiętny"
+
+#: src/mathessible/ui/settings_dialog.py:163
+msgid "Remove spaces that change nothing when saving the equation or switching to linear view"
+msgstr ""
+"Usuwaj spacje, które niczego nie zmieniają, przy zapisie równania lub przełączaniu na widok "
+"liniowy"
+
+#: src/mathessible/ui/settings_dialog.py:164
+msgid "Remove extra spaces"
+msgstr "Usuwaj zbędne spacje"
+
+#: src/mathessible/ui/settings_dialog.py:171
+msgid "Build equations as you type (on Space or an operator, what is complete; the rest stays linear)"
+msgstr ""
+"Buduj równania podczas pisania (po spacji lub operatorze to, co jest kompletne; reszta pozostaje "
+"liniowa)"
+
+#: src/mathessible/ui/settings_dialog.py:172
+msgid "Build equations as you type"
+msgstr "Buduj równania podczas pisania"
+
+#: src/mathessible/ui/settings_dialog.py:177
+msgid "Say what was built while typing (for example, built fraction)"
+msgstr "Mów, co zbudowano podczas pisania (na przykład zbudowano: ułamek)"
+
+#: src/mathessible/ui/settings_dialog.py:178
+msgid "Say what was built"
+msgstr "Mów, co zbudowano"
+
+#: src/mathessible/ui/settings_dialog.py:183
+msgid "Open equations built (professional view), ready to navigate and type into"
+msgstr "Otwieraj równania zbudowane (widok profesjonalny), gotowe do przeglądania i pisania"
+
+#: src/mathessible/ui/settings_dialog.py:184
+msgid "Open equations built"
+msgstr "Otwieraj równania zbudowane"
+
+#: src/mathessible/ui/settings_dialog.py:189
+msgid "Open a function's argument as soon as its parenthesis is closed (instead of on Space)"
+msgstr "Otwieraj argument funkcji od razu po zamknięciu jej nawiasu (zamiast po spacji)"
+
+#: src/mathessible/ui/settings_dialog.py:190
+msgid "Open the argument on the closing parenthesis"
+msgstr "Otwieraj argument po nawiasie zamykającym"
+
+#: src/mathessible/ui/settings_dialog.py:193
+msgid "&Recognized Functions…"
+msgstr "&Rozpoznawane funkcje…"
+
+#: src/mathessible/ui/settings_dialog.py:199
+msgid ""
+"Space after a recognized function (sin, log, lim…) opens its argument, and it is navigated as "
+"function name and argument, as in Word."
+msgstr ""
+"Spacja po rozpoznanej funkcji (sin, log, lim…) otwiera jej argument, a funkcja jest przeglądana "
+"jako nazwa funkcji i argument, jak w Wordzie."
+
+#: src/mathessible/ui/settings_dialog.py:207
+msgid "Use linear navigation in exploration mode (F10; writing mode is always linear)"
+msgstr "Używaj nawigacji liniowej w trybie eksploracji (F10; tryb pisania jest zawsze liniowy)"
+
+#: src/mathessible/ui/settings_dialog.py:208
+msgid "Linear navigation in exploration mode"
+msgstr "Nawigacja liniowa w trybie eksploracji"
+
+#: src/mathessible/ui/settings_dialog.py:214
+msgid ""
+"Stop at the start and end of every structure (for example \"start fraction\", \"end numerator\") "
+"and of the math"
+msgstr ""
+"Zatrzymuj się na początku i końcu każdej struktury (na przykład „początek ułamek”, „koniec "
+"licznik”) i matematyki"
+
+#: src/mathessible/ui/settings_dialog.py:217
+msgid "Stop at structure start and end"
+msgstr "Zatrzymuj się na początku i końcu struktur"
+
+#: src/mathessible/ui/settings_dialog.py:222
+msgid "Stop at invisible operators (for example the invisible times in 3x)"
+msgstr "Zatrzymuj się na niewidocznych operatorach (na przykład niewidocznym mnożeniu w 3x)"
+
+#: src/mathessible/ui/settings_dialog.py:223
+msgid "Stop at invisible operators"
+msgstr "Zatrzymuj się na niewidocznych operatorach"
+
+#: src/mathessible/ui/settings_dialog.py:228
+msgid "Leave a structure automatically at its end (for example, from the numerator to the denominator)"
+msgstr "Opuszczaj strukturę automatycznie na jej końcu (na przykład z licznika do mianownika)"
+
+#: src/mathessible/ui/settings_dialog.py:229
+msgid "Leave structures automatically"
+msgstr "Opuszczaj struktury automatycznie"
+
+#: src/mathessible/ui/settings_dialog.py:235
+msgid ""
+"When enabled, the right arrow enters structures such as fractions automatically, so you can read "
+"more of an expression without pressing Down."
+msgstr ""
+"Gdy ta opcja jest włączona, strzałka w prawo automatycznie wchodzi do struktur takich jak ułamki,"
+" więc można przeczytać więcej wyrażenia bez naciskania strzałki w dół."
+
+#: src/mathessible/ui/settings_dialog.py:241
+msgid "&Symbol dictionary (names spoken for symbols while typing)"
+msgstr "&Słownik symboli (nazwy wypowiadane dla symboli podczas pisania)"
+
+#: src/mathessible/ui/settings_dialog.py:243
+msgid "Symbol dictionary"
+msgstr "Słownik symboli"
+
+#: src/mathessible/ui/settings_dialog.py:246
+msgid "&Import dictionary…"
+msgstr "&Importuj słownik…"
+
+#: src/mathessible/ui/settings_dialog.py:248
+msgid "&Download NVDA dictionaries…"
+msgstr "&Pobierz słowniki NVDA…"
+
+#: src/mathessible/ui/settings_dialog.py:259
+msgid ""
+"Any file in NVDA's symbols.dic format can be imported. NVDA's own dictionaries are downloaded "
+"from the NVDA project on GitHub. The built equation is always read by MathCAT."
+msgstr ""
+"Można zaimportować dowolny plik w formacie symbols.dic NVDA. Słowniki samego NVDA są pobierane z "
+"projektu NVDA w serwisie GitHub. Zbudowane równanie zawsze odczytuje MathCAT."
+
+#: src/mathessible/ui/settings_dialog.py:265
+msgid "Say symbols MathCAT does not know by their Unicode name (for example, alchemical symbol for air)"
+msgstr "Wypowiadaj symbole nieznane MathCAT ich nazwą Unicode (na przykład alchemical symbol for air)"
+
+#: src/mathessible/ui/settings_dialog.py:266
+msgid "Name unknown symbols"
+msgstr "Nazywaj nieznane symbole"
+
+#: src/mathessible/ui/settings_dialog.py:271
+msgid "&Braille code (the braille strip under the equation)"
+msgstr "Kod &brajlowski (linijka brajlowska pod równaniem)"
+
+#: src/mathessible/ui/settings_dialog.py:273
+msgid "Braille code"
+msgstr "Kod brajlowski"
+
+#: src/mathessible/ui/settings_dialog.py:277
+msgid "Braille si&gns…"
+msgstr "&Znaki brajlowskie…"
+
+#: src/mathessible/ui/settings_dialog.py:285
+msgid ""
+"Braille signs are your own braille for symbols in the code chosen above, for symbols it has no "
+"sign for, or to replace its own."
+msgstr ""
+"Znaki brajlowskie to Twój własny zapis brajlowski symboli w wybranym wyżej kodzie: tych, dla "
+"których nie ma znaku, lub zamiast jego własnych."
+
+#: src/mathessible/ui/settings_dialog.py:289
+msgid "BRF export (its dialog can change them for one file)"
+msgstr "Eksport BRF (jego okno dialogowe może je zmienić dla jednego pliku)"
+
+#: src/mathessible/ui/settings_dialog.py:310
+msgid "The system's"
+msgstr "Systemowy"
+
+#: src/mathessible/ui/settings_dialog.py:312
+msgid "&Interface"
+msgstr "&Interfejs"
+
+#: src/mathessible/ui/settings_dialog.py:312
+msgid "Interface language"
+msgstr "Język interfejsu"
+
+#: src/mathessible/ui/settings_dialog.py:314
+msgid "The interface's"
+msgstr "Taki jak interfejsu"
+
+#: src/mathessible/ui/settings_dialog.py:316
+msgid "&Speech of equations"
+msgstr "&Mowa równań"
+
+#: src/mathessible/ui/settings_dialog.py:316
+msgid "Speech language"
+msgstr "Język mowy"
+
+#: src/mathessible/ui/settings_dialog.py:322
+msgid ""
+"The interface changes when Mathessible starts again; the speech of equations at once. These are "
+"MathCAT's languages. Translations other than English are drafts that a native speaker has yet to "
+"review."
+msgstr ""
+"Interfejs zmieni się po ponownym uruchomieniu Mathessible; mowa równań od razu. To są języki "
+"MathCAT. Tłumaczenia inne niż angielskie to wersje robocze, które musi jeszcze sprawdzić rodzimy "
+"użytkownik języka."
+
+#: src/mathessible/ui/settings_dialog.py:334
+msgid "Default &author"
+msgstr "Domyślny &autor"
+
+#: src/mathessible/ui/settings_dialog.py:334
+msgid "Default author"
+msgstr "Domyślny autor"
+
+#: src/mathessible/ui/settings_dialog.py:339
+msgid ""
+"These are the defaults for every PDF; the export's dialog can change them for one PDF, and holds "
+"the title, header, watermark and passwords, which are never kept."
+msgstr ""
+"To są ustawienia domyślne każdego pliku PDF; okno dialogowe eksportu może je zmienić dla jednego "
+"pliku i zawiera tytuł, nagłówek, znak wodny i hasła, które nigdy nie są zachowywane."
+
+#: src/mathessible/ui/settings_dialog.py:469
+msgid "Import a symbol dictionary"
+msgstr "Importuj słownik symboli"
+
+#: src/mathessible/ui/settings_dialog.py:470
+msgid "NVDA symbol dictionaries"
+msgstr "Słowniki symboli NVDA"
+
+#: src/mathessible/ui/settings_dialog.py:479
+msgid "Import failed"
+msgstr "Import nie powiódł się"
+
+#: src/mathessible/ui/settings_dialog.py:486
+msgid "Listing NVDA's languages…"
+msgstr "Pobieranie listy języków NVDA…"
+
+#: src/mathessible/ui/settings_dialog.py:491
+msgid "Choose the languages to download (Space checks one)."
+msgstr "Wybierz języki do pobrania (spacja zaznacza jeden)."
+
+#: src/mathessible/ui/settings_dialog.py:492 src/mathessible/ui/settings_dialog.py:525
+#: src/mathessible/ui/settings_dialog.py:530 src/mathessible/ui/settings_dialog.py:551
+msgid "Download NVDA dictionaries"
+msgstr "Pobierz słowniki NVDA"
+
+#: src/mathessible/ui/settings_dialog.py:503
+#, python-brace-format
+msgid "Downloading {count} dictionary…"
+msgid_plural "Downloading {count} dictionaries…"
+msgstr[0] "Pobieranie {count} słownika…"
+msgstr[1] "Pobieranie {count} słowników…"
+msgstr[2] "Pobieranie {count} słowników…"
+
+#: src/mathessible/ui/settings_dialog.py:518
+#, python-brace-format
+msgid "{count} dictionary downloaded."
+msgid_plural "{count} dictionaries downloaded."
+msgstr[0] "Pobrano {count} słownik."
+msgstr[1] "Pobrano {count} słowniki."
+msgstr[2] "Pobrano {count} słowników."
+
+#: src/mathessible/ui/settings_dialog.py:522
+#, python-brace-format
+msgid "NVDA has no symbol dictionary for: {languages}."
+msgstr "NVDA nie ma słownika symboli dla: {languages}."
+
+#: src/mathessible/ui/settings_dialog.py:550
+#, python-brace-format
+msgid "The download failed: {error}"
+msgstr "Pobieranie nie powiodło się: {error}"
+
+#: src/mathessible/ui/settings_dialog.py:570 src/mathessible/ui/settings_dialog.py:571
+#: src/mathessible/ui/settings_dialog.py:608
+msgid "Settings"
+msgstr "Ustawienia"
+
+#: src/mathessible/ui/settings_dialog.py:609
+msgid "Settings dialog"
+msgstr "Okno dialogowe Ustawienia"
+
+#: src/mathessible/ui/symbol_dialog.py:34
+msgid "Insert Symbol"
+msgstr "Wstaw symbol"
+
+#: src/mathessible/ui/symbol_dialog.py:35
+msgid "Insert symbol dialog"
+msgstr "Okno dialogowe Wstaw symbol"
+
+#: src/mathessible/ui/symbol_dialog.py:41
+msgid "&Search (control word, symbol or name)"
+msgstr "&Szukaj (słowo sterujące, symbol lub nazwa)"
+
+#: src/mathessible/ui/symbol_dialog.py:43
+msgid "Search symbols"
+msgstr "Szukaj symboli"
+
+#: src/mathessible/ui/symbol_dialog.py:44
+msgid "&Matches"
+msgstr "&Dopasowania"
+
+#: src/mathessible/ui/symbol_dialog.py:46
+msgid "Matching symbols"
+msgstr "Pasujące symbole"
+

@@ -40,9 +40,16 @@ from mathessible.editor.keys import (
 )
 from mathessible.editor.renderer import EquationRendererMixin
 from mathessible.editor.structures import StructureActionsMixin
+from mathessible.i18n import _, current_language, set_speech_language, spoken, spoken_n
 from mathessible.mathcat.mathml_model import MathMLDocument
-from mathessible.mathcat.navigator import MATHCAT_MISSING, MathCatNavigator, create_mathcat_navigator
+from mathessible.mathcat.navigator import (
+    MATHCAT_MISSING,
+    MathCatNavigator,
+    create_mathcat_navigator,
+    mathcat_language,
+)
 from mathessible.settings import ZOOM_LEVELS, AppSettings, save_settings
+from mathessible.spoken import translate as translate_speech
 from mathessible.symbols.braille_signs import load_signs, signs_yaml
 from mathessible.symbols.dictionary import load_dictionary
 from mathessible.templates.insert_catalog import InsertItem, item_for_key
@@ -100,7 +107,7 @@ if wx is not None:
             settings: AppSettings | None = None,
         ):
             super().__init__(parent, style=wx.BORDER_SIMPLE | wx.WANTS_CHARS)
-            self.SetName("Equation editor")
+            self.SetName(_("Equation editor"))
             self.SetMinSize((500, 200))
             self.SetBackgroundStyle(wx.BG_STYLE_PAINT)
             self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
@@ -113,12 +120,14 @@ if wx is not None:
             # change the equation, Space always reads in professional view (no
             # typing streak), and navigation follows the settings (`_linear_now`).
             self.writing_enabled = True
+            set_speech_language(self._speech_language)
             self.mathcat: MathCatNavigator | None = create_mathcat_navigator(
                 recognized_functions=self.settings.recognized_functions,
                 auto_zoom_out=self._auto_zoom_out,
                 boundary_stops=self._boundary_stops,
                 structural_stops=self._structural_stops,
                 invisible_operator_stops=self.settings.invisible_operator_stops,
+                language=self._speech_language,
             )
             if self.mathcat is not None:
                 self.mathcat.decimal_separator = self.settings.decimal_separator
@@ -195,10 +204,10 @@ if wx is not None:
             self._last_conversion: tuple[str, ConversionResult] | None = None
             # `_convert_source`'s last result: ((source, caret, decimal separator), repair, MathML).
             self._built_conversion: tuple[tuple[str, int, str], BuildRepair, str] | None = None
-            self.braille_label = wx.StaticText(self, label="Braille")
+            self.braille_label = wx.StaticText(self, label=_("Braille"))
             self.braille_label.SetForegroundColour(self._colour(self._palette().subtle_text))
             self.braille_display = wx.TextCtrl(self, style=wx.TE_READONLY)
-            self.braille_display.SetName("Equation braille")
+            self.braille_display.SetName(_("Equation braille"))
             self.Bind(wx.EVT_PAINT, self._on_paint)
             self.Bind(wx.EVT_KEY_DOWN, self._on_key_down)
             self.Bind(wx.EVT_CHAR, self._on_char)
@@ -254,7 +263,7 @@ if wx is not None:
             if navigator is self.mathcat:
                 navigator.adopt_linear_stops(mathml, stops)  # type: ignore[arg-type]
             if self._preparing_announced and self.mode == "professional":
-                self._announce("equation ready")
+                self._announce(spoken("equation ready"))
 
         def _palette(self) -> Palette:
             appearance = wx.SystemSettings.GetAppearance() if hasattr(wx.SystemSettings, "GetAppearance") else None
@@ -286,6 +295,7 @@ if wx is not None:
             )
 
         def _announce(self, text: str) -> None:
+            text = translate_speech(text)  # The navigation's English words, in the speech language.
             if self.settings.name_unknown_symbols:
                 text = name_unknown_symbols(text)
             self._last_spoken = text
@@ -351,8 +361,27 @@ if wx is not None:
         def _structural_stops(self) -> bool:
             return self.settings.structure_stops and not self._linear_now
 
+        @property
+        def _speech_language(self) -> str:
+            """MathCAT's language: Settings' speech language, else the interface's."""
+            return self.settings.speech_language or current_language()
+
         def apply_settings(self) -> None:
             self.symbols = load_dictionary(self.settings.symbol_dictionary)
+            set_speech_language(self._speech_language)
+            if self.mathcat is not None and self.mathcat.language != mathcat_language(self._speech_language):
+                # Another speech language: MathCAT starts again in it, the equation reloaded below.
+                mathml = self.mathcat.mathml
+                self.mathcat = create_mathcat_navigator(
+                    recognized_functions=self.settings.recognized_functions,
+                    auto_zoom_out=self._auto_zoom_out,
+                    boundary_stops=self._boundary_stops,
+                    structural_stops=self._structural_stops,
+                    invisible_operator_stops=self.settings.invisible_operator_stops,
+                    language=self._speech_language,
+                )
+                if self.mathcat is not None:
+                    self.mathcat.mathml = mathml
             if self.mathcat is not None:
                 self.mathcat.recognized_functions = self.settings.recognized_functions
                 self.mathcat.auto_zoom_out = self._auto_zoom_out
@@ -372,6 +401,7 @@ if wx is not None:
                             boundary_stops=self._boundary_stops,
                             structural_stops=self._structural_stops,
                             invisible_operator_stops=self.settings.invisible_operator_stops,
+                            language=self._speech_language,
                         )
             if self.mode == "professional":
                 self._sync_mathcat_cursor()
@@ -395,7 +425,11 @@ if wx is not None:
             self.braille_display.ChangeValue(braille)
 
         def _on_focus(self, event: wx.FocusEvent) -> None:
-            self._announce(f"Equation editor, {self.mode} mode")
+            self._announce(
+                spoken("Equation editor, professional mode")
+                if self.mode == "professional"
+                else spoken("Equation editor, linear mode")
+            )
             self.Refresh()
             event.Skip()
 
@@ -466,7 +500,7 @@ if wx is not None:
                 save_settings(self.settings)
             except OSError:
                 pass  # The zoom still applies; it is only not remembered.
-            self._announce(f"zoom {self.settings.equation_zoom} percent")
+            self._announce(spoken("zoom {percent} percent").format(percent=self.settings.equation_zoom))
             self.Refresh()
 
         def _zoom_key(self, key: int) -> bool:
@@ -520,7 +554,7 @@ if wx is not None:
                 conversion = self._convert_source()
                 if self.settings.open_built and self.mode == "linear":
                     # Open straight in professional view, MathCAT on the start of the math.
-                    self._enter_professional_mode(conversion, error_prefix="The equation could not be built")
+                    self._enter_professional_mode(conversion, error_prefix=spoken("The equation could not be built"))
                     return
                 self.mathml_document = MathMLDocument.parse(
                     conversion.mathml,
@@ -532,7 +566,7 @@ if wx is not None:
                     self._sync_mathcat_cursor()
                     self._announce(speech)
             except (UnicodeMathError, RuntimeError, ValueError) as error:
-                self._announce(f"The equation could not be read. {error}")
+                self._announce(spoken("The equation could not be read. {error}").format(error=error))
 
         def _toggle_mode(self, attempts: int = 40) -> None:
             session_log.write("command", "toggle linear/professional")
@@ -556,24 +590,26 @@ if wx is not None:
             self._script_chain = None
             if self.mode == "linear" and not self.document.source.strip():
                 # Nothing to build (and MathCAT cannot even zoom into empty math).
-                self._announce("empty equation")
+                self._announce(spoken("empty equation"))
                 return
             if self.mode == "linear":
                 try:
                     conversion = self._convert_source()
                 except (UnicodeMathError, RuntimeError, ValueError) as error:
-                    self._announce(f"Professional mode could not be built. {error}")
+                    self._announce(spoken("Professional mode could not be built. {error}").format(error=error))
                     return
                 if 'mathcolor="#F00"' in conversion.mathml:
                     # Nothing parses: building would only show the source in red.
-                    self._announce(f"cannot be built, {self._errors_summary(total_failure=True)}")
+                    self._announce(
+                        spoken("cannot be built, {errors}").format(errors=self._errors_summary(total_failure=True))
+                    )
                     return
-                self._enter_professional_mode(conversion, error_prefix="Professional mode could not be built")
+                self._enter_professional_mode(conversion, error_prefix=spoken("Professional mode could not be built"))
             else:
                 self.mode = "linear"
                 self.remove_extra_spaces()  # As Word's linear format: no space that changes nothing.
                 self._update_braille_display()
-                self._announce("linear mode")
+                self._announce(spoken("linear mode"))
             self.Refresh()
 
         def _retry_toggle_mode(self, attempts: int) -> None:
@@ -595,7 +631,7 @@ if wx is not None:
                 self.mathml_document = self.mathcat.structure
                 speech = self.mathcat.command("ZoomIn")
                 self._sync_mathcat_cursor()
-                self._announce(f"professional mode, {speech}")
+                self._announce(spoken("professional mode, {speech}").format(speech=speech))
                 self._start_linear_preparation()
                 return True
             except (OSError, RuntimeError, ValueError) as error:
@@ -711,10 +747,10 @@ if wx is not None:
             self._inside_leaf = None
             self._built_caret = None
             self.apply_settings()  # The navigation kind follows the mode.
-            self._announce("writing mode" if self.writing_enabled else "exploration mode")
+            self._announce(spoken("writing mode") if self.writing_enabled else spoken("exploration mode"))
 
         def _announce_writing_off(self) -> None:
-            self._announce("exploration mode, F10 to write")
+            self._announce(spoken("exploration mode, F10 to write"))
 
         def _writing_off(self) -> bool:
             """For menu edits: True (and say so) when writing is off."""
@@ -843,7 +879,7 @@ if wx is not None:
 
         def _restore_history(self, state: EditState | None, action: str) -> None:
             if state is None:
-                self._announce(f"nothing to {action}")
+                self._announce(spoken("nothing to undo") if action == "undo" else spoken("nothing to redo"))
                 return
             self.document.source = state.source
             self.caret = state.caret
@@ -872,14 +908,16 @@ if wx is not None:
         def _announce_selection(self) -> None:
             selection = self._selection_range()
             if selection is None:
-                self._announce("selection cleared")
+                self._announce(spoken("selection cleared"))
                 return
             count = selection[1] - selection[0]
-            self._announce(f"{count} character{'' if count == 1 else 's'} selected")
+            self._announce(
+                spoken_n("{count} character selected", "{count} characters selected", count).format(count=count)
+            )
 
         def _select_all(self) -> None:
             if not self.document.source:
-                self._announce("nothing to select")
+                self._announce(spoken("nothing to select"))
                 return
             self.selection_anchor = 0
             self.caret = len(self.document.source)
@@ -893,35 +931,35 @@ if wx is not None:
                 start, end, _replacement = self._node_removal(node.identifier)
                 text = self.document.source[start:end]
                 if set_clipboard_text(text, self._equation_html(text, whole=False)):
-                    self._announce(f"copied {self._node_label(node)}")
+                    self._announce(spoken("copied {item}").format(item=spoken(self._node_label(node))))
                 else:
-                    self._announce("could not copy")
+                    self._announce(spoken("could not copy"))
                 return
             selection = self._selection_range()
             text = self.document.source[selection[0] : selection[1]] if selection else self.document.source
             if not text:
-                self._announce("nothing to copy")
+                self._announce(spoken("nothing to copy"))
                 return
             if not set_clipboard_text(text, self._equation_html(text, whole=not selection)):
-                self._announce("could not copy")
+                self._announce(spoken("could not copy"))
                 return
-            self._announce("selection copied" if selection else "equation copied")
+            self._announce(spoken("selection copied") if selection else spoken("equation copied"))
 
         def _cut_equation(self) -> None:
             selection = self._selection_range()
             text = self.document.source[selection[0] : selection[1]] if selection else self.document.source
             if not text:
-                self._announce("nothing to cut")
+                self._announce(spoken("nothing to cut"))
                 return
             if not set_clipboard_text(text, self._equation_html(text, whole=not selection)):
-                self._announce("could not cut")
+                self._announce(spoken("could not cut"))
                 return
             if selection:
                 self._replace_selection("")
-                self._announce("selection cut")
+                self._announce(spoken("selection cut"))
             else:
                 self._replace_linear("", 0)
-                self._announce("equation cut")
+                self._announce(spoken("equation cut"))
 
         def _equation_html(self, text: str, whole: bool) -> str | None:
             """The copied source as MathML for the clipboard, so Word and browsers paste it built."""
@@ -939,23 +977,23 @@ if wx is not None:
                 try:
                     text = plain_letters(self.unicode_math_from_mathml(mathml))
                 except (UnicodeMathError, RuntimeError):
-                    self._announce("the pasted MathML could not be converted")
+                    self._announce(spoken("the pasted MathML could not be converted"))
                     return
             if not text:
-                self._announce("clipboard is empty")
+                self._announce(spoken("clipboard is empty"))
                 return
             # UnicodeMath source renders as a single line; keep only the first
             # line of pasted text rather than corrupting the layout.
             text = text.replace("\r\n", "\n").replace("\r", "\n").split("\n", 1)[0]
             if not text:
-                self._announce("clipboard is empty")
+                self._announce(spoken("clipboard is empty"))
                 return
             if not self._replace_selection(text):
                 self._replace_linear(
                     self.document.source[: self.caret] + text + self.document.source[self.caret :],
                     self.caret + len(text),
                 )
-            self._announce("equation pasted")
+            self._announce(spoken("equation pasted"))
 
         def _on_char(self, event: wx.KeyEvent) -> None:
             if session_log.enabled() and event.GetUnicodeKey() > 32:
@@ -997,7 +1035,7 @@ if wx is not None:
                 and self._current_inside() is None
             ):
                 self._preparing_announced = True
-                self._announce("still preparing the equation, please wait")
+                self._announce(spoken("still preparing the equation, please wait"))
                 return
             if self.mathcat is not None:
                 if key == wx.WXK_SPACE and event.AltDown() and event.ShiftDown() and not event.CmdDown():
@@ -1093,7 +1131,7 @@ if wx is not None:
                 lambda source, caret: move_to_slot(source, caret, reverse, self.settings.recognized_functions)
             )
             if edit is None:
-                self._announce(f"{converted}, no slot" if converted else "no slot")
+                self._announce(f"{converted}, {spoken('no slot')}" if converted else spoken("no slot"))
                 self.Refresh()
                 return
             self.caret = edit.caret
@@ -1129,12 +1167,12 @@ if wx is not None:
                             self._place_after_caret()
                             self._sync_mathcat_cursor()
                             self.mode = "linear"
-                            self._announce(f"argument, {self._insertion_point_here()}")
+                            self._announce(f"{spoken('argument')}, {self._insertion_point_here()}")
                             return
                 if group is not None:
                     self._replace_linear(group.source, group.caret)
                     self._announce(group.announcement)
-                    self._build_as_you_type(f"built, {group.announcement}")
+                    self._build_as_you_type(f"{spoken('built')}, {group.announcement}")
                     return
             selection = self._selection_range()
             if selection is not None:
@@ -1167,7 +1205,7 @@ if wx is not None:
                     target, label = (0, "start") if key == wx.WXK_UP else (len(self.document.source), "end")
                     self._jump_caret(target, label, extend=True)
                 else:
-                    self._announce(self.document.source or "blank")
+                    self._announce(self.document.source or spoken("blank"))
             elif key == wx.WXK_HOME:
                 self._jump_caret(0, "start", extend=event.ShiftDown())
             elif key == wx.WXK_END:
@@ -1177,7 +1215,7 @@ if wx is not None:
             """Backspace (backward) or Delete in the linear view, a whole control word in the built one."""
             if backward:
                 if self._replace_selection(""):
-                    self._announce("selection deleted")
+                    self._announce(spoken("selection deleted"))
                 elif self.caret:
                     start, end = self._deletion_span(self.caret, backward=True)
                     deleted = self.document.source[start:end]
@@ -1188,7 +1226,7 @@ if wx is not None:
                         self._announce(self._offer_completion(deleted_character(deleted, self.symbols)))
             else:
                 if self._replace_selection(""):
-                    self._announce("selection deleted")
+                    self._announce(spoken("selection deleted"))
                 elif self.caret < len(self.document.source):
                     start, end = self._deletion_span(self.caret, backward=False)
                     deleted = self.document.source[start:end]
@@ -1312,7 +1350,7 @@ if wx is not None:
                         return
                     self._replace_linear(group.source, group.caret)
                     self._announce(group.announcement)
-                    announcement = f"built, {group.announcement}"
+                    announcement = f"{spoken('built')}, {group.announcement}"
             if builds:
                 self._build_as_you_type(announcement)
 
@@ -1374,11 +1412,11 @@ if wx is not None:
                     self.mathcat.command("ZoomIn")
                 self._sync_mathcat_cursor()
                 self._start_linear_preparation()
-                self._announce("cannot move there")
+                self._announce(spoken("cannot move there"))
             except (OSError, RuntimeError, ValueError) as error:
                 self.mode = "linear"
                 self._update_braille_display()
-                self._announce(f"MathCAT could not read the equation, linear mode. {error}")
+                self._announce(spoken("MathCAT could not read the equation, linear mode. {error}").format(error=error))
             self.Refresh()
 
         def _sync_mathcat_cursor(self) -> None:
@@ -1448,15 +1486,15 @@ if wx is not None:
 
         def _announce_linear_position(self, moved_right: bool) -> None:
             if not self.document.source:
-                self._announce("start")
+                self._announce(spoken("start"))
             elif moved_right and self.caret > 0:
                 self._announce(character_name(self.document.source[self.caret - 1], self.symbols))
             elif not moved_right and self.caret < len(self.document.source):
                 self._announce(character_name(self.document.source[self.caret], self.symbols))
             elif self.caret == 0:
-                self._announce("start")
+                self._announce(spoken("start"))
             else:
-                self._announce("end")
+                self._announce(spoken("end"))
 
 
 else:

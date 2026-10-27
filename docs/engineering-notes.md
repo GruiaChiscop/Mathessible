@@ -1125,7 +1125,7 @@ modules as they were then, without their package):
 
 | Package | What is in it | wx? |
 | --- | --- | --- |
-| top level | `app` (entry point), `settings`, `unicodemath` (the converter bridge), `session_log`, `patch_check` | no |
+| top level | `app` (entry point), `settings`, `i18n` (the interface and speech languages), `spoken` (the editor's words about an equation), `unicodemath` (the converter bridge), `session_log`, `patch_check` | no |
 | `editor/` | `EquationEditor` (`equation_editor`) and its mixins: `renderer`, `built`, `structures`, `assist`, `drawing`, `keys` (were `editor_*`) | yes |
 | `editing/` | editing logic: `autocorrect`, `space_conversion`, `completion`, `source_map`, `source_view`, `build_repair`, `linear_runs`, `insertion_point`, `node_edits`, `edit_history`, `equation_errors`, `equation_source`, `character_speech`, `word_navigation` | no |
 | `templates/` | `template_source`, `math_templates`, `matrix_templates`, `fraction_styles`, `structure_edits`, `insert_catalog`, `structure_gallery` | no |
@@ -1510,3 +1510,38 @@ still `1,2` and `,3`, and `MathMLtoUnicodeMath` still loses an integral's
   downloaded …)") and the NVDA fallback read only that; a file merely
   named `nvda-ro.dic` is shown by its name and gets no NVDA fallback.
   MathCAT's professional-mode speech still uses its own Rules.
+
+## Interface Languages (2026-10-27)
+
+The interface is offered in MathCAT's languages (`i18n.LANGUAGES`), so
+the menus and the speech of equations can be in one language. Two
+languages are kept apart: the interface language (`_`, `ngettext`,
+chosen at startup, so a change needs a restart) and the speech language
+(`spoken`, `spoken_n`, MathCAT's, applied at once by
+`EquationEditor.apply_settings`). The navigation keeps its stop names
+English inside, as identifiers, and translates them only when said, so
+no logic compares translated text. `N_` marks module-level texts (for
+example in `spoken.py`, `insert_catalog`, `structure_gallery`, `settings`)
+that are translated where they are used.
+
+The `.po` files are read as they are (Babel compiles them in memory,
+`use_fuzzy=False`), so a catalog edited by a translator works at the next
+start, with no `.mo` to keep in step. `scripts/update-translations.py`
+regenerates the template and merges it into every catalog. Saved
+equations in My Equations keep the names the user gave them; the
+built-in gallery's names are translated.
+
+All 14 catalogs are drafts by Claude, marked in `Last-Translator`. Checks
+that caught real mistakes while drafting them:
+
+- `tests/test_i18n.py` checks that every translation keeps its
+  placeholders and its one `&` mnemonic.
+- **Trap:** two items of one menu with the same mnemonic (German "Paste"
+  and "Insert" were both "Einfügen"; two Settings tabs were both
+  "Sprache"). Mnemonics were checked per menu against the menus built in
+  `main_frame`, `document_editor`, `help_menu` and `insert_catalog`. The
+  Insert menu has 35 items and shares letters even in English, so only
+  the other menus were made clash-free.
+- Chinese uses the Windows form `檔案(&F)` with the English letter, and
+  Vietnamese keeps mnemonics on unaccented letters, which can be typed
+  without an input method.

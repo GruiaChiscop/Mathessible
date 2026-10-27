@@ -3,6 +3,7 @@ from __future__ import annotations
 import unicodedata
 from collections.abc import Mapping
 
+from mathessible.i18n import _
 from mathessible.symbols.braille_signs import cells_from_text, dots_of, symbol_from_text
 
 try:
@@ -31,9 +32,11 @@ if wx is not None:
             control_words: Mapping[str, str] | None = None,
         ):
             super().__init__(
-                parent, title=f"Braille signs: {code_label}", style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
+                parent,
+                title=_("Braille signs: {code}").format(code=code_label),
+                style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER,
             )
-            self.SetName("Braille signs dialog")
+            self.SetName(_("Braille signs dialog"))
             self.signs = dict(signs)
             self._control_words = dict(control_words or {})
             self._symbols: list[str] = []
@@ -41,31 +44,31 @@ if wx is not None:
             sizer = wx.BoxSizer(wx.VERTICAL)
             help_text = wx.StaticText(
                 self,
-                label=(
-                    f"Your own braille for symbols in {code_label}; each replaces the code's sign. "
+                label=_(
+                    "Your own braille for symbols in {code}; each replaces the code's sign. "
                     "Symbol: the character, a control word (\\sqsubset) or a code (U+228F). "
                     "Braille: cells, or dot numbers with hyphens between cells (4-456-126)."
-                ),
+                ).format(code=code_label),
             )
             help_text.Wrap(460)
             fields = wx.FlexGridSizer(cols=2, vgap=8, hgap=12)
             fields.AddGrowableCol(1)
-            symbol_label = wx.StaticText(self, label="S&ymbol")
+            symbol_label = wx.StaticText(self, label=_("S&ymbol"))
             self.symbol = wx.TextCtrl(self)
-            self.symbol.SetName("Symbol")
-            braille_label = wx.StaticText(self, label="&Braille")
+            self.symbol.SetName(_("Symbol"))
+            braille_label = wx.StaticText(self, label=_("&Braille"))
             self.braille = wx.TextCtrl(self)
-            self.braille.SetName("Braille")
+            self.braille.SetName(_("Braille"))
             fields.Add(symbol_label, 0, wx.ALIGN_CENTER_VERTICAL)
             fields.Add(self.symbol, 1, wx.EXPAND)
             fields.Add(braille_label, 0, wx.ALIGN_CENTER_VERTICAL)
             fields.Add(self.braille, 1, wx.EXPAND)
-            list_label = wx.StaticText(self, label="&Signs")
+            list_label = wx.StaticText(self, label=_("&Signs"))
             self.list = wx.ListBox(self, size=(460, 240), style=wx.LB_SINGLE)
-            self.list.SetName("Braille signs")
+            self.list.SetName(_("Braille signs"))
             row = wx.BoxSizer(wx.HORIZONTAL)
-            self.add_button = wx.Button(self, label="&Add")
-            self.delete_button = wx.Button(self, label="&Delete")
+            self.add_button = wx.Button(self, label=_("&Add"))
+            self.delete_button = wx.Button(self, label=_("&Delete"))
             row.Add(self.add_button, 0, wx.RIGHT, 8)
             row.Add(self.delete_button, 0)
             buttons = self.CreateSeparatedButtonSizer(wx.OK | wx.CANCEL)
@@ -100,7 +103,13 @@ if wx is not None:
         def _entry_text(self, symbol: str) -> str:
             name = unicodedata.name(symbol, "").lower()
             cells = self.signs[symbol]
-            return f"{symbol}  {name}: {cells} (dots {dots_of(cells)})" if name else f"{symbol}: {cells}"
+            return (
+                _("{symbol}  {name}: {cells} (dots {dots})").format(
+                    symbol=symbol, name=name, cells=cells, dots=dots_of(cells)
+                )
+                if name
+                else f"{symbol}: {cells}"
+            )
 
         def _on_symbol_text(self, _event: wx.CommandEvent) -> None:
             symbol = self._typed_symbol()
@@ -119,7 +128,7 @@ if wx is not None:
 
         def _update_buttons(self) -> None:
             symbol = self._typed_symbol()
-            self.add_button.SetLabel("&Replace" if symbol in self.signs else "&Add")
+            self.add_button.SetLabel(_("&Replace") if symbol in self.signs else _("&Add"))
             self.add_button.Enable(symbol is not None and cells_from_text(self.braille.GetValue()) is not None)
             self.delete_button.Enable(symbol in self.signs)
 

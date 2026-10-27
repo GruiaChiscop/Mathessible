@@ -4,13 +4,20 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from mathessible.i18n import N_, spoken
 from mathessible.templates.template_source import TemplateEdit, matching_parens
 
 # Fraction styles, as Word names them, and the UnicodeMath operator of each.
 # Linear (U+2215) is an inline "a/b": the converter drops the parens around
 # its operands, so `(a+b)∕c` keeps them only as `((a+b))∕c`. "¦" (no bar,
 # binomials) is not offered but is still an `mfrac`, so it is counted.
-FRACTION_STYLES = {"stacked": "/", "skewed": "⁄", "linear": "∕", "small": "⊘"}
+FRACTION_STYLES = {N_("stacked"): "/", N_("skewed"): "⁄", N_("linear"): "∕", N_("small"): "⊘"}
+_ANNOUNCEMENTS = {
+    "stacked": N_("stacked fraction"),
+    "skewed": N_("skewed fraction"),
+    "linear": N_("linear fraction"),
+    "small": N_("small fraction"),
+}
 _FRACTION_OPERATORS = {operator: style for style, operator in FRACTION_STYLES.items()} | {"¦": "no bar"}
 _ROOT_SIGNS = "√∛∜"
 
@@ -69,7 +76,7 @@ def restyle_fraction(source: str, caret: int, style: str) -> TemplateEdit | None
         source = source[:position] + inserted + source[position + removed :]
         if caret > position:
             caret = max(position, caret - removed) + len(inserted)
-    return TemplateEdit(source, caret, f"{style} fraction")
+    return TemplateEdit(source, caret, spoken(_ANNOUNCEMENTS[style]))
 
 
 def _numerator_start(source: str, operator: int, closing_to_opening: dict[int, int]) -> int:

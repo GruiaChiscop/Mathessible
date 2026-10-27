@@ -9,6 +9,7 @@ from mathessible.editing.character_speech import character_name
 from mathessible.editing.completion import Completion, accept_completion, completion_at, symbol_insertion
 from mathessible.editing.equation_errors import EquationError, find_errors
 from mathessible.editing.space_conversion import FALLBACK_CONTROL_WORDS
+from mathessible.i18n import _, spoken, spoken_n
 from mathessible.templates.insert_catalog import InsertItem
 from mathessible.templates.saved_equations import find_equation, load_equations, save_equations, with_equation
 from mathessible.unicodemath import UnicodeMathError, code_point_index
@@ -66,27 +67,27 @@ class EditorAssistMixin:
         if self._current_completion() is None:
             return False
         self._completion = None
-        self._announce("suggestions closed")
+        self._announce(spoken("suggestions closed"))
         self.Refresh()
         return True
 
     def _accept_completion(self, completion: Completion) -> None:
         """Tab on a suggestion: the word becomes it (its symbol, when control words convert)."""
         convert = self.settings.convert_on_space
-        spoken = completion.current.speech(self.symbols.name)
+        said = completion.current.speech(self.symbols.name)
 
         def apply() -> str:
             edit = accept_completion(self.document.source, completion, convert)
             self._replace_linear(edit.source, edit.caret)
-            return spoken
+            return said
 
         if self.mode == "professional" and self.mathcat is not None and self.mathcat.structure is not None:
             self._edit_in_built(apply, typing=True)  # The word was typed: it stays in its linear run.
             return
         apply()
-        self._announce(spoken)
+        self._announce(said)
         if convert:
-            self._build_as_you_type(f"{spoken}, built")
+            self._build_as_you_type(f"{said}, {spoken('built')}")
 
     def _insert_symbol(self) -> str | None:
         """Insert > Symbol: search control words and symbols by name, insert the chosen one."""
@@ -135,9 +136,9 @@ class EditorAssistMixin:
         """Word's Save as New Equation: the equation under a name, in the gallery's My Equations."""
         source = self.document.source
         if not source.strip():
-            self._announce("nothing to save, the equation is empty")
+            self._announce(spoken("nothing to save, the equation is empty"))
             return
-        dialog = wx.TextEntryDialog(self, "Name", "Save as New Equation")
+        dialog = wx.TextEntryDialog(self, _("Name"), _("Save as New Equation"))
         try:
             if dialog.ShowModal() != wx.ID_OK:
                 self.SetFocus()
@@ -147,14 +148,14 @@ class EditorAssistMixin:
             dialog.Destroy()
         self.SetFocus()
         if not name:
-            self._announce("not saved, the name is empty")
+            self._announce(spoken("not saved, the name is empty"))
             return
         saved = load_equations()
         existing = find_equation(saved, name)
         if existing is not None:
             answer = wx.MessageBox(
-                f"An equation named “{existing.name}” is saved already. Replace it?",
-                "Save as New Equation",
+                _("An equation named “{name}” is saved already. Replace it?").format(name=existing.name),
+                _("Save as New Equation"),
                 wx.YES_NO | wx.ICON_QUESTION,
                 self,
             )
@@ -164,10 +165,10 @@ class EditorAssistMixin:
         try:
             save_equations(with_equation(saved, name, source))
         except OSError as error:
-            self._announce(f"could not save the equation: {error}")
+            self._announce(spoken("could not save the equation: {error}").format(error=error))
             return
         session_log.write("command", f"saved as new equation {name!r}")
-        self._announce(f"saved in My Equations as {name}")
+        self._announce(spoken("saved in My Equations as {name}").format(name=name))
 
     def current_errors(self, total_failure: bool | None = None) -> list[EquationError]:
         """The source's errors (equation_errors); `total_failure` None asks the converter."""
@@ -195,9 +196,11 @@ class EditorAssistMixin:
         """ "1 error: unclosed parenthesis, F8 lists errors" for a build that failed."""
         errors = self.current_errors(total_failure)
         if not errors:
-            return "no errors found"
+            return spoken("no errors found")
         count = len(errors)
-        return f"{count} error{'' if count == 1 else 's'}: {errors[0].message}, F8 lists errors"
+        return spoken_n(
+            "{count} error: {message}, F8 lists errors", "{count} errors: {message}, F8 lists errors", count
+        ).format(count=count, message=errors[0].message)
 
     def show_errors(self) -> None:
         """F8 (Equation > Errors): the error list; Enter goes to the error and selects it."""
@@ -205,7 +208,7 @@ class EditorAssistMixin:
 
         errors = self.current_errors()
         if not errors:
-            self._announce("no errors")
+            self._announce(spoken("no errors"))
             return
         source = self.document.source
         dialog = ErrorListDialog(self, [error.describe(source) for error in errors])
@@ -228,14 +231,16 @@ class EditorAssistMixin:
             self._sync_mathcat_cursor()
             self.selection_anchor = start
             self._selected_ids = self._leaves_in(start, end)
-            self._announce(f"{error.message}, selected {self._span_speech(start, end)}")
+            self._announce(
+                spoken("{message}, selected {span}").format(message=error.message, span=self._span_speech(start, end))
+            )
             self.Refresh()
             return
-        spoken = " ".join(character_name(c, self.symbols) for c in self.document.source[start:end])
+        characters = " ".join(character_name(c, self.symbols) for c in self.document.source[start:end])
         if self.mode != "linear":
             self.mode = "linear"
             self._update_braille_display()
-            spoken = f"linear mode, {spoken}"
+            characters = f"{spoken('linear mode')}, {characters}"
         self.selection_anchor, self.caret = start, end
-        self._announce(f"{error.message}, selected {spoken}")
+        self._announce(spoken("{message}, selected {span}").format(message=error.message, span=characters))
         self.Refresh()

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
+from mathessible.i18n import _
 from mathessible.settings import DEFAULT_RECOGNIZED_FUNCTIONS, function_name
 
 try:
@@ -21,8 +22,8 @@ if wx is not None:
         """
 
         def __init__(self, parent: wx.Window, functions: Iterable[str]):
-            super().__init__(parent, title="Recognized Functions", style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
-            self.SetName("Recognized functions dialog")
+            super().__init__(parent, title=_("Recognized Functions"), style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+            self.SetName(_("Recognized functions dialog"))
             self.functions = list(functions)
             self._shown: list[str] = []
 
@@ -30,21 +31,23 @@ if wx is not None:
             help_text = wx.StaticText(
                 self,
                 label=(
-                    "Space after a recognized function opens its argument, and the function is "
-                    "navigated as its name and argument, as in Word."
+                    _(
+                        "Space after a recognized function opens its argument, and the function is "
+                        "navigated as its name and argument, as in Word."
+                    )
                 ),
             )
             help_text.Wrap(360)
-            name_label = wx.StaticText(self, label="&Function")
+            name_label = wx.StaticText(self, label=_("&Function"))
             self.name = wx.TextCtrl(self)
-            self.name.SetName("Function")
-            list_label = wx.StaticText(self, label="&Recognized functions")
+            self.name.SetName(_("Function"))
+            list_label = wx.StaticText(self, label=_("&Recognized functions"))
             self.list = wx.ListBox(self, size=(360, 240), style=wx.LB_SINGLE)
-            self.list.SetName("Recognized functions")
+            self.list.SetName(_("Recognized functions"))
             row = wx.BoxSizer(wx.HORIZONTAL)
-            self.add_button = wx.Button(self, label="&Add")
-            self.delete_button = wx.Button(self, label="&Delete")
-            reset_button = wx.Button(self, label="Reset to De&faults")
+            self.add_button = wx.Button(self, label=_("&Add"))
+            self.delete_button = wx.Button(self, label=_("&Delete"))
+            reset_button = wx.Button(self, label=_("Reset to De&faults"))
             row.Add(self.add_button, 0, wx.RIGHT, 8)
             row.Add(self.delete_button, 0, wx.RIGHT, 8)
             row.Add(reset_button, 0)

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from mathessible.i18n import spoken, spoken_n
 from mathessible.templates.template_source import TemplateEdit, insert_template, matching_parens
 
 MAX_MATRIX_SIZE = 10
@@ -53,13 +54,16 @@ def insert_matrix_template(
     except KeyError:
         raise ValueError(f"unknown matrix fence: {fence}") from None
     body = "@".join("&" * (columns - 1) for _row in range(rows))
-    label = "determinant" if fence == "bars" else "matrix"
+    if fence == "bars":
+        announcement = spoken("{rows} by {columns} determinant template, empty cell, row 1, column 1")
+    else:
+        announcement = spoken("{rows} by {columns} matrix template, empty cell, row 1, column 1")
     return insert_template(
         source,
         caret,
         f"{opening}■({body}){closing}",
         first_slot_offset=len(opening) + 2,
-        announcement=f"{rows} by {columns} {label} template, empty cell, row 1, column 1",
+        announcement=announcement.format(rows=rows, columns=columns),
     )
 
 
@@ -122,7 +126,9 @@ def insert_matrix_row(source: str, caret: int, below: bool = True) -> TemplateEd
     cell, grid = found
     index = cell.row if below else cell.row - 1
     grid.insert(index, [""] * max(len(row) for row in grid))
-    return _rebuild_matrix(source, cell, grid, index, cell.column - 1, f"inserted row {index + 1}")
+    return _rebuild_matrix(
+        source, cell, grid, index, cell.column - 1, spoken("inserted row {row}").format(row=index + 1)
+    )
 
 
 def insert_matrix_column(source: str, caret: int, right: bool = True) -> TemplateEdit | None:
@@ -136,7 +142,9 @@ def insert_matrix_column(source: str, caret: int, right: bool = True) -> Templat
         # so the new column lands at the same position in every row.
         row.extend([""] * (index - len(row)))
         row.insert(index, "")
-    return _rebuild_matrix(source, cell, grid, cell.row - 1, index, f"inserted column {index + 1}")
+    return _rebuild_matrix(
+        source, cell, grid, cell.row - 1, index, spoken("inserted column {column}").format(column=index + 1)
+    )
 
 
 def delete_matrix_row(source: str, caret: int) -> TemplateEdit | None:
@@ -147,7 +155,7 @@ def delete_matrix_row(source: str, caret: int) -> TemplateEdit | None:
     cell, grid = found
     del grid[cell.row - 1]
     row = min(cell.row - 1, len(grid) - 1)
-    return _rebuild_matrix(source, cell, grid, row, cell.column - 1, f"deleted row {cell.row}")
+    return _rebuild_matrix(source, cell, grid, row, cell.column - 1, spoken("deleted row {row}").format(row=cell.row))
 
 
 def delete_matrix_column(source: str, caret: int) -> TemplateEdit | None:
@@ -161,7 +169,9 @@ def delete_matrix_column(source: str, caret: int) -> TemplateEdit | None:
             del row[cell.column - 1]
     # A ragged row that only had the deleted cell still needs one empty cell.
     grid = [row or [""] for row in grid]
-    return _rebuild_matrix(source, cell, grid, cell.row - 1, cell.column - 1, f"deleted column {cell.column}")
+    return _rebuild_matrix(
+        source, cell, grid, cell.row - 1, cell.column - 1, spoken("deleted column {column}").format(column=cell.column)
+    )
 
 
 def insert_table_row(source: str, caret: int, below: bool = True) -> TemplateEdit | None:
@@ -174,16 +184,17 @@ def insert_table_row(source: str, caret: int, below: bool = True) -> TemplateEdi
     index = cell.row if below else cell.row - 1
     # An equation's "&" only aligns it: a new one starts as a single empty line.
     grid.insert(index, [""] if kind == "equations" else [""] * max(len(row) for row in grid))
-    edit = _rebuild_matrix(source, cell, grid, index, 0 if kind in _ROW_NAMES else cell.column - 1, "")
-    if kind in ("equations", "cases"):
-        part = _ROW_NAMES[kind]
-        empty = "empty value, " if kind == "cases" else "empty "
-        return TemplateEdit(
-            edit.source,
-            edit.caret,
-            f"inserted {part} {index + 1}, {_count(len(grid), part)}, {empty}{part} {index + 1}",
+    if kind not in _ROW_NAMES:
+        return _rebuild_matrix(
+            source, cell, grid, index, cell.column - 1, spoken("inserted row {row}").format(row=index + 1)
         )
-    return TemplateEdit(edit.source, edit.caret, f"inserted row {index + 1}{edit.announcement}")
+    edit = _rebuild_matrix(source, cell, grid, index, 0, "")
+    if kind == "cases":
+        announcement = spoken("inserted case {number}, {count}, empty value, case {number}")
+    else:
+        announcement = spoken("inserted equation {number}, {count}, empty equation {number}")
+    count = _count(len(grid), kind)
+    return TemplateEdit(edit.source, edit.caret, announcement.format(number=index + 1, count=count))
 
 
 def delete_table_row(source: str, caret: int) -> TemplateEdit | None:
@@ -195,20 +206,26 @@ def delete_table_row(source: str, caret: int) -> TemplateEdit | None:
     kind = table_kind(source, cell)
     del grid[cell.row - 1]
     row = min(cell.row - 1, len(grid) - 1)
-    edit = _rebuild_matrix(source, cell, grid, row, 0 if kind in _ROW_NAMES else cell.column - 1, "")
-    if kind in ("equations", "cases"):
-        part = _ROW_NAMES[kind]
-        return TemplateEdit(
-            edit.source, edit.caret, f"deleted {part} {cell.row}, {_count(len(grid), part)}, {part} {row + 1}"
+    if kind not in _ROW_NAMES:
+        return _rebuild_matrix(
+            source, cell, grid, row, cell.column - 1, spoken("deleted row {row}").format(row=cell.row)
         )
-    return TemplateEdit(edit.source, edit.caret, f"deleted row {cell.row}{edit.announcement}")
+    edit = _rebuild_matrix(source, cell, grid, row, 0, "")
+    if kind == "cases":
+        announcement = spoken("deleted case {number}, {count}, case {current}")
+    else:
+        announcement = spoken("deleted equation {number}, {count}, equation {current}")
+    count = _count(len(grid), kind)
+    return TemplateEdit(edit.source, edit.caret, announcement.format(number=cell.row, count=count, current=row + 1))
 
 
 _ROW_NAMES = {"equations": "equation", "cases": "case"}
 
 
-def _count(count: int, part: str) -> str:
-    return f"{count} {part}" if count == 1 else f"{count} {part}s"
+def _count(count: int, kind: str) -> str:
+    if kind == "cases":
+        return spoken_n("{count} case", "{count} cases", count).format(count=count)
+    return spoken_n("{count} equation", "{count} equations", count).format(count=count)
 
 
 def table_kind(source: str, cell: MatrixCell) -> str:
@@ -259,12 +276,14 @@ def _rebuild_matrix(
     edited = source[: cell.matrix_open + 1] + body + source[cell.matrix_close :]
     label = matrix_label(source, cell)
     columns = max(len(cells) for cells in grid)
-    content = "" if grid[row][column] else "empty cell, "
-    return TemplateEdit(
-        edited,
-        caret,
-        f"{action}, {len(grid)} by {columns} {label}, {content}row {row + 1}, column {column + 1}",
+    parts = [action] if action else []
+    parts.append(
+        spoken("{rows} by {columns} {structure}").format(rows=len(grid), columns=columns, structure=spoken(label))
     )
+    if not grid[row][column]:
+        parts.append(spoken("empty cell"))
+    parts.append(spoken("row {row}, column {column}").format(row=row + 1, column=column + 1))
+    return TemplateEdit(edited, caret, ", ".join(parts))
 
 
 def matrix_label(source: str, cell: MatrixCell) -> str:

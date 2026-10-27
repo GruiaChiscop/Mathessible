@@ -11,6 +11,7 @@ from mathessible.editing.autocorrect import AutoCorrectTable, autocorrect_defaul
 from mathessible.editing.space_conversion import convert_in_text, convert_shortcut_on_character
 from mathessible.editor.equation_editor import EquationEditor
 from mathessible.editor.structures import append_insert_items
+from mathessible.i18n import _
 from mathessible.settings import AppSettings
 from mathessible.ui.clipboard import set_clipboard_text
 from mathessible.ui.help_menu import append_help_menu
@@ -58,19 +59,19 @@ if wx is not None:
         def __init__(self, parent: wx.Window, output: AssistiveOutput, settings: AppSettings):
             super().__init__(
                 wx.GetTopLevelParent(parent),
-                title="Equation Editor",
+                title=_("Equation Editor"),
                 size=(900, 560),
                 style=wx.DEFAULT_FRAME_STYLE | wx.FRAME_FLOAT_ON_PARENT,
             )
             self.SetMinSize((620, 440))
-            self.SetName("Equation Editor window")
+            self.SetName(_("Equation Editor window"))
             self._on_done: Callable[[bool], None] | None = None
             self._disabled: list[wx.TopLevelWindow] = []
             panel = wx.Panel(self)
             sizer = wx.BoxSizer(wx.VERTICAL)
             self.heading = wx.StaticText(
                 panel,
-                label=f"Enter or {EQUATION_SHORTCUT_LABEL} saves. Escape cancels.",
+                label=_("Enter or {shortcut} saves. Escape cancels.").format(shortcut=EQUATION_SHORTCUT_LABEL),
             )
             self.equation = EquationEditor(panel, source="", output=output, settings=settings)
             sizer.Add(self.heading, 0, wx.ALL | wx.EXPAND, 10)
@@ -85,33 +86,35 @@ if wx is not None:
             # native actions only a native text view can perform.
             menu_bar = wx.MenuBar()
             equation_menu = wx.Menu()
-            save_item = equation_menu.Append(wx.ID_ANY, "&Save Equation (Enter)")
-            cancel_item = equation_menu.Append(wx.ID_ANY, "&Cancel (Escape)")
+            save_item = equation_menu.Append(wx.ID_ANY, _("&Save Equation (Enter)"))
+            cancel_item = equation_menu.Append(wx.ID_ANY, _("&Cancel (Escape)"))
             self.Bind(wx.EVT_MENU, lambda _event: self.finish(True), save_item)
             self.Bind(wx.EVT_MENU, lambda _event: self.finish(False), cancel_item)
             equation_menu.AppendSeparator()
-            errors_item = equation_menu.Append(wx.ID_ANY, "&Errors…\tF8")
+            errors_item = equation_menu.Append(wx.ID_ANY, _("&Errors…") + "\tF8")
             self.Bind(wx.EVT_MENU, lambda _event: self.equation.show_errors(), errors_item)
-            new_equation_item = equation_menu.Append(wx.ID_ANY, "Save as &New Equation…")
+            new_equation_item = equation_menu.Append(wx.ID_ANY, _("Save as &New Equation…"))
             self.Bind(wx.EVT_MENU, lambda _event: self.equation.save_as_new_equation(), new_equation_item)
-            display_item = equation_menu.Append(wx.ID_ANY, "Change to &Display")
+            display_item = equation_menu.Append(wx.ID_ANY, _("Change to &Display"))
             self.Bind(wx.EVT_MENU, lambda _event: self.toggle_display(), display_item)
             self.Bind(
                 wx.EVT_UPDATE_UI,
-                lambda event: event.SetText("Change to &Inline" if self.equation.display else "Change to &Display"),
+                lambda event: event.SetText(
+                    _("Change to &Inline") if self.equation.display else _("Change to &Display")
+                ),
                 display_item,
             )
-            menu_bar.Append(equation_menu, "E&quation")
+            menu_bar.Append(equation_menu, _("E&quation"))
             edit_menu = wx.Menu()
             edit_items = (
-                ("undo", "&Undo\tCtrl+Z"),
-                ("redo", "&Redo\tCtrl+Shift+Z"),
+                ("undo", _("&Undo") + "\tCtrl+Z"),
+                ("redo", _("&Redo") + "\tCtrl+Shift+Z"),
                 None,
-                ("cut", "Cu&t\tCtrl+X"),
-                ("copy", "&Copy\tCtrl+C"),
-                ("paste", "&Paste\tCtrl+V"),
+                ("cut", _("Cu&t") + "\tCtrl+X"),
+                ("copy", _("&Copy") + "\tCtrl+C"),
+                ("paste", _("&Paste") + "\tCtrl+V"),
                 None,
-                ("select_all", "Select &All\tCtrl+A"),
+                ("select_all", _("Select &All") + "\tCtrl+A"),
             )
             for entry in edit_items:
                 if entry is None:
@@ -125,19 +128,19 @@ if wx is not None:
                     self.Bind(wx.EVT_UPDATE_UI, self._enable_when_editable, item)
                 elif command != "copy":
                     self.Bind(wx.EVT_UPDATE_UI, self._enable_in_linear_view, item)
-            menu_bar.Append(edit_menu, "&Edit")
+            menu_bar.Append(edit_menu, _("&Edit"))
             insert_menu = wx.Menu()
             for item_id, entry in append_insert_items(insert_menu).items():
                 self.Bind(wx.EVT_MENU, lambda _event, entry=entry: self.equation.insert_item(entry), id=item_id)
                 self.Bind(wx.EVT_UPDATE_UI, self._enable_when_editable, id=item_id)
-            menu_bar.Append(insert_menu, "&Insert")
+            menu_bar.Append(insert_menu, _("&Insert"))
             view_menu = wx.Menu()
-            professional_item = view_menu.AppendCheckItem(wx.ID_ANY, "&Professional View\tF2")
-            writing_item = view_menu.AppendCheckItem(wx.ID_ANY, "&Writing Mode\tF10")
+            professional_item = view_menu.AppendCheckItem(wx.ID_ANY, _("&Professional View") + "\tF2")
+            writing_item = view_menu.AppendCheckItem(wx.ID_ANY, _("&Writing Mode") + "\tF10")
             view_menu.AppendSeparator()
-            zoom_in = view_menu.Append(wx.ID_ANY, "Zoom &In\tCtrl+Alt+=")
-            zoom_out = view_menu.Append(wx.ID_ANY, "Zoom &Out\tCtrl+Alt+-")
-            actual_size = view_menu.Append(wx.ID_ANY, "&Actual Size\tCtrl+Alt+0")
+            zoom_in = view_menu.Append(wx.ID_ANY, _("Zoom &In") + "\tCtrl+Alt+=")
+            zoom_out = view_menu.Append(wx.ID_ANY, _("Zoom &Out") + "\tCtrl+Alt+-")
+            actual_size = view_menu.Append(wx.ID_ANY, _("&Actual Size") + "\tCtrl+Alt+0")
             self.Bind(wx.EVT_MENU, lambda _event: self.equation.zoom(1), zoom_in)
             self.Bind(wx.EVT_MENU, lambda _event: self.equation.zoom(-1), zoom_out)
             self.Bind(wx.EVT_MENU, lambda _event: self.equation.zoom(0), actual_size)
@@ -149,7 +152,7 @@ if wx is not None:
                 lambda event: event.Check(self.equation.mode == "professional"),
                 professional_item,
             )
-            menu_bar.Append(view_menu, "&View")
+            menu_bar.Append(view_menu, _("&View"))
             append_help_menu(self, menu_bar)
             self.SetMenuBar(menu_bar)
 
@@ -172,13 +175,18 @@ if wx is not None:
             session_log.write("command", f"change to {kind}")
             self._show_kind()
             try:
-                self.equation.output.announce(f"{kind} equation", interrupt=True)
+                self.equation.output.announce(
+                    _("display equation") if self.equation.display else _("inline equation"), interrupt=True
+                )
             except Exception:
                 pass
 
         def _show_kind(self) -> None:
-            kind = "display" if self.equation.display else "inline"
-            self.heading.SetLabel(f"Edit {kind} equation — Enter or {EQUATION_SHORTCUT_LABEL} saves. Escape cancels.")
+            if self.equation.display:
+                heading = _("Edit display equation — Enter or {shortcut} saves. Escape cancels.")
+            else:
+                heading = _("Edit inline equation — Enter or {shortcut} saves. Escape cancels.")
+            self.heading.SetLabel(heading.format(shortcut=EQUATION_SHORTCUT_LABEL))
 
         def begin(self, on_done: Callable[[bool, bool], None]) -> None:
             """Show the editor, the other windows disabled until `finish` calls `on_done(saved, new_line)`."""
@@ -254,7 +262,7 @@ if wx is not None:
                 value=source,
                 style=wx.TE_MULTILINE | wx.TE_RICH2,
             )
-            self.markdown.SetName("Markdown editor")
+            self.markdown.SetName(_("Markdown editor"))
             # macOS turns "--" into "—" and straight quotes into curly ones,
             # which breaks Markdown and UnicodeMath source.
             if hasattr(self.markdown, "OSXDisableAllSmartSubstitutions"):
@@ -345,7 +353,7 @@ if wx is not None:
             result = toggle_display(source, zone)
             if result is None:
                 session_log.write("command", "document: cannot be inline")
-                self._announce("this equation cannot be inline")
+                self._announce(_("this equation cannot be inline"))
                 return
             caret = self.markdown.GetInsertionPoint()
             new_source, new_zone = result
@@ -353,7 +361,7 @@ if wx is not None:
             self.replace_source(new_source)
             offset = min(max(caret - zone.content_start, 0), new_zone.content_end - new_zone.content_start)
             self.markdown.SetInsertionPoint(new_zone.content_start + offset)
-            self._announce("display equation" if new_zone.display else "inline equation")
+            self._announce(_("display equation") if new_zone.display else _("inline equation"))
 
         def replace_source(self, new_source: str) -> None:
             """Replace only the text that changed, as an edit of the Markdown editor, not a new document."""
@@ -452,10 +460,10 @@ if wx is not None:
                 self.markdown.SetSelection(caret, caret)
                 if new_line:
                     self.markdown.WriteText("\n")
-                self._announce("equation saved, new line" if new_line else "equation saved")
+                self._announce(_("equation saved, new line") if new_line else _("equation saved"))
             else:
                 self.markdown.SetSelection(session.selection_start, session.selection_end)
-                self._announce("equation editing canceled")
+                self._announce(_("equation editing canceled"))
             wx.GetTopLevelParent(self).Raise()
             self.markdown.SetFocus()
 

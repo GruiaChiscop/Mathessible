@@ -13,44 +13,45 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 
 from mathessible.editing.source_view import view_of
+from mathessible.i18n import N_, spoken
 
 _OPENERS = "([{⟨〖├"
 _CLOSERS = ")]}⟩〗┤"
 # Any opener closes with any closer in UnicodeMath (`[0,1)`, `{■(...)┤`).
 _NAMES = {
-    "(": "parenthesis",
-    ")": "parenthesis",
-    "[": "bracket",
-    "]": "bracket",
-    "{": "brace",
-    "}": "brace",
-    "⟨": "angle bracket",
-    "⟩": "angle bracket",
-    "〖": "group",
-    "〗": "group",
-    "├": "bracket",
-    "┤": "bracket",
+    "(": N_("parenthesis"),
+    ")": N_("parenthesis"),
+    "[": N_("bracket"),
+    "]": N_("bracket"),
+    "{": N_("brace"),
+    "}": N_("brace"),
+    "⟨": N_("angle bracket"),
+    "⟩": N_("angle bracket"),
+    "〖": N_("group"),
+    "〗": N_("group"),
+    "├": N_("bracket"),
+    "┤": N_("bracket"),
 }
 # Operators that need something after them, and what is missing then.
 _NEEDS_AFTER = {
-    "/": "fraction without denominator",
-    "^": "superscript without anything after ^",
-    "_": "subscript without anything after _",
-    "┴": "nothing above the operator",
-    "┬": "nothing below the operator",
-    "▒": "empty integrand or argument",
+    "/": N_("fraction without denominator"),
+    "^": N_("superscript without anything after ^"),
+    "_": N_("subscript without anything after _"),
+    "┴": N_("nothing above the operator"),
+    "┬": N_("nothing below the operator"),
+    "▒": N_("empty integrand or argument"),
 }
 _ENDS_OPERAND = frozenset(_CLOSERS) | {"&", "@"}
 # What the parser stopping on a character usually means.
 _UNEXPECTED = {
-    "&": "& outside a matrix or equation array",
-    "@": "@ outside a matrix or equation array",
+    "&": N_("& outside a matrix or equation array"),
+    "@": N_("@ outside a matrix or equation array"),
 }
 
 
 @dataclass(frozen=True, slots=True)
 class EquationError:
-    """`start`..`end` in real-source offsets (the span to highlight)."""
+    """`start`..`end` in real-source offsets (the span to highlight); `message` in the speech language."""
 
     start: int
     end: int
@@ -59,7 +60,9 @@ class EquationError:
     def describe(self, source: str) -> str:
         """The list text: "unclosed parenthesis, at character 3: (a+b"."""
         context = source[max(0, self.start - 6) : self.end + 6].strip() or source[self.start : self.end]
-        return f"{self.message}, at character {self.start + 1}: {context}"
+        return spoken("{message}, at character {position}: {context}").format(
+            message=self.message, position=self.start + 1, context=context
+        )
 
 
 def find_errors(
@@ -101,29 +104,33 @@ def find_errors(
             if stack:
                 stack.pop()
             else:
-                add(index, index + 1, f"closing {_NAMES[character]} without an opening one")
+                add(
+                    index,
+                    index + 1,
+                    spoken("closing {name} without an opening one").format(name=spoken(_NAMES[character])),
+                )
     for index in stack:
-        add(index, index + 1, f"unclosed {_NAMES[text[index]]}")
+        add(index, index + 1, spoken("unclosed {name}").format(name=spoken(_NAMES[text[index]])))
     if quote is not None:
-        add(quote, quote + 1, "text not closed: missing quote")
+        add(quote, quote + 1, spoken("text not closed: missing quote"))
 
     for index, character in enumerate(text):
         if character not in _NEEDS_AFTER or _quoted(text, index):
             continue
         following = _next_visible(text, index + 1)
         if following is None or following in _ENDS_OPERAND:
-            add(index, index + 1, _NEEDS_AFTER[character])
+            add(index, index + 1, spoken(_NEEDS_AFTER[character]))
         if character == "/":
             previous = _previous_visible(text, index - 1)
             if previous is None or previous in _OPENERS or previous in "&@":
-                add(index, index + 1, "fraction without numerator")
+                add(index, index + 1, spoken("fraction without numerator"))
     for index in range(len(text) - 2):
         if text[index : index + 3] == "√(&":
-            add(index, index + 3, "root without an index")
+            add(index, index + 3, spoken("root without an index"))
 
     if total_failure and text.count("|") % 2 == 1:
         last = text.rindex("|")
-        add(last, last + 1, "absolute value bar without its pair")
+        add(last, last + 1, spoken("absolute value bar without its pair"))
 
     if control_words is not None:
         errors.extend(_unknown_control_words(source, control_words, caret))
@@ -134,12 +141,16 @@ def find_errors(
         if found is None or position >= len(source):
             # The source ended too early: unless an error at its end says why already.
             if not any(error.end >= end for error in errors):
-                errors.append(EquationError(max(0, end - 1), end, "the equation ends too early"))
+                errors.append(EquationError(max(0, end - 1), end, spoken("the equation ends too early")))
         elif not any(error.start <= position < max(error.end, error.start + 1) for error in errors):
-            message = _UNEXPECTED.get(found, f"cannot continue with {found}")
+            message = (
+                spoken(_UNEXPECTED[found])
+                if found in _UNEXPECTED
+                else spoken("cannot continue with {found}").format(found=found)
+            )
             errors.append(EquationError(position, position + 1, message))
     if total_failure and not errors:
-        errors.append(EquationError(0, len(source), "the equation cannot be read"))
+        errors.append(EquationError(0, len(source), spoken("the equation cannot be read")))
     errors.sort(key=lambda error: (error.start, error.end))
     return errors
 
@@ -156,7 +167,7 @@ def _unknown_control_words(source: str, table: Mapping[str, str], caret: int | N
             end += 1
         word = source[index + 1 : end]
         if word and word not in table and end != caret:
-            found.append(EquationError(index, end, f"unknown command \\{word}"))
+            found.append(EquationError(index, end, spoken("unknown command {command}").format(command="\\" + word)))
         index = max(end, index + 2)  # "\\" escapes the next character.
     return found
 

@@ -6,6 +6,7 @@ import zipfile
 from pathlib import Path, PurePosixPath
 
 from mathessible.documents.notebook import MANIFEST_NAME, Notebook, NotebookError
+from mathessible.i18n import _
 
 MAX_ARCHIVE_FILES = 10_000
 MAX_UNCOMPRESSED_SIZE = 512 * 1024 * 1024
@@ -39,21 +40,21 @@ def extract_portable(archive_path: str | Path, destination: str | Path) -> Noteb
     destination = Path(destination).expanduser()
     destination.mkdir(parents=True, exist_ok=True)
     if any(destination.iterdir()):
-        raise NotebookError("The temporary notebook folder is not empty")
+        raise NotebookError(_("The temporary notebook folder is not empty"))
 
     try:
         with zipfile.ZipFile(archive_path, "r") as archive:
             entries = archive.infolist()
             if len(entries) > MAX_ARCHIVE_FILES:
-                raise NotebookError("The .msnb archive contains too many files")
+                raise NotebookError(_("The .msnb archive contains too many files"))
             if sum(entry.file_size for entry in entries) > MAX_UNCOMPRESSED_SIZE:
-                raise NotebookError("The .msnb archive is too large after decompression")
+                raise NotebookError(_("The .msnb archive is too large after decompression"))
             file_names = [entry.filename for entry in entries if not entry.is_dir()]
             names = set(file_names)
             if len(names) != len(file_names):
-                raise NotebookError("The .msnb archive contains duplicate files")
+                raise NotebookError(_("The .msnb archive contains duplicate files"))
             if MANIFEST_NAME not in names:
-                raise NotebookError(f"The .msnb archive does not contain {MANIFEST_NAME}")
+                raise NotebookError(_("The .msnb archive does not contain {name}").format(name=MANIFEST_NAME))
             for entry in entries:
                 relative = _safe_archive_path(entry)
                 target = destination.joinpath(*relative.parts)
@@ -64,21 +65,21 @@ def extract_portable(archive_path: str | Path, destination: str | Path) -> Noteb
                 with archive.open(entry, "r") as source, target.open("wb") as output:
                     shutil.copyfileobj(source, output)
     except (zipfile.BadZipFile, RuntimeError) as error:
-        raise NotebookError("The file is not a valid .msnb notebook") from error
+        raise NotebookError(_("The file is not a valid .msnb notebook")) from error
     return Notebook.open(destination)
 
 
 def _safe_archive_path(entry: zipfile.ZipInfo) -> PurePosixPath:
     if "\\" in entry.filename:
-        raise NotebookError(f"Invalid path in .msnb archive: {entry.filename}")
+        raise NotebookError(_("Invalid path in .msnb archive: {file}").format(file=entry.filename))
     path = PurePosixPath(entry.filename)
     if path.is_absolute() or not path.parts or ".." in path.parts:
-        raise NotebookError(f"Unsafe path in .msnb archive: {entry.filename}")
+        raise NotebookError(_("Unsafe path in .msnb archive: {file}").format(file=entry.filename))
     if path.parts[0] not in {MANIFEST_NAME, "pages"}:
-        raise NotebookError(f"Unknown file in .msnb archive: {entry.filename}")
+        raise NotebookError(_("Unknown file in .msnb archive: {file}").format(file=entry.filename))
     if path.parts[0] == MANIFEST_NAME and len(path.parts) != 1:
-        raise NotebookError(f"Invalid path in .msnb archive: {entry.filename}")
+        raise NotebookError(_("Invalid path in .msnb archive: {file}").format(file=entry.filename))
     mode = entry.external_attr >> 16
     if mode and stat.S_ISLNK(mode):
-        raise NotebookError(f"Symbolic links are not allowed in .msnb: {entry.filename}")
+        raise NotebookError(_("Symbolic links are not allowed in .msnb: {file}").format(file=entry.filename))
     return path

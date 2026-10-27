@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
+from mathessible.i18n import N_, _
 from mathessible.settings import (
     BRAILLE_CODES,
     BRF_CELLS,
@@ -35,6 +36,13 @@ except ImportError:
 # The fonts Typst brings with it, offered first: they are in every PDF it writes.
 TYPST_FONTS = ("Libertinus Serif", "New Computer Modern", "DejaVu Sans Mono")
 Options = tuple[tuple[str, str], ...]
+# The margins in Settings' order (Typst's and Word's): each one's label and its spin control's name.
+MARGIN_SIDES = (
+    (N_("&Top"), N_("Top margin (mm)")),
+    (N_("&Right"), N_("Right margin (mm)")),
+    (N_("&Bottom"), N_("Bottom margin (mm)")),
+    (N_("&Left"), N_("Left margin (mm)")),
+)
 
 
 def _chosen(control: object, options: Options, current: str) -> str:
@@ -65,7 +73,7 @@ if wx is not None:
             self.grid.Add(sizer, 0, wx.EXPAND)
 
         def choice(self, options: Options, value: str) -> wx.Choice:
-            control = wx.Choice(self.page, choices=[label for _value, label in options])
+            control = wx.Choice(self.page, choices=[_(label) for _value, label in options])
             values = [option for option, _label in options]
             control.SetSelection(values.index(value) if value in values else 0)
             control.Bind(wx.EVT_CHOICE, lambda _event: self.changed())
@@ -100,31 +108,33 @@ if wx is not None:
 
         def __init__(self, rows: FormRows, settings: AppSettings):
             page = rows.page
-            self.paper = rows.row("&Paper", rows.choice(PDF_PAPERS, settings.pdf_paper), "Paper")
+            self.paper = rows.row(_("&Paper"), rows.choice(PDF_PAPERS, settings.pdf_paper), _("Paper"))
             margins = wx.BoxSizer(wx.HORIZONTAL)
             self.margins: list[wx.SpinCtrl] = []
-            for label, value in zip(("&Top", "&Right", "&Bottom", "&Left"), settings.pdf_margins, strict=True):
-                margins.Add(wx.StaticText(page, label=label), 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 4)
+            for (label, name), value in zip(MARGIN_SIDES, settings.pdf_margins, strict=True):
+                margins.Add(wx.StaticText(page, label=_(label)), 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 4)
                 spin = rows.spin(value, PDF_MARGINS)
-                spin.SetName(f"{label.replace('&', '')} margin (mm)")
+                spin.SetName(_(name))
                 margins.Add(spin, 0, wx.RIGHT, 10)
                 self.margins.append(spin)
-            rows.row_of("Margins (mm)", margins)
-            self.columns = rows.row("Colu&mns", rows.spin(settings.pdf_columns, PDF_COLUMNS), "Columns")
+            rows.row_of(_("Margins (mm)"), margins)
+            self.columns = rows.row(_("Colu&mns"), rows.spin(settings.pdf_columns, PDF_COLUMNS), _("Columns"))
             installed = sorted(set(wx.FontEnumerator().GetFacenames()) - set(TYPST_FONTS), key=str.casefold)
             self.fonts = [*TYPST_FONTS, *installed]
-            self.font = rows.row("&Font", wx.Choice(page, choices=self.fonts), "Font")
+            self.font = rows.row(_("&Font"), wx.Choice(page, choices=self.fonts), _("Font"))
             self.font.SetSelection(self.fonts.index(settings.pdf_font) if settings.pdf_font in self.fonts else 0)
             self.font.Bind(wx.EVT_CHOICE, lambda _event: rows.changed())
-            self.font_size = rows.row("Font si&ze (pt)", rows.spin(settings.pdf_font_size, PDF_FONT_SIZES), "Font size")
+            self.font_size = rows.row(
+                _("Font si&ze (pt)"), rows.spin(settings.pdf_font_size, PDF_FONT_SIZES), _("Font size")
+            )
             self.line_spacing = rows.row(
-                "Line s&pacing (em)",
+                _("Line s&pacing (em)"),
                 wx.SpinCtrlDouble(page, min=0.2, max=3, initial=settings.pdf_line_spacing, inc=0.05),
-                "Line spacing",
+                _("Line spacing"),
             )
             self.line_spacing.Bind(wx.EVT_SPINCTRLDOUBLE, lambda _event: rows.changed())
-            self.landscape = rows.checkbox("Lan&dscape", "Landscape", settings.pdf_landscape)
-            self.justify = rows.checkbox("&Justify the text", "Justify the text", settings.pdf_justify)
+            self.landscape = rows.checkbox(_("Lan&dscape"), _("Landscape"), settings.pdf_landscape)
+            self.justify = rows.checkbox(_("&Justify the text"), _("Justify the text"), settings.pdf_justify)
 
         def store(self, settings: AppSettings) -> None:
             settings.pdf_paper = _chosen(self.paper, PDF_PAPERS, settings.pdf_paper)
@@ -143,36 +153,36 @@ if wx is not None:
 
         def __init__(self, rows: FormRows, settings: AppSettings):
             self.number_position = rows.row(
-                "Page number p&osition",
+                _("Page number p&osition"),
                 rows.choice(PDF_NUMBER_POSITIONS, settings.pdf_page_number_position),
-                "Page number position",
+                _("Page number position"),
             )
             self.heading_numbering = rows.row(
-                "Heading n&umbers",
+                _("Heading n&umbers"),
                 rows.choice(PDF_HEADING_NUMBERING, settings.pdf_heading_numbering),
-                "Heading numbers",
+                _("Heading numbers"),
             )
             self.equation_numbering = rows.row(
-                "E&quation numbers",
+                _("E&quation numbers"),
                 rows.choice(PDF_EQUATION_NUMBERING, settings.pdf_equation_numbering),
-                "Equation numbers",
+                _("Equation numbers"),
             )
             self.text_colour = rows.row(
-                "Te&xt colour", rows.choice(PDF_COLOURS, settings.pdf_text_colour), "Text colour"
+                _("Te&xt colour"), rows.choice(PDF_COLOURS, settings.pdf_text_colour), _("Text colour")
             )
             self.heading_colour = rows.row(
-                "Headin&g colour", rows.choice(PDF_COLOURS, settings.pdf_heading_colour), "Heading colour"
+                _("Headin&g colour"), rows.choice(PDF_COLOURS, settings.pdf_heading_colour), _("Heading colour")
             )
             self.link_colour = rows.row(
-                "L&ink colour", rows.choice(PDF_COLOURS, settings.pdf_link_colour), "Link colour"
+                _("L&ink colour"), rows.choice(PDF_COLOURS, settings.pdf_link_colour), _("Link colour")
             )
-            self.page_numbers = rows.checkbox("&Number the pages", "Number the pages", settings.pdf_page_numbers)
+            self.page_numbers = rows.checkbox(_("&Number the pages"), _("Number the pages"), settings.pdf_page_numbers)
             self.table_of_contents = rows.checkbox(
-                "Table of &contents (from the headings)", "Table of contents", settings.pdf_table_of_contents
+                _("Table of &contents (from the headings)"), _("Table of contents"), settings.pdf_table_of_contents
             )
             self.attach_source = rows.checkbox(
-                "Attach the Markdown &source (the PDF can be opened in Mathessible again)",
-                "Attach the Markdown source",
+                _("Attach the Markdown &source (the PDF can be opened in Mathessible again)"),
+                _("Attach the Markdown source"),
                 settings.pdf_attach_source,
             )
 
@@ -195,7 +205,9 @@ if wx is not None:
 
     class PdfStandardControl:
         def __init__(self, rows: FormRows, settings: AppSettings):
-            self.standard = rows.row("&Standard", rows.choice(PDF_STANDARDS, settings.pdf_standard), "PDF standard")
+            self.standard = rows.row(
+                _("&Standard"), rows.choice(PDF_STANDARDS, settings.pdf_standard), _("PDF standard")
+            )
 
         def store(self, settings: AppSettings) -> None:
             settings.pdf_standard = _chosen(self.standard, PDF_STANDARDS, settings.pdf_standard)
@@ -207,23 +219,23 @@ if wx is not None:
             self.tables = text_tables()
             files = [table.file for table in self.tables]
             self.table = rows.row(
-                "&Text braille table",
+                _("&Text braille table"),
                 wx.Choice(rows.page, choices=[table.name for table in self.tables]),
-                "Text braille table",
+                _("Text braille table"),
             )
             chosen = settings.braille_text_table or default_table(preferred_languages(), self.tables)
             if chosen in files:
                 self.table.SetSelection(files.index(chosen))
             self.table.Bind(wx.EVT_CHOICE, lambda _event: rows.changed())
             self.cells = rows.row(
-                "&Cells per line", rows.spin(settings.brf_cells_per_line, BRF_CELLS), "Cells per line"
+                _("&Cells per line"), rows.spin(settings.brf_cells_per_line, BRF_CELLS), _("Cells per line")
             )
             self.lines = rows.row(
-                "&Lines per page", rows.spin(settings.brf_lines_per_page, BRF_LINES), "Lines per page"
+                _("&Lines per page"), rows.spin(settings.brf_lines_per_page, BRF_LINES), _("Lines per page")
             )
             self.page_numbers = rows.checkbox(
-                "&Number the pages (at the right of each page's last line, as braille formats require)",
-                "Number the pages",
+                _("&Number the pages (at the right of each page's last line, as braille formats require)"),
+                _("Number the pages"),
                 settings.brf_page_numbers,
             )
 
@@ -240,7 +252,9 @@ if wx is not None:
 
         def __init__(self, rows: FormRows, settings: AppSettings):
             self.code = rows.row(
-                "&Equations in", rows.choice(BRAILLE_CODES, settings.braille_code), "Braille code for the equations"
+                _("&Equations in"),
+                rows.choice(BRAILLE_CODES, settings.braille_code),
+                _("Braille code for the equations"),
             )
 
         def store(self, settings: AppSettings) -> None:
@@ -250,13 +264,13 @@ if wx is not None:
         """HTML: the table of contents, the font and the colours."""
 
         def __init__(self, rows: FormRows, settings: AppSettings):
-            self.font = rows.row("&Font", rows.choice(HTML_FONTS, settings.html_font), "Font")
+            self.font = rows.row(_("&Font"), rows.choice(HTML_FONTS, settings.html_font), _("Font"))
             self.colour_scheme = rows.row(
-                "&Colours", rows.choice(HTML_COLOUR_SCHEMES, settings.html_colour_scheme), "Colours"
+                _("&Colours"), rows.choice(HTML_COLOUR_SCHEMES, settings.html_colour_scheme), _("Colours")
             )
             self.table_of_contents = rows.checkbox(
-                "Table of &contents (the pages of a notebook, the headings of a document)",
-                "Table of contents",
+                _("Table of &contents (the pages of a notebook, the headings of a document)"),
+                _("Table of contents"),
                 settings.html_table_of_contents,
             )
 
@@ -270,32 +284,32 @@ if wx is not None:
 
         def __init__(self, rows: FormRows, settings: AppSettings):
             page = rows.page
-            self.paper = rows.row("&Paper", rows.choice(PDF_PAPERS, settings.docx_paper), "Paper")
+            self.paper = rows.row(_("&Paper"), rows.choice(PDF_PAPERS, settings.docx_paper), _("Paper"))
             margins = wx.BoxSizer(wx.HORIZONTAL)
             self.margins: list[wx.SpinCtrl] = []
-            for label, value in zip(("&Top", "&Right", "&Bottom", "&Left"), settings.docx_margins, strict=True):
-                margins.Add(wx.StaticText(page, label=label), 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 4)
+            for (label, name), value in zip(MARGIN_SIDES, settings.docx_margins, strict=True):
+                margins.Add(wx.StaticText(page, label=_(label)), 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 4)
                 spin = rows.spin(value, PDF_MARGINS)
-                spin.SetName(f"{label.replace('&', '')} margin (mm)")
+                spin.SetName(_(name))
                 margins.Add(spin, 0, wx.RIGHT, 10)
                 self.margins.append(spin)
-            rows.row_of("Margins (mm)", margins)
+            rows.row_of(_("Margins (mm)"), margins)
             self.fonts = sorted(set(wx.FontEnumerator().GetFacenames()) | {settings.docx_font}, key=str.casefold)
-            self.font = rows.row("&Font", wx.Choice(page, choices=self.fonts), "Font")
+            self.font = rows.row(_("&Font"), wx.Choice(page, choices=self.fonts), _("Font"))
             self.font.SetSelection(self.fonts.index(settings.docx_font))
             self.font.Bind(wx.EVT_CHOICE, lambda _event: rows.changed())
             self.font_size = rows.row(
-                "Font si&ze (pt)", rows.spin(settings.docx_font_size, PDF_FONT_SIZES), "Font size"
+                _("Font si&ze (pt)"), rows.spin(settings.docx_font_size, PDF_FONT_SIZES), _("Font size")
             )
             self.line_spacing = rows.row(
-                "Line s&pacing", rows.choice(DOCX_LINE_SPACINGS, settings.docx_line_spacing), "Line spacing"
+                _("Line s&pacing"), rows.choice(DOCX_LINE_SPACINGS, settings.docx_line_spacing), _("Line spacing")
             )
-            self.landscape = rows.checkbox("Lan&dscape", "Landscape", settings.docx_landscape)
-            self.justify = rows.checkbox("&Justify the text", "Justify the text", settings.docx_justify)
-            self.page_numbers = rows.checkbox("&Number the pages", "Number the pages", settings.docx_page_numbers)
+            self.landscape = rows.checkbox(_("Lan&dscape"), _("Landscape"), settings.docx_landscape)
+            self.justify = rows.checkbox(_("&Justify the text"), _("Justify the text"), settings.docx_justify)
+            self.page_numbers = rows.checkbox(_("&Number the pages"), _("Number the pages"), settings.docx_page_numbers)
             self.table_of_contents = rows.checkbox(
-                "Table of &contents (Word fills it in when the document is opened)",
-                "Table of contents",
+                _("Table of &contents (Word fills it in when the document is opened)"),
+                _("Table of contents"),
                 settings.docx_table_of_contents,
             )
 

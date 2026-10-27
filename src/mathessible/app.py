@@ -12,10 +12,15 @@ def main() -> None:
     from pathlib import Path
 
     from mathessible import session_log
+    from mathessible.i18n import interface_language, set_language
+    from mathessible.settings import load_settings
+    from mathessible.symbols.system_languages import preferred_languages
     from mathessible.ui.main_frame import MainFrame, offer_recovery
 
     session_log.start()
     app = wx.App(False)
+    # The interface's language, before any window is built (a change needs a restart).
+    set_language(interface_language(load_settings().interface_language, preferred_languages()))
     frame = MainFrame()
     frame.Centre()
     frame.Show()

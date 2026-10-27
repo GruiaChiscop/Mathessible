@@ -16,6 +16,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 
 from mathessible.editing.source_view import spell_with_control_words
+from mathessible.i18n import N_, spoken
 from mathessible.templates.insert_catalog import Inserter, InsertItem, all_items
 from mathessible.templates.math_templates import (
     insert_nary_operator_template,
@@ -49,8 +50,11 @@ def _accent(mark: str, name: str) -> Inserter:
         caret = max(0, min(caret, len(source)))
         before = source[caret - 1] if caret else ""
         if not (before.isalnum() or before == ")"):
-            return TemplateEdit(source, caret, f"{name}: type the base first, then the accent")
-        return insert_template(source, caret, mark, first_slot_offset=len(mark), announcement=f"{name} on {before}")
+            return TemplateEdit(
+                source, caret, spoken("{accent}: type the base first, then the accent").format(accent=spoken(name))
+            )
+        announcement = spoken("{accent} on {base}").format(accent=spoken(name), base=before)
+        return insert_template(source, caret, mark, first_slot_offset=len(mark), announcement=announcement)
 
     return insert
 
@@ -58,9 +62,15 @@ def _accent(mark: str, name: str) -> Inserter:
 def _matrix(rows: int, columns: int, fence: str, name: str) -> Inserter:
     def insert(source: str, caret: int) -> TemplateEdit:
         edit = insert_matrix_template(source, caret, rows, columns, fence)
-        return TemplateEdit(edit.source, edit.caret, f"{name}, empty cell, row 1, column 1")
+        return TemplateEdit(
+            edit.source, edit.caret, spoken("{matrix}, empty cell, row 1, column 1").format(matrix=spoken(name))
+        )
 
     return insert
+
+
+# The dialog entries' labels as the gallery shows them, without the menu's "…".
+_DIALOG_LABELS = (N_("Matrix"), N_("Symbol"))
 
 
 def _menu_item(label: str) -> InsertItem:
@@ -72,185 +82,188 @@ def _menu_item(label: str) -> InsertItem:
 
 
 def _function(name: str) -> InsertItem:
-    return InsertItem(name, _template(f"{name} 〖〗", len(name) + 2, f"{name} template, empty argument"))
+    announcement = spoken("{function} template, empty argument").format(function=name)
+    return InsertItem(name, _template(f"{name} 〖〗", len(name) + 2, announcement))
 
 
 CATEGORIES: tuple[GalleryCategory, ...] = (
     GalleryCategory(
-        "Fraction",
+        N_("Fraction"),
         (
-            _menu_item("Fraction"),
-            InsertItem("Skewed fraction", _template("()⁄()", 1, "skewed fraction template, empty numerator")),
-            InsertItem("Linear fraction", _template("()∕()", 1, "linear fraction template, empty numerator")),
-            InsertItem("Small fraction", _template("()⊘()", 1, "small fraction template, empty numerator")),
-            InsertItem("dy over dx", _example("ⅆy/ⅆx", "d y over d x")),
-            InsertItem("Partial y over partial x", _example("∂y/∂x", "partial y over partial x")),
-            InsertItem("Delta y over delta x", _example("Δy/Δx", "delta y over delta x")),
-            InsertItem("Pi over 2", _example("π/2", "pi over 2")),
+            _menu_item(N_("Fraction")),
+            InsertItem(N_("Skewed fraction"), _template("()⁄()", 1, N_("skewed fraction template, empty numerator"))),
+            InsertItem(N_("Linear fraction"), _template("()∕()", 1, N_("linear fraction template, empty numerator"))),
+            InsertItem(N_("Small fraction"), _template("()⊘()", 1, N_("small fraction template, empty numerator"))),
+            InsertItem(N_("dy over dx"), _example("ⅆy/ⅆx", N_("d y over d x"))),
+            InsertItem(N_("Partial y over partial x"), _example("∂y/∂x", N_("partial y over partial x"))),
+            InsertItem(N_("Delta y over delta x"), _example("Δy/Δx", N_("delta y over delta x"))),
+            InsertItem(N_("Pi over 2"), _example("π/2", N_("pi over 2"))),
         ),
     ),
     GalleryCategory(
-        "Script",
+        N_("Script"),
         (
-            _menu_item("Subscript"),
-            _menu_item("Superscript"),
-            InsertItem("Subscript and superscript", lambda source, caret: _scripts_template(source, caret)),
-            InsertItem("x squared", _example("x^2", "x squared")),
-            InsertItem("e to the minus i omega t", _example("e^(-iωt)", "e to the minus i omega t")),
-            InsertItem("x sub y squared", _example("x_y^2", "x sub y squared")),
+            _menu_item(N_("Subscript")),
+            _menu_item(N_("Superscript")),
+            InsertItem(N_("Subscript and superscript"), lambda source, caret: _scripts_template(source, caret)),
+            InsertItem(N_("x squared"), _example("x^2", N_("x squared"))),
+            InsertItem(N_("e to the minus i omega t"), _example("e^(-iωt)", N_("e to the minus i omega t"))),
+            InsertItem(N_("x sub y squared"), _example("x_y^2", N_("x sub y squared"))),
         ),
     ),
     GalleryCategory(
-        "Radical",
+        N_("Radical"),
         (
-            _menu_item("Square Root"),
-            _menu_item("Root with Index"),
-            InsertItem("Cube root", _template("∛〖〗", 2, "cube root template, empty radicand")),
-            InsertItem("Fourth root", _template("∜〖〗", 2, "fourth root template, empty radicand")),
-            InsertItem("Quadratic formula", _example("x=(-b±√(b^2-4ac))/2a", "quadratic formula")),
+            _menu_item(N_("Square Root")),
+            _menu_item(N_("Root with Index")),
+            InsertItem(N_("Cube root"), _template("∛〖〗", 2, N_("cube root template, empty radicand"))),
+            InsertItem(N_("Fourth root"), _template("∜〖〗", 2, N_("fourth root template, empty radicand"))),
+            InsertItem(N_("Quadratic formula"), _example("x=(-b±√(b^2-4ac))/2a", N_("quadratic formula"))),
         ),
     ),
     GalleryCategory(
-        "Integral",
+        N_("Integral"),
         (
-            _menu_item("Integral"),
-            _menu_item("Integral with Limits"),
-            _menu_item("Double Integral"),
+            _menu_item(N_("Integral")),
+            _menu_item(N_("Integral with Limits")),
+            _menu_item(N_("Double Integral")),
             InsertItem(
-                "Double integral with limits",
+                N_("Double integral with limits"),
                 lambda source, caret: insert_nary_operator_template(source, caret, "∬", limits=True),
             ),
-            _menu_item("Triple Integral"),
+            _menu_item(N_("Triple Integral")),
             InsertItem(
-                "Triple integral with limits",
+                N_("Triple integral with limits"),
                 lambda source, caret: insert_nary_operator_template(source, caret, "∭", limits=True),
             ),
-            _menu_item("Contour Integral"),
+            _menu_item(N_("Contour Integral")),
             InsertItem(
-                "Contour integral with limits",
+                N_("Contour integral with limits"),
                 lambda source, caret: insert_nary_operator_template(source, caret, "∮", limits=True),
             ),
-            InsertItem("Surface integral", lambda source, caret: insert_nary_operator_template(source, caret, "∯")),
-            InsertItem("Volume integral", lambda source, caret: insert_nary_operator_template(source, caret, "∰")),
-            InsertItem("Differential dx", _example("ⅆx", "d x")),
-            InsertItem("Differential dy", _example("ⅆy", "d y")),
-            InsertItem("Differential d theta", _example("ⅆθ", "d theta")),
+            InsertItem(N_("Surface integral"), lambda source, caret: insert_nary_operator_template(source, caret, "∯")),
+            InsertItem(N_("Volume integral"), lambda source, caret: insert_nary_operator_template(source, caret, "∰")),
+            InsertItem(N_("Differential dx"), _example("ⅆx", N_("d x"))),
+            InsertItem(N_("Differential dy"), _example("ⅆy", N_("d y"))),
+            InsertItem(N_("Differential d theta"), _example("ⅆθ", N_("d theta"))),
         ),
     ),
     GalleryCategory(
-        "Large Operator",
+        N_("Large Operator"),
         (
-            _menu_item("Sum"),
-            _menu_item("Sum with Limits"),
-            _menu_item("Product"),
-            _menu_item("Product with Limits"),
-            InsertItem("Coproduct", lambda source, caret: insert_nary_operator_template(source, caret, "∐")),
+            _menu_item(N_("Sum")),
+            _menu_item(N_("Sum with Limits")),
+            _menu_item(N_("Product")),
+            _menu_item(N_("Product with Limits")),
+            InsertItem(N_("Coproduct"), lambda source, caret: insert_nary_operator_template(source, caret, "∐")),
             InsertItem(
-                "Coproduct with limits",
+                N_("Coproduct with limits"),
                 lambda source, caret: insert_nary_operator_template(source, caret, "∐", limits=True),
             ),
-            _menu_item("Union"),
-            _menu_item("Intersection"),
+            _menu_item(N_("Union")),
+            _menu_item(N_("Intersection")),
         ),
     ),
     GalleryCategory(
-        "Bracket",
+        N_("Bracket"),
         (
-            InsertItem("Parentheses", _template("()", 1, "parentheses, empty")),
-            InsertItem("Square brackets", _template("[]", 1, "square brackets, empty")),
-            InsertItem("Braces", _template("{}", 1, "braces, empty")),
-            _menu_item("Angle Brackets"),
-            _menu_item("Absolute Value"),
-            _menu_item("Norm"),
-            _menu_item("Floor"),
-            _menu_item("Ceiling"),
-            _menu_item("Binomial"),
-            _menu_item("Cases"),
+            InsertItem(N_("Parentheses"), _template("()", 1, N_("parentheses, empty"))),
+            InsertItem(N_("Square brackets"), _template("[]", 1, N_("square brackets, empty"))),
+            InsertItem(N_("Braces"), _template("{}", 1, N_("braces, empty"))),
+            _menu_item(N_("Angle Brackets")),
+            _menu_item(N_("Absolute Value")),
+            _menu_item(N_("Norm")),
+            _menu_item(N_("Floor")),
+            _menu_item(N_("Ceiling")),
+            _menu_item(N_("Binomial")),
+            _menu_item(N_("Cases")),
         ),
     ),
     GalleryCategory(
-        "Function",
+        N_("Function"),
         tuple(
             _function(name)
             for name in ("sin", "cos", "tan", "cot", "sec", "csc", "arcsin", "arccos", "arctan", "sinh", "cosh", "tanh")
         ),
     ),
     GalleryCategory(
-        "Accent",
+        N_("Accent"),
         (
-            InsertItem("Vector arrow", _accent("⃗", "vector arrow")),
-            InsertItem("Hat", _accent("̂", "hat")),
-            InsertItem("Bar", _accent("̅", "bar")),
-            InsertItem("Dot", _accent("̇", "dot")),
-            InsertItem("Double dot", _accent("̈", "double dot")),
-            InsertItem("Tilde", _accent("̃", "tilde")),
-            InsertItem("Check", _accent("̌", "check")),
-            InsertItem("Acute", _accent("́", "acute")),
-            InsertItem("Grave", _accent("̀", "grave")),
-            InsertItem("Breve", _accent("̆", "breve")),
-            InsertItem("Overbar", _template("¯()", 2, "overbar template, empty content")),
-            InsertItem("Underbar", _template("▁()", 2, "underbar template, empty content")),
-            _menu_item("Overbrace"),
-            _menu_item("Underbrace"),
-            _menu_item("Box"),
+            InsertItem(N_("Vector arrow"), _accent("⃗", N_("vector arrow"))),
+            InsertItem(N_("Hat"), _accent("̂", N_("hat"))),
+            InsertItem(N_("Bar"), _accent("̅", N_("bar"))),
+            InsertItem(N_("Dot"), _accent("̇", N_("dot"))),
+            InsertItem(N_("Double dot"), _accent("̈", N_("double dot"))),
+            InsertItem(N_("Tilde"), _accent("̃", N_("tilde"))),
+            InsertItem(N_("Check"), _accent("̌", N_("check"))),
+            InsertItem(N_("Acute"), _accent("́", N_("acute"))),
+            InsertItem(N_("Grave"), _accent("̀", N_("grave"))),
+            InsertItem(N_("Breve"), _accent("̆", N_("breve"))),
+            InsertItem(N_("Overbar"), _template("¯()", 2, N_("overbar template, empty content"))),
+            InsertItem(N_("Underbar"), _template("▁()", 2, N_("underbar template, empty content"))),
+            _menu_item(N_("Overbrace")),
+            _menu_item(N_("Underbrace")),
+            _menu_item(N_("Box")),
         ),
     ),
     GalleryCategory(
-        "Limit and Log",
+        N_("Limit and Log"),
         (
-            _menu_item("Limit"),
+            _menu_item(N_("Limit")),
             InsertItem(
-                "Limit as n goes to infinity",
-                _template("lim_(n→∞) 〖〗", 11, "limit as n goes to infinity, empty argument"),
+                N_("Limit as n goes to infinity"),
+                _template("lim_(n→∞) 〖〗", 11, N_("limit as n goes to infinity, empty argument")),
             ),
             InsertItem(
-                "Limit inferior", _template("lim\u00a0inf_() 〖〗", 9, "limit inferior template, empty limit condition")
+                N_("Limit inferior"),
+                _template("lim\u00a0inf_() 〖〗", 9, N_("limit inferior template, empty limit condition")),
             ),
             InsertItem(
-                "Limit superior", _template("lim\u00a0sup_() 〖〗", 9, "limit superior template, empty limit condition")
+                N_("Limit superior"),
+                _template("lim\u00a0sup_() 〖〗", 9, N_("limit superior template, empty limit condition")),
             ),
-            _menu_item("Logarithm"),
+            _menu_item(N_("Logarithm")),
             _function("ln"),
             _function("log"),
         ),
     ),
     GalleryCategory(
-        "Operator",
+        N_("Operator"),
         (
-            _menu_item("Arrow with Text Above"),
-            _menu_item("Arrow with Text Below"),
-            _menu_item("Equals with Text Above"),
+            _menu_item(N_("Arrow with Text Above")),
+            _menu_item(N_("Arrow with Text Below")),
+            _menu_item(N_("Equals with Text Above")),
             InsertItem(
-                "Left arrow with text above",
+                N_("Left arrow with text above"),
                 lambda source, caret: insert_operator_template(source, caret, operator="←"),
             ),
             InsertItem(
-                "Double arrow with text above",
+                N_("Double arrow with text above"),
                 lambda source, caret: insert_operator_template(source, caret, operator="⇒"),
             ),
-            InsertItem("Colon equals", _example("≔", "colon equals")),
-            InsertItem("Equal by definition", _example("≝", "equal by definition")),
-            InsertItem("Delta equals", _example("≜", "delta equals")),
+            InsertItem(N_("Colon equals"), _example("≔", N_("colon equals"))),
+            InsertItem(N_("Equal by definition"), _example("≝", N_("equal by definition"))),
+            InsertItem(N_("Delta equals"), _example("≜", N_("delta equals"))),
         ),
     ),
     GalleryCategory(
-        "Matrix",
+        N_("Matrix"),
         (
             _menu_item("Matrix…"),
-            InsertItem("1 by 2 matrix", _matrix(1, 2, "parentheses", "1 by 2 matrix")),
-            InsertItem("2 by 1 matrix", _matrix(2, 1, "parentheses", "2 by 1 matrix")),
-            InsertItem("2 by 2 matrix", _matrix(2, 2, "parentheses", "2 by 2 matrix")),
-            InsertItem("2 by 2 matrix in brackets", _matrix(2, 2, "brackets", "2 by 2 matrix in brackets")),
-            InsertItem("2 by 2 determinant", _matrix(2, 2, "bars", "2 by 2 determinant")),
-            InsertItem("3 by 3 matrix", _matrix(3, 3, "parentheses", "3 by 3 matrix")),
-            InsertItem("2 by 2 identity matrix", _example("(■(1&0@0&1))", "2 by 2 identity matrix")),
-            _menu_item("Equation Array"),
+            InsertItem(N_("1 by 2 matrix"), _matrix(1, 2, "parentheses", N_("1 by 2 matrix"))),
+            InsertItem(N_("2 by 1 matrix"), _matrix(2, 1, "parentheses", N_("2 by 1 matrix"))),
+            InsertItem(N_("2 by 2 matrix"), _matrix(2, 2, "parentheses", N_("2 by 2 matrix"))),
+            InsertItem(N_("2 by 2 matrix in brackets"), _matrix(2, 2, "brackets", N_("2 by 2 matrix in brackets"))),
+            InsertItem(N_("2 by 2 determinant"), _matrix(2, 2, "bars", N_("2 by 2 determinant"))),
+            InsertItem(N_("3 by 3 matrix"), _matrix(3, 3, "parentheses", N_("3 by 3 matrix"))),
+            InsertItem(N_("2 by 2 identity matrix"), _example("(■(1&0@0&1))", N_("2 by 2 identity matrix"))),
+            _menu_item(N_("Equation Array")),
         ),
     ),
     GalleryCategory(
-        "Other",
+        N_("Other"),
         (
-            _menu_item("Equation Number"),
+            _menu_item(N_("Equation Number")),
             _menu_item("Symbol…"),
         ),
     ),
@@ -258,7 +271,7 @@ CATEGORIES: tuple[GalleryCategory, ...] = (
 
 
 # The user's own equations (Save as New Equation), first when there are any.
-MY_EQUATIONS = "My Equations"
+MY_EQUATIONS = N_("My Equations")
 
 
 def gallery_categories(saved: Sequence[SavedEquation]) -> tuple[GalleryCategory, ...]:
@@ -275,9 +288,11 @@ def _scripts_template(source: str, caret: int) -> TemplateEdit:
     before = source[caret - 1] if caret else ""
     if before.isalnum() or before in ")]}":
         return insert_template(
-            source, caret, "_()^()", first_slot_offset=2, announcement="scripts template, empty subscript"
+            source, caret, "_()^()", first_slot_offset=2, announcement=spoken("scripts template, empty subscript")
         )
-    return insert_template(source, caret, "()_()^()", first_slot_offset=1, announcement="scripts template, empty base")
+    return insert_template(
+        source, caret, "()_()^()", first_slot_offset=1, announcement=spoken("scripts template, empty base")
+    )
 
 
 def written_form(item: InsertItem, control_words: bool) -> str:

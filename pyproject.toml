@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.12,<3.15"
 license = { text = "GPL-2.0-or-later" }
 dependencies = [
+    "babel>=2.14,<3",
     "markdown-it-py>=3,<5",
     "mathessible-mathcat",
     "prismatoid>=0.16,<0.17",
@@ -28,6 +29,9 @@ dev = ["ruff>=0.6"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+mathessible = ["locale/*.pot", "locale/*/LC_MESSAGES/*.po"]
 
 [tool.uv]
 package = true

@@ -5,6 +5,7 @@ from dataclasses import replace
 
 from mathessible.documents.pdf_export import PdfDocument
 from mathessible.documents.pdf_security import PdfSecurity
+from mathessible.i18n import _
 from mathessible.settings import AppSettings
 
 try:
@@ -33,52 +34,56 @@ if wx is not None:
             document: PdfDocument,
             save_defaults: Callable[[AppSettings], None],
         ):
-            super().__init__(parent, title="Export as PDF", style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
-            self.SetName("Export as PDF dialog")
+            super().__init__(parent, title=_("Export as PDF"), style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+            self.SetName(_("Export as PDF dialog"))
             self._settings = replace(settings)  # This PDF's copy.
             self._save_defaults = save_defaults
             self.notebook = wx.Notebook(self)
-            self.notebook.SetName("PDF export categories")
+            self.notebook.SetName(_("PDF export categories"))
 
-            page = self._page("Document")
+            page = self._page(_("Document"))
             rows = FormRows(page)
-            self.title = rows.row("&Title", rows.text(document.title), "Title")
-            self.author = rows.row("&Author", rows.text(document.author), "Author")
-            self.subject = rows.row("&Subject", rows.text(document.subject), "Subject")
-            self.keywords = rows.row("&Keywords (comma-separated)", rows.text(", ".join(document.keywords)), "Keywords")
-            self.language = rows.row("&Language (for example ro, en)", rows.text(document.language), "Language")
+            self.title = rows.row(_("&Title"), rows.text(document.title), _("Title"))
+            self.author = rows.row(_("&Author"), rows.text(document.author), _("Author"))
+            self.subject = rows.row(_("&Subject"), rows.text(document.subject), _("Subject"))
+            self.keywords = rows.row(
+                _("&Keywords (comma-separated)"), rows.text(", ".join(document.keywords)), _("Keywords")
+            )
+            self.language = rows.row(_("&Language (for example ro, en)"), rows.text(document.language), _("Language"))
             rows.finish(page.GetSizer())
 
-            page = self._page("Layout")
+            page = self._page(_("Layout"))
             rows = FormRows(page)
             self.layout = PdfLayoutControls(rows, settings)
             rows.finish(page.GetSizer())
 
-            page = self._page("Content")
+            page = self._page(_("Content"))
             rows = FormRows(page)
-            self.header = rows.row("&Header text", rows.text(document.header), "Header text")
-            self.watermark = rows.row("&Watermark text", rows.text(document.watermark), "Watermark text")
+            self.header = rows.row(_("&Header text"), rows.text(document.header), _("Header text"))
+            self.watermark = rows.row(_("&Watermark text"), rows.text(document.watermark), _("Watermark text"))
             self.content = PdfContentControls(rows, settings)
             rows.finish(page.GetSizer())
 
-            page = self._page("Security")
+            page = self._page(_("Security"))
             rows = FormRows(page)
             self.standard = PdfStandardControl(rows, settings)
             self.open_password = rows.row(
-                "Password to &open", wx.TextCtrl(page, style=wx.TE_PASSWORD), "Password to open"
+                _("Password to &open"), wx.TextCtrl(page, style=wx.TE_PASSWORD), _("Password to open")
             )
             self.permissions_password = rows.row(
-                "Password for &permissions", wx.TextCtrl(page, style=wx.TE_PASSWORD), "Password for permissions"
+                _("Password for &permissions"), wx.TextCtrl(page, style=wx.TE_PASSWORD), _("Password for permissions")
             )
-            self.allow_printing = rows.checkbox("Allow p&rinting", "Allow printing", document.security.allow_printing)
+            self.allow_printing = rows.checkbox(
+                _("Allow p&rinting"), _("Allow printing"), document.security.allow_printing
+            )
             self.allow_copying = rows.checkbox(
-                "Allow &copying text (screen readers can always read)",
-                "Allow copying text",
+                _("Allow &copying text (screen readers can always read)"),
+                _("Allow copying text"),
                 document.security.allow_copying,
             )
-            self.allow_editing = rows.checkbox("Allow &editing", "Allow editing", document.security.allow_editing)
+            self.allow_editing = rows.checkbox(_("Allow &editing"), _("Allow editing"), document.security.allow_editing)
             rows.finish(page.GetSizer())
-            note = wx.StaticText(page, label="Passwords are never kept. PDF/A does not allow them.")
+            note = wx.StaticText(page, label=_("Passwords are never kept. PDF/A does not allow them."))
             note.Wrap(420)
             page.GetSizer().Add(note, 0, wx.ALL, 12)
 
@@ -130,7 +135,7 @@ if wx is not None:
 
         def _on_save_defaults(self) -> None:
             self._save_defaults(self.settings)
-            saved_as_defaults(self, "This layout, content, standard and author")
+            saved_as_defaults(self, _("This layout, content, standard and author are now the defaults."))
 
 else:
 

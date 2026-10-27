@@ -35,6 +35,7 @@ from mathessible.editing.source_map import (
 from mathessible.editing.source_view import view_of
 from mathessible.editing.space_conversion import convert_word_before
 from mathessible.editor.keys import word_navigation_down
+from mathessible.i18n import spoken
 from mathessible.templates.math_templates import move_to_slot
 from mathessible.ui.clipboard import set_clipboard_text
 from mathessible.unicodemath import UnicodeMathError
@@ -115,7 +116,7 @@ class BuiltEditingMixin:
         start, end, _replacement = self._node_removal(node.identifier)
         text = self.document.source[start:end]
         if not set_clipboard_text(text, self._equation_html(text, whole=False)):
-            self._announce("could not cut")
+            self._announce(spoken("could not cut"))
             return
         self._remove_node(node.identifier, f"cut {self._node_label(node)}")
 
@@ -428,7 +429,7 @@ class BuiltEditingMixin:
         """Cmd+A in professional view's writing mode: the whole equation."""
         source = self.document.source
         if not source:
-            self._announce("nothing to select")
+            self._announce(spoken("nothing to select"))
             return
         self.selection_anchor, self.caret = 0, len(source)
         self._selected_ids = self._leaves_in(0, len(source))
@@ -756,8 +757,8 @@ class BuiltEditingMixin:
                 self.history.push(self.document.source, self.caret, runs)  # Undo takes the build back.
                 # Not when the edit said what it built itself ("log, empty argument": Space opened it).
                 if structure is not None and self.settings.announce_built and requested == "built":
-                    spoken = announcement or self._last_spoken
-                    announcement = f"{spoken}, built {structure}" if spoken else f"built {structure}"
+                    said = announcement or self._last_spoken
+                    announcement = f"{said}, built {structure}" if said else f"built {structure}"
         self._finish_built_edit(announcement)
 
     def _finish_built_edit(self, announcement: str, attempts: int = 30) -> None:
@@ -824,7 +825,7 @@ class BuiltEditingMixin:
             lambda source, caret: move_to_slot(source, caret, reverse, self.settings.recognized_functions)
         )
         if edit is None:
-            self._announce("no slot")
+            self._announce(spoken("no slot"))
             return
         self.caret = edit.caret
         self._place_after_caret()
@@ -836,7 +837,7 @@ class BuiltEditingMixin:
         """Undo/redo from professional mode: restore the source, then rebuild there."""
         state = self.history.undo() if action == "undo" else self.history.redo()
         if state is None:
-            self._announce(f"nothing to {action}")
+            self._announce(spoken("nothing to undo") if action == "undo" else spoken("nothing to redo"))
             return
         self.document.source = state.source
         self.caret = state.caret

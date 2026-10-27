@@ -72,4 +72,8 @@ them resolved (`editing/source_view.py`).
   linear view (NVDA's `symbols.dic` format).
 - `settings.py`, `session_log.py` (`MATHESSIBLE_LOG=1`), `patch_check.py` (the
   startup check that bootstrap's patches are applied).
+- `i18n.py` and `locale/`: the interface in MathCAT's languages, read from
+  the `.po` catalogs at startup; `spoken.py` holds the editor's words
+  about an equation, said in the speech language
+  ([translating.md](translating.md)).
 - `native/mathcat_py/`: the PyO3 binding to the MathCAT submodule.
