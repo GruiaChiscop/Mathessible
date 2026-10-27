@@ -4,9 +4,10 @@ The Markdown goes through markdown-it, each equation through the
 converter (MathML) and `omml_math`, written into the paragraph as Office
 Math: inline in its line, a display equation as a paragraph of its own.
 Headings use Word's Heading styles (navigation pane, table of contents,
-screen readers), lists its List styles, the document's properties and
-language are set, and the page, font, page numbers and a table of
-contents come from `DocxOptions`.
+screen readers), lists its List styles, footnotes are Word's own, the
+document's header and footer (its front matter) are the page's, the
+document's properties and language are set, and the page, font, page
+numbers and a table of contents come from `DocxOptions`.
 """
 
 from __future__ import annotations
@@ -18,16 +19,21 @@ from dataclasses import dataclass
 from xml.sax.saxutils import escape
 
 from docx import Document
-from docx.enum.section import WD_ORIENT
-from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.opc.constants import RELATIONSHIP_TYPE
+from docx.enum.section import WD_ORIENT, WD_SECTION
+from docx.enum.style import WD_STYLE_TYPE
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT
+from docx.opc.constants import CONTENT_TYPE, RELATIONSHIP_TYPE
+from docx.opc.packuri import PackURI
+from docx.opc.part import XmlPart
 from docx.oxml import OxmlElement, parse_xml
-from docx.oxml.ns import qn
+from docx.oxml.ns import nsdecls, qn
 from docx.shared import Mm, Pt
-from markdown_it import MarkdownIt
+from docx.text.paragraph import Paragraph
 
-from mathessible.documents.html_export import ExportPage
-from mathessible.documents.markdown_math import find_math_zones
+from mathessible.documents.front_matter import HeaderFooter, header_and_footer
+from mathessible.documents.front_matter import body as without_front_matter
+from mathessible.documents.html_export import ExportPage, markdown_parser
+from mathessible.documents.markdown_math import find_math_zones, with_marks
 from mathessible.documents.omml_math import M, OmmlEquation
 
 # Paper sizes in millimetres, portrait.
@@ -71,19 +77,99 @@ def _language_tag(language: str) -> str:
     return {"en": "en-US", "pt": "pt-PT", "zh": "zh-CN"}.get(language, f"{language}-{language.upper()}")
 
 
-class _Writer:
-    def __init__(self, document: Document, markdown: str, omml_of: OmmlOf):
+class _Footnotes:
+    """Word's footnotes part (`word/footnotes.xml`), made when the first note is written."""
+
+    def __init__(self, document: Document):
         self.document = document
+        self.part: XmlPart | None = None
+        self.count = 0
+
+    def add(self) -> tuple[int, Paragraph]:
+        """A new footnote: its id and its first paragraph, which starts with the note's number."""
+        if self.part is None:
+            self._create()
+        self.count += 1
+        note = parse_xml(f'<w:footnote {nsdecls("w")} w:id="{self.count}"/>')
+        self.part.element.append(note)
+        paragraph = Paragraph(OxmlElement("w:p"), self)
+        note.append(paragraph._p)
+        paragraph._p.style = "footnotetext"  # The part has no styles of its own to look the name up in.
+        _reference_run(paragraph)._r.append(OxmlElement("w:footnoteRef"))
+        paragraph.add_run(" ")
+        return self.count, paragraph
+
+    def paragraph(self, note: int) -> Paragraph:
+        """Another paragraph of the note."""
+        paragraph = Paragraph(OxmlElement("w:p"), self)
+        self.part.element[-1].append(paragraph._p)
+        paragraph._p.style = "footnotetext"  # The part has no styles of its own to look the name up in.
+        return paragraph
+
+    def _create(self) -> None:
+        separators = "".join(
+            f'<w:footnote w:type="{kind}" w:id="{number}"><w:p><w:pPr><w:spacing w:after="0" w:line="240" '
+            f'w:lineRule="auto"/></w:pPr><w:r><w:{kind}/></w:r></w:p></w:footnote>'
+            for number, kind in ((-1, "separator"), (0, "continuationSeparator"))
+        )
+        element = parse_xml(f'<w:footnotes {nsdecls("w", "r")} xmlns:m="{M}">{separators}</w:footnotes>')
+        package = self.document.part.package
+        self.part = XmlPart(PackURI("/word/footnotes.xml"), CONTENT_TYPE.WML_FOOTNOTES, element, package)
+        self.document.part.relate_to(self.part, RELATIONSHIP_TYPE.FOOTNOTES)
+        styles = self.document.styles
+        text = styles.add_style("footnote text", WD_STYLE_TYPE.PARAGRAPH)
+        text.base_style = styles["Normal"]
+        text.font.size = Pt(10)
+        text.paragraph_format.space_after = Pt(0)
+        text.paragraph_format.line_spacing = 1
+        reference = styles.add_style("footnote reference", WD_STYLE_TYPE.CHARACTER)
+        reference.font.superscript = True
+
+
+def _reference_run(paragraph: Paragraph) -> object:
+    """A run in the footnote reference style (superscript), which `_Footnotes` adds with the first note."""
+    run = paragraph.add_run()
+    style = OxmlElement("w:rStyle")
+    style.set(qn("w:val"), "footnotereference")
+    run._r.get_or_add_rPr().insert(0, style)
+    return run
+
+
+class _Writer:
+    def __init__(self, document: Document, markdown: str, omml_of: OmmlOf, footnotes: _Footnotes):
+        self.document = document
+        markdown = without_front_matter(markdown)
         self.zones = find_math_zones(markdown)
         self.sources = [zone.content(markdown) for zone in self.zones]
         self.omml_of = omml_of
-        transformed = markdown
-        for index, zone in reversed(list(enumerate(self.zones))):
-            mark = _placeholder(index)
-            transformed = (
-                transformed[: zone.start] + (f"\n\n{mark}\n\n" if zone.display else mark) + transformed[zone.end :]
-            )
-        self.tokens = MarkdownIt("commonmark", {"html": False}).enable(["table", "strikethrough"]).parse(transformed)
+        self.footnotes = footnotes
+        self.tokens = markdown_parser().parse(with_marks(markdown, self.zones, _placeholder))
+        self.notes: dict[int, list[object]] = {}  # Each note's inline tokens, one per paragraph.
+        self.numbers: dict[int, int] = {}  # Word's number of each note written.
+        current: int | None = None
+        for token in self.tokens:
+            if token.type == "footnote_open":
+                current = token.meta["id"]
+                self.notes[current] = []
+            elif token.type == "footnote_close":
+                current = None
+            elif token.type == "inline" and current is not None:
+                self.notes[current].append(token)
+
+    def _footnote(self, paragraph: Paragraph, meta: dict) -> None:
+        """A footnote reference; the note itself is written into Word's footnotes the first time."""
+        note = meta["id"]
+        run = _reference_run(paragraph)
+        if note in self.numbers:
+            run.add_text(str(self.numbers[note]))  # Referenced again: its number, as Word's NOTEREF shows it.
+            return
+        number, first = self.footnotes.add()
+        self.numbers[note] = number
+        reference = OxmlElement("w:footnoteReference")
+        reference.set(qn("w:id"), str(number))
+        run._r.append(reference)
+        for index, token in enumerate(self.notes.get(note, [])):
+            self.inline(first if index == 0 else self.footnotes.paragraph(number), token)
 
     # Inline content
 
@@ -163,6 +249,8 @@ class _Writer:
                 link = None
             elif kind == "image":
                 self._run(paragraph, child.content, style, link)
+            elif kind == "footnote_ref":
+                self._footnote(paragraph, child.meta)
 
     # Blocks
 
@@ -194,9 +282,14 @@ class _Writer:
         table: list[list[object]] | None = None
         cell_token: list[object] = []
         rows_tokens: list[list[object]] = []
+        in_notes = False
         for token in self.tokens:
             kind = token.type
-            if kind == "heading_open":
+            if kind in ("footnote_block_open", "footnote_block_close"):
+                in_notes = kind == "footnote_block_open"  # Written as Word's footnotes, at their references.
+            elif in_notes:
+                continue
+            elif kind == "heading_open":
                 heading = int(token.tag[1])
             elif kind == "heading_close":
                 heading = 0
@@ -330,16 +423,36 @@ def _set_up(document: Document, options: DocxOptions, title: str) -> None:
     top, right, bottom, left = options.margins_mm
     section.top_margin, section.right_margin = Mm(top), Mm(right)
     section.bottom_margin, section.left_margin = Mm(bottom), Mm(left)
+
+
+def _running_heads(section: object, options: DocxOptions, running: HeaderFooter) -> None:
+    """The section's header and footer: the document's text at the left, the page number centred."""
+    section.header.is_linked_to_previous = False
+    section.footer.is_linked_to_previous = False
+    section.header.paragraphs[0].text = running.header
+    width = section.page_width - section.left_margin - section.right_margin
+    footer = section.footer.paragraphs[0]
+    footer.paragraph_format.tab_stops.add_tab_stop(width // 2, WD_TAB_ALIGNMENT.CENTER)
+    if running.footer:
+        footer.add_run(running.footer)
     if options.page_numbers:
-        footer = section.footer.paragraphs[0]
-        footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        if running.footer:
+            footer.add_run("\t")
+        else:
+            footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
         _field(footer, "PAGE", "1")
 
 
 def docx_document(pages: Sequence[ExportPage], title: str, omml_of: OmmlOf, options: DocxOptions) -> bytes:
-    """The whole document as DOCX bytes: a notebook's pages under their titles, each on a new page."""
+    """The whole document as DOCX bytes: a notebook's pages under their titles, each on a new page.
+
+    A page whose header or footer differs from the one before starts a section of its own.
+    """
     document = Document()
     _set_up(document, options, title)
+    heads = [header_and_footer(page.source) for page in pages]
+    _running_heads(document.sections[0], options, heads[0] if heads else HeaderFooter())
+    footnotes = _Footnotes(document)
     if options.table_of_contents:
         document.add_heading("Contents", level=1)
         _field(document.add_paragraph(), 'TOC \\o "1-3" \\h \\z \\u', "The table of contents is filled in by Word.")
@@ -349,10 +462,12 @@ def docx_document(pages: Sequence[ExportPage], title: str, omml_of: OmmlOf, opti
         document.add_page_break()
     for number, page in enumerate(pages):
         if len(pages) > 1:
-            if number:
+            if number and heads[number] != heads[number - 1]:
+                _running_heads(document.add_section(WD_SECTION.NEW_PAGE), options, heads[number])
+            elif number:
                 document.add_page_break()
             document.add_heading(page.title, level=1)
-        _Writer(document, page.source, omml_of).body()
+        _Writer(document, page.source, omml_of, footnotes).body()
     output = io.BytesIO()
     document.save(output)
     return output.getvalue()

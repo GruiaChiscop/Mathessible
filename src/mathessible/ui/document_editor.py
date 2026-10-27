@@ -6,6 +6,8 @@ from dataclasses import dataclass
 
 from mathessible import session_log
 from mathessible.documents.clipboard_html import document_html
+from mathessible.documents.footnotes import counterpart, insert_footnote
+from mathessible.documents.front_matter import HeaderFooter, body_start, header_and_footer, with_header_and_footer
 from mathessible.documents.markdown_math import MathZone, math_zone_at, toggle_display
 from mathessible.editing.autocorrect import AutoCorrectTable, autocorrect_defaults
 from mathessible.editing.space_conversion import convert_in_text, convert_shortcut_on_character
@@ -362,6 +364,50 @@ if wx is not None:
             offset = min(max(caret - zone.content_start, 0), new_zone.content_end - new_zone.content_start)
             self.markdown.SetInsertionPoint(new_zone.content_start + offset)
             self._announce(_("display equation") if new_zone.display else _("inline equation"))
+
+        def insert_footnote(self) -> None:
+            """Word's Insert Footnote: the reference at the caret, the caret in its note at the end."""
+            source = self.markdown.GetValue()
+            caret = self.markdown.GetInsertionPoint()
+            if self.editing_equation:
+                return
+            zone = math_zone_at(source, caret)
+            if zone is not None and zone.start < caret < zone.end:
+                self._announce(_("a footnote cannot go inside an equation"))
+                return
+            new_source, note, label = insert_footnote(source, caret)
+            session_log.write("command", f"document: insert footnote {label}")
+            self.replace_source(new_source)
+            self.markdown.SetInsertionPoint(note)
+            self.markdown.ShowPosition(note)
+            self._announce(_("footnote {label}, type the note").format(label=label))
+
+        def go_to_footnote(self) -> None:
+            """From a footnote reference to its note, or from a note back to its reference."""
+            source = self.markdown.GetValue()
+            found = counterpart(source, self.markdown.GetInsertionPoint())
+            if found is None or self.editing_equation:
+                self._announce(_("not in a footnote or its reference"))
+                return
+            position, label, is_note = found
+            session_log.write("command", f"document: go to {'note' if is_note else 'reference'} {label}")
+            self.markdown.SetInsertionPoint(position)
+            self.markdown.ShowPosition(position)
+            self._announce((_("note {label}") if is_note else _("reference {label}")).format(label=label))
+
+        @property
+        def header_and_footer(self) -> HeaderFooter:
+            return header_and_footer(self.markdown.GetValue())
+
+        def set_header_and_footer(self, chosen: HeaderFooter) -> None:
+            """Write the header and footer into the document's front matter, the caret staying in its text."""
+            source = self.markdown.GetValue()
+            new_source = with_header_and_footer(source, chosen.header, chosen.footer)
+            if new_source == source:
+                return
+            caret = self.markdown.GetInsertionPoint() - body_start(source)
+            self.replace_source(new_source)
+            self.markdown.SetInsertionPoint(max(0, body_start(new_source) + caret))
 
         def replace_source(self, new_source: str) -> None:
             """Replace only the text that changed, as an edit of the Markdown editor, not a new document."""

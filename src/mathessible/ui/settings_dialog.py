@@ -337,7 +337,7 @@ if wx is not None:
                 page,
                 _(
                     "These are the defaults for every PDF; the export's dialog can change them for one PDF, "
-                    "and holds the title, header, watermark and passwords, which are never kept."
+                    "and holds the title, watermark and passwords, which are never kept."
                 ),
             )
 

@@ -14,10 +14,10 @@ import re
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 
-from markdown_it import MarkdownIt
-
-from mathessible.documents.html_export import ExportPage
-from mathessible.documents.markdown_math import find_math_zones
+from mathessible.documents.front_matter import HeaderFooter, header_and_footer
+from mathessible.documents.front_matter import body as without_front_matter
+from mathessible.documents.html_export import ExportPage, markdown_parser
+from mathessible.documents.markdown_math import find_math_zones, with_marks
 from mathessible.documents.pdf_security import PdfSecurity
 from mathessible.documents.typst_math import TypstEquation
 from mathessible.settings import AppSettings, pdf_standards
@@ -34,7 +34,6 @@ class PdfOptions:
     justify: bool = False
     page_numbers: bool = True
     page_number_position: str = "bottom-center"  # "bottom-center", "bottom-right", "top-right".
-    header: str = ""  # Text at the top of every page; "" for none.
     title: str = ""
     author: str = ""
     subject: str = ""
@@ -54,14 +53,13 @@ class PdfOptions:
 
 @dataclass(frozen=True, slots=True)
 class PdfDocument:
-    """What belongs to one PDF only, never kept: its properties, header, watermark and passwords."""
+    """What belongs to one PDF only, never kept: its properties, watermark and passwords."""
 
     title: str
     author: str
     subject: str = ""
     keywords: tuple[str, ...] = ()
     language: str = "en"
-    header: str = ""
     watermark: str = ""
     security: PdfSecurity = field(default_factory=PdfSecurity)
 
@@ -78,7 +76,6 @@ def options_for(settings: AppSettings, document: PdfDocument, title: str) -> Pdf
         justify=settings.pdf_justify,
         page_numbers=settings.pdf_page_numbers,
         page_number_position=settings.pdf_page_number_position,
-        header=document.header,
         title=document.title or title,
         author=document.author,
         subject=document.subject,
@@ -122,17 +119,35 @@ _PLACEHOLDER = re.compile("\ue000(\\d+)\ue001")
 
 
 class _Writer:
-    def __init__(self, markdown: str, equation_of: EquationOf):
+    def __init__(self, markdown: str, equation_of: EquationOf, page: int = 0):
+        markdown = without_front_matter(markdown)
         self.zones = find_math_zones(markdown)
         self.sources = [zone.content(markdown) for zone in self.zones]
         self.equation_of = equation_of
-        transformed = markdown
-        for index, zone in reversed(list(enumerate(self.zones))):
-            mark = _placeholder(index)
-            transformed = (
-                transformed[: zone.start] + (f"\n\n{mark}\n\n" if zone.display else mark) + transformed[zone.end :]
-            )
-        self.tokens = MarkdownIt("commonmark", {"html": False}).enable(["table", "strikethrough"]).parse(transformed)
+        self.page = page
+        self.tokens = markdown_parser().parse(with_marks(markdown, self.zones, _placeholder))
+        self.notes: dict[int, str] = {}
+        self.notes = self._notes()
+
+    def _notes(self) -> dict[int, str]:
+        """Each footnote's text, by its number, written where it is referenced (Typst's footnotes)."""
+        notes: dict[int, str] = {}
+        current: int | None = None
+        for token in self.tokens:
+            if token.type == "footnote_open":
+                current = token.meta["id"]
+                notes[current] = ""
+            elif token.type == "footnote_close":
+                current = None
+            elif token.type == "inline" and current is not None:
+                notes[current] += ("\n\n" if notes[current] else "") + self.inline(token)
+        return notes
+
+    def footnote(self, meta: dict) -> str:
+        label = f"<mathessible-note-{self.page}-{meta['id']}>"
+        if meta.get("subId", 0) > 0:
+            return f"#footnote({label})"  # A note referenced again: the same number.
+        return f"#footnote[{self.notes.get(meta['id'], '')}]{label}"
 
     def equation(self, index: int, block: bool) -> str:
         source = self.sources[index]
@@ -183,6 +198,8 @@ class _Writer:
                 out.append(closers.pop() if closers else "")
             elif kind == "image":
                 out.append(escape_markup(child.content))
+            elif kind == "footnote_ref":
+                out.append(self.footnote(child.meta))
         return "".join(out)
 
     def body(self) -> str:
@@ -193,10 +210,15 @@ class _Writer:
         header_cells = 0
         in_cell = False
         heading = 0
+        in_notes = False
         for token in self.tokens:
             kind = token.type
             indent = "  " * max(0, len(lists) - 1)
-            if kind == "heading_open":
+            if kind in ("footnote_block_open", "footnote_block_close"):
+                in_notes = kind == "footnote_block_open"  # The notes are written at their references.
+            elif in_notes:
+                continue
+            elif kind == "heading_open":
                 heading = int(token.tag[1])
             elif kind == "heading_close":
                 heading = 0
@@ -263,7 +285,27 @@ class _Writer:
         return f"#table(columns: {columns}, " + ", ".join(cells) + ")\n"
 
 
-def _preamble(options: PdfOptions, title: str) -> str:
+def _running_heads(options: PdfOptions, running: HeaderFooter) -> list[str]:
+    """The document's header and footer, as `set page` arguments: the text at the left, the page number
+    (when it shares the line) at its own place."""
+    position = options.page_number_position if options.page_numbers else ""
+    arguments = []
+    for name, text, line in (("header", running.header, "top"), ("footer", running.footer, "bottom")):
+        if not text:
+            continue
+        number = 'context counter(page).display("1")'
+        cell = f"align(left, text({typst_string(text)}))"
+        if position == f"{line}-center":
+            value = f"grid(columns: (1fr, auto, 1fr), {cell}, {number}, [])"
+        elif position == f"{line}-right":
+            value = f"grid(columns: (1fr, auto), column-gutter: 1em, {cell}, {number})"
+        else:
+            value = cell
+        arguments.append(f"{name}: {value}")
+    return arguments
+
+
+def _preamble(options: PdfOptions, title: str, running: HeaderFooter) -> str:
     top, right, bottom, left = options.margins_mm
     metadata = [f"title: {typst_string(options.title or title)}"]
     if options.author:
@@ -280,8 +322,7 @@ def _preamble(options: PdfOptions, title: str) -> str:
     if options.page_numbers:
         page.append('numbering: "1"')
         page.append(f"number-align: {_POSITIONS.get(options.page_number_position, 'center + bottom')}")
-    if options.header:
-        page.append(f"header: align(right, {typst_string(options.header)})")
+    page.extend(_running_heads(options, running))
     if options.columns > 1:
         page.append(f"columns: {int(options.columns)}")
     if options.watermark:
@@ -318,15 +359,23 @@ def typst_document(pages: Sequence[ExportPage], title: str, equation_of: Equatio
 
     The Markdown of an attached source is read from `sys.inputs` (see `pdf_inputs`), never written into the code.
     """
-    parts = [_preamble(options, title)]
+    heads = [header_and_footer(page.source) for page in pages]
+    parts = [_preamble(options, title, heads[0] if heads else HeaderFooter())]
     if options.table_of_contents:
         parts.append("#outline()\n#pagebreak()\n")
     for number, page in enumerate(pages):
         if len(pages) > 1:
-            if number:
+            if number and heads[number] != heads[number - 1]:
+                # A notebook page's own header and footer: `set page` starts its page.
+                none = ["header: auto", "footer: auto"]  # Typst's own: the page number, if any.
+                arguments = _running_heads(options, heads[number])
+                names = {argument.split(":")[0] for argument in arguments}
+                arguments += [argument for argument in none if argument.split(":")[0] not in names]
+                parts.append(f"#set page({', '.join(arguments)})")
+            elif number:
                 parts.append("#pagebreak()")
             parts.append(f"= {escape_markup(page.title)}\n")
-        parts.append(_Writer(page.source, equation_of).body())
+        parts.append(_Writer(page.source, equation_of, number).body())
     if options.attach_source:
         for number, page in enumerate(pages):
             name = f"{page.title or 'document'}.md" if len(pages) > 1 else f"{title or 'document'}.md"

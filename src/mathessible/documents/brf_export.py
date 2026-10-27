@@ -7,7 +7,9 @@ the BRF encoding (6 dots: MathCAT's dots 7 and 8, the cursor, are dropped).
 Layout, as in common braille formats: a paragraph starts in cell 3 and runs
 over to cell 1, a list item in cell 1 with runovers in cell 3, a display
 equation in cell 5 with runovers in cell 7, a main heading centred; a blank
-line between blocks.
+line between blocks. Footnotes: the reference is the note's number in
+brackets, the notes follow the text, each starting with its number, as a
+list item is laid out.
 """
 
 from __future__ import annotations
@@ -16,10 +18,9 @@ import re
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
-from markdown_it import MarkdownIt
-
-from mathessible.documents.html_export import ExportPage
-from mathessible.documents.markdown_math import find_math_zones
+from mathessible.documents.front_matter import body as without_front_matter
+from mathessible.documents.html_export import ExportPage, markdown_parser
+from mathessible.documents.markdown_math import find_math_zones, with_marks
 
 BrailleOf = Callable[[str], str]
 
@@ -59,14 +60,10 @@ _PLACEHOLDER = re.compile("(\\d+)")
 
 
 def _blocks(markdown: str, text_braille: BrailleOf, math_braille: BrailleOf) -> list[_Block]:
+    markdown = without_front_matter(markdown)
     zones = find_math_zones(markdown)
     equations = [zone.content(markdown) for zone in zones]
-    transformed = markdown
-    for index, zone in reversed(list(enumerate(zones))):
-        mark = _placeholder(index)
-        transformed = (
-            transformed[: zone.start] + (f"\n\n{mark}\n\n" if zone.display else mark) + transformed[zone.end :]
-        )
+    transformed = with_marks(markdown, zones, _placeholder)
 
     def braille(text: str) -> str:
         """Text with equation marks: each part by its own translator."""
@@ -82,10 +79,11 @@ def _blocks(markdown: str, text_braille: BrailleOf, math_braille: BrailleOf) -> 
         return "".join(cells)
 
     blocks: list[_Block] = []
-    tokens = MarkdownIt("commonmark").enable("table").parse(transformed)
+    tokens = markdown_parser().parse(transformed)
     heading: int | None = None
     lists: list[list[int]] = []  # Per open list: [ordered (0/1), next number].
     item_marker: str | None = None
+    in_note = False
     row: list[str] = []
     in_cell = False
     for token in tokens:
@@ -98,6 +96,10 @@ def _blocks(markdown: str, text_braille: BrailleOf, math_braille: BrailleOf) -> 
             lists.append([1 if kind == "ordered_list_open" else 0, int(token.attrGet("start") or 1)])
         elif kind in ("bullet_list_close", "ordered_list_close"):
             lists.pop()
+        elif kind == "footnote_open":
+            item_marker, in_note = f"{_note_number(token.meta)} ", True
+        elif kind == "footnote_close":
+            in_note = False
         elif kind == "list_item_open":
             ordered, number = lists[-1]
             item_marker = f"{number}. " if ordered else "• "
@@ -125,15 +127,20 @@ def _blocks(markdown: str, text_braille: BrailleOf, math_braille: BrailleOf) -> 
             elif item_marker is not None:
                 blocks.append(_Block(braille(item_marker + text), depth, depth + 2))
                 item_marker = None
-            elif lists:
+            elif lists or in_note:
                 blocks.append(_Block(braille(text), depth + 2, depth + 2))
             else:
                 blocks.append(_Block(braille(text), 2, 0))
     return blocks
 
 
+def _note_number(meta: dict) -> str:
+    return f"[{meta['id'] + 1}]"
+
+
 def _inline_text(token: object) -> str:
-    """An inline token's text: soft breaks as spaces, code as its text, links as their text."""
+    """An inline token's text: soft breaks as spaces, code as its text, links as their text, a footnote
+    reference as its number."""
     parts: list[str] = []
     for child in token.children or ():
         if child.type in ("text", "code_inline"):
@@ -142,6 +149,8 @@ def _inline_text(token: object) -> str:
             parts.append(" ")
         elif child.type == "image":
             parts.append(child.content)
+        elif child.type == "footnote_ref":
+            parts.append(_note_number(child.meta))
     return "".join(parts)
 
 

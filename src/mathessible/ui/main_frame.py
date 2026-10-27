@@ -51,6 +51,7 @@ from mathessible.ui.export_dialogs import (
     HtmlExportDialog,
     WordDocument,
 )
+from mathessible.ui.header_footer_dialog import HeaderFooterDialog
 from mathessible.ui.help_menu import append_help_menu
 from mathessible.ui.macos_webview import guard_webview_key_equivalents
 from mathessible.ui.pdf_dialog import PdfExportDialog
@@ -235,6 +236,15 @@ if wx is not None:
             edit_menu.AppendSeparator()
             edit_menu.Append(wx.ID_PREFERENCES, _("&Settings…"))
             menu_bar.Append(edit_menu, _("&Edit"))
+            insert_menu = wx.Menu()
+            self._footnote_id, self._go_to_footnote_id = wx.NewIdRef(), wx.NewIdRef()
+            self._header_footer_id = wx.NewIdRef()
+            # Word's Command+Option+F is Replace's here, as in Apple's applications.
+            insert_menu.Append(self._footnote_id, _("&Footnote") + ("\tCtrl+Shift+F" if mac else "\tCtrl+Alt+F"))
+            insert_menu.Append(self._go_to_footnote_id, _("&Go to Footnote or Reference") + "\tCtrl+Alt+Shift+F")
+            insert_menu.AppendSeparator()
+            insert_menu.Append(self._header_footer_id, _("&Header and Footer…"))
+            menu_bar.Append(insert_menu, _("&Insert"))
             view_menu = wx.Menu()
             self._preview_id = wx.NewIdRef()
             view_menu.AppendCheckItem(self._preview_id, _("Document &Preview") + "\tCtrl+Shift+P")
@@ -302,6 +312,9 @@ if wx is not None:
                 self.Bind(wx.EVT_MENU, self._on_edit_command, id=command_id)
                 self.Bind(wx.EVT_UPDATE_UI, self._on_update_edit_menu, id=command_id)
             self.Bind(wx.EVT_MENU, lambda _event: self.editor.toggle_equation_display(), id=self._display_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self.editor.insert_footnote(), id=self._footnote_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self.editor.go_to_footnote(), id=self._go_to_footnote_id)
+            self.Bind(wx.EVT_MENU, self._edit_header_and_footer, id=self._header_footer_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._show_find(replace=False), id=self._find_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._show_find(replace=True), id=self._replace_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._find_again(forward=True), id=self._find_next_id)
@@ -351,6 +364,16 @@ if wx is not None:
                 self._next_page_id,
             ):
                 self.Bind(wx.EVT_UPDATE_UI, self._on_update_notebook_menu, id=command_id)
+
+        def _edit_header_and_footer(self, _event: wx.CommandEvent | None = None) -> None:
+            """Insert > Header and Footer: the document's (a notebook page's), kept in its front matter."""
+            dialog = HeaderFooterDialog(self, self.editor.header_and_footer)
+            try:
+                if dialog.ShowModal() == wx.ID_OK:
+                    self.editor.set_header_and_footer(dialog.chosen)
+            finally:
+                dialog.Destroy()
+            self.editor.markdown.SetFocus()
 
         def _on_document_changed(self, event: wx.CommandEvent) -> None:
             self.dirty = True

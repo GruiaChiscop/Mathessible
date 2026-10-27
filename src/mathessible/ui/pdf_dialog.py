@@ -23,7 +23,8 @@ if wx is not None:
 
         Layout and content start from Settings → PDF; Save as Defaults
         makes this PDF's layout, content, standard and author the defaults
-        (`save_defaults`), never its title, header, watermark or passwords.
+        (`save_defaults`), never its title, watermark or passwords. The
+        header and footer are the document's (Insert > Header and Footer).
         Native controls only, no announcements of its own.
         """
 
@@ -59,7 +60,6 @@ if wx is not None:
 
             page = self._page(_("Content"))
             rows = FormRows(page)
-            self.header = rows.row(_("&Header text"), rows.text(document.header), _("Header text"))
             self.watermark = rows.row(_("&Watermark text"), rows.text(document.watermark), _("Watermark text"))
             self.content = PdfContentControls(rows, settings)
             rows.finish(page.GetSizer())
@@ -122,7 +122,6 @@ if wx is not None:
                 self.subject.GetValue().strip(),
                 keywords,
                 language,
-                self.header.GetValue().strip(),
                 self.watermark.GetValue().strip(),
                 PdfSecurity(
                     self.open_password.GetValue(),

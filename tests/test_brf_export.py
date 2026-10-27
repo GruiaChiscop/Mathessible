@@ -59,6 +59,13 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual(lines, ["  X", "AAAAAAAAAAAAAAAAAAAA", "AAAAA"])
         self.assertTrue(all(len(line) <= 20 for line in lines))
 
+    def test_footnotes_follow_the_text_with_their_numbers(self) -> None:
+        source = "---\nheader: H\n---\nText[^a] $x$.\n\n[^a]: A note.\n"
+        self.assertEqual(
+            shown(braille_lines(source, letters, math, self.layout)),
+            ["  TEXT[1] [X].", "", "[1] A NOTE."],
+        )
+
     def test_code_keeps_its_lines(self) -> None:
         self.assertEqual(shown(braille_lines("```\na = 1\nb = 2\n```", letters, math, self.layout)), ["A = 1", "B = 2"])
 

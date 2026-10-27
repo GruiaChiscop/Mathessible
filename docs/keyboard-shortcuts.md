@@ -24,12 +24,14 @@ both are given. What each command does is explained in the
 | Find | `Command+F` | `Ctrl+F` |
 | Find next, find previous | `Command+G`, `Command+Shift+G` | `F3`, `Shift+F3` |
 | Replace | `Command+Option+F` | `Ctrl+H` |
+| Insert a footnote | `Command+Shift+F` | `Ctrl+Alt+F` |
+| Go to the footnote or its reference | `Command+Option+Shift+F` | `Ctrl+Alt+Shift+F` |
 | Document preview | `Command+Shift+P` | `Ctrl+Shift+P` |
 | Next window | ``Command+` `` | ``Ctrl+` `` |
 | Previous window | ``Command+Shift+` `` | ``Ctrl+Shift+` `` |
 
 Change Equation to Display (or to Inline) is in the Edit menu, without a
-shortcut, as in Word.
+shortcut, as in Word; so is Insert → Header and Footer.
 
 ## The equation editor
 

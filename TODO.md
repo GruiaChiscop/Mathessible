@@ -27,14 +27,17 @@ Pandoc, markdown-it's footnote plugin): `text[^1]` and, anywhere,
 `[^1]: The note.` Typst has `#footnote[...]`, HTML a notes section with
 links back, liblouis and BRF need a braille transcriber's convention.
 
-- [ ] Footnotes in the document: `[^label]` and its note, kept in the
+- [x] Footnotes in the document: `[^label]` and its note, kept in the
   Markdown as that extension writes them.
-- [ ] Insert Footnote, as in Word (the reference at the caret, the note
+- [x] Insert Footnote, as in Word (the reference at the caret, the note
   to type), and moving between a reference and its note.
-- [ ] Equations inside notes.
-- [ ] Footnotes in the preview and in every export: HTML (notes at the
+- [x] Equations inside notes.
+- [x] Footnotes in the preview and in every export: HTML (notes at the
   end, linked both ways), PDF (Typst's footnotes, tagged), BRF (the
-  braille formats' notes) and DOCX.
+  braille formats' notes) and DOCX. BRF writes the note's number in
+  brackets and the notes after the text, not yet BANA's note formats.
+- [x] A header and footer kept in the document (front matter), for the
+  PDF and Word exports.
 
 ## PDF export
 

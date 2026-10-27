@@ -503,27 +503,28 @@ msgstr "Beralih ke tampilan profesional"
 msgid "Switch to Linear View"
 msgstr "Beralih ke tampilan linear"
 
-#: src/mathessible/editor/structures.py:159 src/mathessible/ui/document_editor.py:113
-#: src/mathessible/ui/main_frame.py:217
+#: src/mathessible/editor/structures.py:159 src/mathessible/ui/document_editor.py:115
+#: src/mathessible/ui/main_frame.py:218
 msgid "Cu&t"
 msgstr "&Potong"
 
-#: src/mathessible/editor/structures.py:160 src/mathessible/ui/document_editor.py:114
-#: src/mathessible/ui/main_frame.py:218
+#: src/mathessible/editor/structures.py:160 src/mathessible/ui/document_editor.py:116
+#: src/mathessible/ui/main_frame.py:219
 msgid "&Copy"
 msgstr "&Salin"
 
-#: src/mathessible/editor/structures.py:161 src/mathessible/ui/document_editor.py:115
-#: src/mathessible/ui/main_frame.py:219
+#: src/mathessible/editor/structures.py:161 src/mathessible/ui/document_editor.py:117
+#: src/mathessible/ui/main_frame.py:220
 msgid "&Paste"
 msgstr "&Tempel"
 
-#: src/mathessible/editor/structures.py:163 src/mathessible/ui/document_editor.py:117
-#: src/mathessible/ui/main_frame.py:222
+#: src/mathessible/editor/structures.py:163 src/mathessible/ui/document_editor.py:119
+#: src/mathessible/ui/main_frame.py:223
 msgid "Select &All"
 msgstr "Pilih se&mua"
 
-#: src/mathessible/editor/structures.py:168 src/mathessible/ui/document_editor.py:136
+#: src/mathessible/editor/structures.py:168 src/mathessible/ui/document_editor.py:138
+#: src/mathessible/ui/main_frame.py:247
 msgid "&Insert"
 msgstr "&Sisipkan"
 
@@ -2376,7 +2377,7 @@ msgstr "Dialog Koreksi Otomatis Matematika"
 msgid "&Replace"
 msgstr "&Ganti"
 
-#: src/mathessible/ui/autocorrect_dialog.py:42 src/mathessible/ui/main_frame.py:472
+#: src/mathessible/ui/autocorrect_dialog.py:42 src/mathessible/ui/main_frame.py:495
 msgid "Replace"
 msgstr "Ganti"
 
@@ -2404,7 +2405,7 @@ msgstr "&Tambah"
 
 #: src/mathessible/ui/autocorrect_dialog.py:55 src/mathessible/ui/braille_signs_dialog.py:71
 #: src/mathessible/ui/functions_dialog.py:49 src/mathessible/ui/gallery_dialog.py:56
-#: src/mathessible/ui/main_frame.py:220
+#: src/mathessible/ui/main_frame.py:221
 msgid "&Delete"
 msgstr "&Hapus"
 
@@ -2453,118 +2454,141 @@ msgstr "Tanda braille"
 msgid "{symbol}  {name}: {cells} (dots {dots})"
 msgstr "{symbol}  {name}: {cells} (titik {dots})"
 
-#: src/mathessible/ui/document_editor.py:62
+#: src/mathessible/ui/document_editor.py:64
 msgid "Equation Editor"
 msgstr "Editor Persamaan"
 
-#: src/mathessible/ui/document_editor.py:67
+#: src/mathessible/ui/document_editor.py:69
 msgid "Equation Editor window"
 msgstr "Jendela Editor Persamaan"
 
-#: src/mathessible/ui/document_editor.py:74
+#: src/mathessible/ui/document_editor.py:76
 #, python-brace-format
 msgid "Enter or {shortcut} saves. Escape cancels."
 msgstr "Enter atau {shortcut} menyimpan. Escape membatalkan."
 
-#: src/mathessible/ui/document_editor.py:89
+#: src/mathessible/ui/document_editor.py:91
 msgid "&Save Equation (Enter)"
 msgstr "&Simpan persamaan (Enter)"
 
-#: src/mathessible/ui/document_editor.py:90
+#: src/mathessible/ui/document_editor.py:92
 msgid "&Cancel (Escape)"
 msgstr "&Batal (Escape)"
 
-#: src/mathessible/ui/document_editor.py:94
+#: src/mathessible/ui/document_editor.py:96
 msgid "&Errors…"
 msgstr "&Kesalahan…"
 
-#: src/mathessible/ui/document_editor.py:96
+#: src/mathessible/ui/document_editor.py:98
 msgid "Save as &New Equation…"
 msgstr "Simpan sebagai persamaan ba&ru…"
 
-#: src/mathessible/ui/document_editor.py:98 src/mathessible/ui/document_editor.py:103
+#: src/mathessible/ui/document_editor.py:100 src/mathessible/ui/document_editor.py:105
 msgid "Change to &Display"
 msgstr "Ubah ke &terpisah"
 
-#: src/mathessible/ui/document_editor.py:103
+#: src/mathessible/ui/document_editor.py:105
 msgid "Change to &Inline"
 msgstr "Ubah ke sebar&is"
 
-#: src/mathessible/ui/document_editor.py:107
+#: src/mathessible/ui/document_editor.py:109
 msgid "E&quation"
 msgstr "&Persamaan"
 
-#: src/mathessible/ui/document_editor.py:110 src/mathessible/ui/main_frame.py:214
+#: src/mathessible/ui/document_editor.py:112 src/mathessible/ui/main_frame.py:215
 msgid "&Undo"
 msgstr "&Urungkan"
 
-#: src/mathessible/ui/document_editor.py:111 src/mathessible/ui/main_frame.py:215
+#: src/mathessible/ui/document_editor.py:113 src/mathessible/ui/main_frame.py:216
 msgid "&Redo"
 msgstr "U&langi"
 
-#: src/mathessible/ui/document_editor.py:131 src/mathessible/ui/main_frame.py:237
+#: src/mathessible/ui/document_editor.py:133 src/mathessible/ui/main_frame.py:238
 msgid "&Edit"
 msgstr "&Edit"
 
-#: src/mathessible/ui/document_editor.py:138
+#: src/mathessible/ui/document_editor.py:140
 msgid "&Professional View"
 msgstr "Tampilan &profesional"
 
-#: src/mathessible/ui/document_editor.py:139
+#: src/mathessible/ui/document_editor.py:141
 msgid "&Writing Mode"
 msgstr "Mode &menulis"
 
-#: src/mathessible/ui/document_editor.py:141
+#: src/mathessible/ui/document_editor.py:143
 msgid "Zoom &In"
 msgstr "Per&besar"
 
-#: src/mathessible/ui/document_editor.py:142
+#: src/mathessible/ui/document_editor.py:144
 msgid "Zoom &Out"
 msgstr "Per&kecil"
 
-#: src/mathessible/ui/document_editor.py:143
+#: src/mathessible/ui/document_editor.py:145
 msgid "&Actual Size"
 msgstr "Ukuran &sebenarnya"
 
-#: src/mathessible/ui/document_editor.py:155 src/mathessible/ui/main_frame.py:241
+#: src/mathessible/ui/document_editor.py:157 src/mathessible/ui/main_frame.py:251
 msgid "&View"
 msgstr "&Tampilan"
 
-#: src/mathessible/ui/document_editor.py:179 src/mathessible/ui/document_editor.py:364
+#: src/mathessible/ui/document_editor.py:181 src/mathessible/ui/document_editor.py:366
 msgid "display equation"
 msgstr "persamaan terpisah"
 
-#: src/mathessible/ui/document_editor.py:179 src/mathessible/ui/document_editor.py:364
+#: src/mathessible/ui/document_editor.py:181 src/mathessible/ui/document_editor.py:366
 msgid "inline equation"
 msgstr "persamaan sebaris"
 
-#: src/mathessible/ui/document_editor.py:186
+#: src/mathessible/ui/document_editor.py:188
 #, python-brace-format
 msgid "Edit display equation — Enter or {shortcut} saves. Escape cancels."
 msgstr "Edit persamaan terpisah — Enter atau {shortcut} menyimpan. Escape membatalkan."
 
-#: src/mathessible/ui/document_editor.py:188
+#: src/mathessible/ui/document_editor.py:190
 #, python-brace-format
 msgid "Edit inline equation — Enter or {shortcut} saves. Escape cancels."
 msgstr "Edit persamaan sebaris — Enter atau {shortcut} menyimpan. Escape membatalkan."
 
-#: src/mathessible/ui/document_editor.py:265
+#: src/mathessible/ui/document_editor.py:267
 msgid "Markdown editor"
 msgstr "Editor Markdown"
 
-#: src/mathessible/ui/document_editor.py:356
+#: src/mathessible/ui/document_editor.py:358
 msgid "this equation cannot be inline"
 msgstr "persamaan ini tidak bisa sebaris"
 
-#: src/mathessible/ui/document_editor.py:463
+#: src/mathessible/ui/document_editor.py:376
+msgid "a footnote cannot go inside an equation"
+msgstr "catatan kaki tidak bisa berada di dalam persamaan"
+
+#: src/mathessible/ui/document_editor.py:383
+#, python-brace-format
+msgid "footnote {label}, type the note"
+msgstr "catatan kaki {label}, ketik catatannya"
+
+#: src/mathessible/ui/document_editor.py:390
+msgid "not in a footnote or its reference"
+msgstr "tidak di catatan kaki atau rujukannya"
+
+#: src/mathessible/ui/document_editor.py:396
+#, python-brace-format
+msgid "note {label}"
+msgstr "catatan {label}"
+
+#: src/mathessible/ui/document_editor.py:396
+#, python-brace-format
+msgid "reference {label}"
+msgstr "rujukan {label}"
+
+#: src/mathessible/ui/document_editor.py:509
 msgid "equation saved, new line"
 msgstr "persamaan disimpan, baris baru"
 
-#: src/mathessible/ui/document_editor.py:463
+#: src/mathessible/ui/document_editor.py:509
 msgid "equation saved"
 msgstr "persamaan disimpan"
 
-#: src/mathessible/ui/document_editor.py:466
+#: src/mathessible/ui/document_editor.py:512
 msgid "equation editing canceled"
 msgstr "pengeditan persamaan dibatalkan"
 
@@ -2855,31 +2879,31 @@ msgstr "Dialog {title}"
 msgid "These options are now the defaults."
 msgstr "Opsi ini sekarang menjadi bawaan."
 
-#: src/mathessible/ui/export_dialogs.py:103 src/mathessible/ui/main_frame.py:950
+#: src/mathessible/ui/export_dialogs.py:103 src/mathessible/ui/main_frame.py:973
 msgid "Export as BRF"
 msgstr "Ekspor sebagai BRF"
 
-#: src/mathessible/ui/export_dialogs.py:123 src/mathessible/ui/main_frame.py:943
+#: src/mathessible/ui/export_dialogs.py:123 src/mathessible/ui/main_frame.py:966
 msgid "Export as HTML"
 msgstr "Ekspor sebagai HTML"
 
 #: src/mathessible/ui/export_dialogs.py:125 src/mathessible/ui/export_dialogs.py:158
-#: src/mathessible/ui/pdf_dialog.py:46
+#: src/mathessible/ui/pdf_dialog.py:47
 msgid "&Title"
 msgstr "&Judul"
 
 #: src/mathessible/ui/export_dialogs.py:125 src/mathessible/ui/export_dialogs.py:158
-#: src/mathessible/ui/pdf_dialog.py:46
+#: src/mathessible/ui/pdf_dialog.py:47
 msgid "Title"
 msgstr "Judul"
 
 #: src/mathessible/ui/export_dialogs.py:126 src/mathessible/ui/export_dialogs.py:159
-#: src/mathessible/ui/pdf_dialog.py:47
+#: src/mathessible/ui/pdf_dialog.py:48
 msgid "&Author"
 msgstr "&Penulis"
 
 #: src/mathessible/ui/export_dialogs.py:126 src/mathessible/ui/export_dialogs.py:159
-#: src/mathessible/ui/pdf_dialog.py:47
+#: src/mathessible/ui/pdf_dialog.py:48
 msgid "Author"
 msgstr "Penulis"
 
@@ -2892,32 +2916,32 @@ msgid "Description"
 msgstr "Deskripsi"
 
 #: src/mathessible/ui/export_dialogs.py:128 src/mathessible/ui/export_dialogs.py:164
-#: src/mathessible/ui/pdf_dialog.py:52
+#: src/mathessible/ui/pdf_dialog.py:53
 msgid "&Language (for example ro, en)"
 msgstr "&Bahasa (misalnya ro, en)"
 
 #: src/mathessible/ui/export_dialogs.py:128 src/mathessible/ui/export_dialogs.py:164
-#: src/mathessible/ui/pdf_dialog.py:52 src/mathessible/ui/settings_dialog.py:69
+#: src/mathessible/ui/pdf_dialog.py:53 src/mathessible/ui/settings_dialog.py:69
 msgid "Language"
 msgstr "Bahasa"
 
-#: src/mathessible/ui/export_dialogs.py:156 src/mathessible/ui/main_frame.py:947
+#: src/mathessible/ui/export_dialogs.py:156 src/mathessible/ui/main_frame.py:970
 msgid "Export as Word Document"
 msgstr "Ekspor sebagai dokumen Word"
 
-#: src/mathessible/ui/export_dialogs.py:160 src/mathessible/ui/pdf_dialog.py:48
+#: src/mathessible/ui/export_dialogs.py:160 src/mathessible/ui/pdf_dialog.py:49
 msgid "&Subject"
 msgstr "&Subjek"
 
-#: src/mathessible/ui/export_dialogs.py:160 src/mathessible/ui/pdf_dialog.py:48
+#: src/mathessible/ui/export_dialogs.py:160 src/mathessible/ui/pdf_dialog.py:49
 msgid "Subject"
 msgstr "Subjek"
 
-#: src/mathessible/ui/export_dialogs.py:162 src/mathessible/ui/pdf_dialog.py:50
+#: src/mathessible/ui/export_dialogs.py:162 src/mathessible/ui/pdf_dialog.py:51
 msgid "&Keywords (comma-separated)"
 msgstr "&Kata kunci (dipisahkan koma)"
 
-#: src/mathessible/ui/export_dialogs.py:162 src/mathessible/ui/pdf_dialog.py:50
+#: src/mathessible/ui/export_dialogs.py:162 src/mathessible/ui/pdf_dialog.py:51
 msgid "Keywords"
 msgstr "Kata kunci"
 
@@ -2994,6 +3018,38 @@ msgstr "Hapus “{name}” dari Persamaan Saya?"
 msgid "Delete Equation"
 msgstr "Hapus Persamaan"
 
+#: src/mathessible/ui/header_footer_dialog.py:18
+msgid "Header and Footer"
+msgstr "Kepala dan kaki halaman"
+
+#: src/mathessible/ui/header_footer_dialog.py:19
+msgid "Header and footer dialog"
+msgstr "Dialog kepala dan kaki halaman"
+
+#: src/mathessible/ui/header_footer_dialog.py:23
+msgid "&Header"
+msgstr "&Kepala halaman"
+
+#: src/mathessible/ui/header_footer_dialog.py:23
+msgid "Header"
+msgstr "Kepala halaman"
+
+#: src/mathessible/ui/header_footer_dialog.py:24
+msgid "&Footer"
+msgstr "K&aki halaman"
+
+#: src/mathessible/ui/header_footer_dialog.py:24
+msgid "Footer"
+msgstr "Kaki halaman"
+
+#: src/mathessible/ui/header_footer_dialog.py:28
+msgid ""
+"At the top and bottom of every page of the PDF and Word exports, beside the page number. Leave "
+"one empty for none."
+msgstr ""
+"Di bagian atas dan bawah setiap halaman ekspor PDF dan Word, di samping nomor halaman. Biarkan "
+"kosong jika tidak perlu."
+
 #: src/mathessible/ui/help_menu.py:24
 msgid "&Report a Problem"
 msgstr "&Laporkan masalah"
@@ -3010,15 +3066,15 @@ msgstr "Ba&ntuan"
 msgid "GNU General Public License, version 2 or later"
 msgstr "GNU General Public License, versi 2 atau yang lebih baru"
 
-#: src/mathessible/ui/main_frame.py:98
+#: src/mathessible/ui/main_frame.py:99
 msgid "Pages"
 msgstr "Halaman"
 
-#: src/mathessible/ui/main_frame.py:100
+#: src/mathessible/ui/main_frame.py:101
 msgid "Notebook pages"
 msgstr "Halaman buku catatan"
 
-#: src/mathessible/ui/main_frame.py:148
+#: src/mathessible/ui/main_frame.py:149
 #, python-brace-format
 msgid ""
 "MathCAT's native extension could not be loaded, so equations can only be edited as text, not read"
@@ -3027,13 +3083,13 @@ msgstr ""
 "Ekstensi native MathCAT tidak dapat dimuat, sehingga persamaan hanya dapat diedit sebagai teks, "
 "tidak dapat dibaca atau dinavigasi ({error}). Jalankan scripts/bootstrap.sh."
 
-#: src/mathessible/ui/main_frame.py:155
+#: src/mathessible/ui/main_frame.py:156
 msgid "No web view is available to convert and show equations (on Linux, install WebKitGTK for wxPython)."
 msgstr ""
 "Tidak ada tampilan web untuk mengonversi dan menampilkan persamaan (di Linux, pasang WebKitGTK "
 "untuk wxPython)."
 
-#: src/mathessible/ui/main_frame.py:166
+#: src/mathessible/ui/main_frame.py:167
 #, python-brace-format
 msgid ""
 "Mathessible's fixes to MathCAT and UnicodeMathML are not applied, so some equations will be read "
@@ -3050,368 +3106,380 @@ msgstr ""
 "Tambalan yang belum ada:\n"
 "{patches}"
 
-#: src/mathessible/ui/main_frame.py:179
+#: src/mathessible/ui/main_frame.py:180
 msgid "Mathessible Setup"
 msgstr "Penyiapan Mathessible"
 
-#: src/mathessible/ui/main_frame.py:188
+#: src/mathessible/ui/main_frame.py:189
 msgid "&New"
 msgstr "&Baru"
 
-#: src/mathessible/ui/main_frame.py:189
+#: src/mathessible/ui/main_frame.py:190
 msgid "&Open…"
 msgstr "B&uka…"
 
-#: src/mathessible/ui/main_frame.py:193
+#: src/mathessible/ui/main_frame.py:194
 msgid "Open &Recent"
 msgstr "Buka &terbaru"
 
-#: src/mathessible/ui/main_frame.py:195
+#: src/mathessible/ui/main_frame.py:196
 msgid "&Close Window"
 msgstr "Tutup &jendela"
 
-#: src/mathessible/ui/main_frame.py:196
+#: src/mathessible/ui/main_frame.py:197
 msgid "&Save"
 msgstr "&Simpan"
 
-#: src/mathessible/ui/main_frame.py:197
+#: src/mathessible/ui/main_frame.py:198
 msgid "Save &As…"
 msgstr "Simpan seb&agai…"
 
-#: src/mathessible/ui/main_frame.py:198
+#: src/mathessible/ui/main_frame.py:199
 msgid "Re&vert to Saved"
 msgstr "&Kembalikan ke versi tersimpan"
 
-#: src/mathessible/ui/main_frame.py:202
+#: src/mathessible/ui/main_frame.py:203
 msgid "&HTML…"
 msgstr "&HTML…"
 
-#: src/mathessible/ui/main_frame.py:203
+#: src/mathessible/ui/main_frame.py:204
 msgid "&PDF…"
 msgstr "&PDF…"
 
-#: src/mathessible/ui/main_frame.py:204
+#: src/mathessible/ui/main_frame.py:205
 msgid "&Word Document…"
 msgstr "Dokumen &Word…"
 
-#: src/mathessible/ui/main_frame.py:205
+#: src/mathessible/ui/main_frame.py:206
 msgid "&BRF (Braille)…"
 msgstr "&BRF (braille)…"
 
-#: src/mathessible/ui/main_frame.py:206
+#: src/mathessible/ui/main_frame.py:207
 msgid "&Export"
 msgstr "&Ekspor"
 
-#: src/mathessible/ui/main_frame.py:208
+#: src/mathessible/ui/main_frame.py:209
 msgid "&Print…"
 msgstr "&Cetak…"
 
-#: src/mathessible/ui/main_frame.py:210
+#: src/mathessible/ui/main_frame.py:211
 msgid "&Quit"
 msgstr "Kelua&r"
 
-#: src/mathessible/ui/main_frame.py:212
+#: src/mathessible/ui/main_frame.py:213
 msgid "&File"
 msgstr "&Berkas"
 
-#: src/mathessible/ui/main_frame.py:228
+#: src/mathessible/ui/main_frame.py:229
 msgid "&Find…"
 msgstr "&Cari…"
 
-#: src/mathessible/ui/main_frame.py:229
+#: src/mathessible/ui/main_frame.py:230
 msgid "Find &Next"
 msgstr "Cari &berikutnya"
 
-#: src/mathessible/ui/main_frame.py:230
+#: src/mathessible/ui/main_frame.py:231
 msgid "Find Pre&vious"
 msgstr "Cari sebelumn&ya"
 
-#: src/mathessible/ui/main_frame.py:231
+#: src/mathessible/ui/main_frame.py:232
 msgid "R&eplace…"
 msgstr "&Ganti…"
 
-#: src/mathessible/ui/main_frame.py:234 src/mathessible/ui/main_frame.py:544
+#: src/mathessible/ui/main_frame.py:235 src/mathessible/ui/main_frame.py:567
 msgid "Change Equation to &Display"
 msgstr "Ubah persamaan menjadi terpis&ah"
 
-#: src/mathessible/ui/main_frame.py:236
+#: src/mathessible/ui/main_frame.py:237
 msgid "&Settings…"
 msgstr "P&engaturan…"
 
-#: src/mathessible/ui/main_frame.py:240
+#: src/mathessible/ui/main_frame.py:243
+msgid "&Footnote"
+msgstr "Catatan &kaki"
+
+#: src/mathessible/ui/main_frame.py:244
+msgid "&Go to Footnote or Reference"
+msgstr "&Buka catatan kaki atau rujukan"
+
+#: src/mathessible/ui/main_frame.py:246
+msgid "&Header and Footer…"
+msgstr "Ke&pala dan kaki halaman…"
+
+#: src/mathessible/ui/main_frame.py:250
 msgid "Document &Preview"
 msgstr "&Pratinjau dokumen"
 
-#: src/mathessible/ui/main_frame.py:255
+#: src/mathessible/ui/main_frame.py:265
 msgid "&New Notebook…"
 msgstr "Buku catatan &baru…"
 
-#: src/mathessible/ui/main_frame.py:256
+#: src/mathessible/ui/main_frame.py:266
 msgid "New Notebook &Folder…"
 msgstr "&Folder buku catatan baru…"
 
-#: src/mathessible/ui/main_frame.py:257
+#: src/mathessible/ui/main_frame.py:267
 msgid "&Open Notebook Folder…"
 msgstr "B&uka folder buku catatan…"
 
-#: src/mathessible/ui/main_frame.py:258
+#: src/mathessible/ui/main_frame.py:268
 msgid "Save Notebook as &Single File…"
 msgstr "Simpan buku catatan sebagai satu ber&kas…"
 
-#: src/mathessible/ui/main_frame.py:260
+#: src/mathessible/ui/main_frame.py:270
 msgid "&Add Page"
 msgstr "&Tambah halaman"
 
-#: src/mathessible/ui/main_frame.py:261
+#: src/mathessible/ui/main_frame.py:271
 msgid "&Rename Page…"
 msgstr "Ganti &nama halaman…"
 
-#: src/mathessible/ui/main_frame.py:262
+#: src/mathessible/ui/main_frame.py:272
 msgid "&Delete Page…"
 msgstr "&Hapus halaman…"
 
-#: src/mathessible/ui/main_frame.py:264
+#: src/mathessible/ui/main_frame.py:274
 msgid "Move Page &Up"
 msgstr "Pindahkan halaman ke &atas"
 
-#: src/mathessible/ui/main_frame.py:265
+#: src/mathessible/ui/main_frame.py:275
 msgid "Move Page Do&wn"
 msgstr "Pindahkan halaman ke ba&wah"
 
-#: src/mathessible/ui/main_frame.py:267
+#: src/mathessible/ui/main_frame.py:277
 msgid "&Previous Page"
 msgstr "Halaman &sebelumnya"
 
-#: src/mathessible/ui/main_frame.py:268
+#: src/mathessible/ui/main_frame.py:278
 msgid "Ne&xt Page"
 msgstr "Halaman be&rikutnya"
 
-#: src/mathessible/ui/main_frame.py:269
+#: src/mathessible/ui/main_frame.py:279
 msgid "&Notebook"
 msgstr "B&uku catatan"
 
-#: src/mathessible/ui/main_frame.py:274
+#: src/mathessible/ui/main_frame.py:284
 msgid "&Next Window"
 msgstr "Jendela &berikutnya"
 
-#: src/mathessible/ui/main_frame.py:275
+#: src/mathessible/ui/main_frame.py:285
 msgid "&Previous Window"
 msgstr "Jendela &sebelumnya"
 
-#: src/mathessible/ui/main_frame.py:277
+#: src/mathessible/ui/main_frame.py:287
 msgid "Bring All to &Front"
 msgstr "Bawa semua ke &depan"
 
-#: src/mathessible/ui/main_frame.py:278
+#: src/mathessible/ui/main_frame.py:288
 msgid "&Window"
 msgstr "&Jendela"
 
-#: src/mathessible/ui/main_frame.py:384
+#: src/mathessible/ui/main_frame.py:407
 msgid "show the document preview"
 msgstr "tampilkan pratinjau dokumen"
 
-#: src/mathessible/ui/main_frame.py:386
+#: src/mathessible/ui/main_frame.py:409
 msgid "Document preview"
 msgstr "Pratinjau dokumen"
 
-#: src/mathessible/ui/main_frame.py:472 src/mathessible/ui/main_frame.py:495
+#: src/mathessible/ui/main_frame.py:495 src/mathessible/ui/main_frame.py:518
 msgid "Find"
 msgstr "Cari"
 
-#: src/mathessible/ui/main_frame.py:494
+#: src/mathessible/ui/main_frame.py:517
 #, python-brace-format
 msgid "“{text}” was not found."
 msgstr "“{text}” tidak ditemukan."
 
-#: src/mathessible/ui/main_frame.py:528
+#: src/mathessible/ui/main_frame.py:551
 #, python-brace-format
 msgid "{count} replacement made."
 msgid_plural "{count} replacements made."
 msgstr[0] "{count} penggantian dilakukan."
 msgstr[1] "{count} penggantian dilakukan."
 
-#: src/mathessible/ui/main_frame.py:529
+#: src/mathessible/ui/main_frame.py:552
 msgid "Replace All"
 msgstr "Ganti semua"
 
-#: src/mathessible/ui/main_frame.py:544
+#: src/mathessible/ui/main_frame.py:567
 msgid "Change Equation to &Inline"
 msgstr "Ubah persamaan menjadi seba&ris"
 
-#: src/mathessible/ui/main_frame.py:565
+#: src/mathessible/ui/main_frame.py:588
 msgid "Untitled"
 msgstr "Tanpa judul"
 
-#: src/mathessible/ui/main_frame.py:567
+#: src/mathessible/ui/main_frame.py:590
 #, python-brace-format
 msgid "Mathessible — {name} — modified"
 msgstr "Mathessible — {name} — diubah"
 
-#: src/mathessible/ui/main_frame.py:569
+#: src/mathessible/ui/main_frame.py:592
 #, python-brace-format
 msgid "Mathessible — {name}"
 msgstr "Mathessible — {name}"
 
-#: src/mathessible/ui/main_frame.py:580
+#: src/mathessible/ui/main_frame.py:603
 #, python-brace-format
 msgid "{notebook} — Page {page} of {pages}"
 msgstr "{notebook} — Halaman {page} dari {pages}"
 
-#: src/mathessible/ui/main_frame.py:584
+#: src/mathessible/ui/main_frame.py:607
 msgid "Untitled Markdown document"
 msgstr "Dokumen Markdown tanpa judul"
 
-#: src/mathessible/ui/main_frame.py:586
+#: src/mathessible/ui/main_frame.py:609
 #, python-brace-format
 msgid "Line {line}, Column {column}"
 msgstr "Baris {line}, kolom {column}"
 
-#: src/mathessible/ui/main_frame.py:592
+#: src/mathessible/ui/main_frame.py:615
 #, python-brace-format
 msgid "Could not {action}."
 msgstr "Tidak dapat {action}."
 
-#: src/mathessible/ui/main_frame.py:605
+#: src/mathessible/ui/main_frame.py:628
 msgid "The document has unsaved changes. Do you want to save them?"
 msgstr "Dokumen memiliki perubahan yang belum disimpan. Simpan perubahan?"
 
-#: src/mathessible/ui/main_frame.py:606
+#: src/mathessible/ui/main_frame.py:629
 msgid "Unsaved Changes"
 msgstr "Perubahan Belum Disimpan"
 
-#: src/mathessible/ui/main_frame.py:626
+#: src/mathessible/ui/main_frame.py:649
 msgid "save settings"
 msgstr "menyimpan pengaturan"
 
-#: src/mathessible/ui/main_frame.py:677
+#: src/mathessible/ui/main_frame.py:700
 msgid "Open"
 msgstr "Buka"
 
-#: src/mathessible/ui/main_frame.py:679
+#: src/mathessible/ui/main_frame.py:702
 msgid "Documents and notebooks"
 msgstr "Dokumen dan buku catatan"
 
-#: src/mathessible/ui/main_frame.py:681
+#: src/mathessible/ui/main_frame.py:704
 msgid "Markdown documents"
 msgstr "Dokumen Markdown"
 
-#: src/mathessible/ui/main_frame.py:683
+#: src/mathessible/ui/main_frame.py:706
 msgid "Notebooks"
 msgstr "Buku catatan"
 
-#: src/mathessible/ui/main_frame.py:685 src/mathessible/ui/main_frame.py:882
+#: src/mathessible/ui/main_frame.py:708 src/mathessible/ui/main_frame.py:905
 #: src/mathessible/ui/settings_dialog.py:470
 msgid "All files"
 msgstr "Semua berkas"
 
-#: src/mathessible/ui/main_frame.py:731
+#: src/mathessible/ui/main_frame.py:754
 #, python-brace-format
 msgid "open {name}"
 msgstr "membuka {name}"
 
-#: src/mathessible/ui/main_frame.py:760
+#: src/mathessible/ui/main_frame.py:783
 msgid "&Clear Menu"
 msgstr "&Kosongkan daftar"
 
-#: src/mathessible/ui/main_frame.py:786
+#: src/mathessible/ui/main_frame.py:809
 msgid "Revert to the saved version? The changes since it was saved will be lost."
 msgstr "Kembalikan ke versi tersimpan? Perubahan sejak disimpan akan hilang."
 
-#: src/mathessible/ui/main_frame.py:787
+#: src/mathessible/ui/main_frame.py:810
 msgid "Revert to Saved"
 msgstr "Kembalikan ke Versi Tersimpan"
 
-#: src/mathessible/ui/main_frame.py:790
+#: src/mathessible/ui/main_frame.py:813
 msgid "&Revert"
 msgstr "&Kembalikan"
 
-#: src/mathessible/ui/main_frame.py:790
+#: src/mathessible/ui/main_frame.py:813
 msgid "&Cancel"
 msgstr "&Batal"
 
-#: src/mathessible/ui/main_frame.py:802
+#: src/mathessible/ui/main_frame.py:825
 msgid "read the saved document"
 msgstr "membaca dokumen tersimpan"
 
-#: src/mathessible/ui/main_frame.py:830
+#: src/mathessible/ui/main_frame.py:853
 msgid "read the notebook"
 msgstr "membaca buku catatan"
 
-#: src/mathessible/ui/main_frame.py:839
+#: src/mathessible/ui/main_frame.py:862
 msgid "Mathessible document"
 msgstr "Dokumen Mathessible"
 
-#: src/mathessible/ui/main_frame.py:853 src/mathessible/ui/main_frame.py:960
+#: src/mathessible/ui/main_frame.py:876 src/mathessible/ui/main_frame.py:983
 msgid "The UnicodeMath converter is not ready yet. Please try again."
 msgstr "Pengonversi UnicodeMath belum siap. Silakan coba lagi."
 
-#: src/mathessible/ui/main_frame.py:859
+#: src/mathessible/ui/main_frame.py:882
 msgid "print"
 msgstr "mencetak"
 
-#: src/mathessible/ui/main_frame.py:879
+#: src/mathessible/ui/main_frame.py:902
 msgid "Save Markdown document"
 msgstr "Simpan dokumen Markdown"
 
-#: src/mathessible/ui/main_frame.py:882
+#: src/mathessible/ui/main_frame.py:905
 msgid "Markdown document"
 msgstr "Dokumen Markdown"
 
-#: src/mathessible/ui/main_frame.py:909 src/mathessible/ui/main_frame.py:1269
+#: src/mathessible/ui/main_frame.py:932 src/mathessible/ui/main_frame.py:1292
 msgid "save the page"
 msgstr "menyimpan halaman"
 
-#: src/mathessible/ui/main_frame.py:925
+#: src/mathessible/ui/main_frame.py:948
 msgid "save the document"
 msgstr "menyimpan dokumen"
 
-#: src/mathessible/ui/main_frame.py:943
+#: src/mathessible/ui/main_frame.py:966
 msgid "export the HTML document"
 msgstr "mengekspor dokumen HTML"
 
-#: src/mathessible/ui/main_frame.py:943
+#: src/mathessible/ui/main_frame.py:966
 msgid "HTML document"
 msgstr "Dokumen HTML"
 
-#: src/mathessible/ui/main_frame.py:944
+#: src/mathessible/ui/main_frame.py:967
 msgid "export the PDF document"
 msgstr "mengekspor dokumen PDF"
 
-#: src/mathessible/ui/main_frame.py:944
+#: src/mathessible/ui/main_frame.py:967
 msgid "PDF document"
 msgstr "Dokumen PDF"
 
-#: src/mathessible/ui/main_frame.py:944 src/mathessible/ui/pdf_dialog.py:37
+#: src/mathessible/ui/main_frame.py:967 src/mathessible/ui/pdf_dialog.py:38
 msgid "Export as PDF"
 msgstr "Ekspor sebagai PDF"
 
-#: src/mathessible/ui/main_frame.py:946
+#: src/mathessible/ui/main_frame.py:969
 msgid "export the Word document"
 msgstr "mengekspor dokumen Word"
 
-#: src/mathessible/ui/main_frame.py:948
+#: src/mathessible/ui/main_frame.py:971
 msgid "Word document"
 msgstr "Dokumen Word"
 
-#: src/mathessible/ui/main_frame.py:950
+#: src/mathessible/ui/main_frame.py:973
 msgid "export the BRF document"
 msgstr "mengekspor dokumen BRF"
 
-#: src/mathessible/ui/main_frame.py:950
+#: src/mathessible/ui/main_frame.py:973
 msgid "Braille ready file"
 msgstr "Berkas siap braille (BRF)"
 
-#: src/mathessible/ui/main_frame.py:1016
+#: src/mathessible/ui/main_frame.py:1039
 #, python-brace-format
 msgid "Exported {name}"
 msgstr "{name} diekspor"
 
-#: src/mathessible/ui/main_frame.py:1017
+#: src/mathessible/ui/main_frame.py:1040
 #, python-brace-format
 msgid "exported {name}"
 msgstr "{name} diekspor"
 
-#: src/mathessible/ui/main_frame.py:1077
+#: src/mathessible/ui/main_frame.py:1100
 msgid ""
 "PDF/A does not allow passwords or restrictions. Choose Tagged PDF or PDF/UA-1 under Security, or "
 "export without them."
@@ -3419,96 +3487,96 @@ msgstr ""
 "PDF/A tidak mengizinkan kata sandi atau pembatasan. Pilih PDF bertag atau PDF/UA-1 di Keamanan, "
 "atau ekspor tanpa keduanya."
 
-#: src/mathessible/ui/main_frame.py:1250
+#: src/mathessible/ui/main_frame.py:1273
 msgid "open the page"
 msgstr "membuka halaman"
 
-#: src/mathessible/ui/main_frame.py:1289
+#: src/mathessible/ui/main_frame.py:1312
 msgid "Choose or create the new notebook folder"
 msgstr "Pilih atau buat folder buku catatan baru"
 
-#: src/mathessible/ui/main_frame.py:1301
+#: src/mathessible/ui/main_frame.py:1324
 msgid "create the notebook"
 msgstr "membuat buku catatan"
 
-#: src/mathessible/ui/main_frame.py:1315
+#: src/mathessible/ui/main_frame.py:1338
 msgid "Save portable notebook"
 msgstr "Simpan buku catatan portabel"
 
-#: src/mathessible/ui/main_frame.py:1317
+#: src/mathessible/ui/main_frame.py:1340
 msgid "Mathessible notebooks"
 msgstr "Buku catatan Mathessible"
 
-#: src/mathessible/ui/main_frame.py:1337
+#: src/mathessible/ui/main_frame.py:1360
 msgid "create the portable notebook"
 msgstr "membuat buku catatan portabel"
 
-#: src/mathessible/ui/main_frame.py:1349
+#: src/mathessible/ui/main_frame.py:1372
 msgid "Choose the notebook folder"
 msgstr "Pilih folder buku catatan"
 
-#: src/mathessible/ui/main_frame.py:1359
+#: src/mathessible/ui/main_frame.py:1382
 msgid "Page title:"
 msgstr "Judul halaman:"
 
-#: src/mathessible/ui/main_frame.py:1371
+#: src/mathessible/ui/main_frame.py:1394
 msgid "Add Page"
 msgstr "Tambah Halaman"
 
-#: src/mathessible/ui/main_frame.py:1371
+#: src/mathessible/ui/main_frame.py:1394
 #, python-brace-format
 msgid "Page {number}"
 msgstr "Halaman {number}"
 
-#: src/mathessible/ui/main_frame.py:1377
+#: src/mathessible/ui/main_frame.py:1400
 msgid "add the page"
 msgstr "menambah halaman"
 
-#: src/mathessible/ui/main_frame.py:1387
+#: src/mathessible/ui/main_frame.py:1410
 msgid "Rename Page"
 msgstr "Ganti Nama Halaman"
 
-#: src/mathessible/ui/main_frame.py:1393
+#: src/mathessible/ui/main_frame.py:1416
 msgid "rename the page"
 msgstr "mengganti nama halaman"
 
-#: src/mathessible/ui/main_frame.py:1405
+#: src/mathessible/ui/main_frame.py:1428
 #, python-brace-format
 msgid "Delete the page “{title}”?"
 msgstr "Hapus halaman “{title}”?"
 
-#: src/mathessible/ui/main_frame.py:1406
+#: src/mathessible/ui/main_frame.py:1429
 msgid "Delete Page"
 msgstr "Hapus Halaman"
 
-#: src/mathessible/ui/main_frame.py:1415
+#: src/mathessible/ui/main_frame.py:1438
 msgid "delete the page"
 msgstr "menghapus halaman"
 
-#: src/mathessible/ui/main_frame.py:1431
+#: src/mathessible/ui/main_frame.py:1454
 msgid "move the page"
 msgstr "memindahkan halaman"
 
-#: src/mathessible/ui/main_frame.py:1447
+#: src/mathessible/ui/main_frame.py:1470
 msgid "update the portable notebook"
 msgstr "memperbarui buku catatan portabel"
 
-#: src/mathessible/ui/main_frame.py:1460
+#: src/mathessible/ui/main_frame.py:1483
 #, python-brace-format
 msgid "Mathessible closed without saving {count} document. Recover the unsaved changes?"
 msgid_plural "Mathessible closed without saving {count} documents. Recover the unsaved changes?"
 msgstr[0] "Mathessible tertutup tanpa menyimpan {count} dokumen. Pulihkan perubahan yang belum disimpan?"
 msgstr[1] "Mathessible tertutup tanpa menyimpan {count} dokumen. Pulihkan perubahan yang belum disimpan?"
 
-#: src/mathessible/ui/main_frame.py:1464
+#: src/mathessible/ui/main_frame.py:1487
 msgid "Recover Unsaved Changes"
 msgstr "Pulihkan Perubahan Belum Disimpan"
 
-#: src/mathessible/ui/main_frame.py:1467
+#: src/mathessible/ui/main_frame.py:1490
 msgid "&Recover"
 msgstr "&Pulihkan"
 
-#: src/mathessible/ui/main_frame.py:1467
+#: src/mathessible/ui/main_frame.py:1490
 msgid "&Discard"
 msgstr "&Buang"
 
@@ -3548,33 +3616,25 @@ msgstr "&Kolom"
 msgid "Brackets"
 msgstr "Kurung"
 
-#: src/mathessible/ui/pdf_dialog.py:38
+#: src/mathessible/ui/pdf_dialog.py:39
 msgid "Export as PDF dialog"
 msgstr "Dialog Ekspor sebagai PDF"
 
-#: src/mathessible/ui/pdf_dialog.py:42
+#: src/mathessible/ui/pdf_dialog.py:43
 msgid "PDF export categories"
 msgstr "Kategori ekspor PDF"
 
-#: src/mathessible/ui/pdf_dialog.py:44
+#: src/mathessible/ui/pdf_dialog.py:45
 msgid "Document"
 msgstr "Dokumen"
 
-#: src/mathessible/ui/pdf_dialog.py:55
+#: src/mathessible/ui/pdf_dialog.py:56
 msgid "Layout"
 msgstr "Tata Letak"
 
-#: src/mathessible/ui/pdf_dialog.py:60
+#: src/mathessible/ui/pdf_dialog.py:61
 msgid "Content"
 msgstr "Isi"
-
-#: src/mathessible/ui/pdf_dialog.py:62
-msgid "&Header text"
-msgstr "Teks &kepala halaman"
-
-#: src/mathessible/ui/pdf_dialog.py:62
-msgid "Header text"
-msgstr "Teks kepala halaman"
 
 #: src/mathessible/ui/pdf_dialog.py:63
 msgid "&Watermark text"
@@ -3632,7 +3692,7 @@ msgstr "Izinkan mengedit"
 msgid "Passwords are never kept. PDF/A does not allow them."
 msgstr "Kata sandi tidak pernah disimpan. PDF/A tidak mengizinkannya."
 
-#: src/mathessible/ui/pdf_dialog.py:138
+#: src/mathessible/ui/pdf_dialog.py:137
 msgid "This layout, content, standard and author are now the defaults."
 msgstr "Tata letak, isi, standar, dan penulis ini sekarang menjadi bawaan."
 
@@ -3954,10 +4014,10 @@ msgstr "Penulis bawaan"
 #: src/mathessible/ui/settings_dialog.py:339
 msgid ""
 "These are the defaults for every PDF; the export's dialog can change them for one PDF, and holds "
-"the title, header, watermark and passwords, which are never kept."
+"the title, watermark and passwords, which are never kept."
 msgstr ""
 "Ini adalah bawaan untuk setiap PDF; dialog ekspor dapat mengubahnya untuk satu PDF, dan memuat "
-"judul, kepala halaman, tanda air, dan kata sandi, yang tidak pernah disimpan."
+"judul, tanda air, dan kata sandi, yang tidak pernah disimpan."
 
 #: src/mathessible/ui/settings_dialog.py:469
 msgid "Import a symbol dictionary"

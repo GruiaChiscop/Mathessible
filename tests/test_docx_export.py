@@ -84,6 +84,34 @@ class DocxExportTests(unittest.TestCase):
         self.assertIn("TOC", xml)
         self.assertIn('w:val="ro-RO"', document.styles.element.xml)
 
+    def test_footnotes_are_words_own_with_their_equations(self) -> None:
+        markdown = "Roots[^a] of $x$, again[^a], and[^b].\n\n[^a]: Where $x$ is [real](https://e.com).\n\n[^b]: Two.\n"
+        data = docx_document([ExportPage("Notes", markdown)], "Notes", omml_of, DocxOptions())
+        archive = zipfile.ZipFile(io.BytesIO(data))
+        body = archive.read("word/document.xml").decode("utf-8")
+        notes = archive.read("word/footnotes.xml").decode("utf-8")
+        self.assertEqual(body.count("<w:footnoteReference"), 2)
+        self.assertIn('<w:footnoteReference w:id="1"/>', body)
+        self.assertIn(">1</w:t>", body)  # The note referenced again: its number.
+        self.assertIn('w:type="separator"', notes)
+        self.assertEqual(notes.count("<w:footnoteRef/>"), 2)
+        self.assertIn("<m:oMath>", notes)
+        self.assertIn("https://e.com", archive.read("word/_rels/footnotes.xml.rels").decode("utf-8"))
+        self.assertNotIn("[^", body)
+        styles = Document(io.BytesIO(data)).styles
+        self.assertTrue(styles["footnote reference"].font.superscript)
+
+    def test_the_documents_header_and_footer_and_a_page_with_none(self) -> None:
+        pages = [ExportPage("A", "---\nheader: Calculus\nfooter: Chapter 2\n---\nText"), ExportPage("B", "Text")]
+        data = docx_document(pages, "Notebook", omml_of, DocxOptions(page_numbers=True))
+        document = Document(io.BytesIO(data))
+        first, second = document.sections
+        self.assertEqual(first.header.paragraphs[0].text, "Calculus")
+        self.assertEqual(first.footer.paragraphs[0].text, "Chapter 2\t1")  # The page number after a tab.
+        self.assertEqual(second.header.paragraphs[0].text, "")
+        self.assertEqual(second.footer.paragraphs[0].text, "1")
+        self.assertNotIn("header:", "".join(paragraph.text for paragraph in document.paragraphs))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1130,7 +1130,7 @@ modules as they were then, without their package):
 | `editing/` | editing logic: `autocorrect`, `space_conversion`, `completion`, `source_map`, `source_view`, `build_repair`, `linear_runs`, `insertion_point`, `node_edits`, `edit_history`, `equation_errors`, `equation_source`, `character_speech`, `word_navigation` | no |
 | `templates/` | `template_source`, `math_templates`, `matrix_templates`, `fraction_styles`, `structure_edits`, `insert_catalog`, `structure_gallery` | no |
 | `mathcat/` | `navigator` (`MathCatNavigator`, was `mathcat`), `stops`, `structural`, `tables`, `common`, `prepare`, `lone` (were `mathcat_*`), `mathml_model` | no |
-| `documents/` | `markdown_math`, `document_io`, `notebook`, `portable_notebook`, `html_export`, `mathml_sanitize` | no |
+| `documents/` | `markdown_math`, `footnotes`, `front_matter`, `document_io`, `notebook`, `portable_notebook`, `html_export`, `mathml_sanitize` | no |
 | `symbols/` | `dictionary`, `download` (were `symbol_*`) and the built-in `mathessible-en.dic` | no |
 | `ui/` | `main_frame`, `document_editor`, the dialogs, `macos_webview`, `speech`, `clipboard`, `theme` | yes |
 
@@ -1378,6 +1378,46 @@ not requires. The layout (cells 3/1 for paragraphs, 1/3 for list items, 5/7 for
 display equations, a centred main heading, a blank line between blocks)
 and Braille ASCII with CR LF and a form feed per page are in
 `brf_export`, tested with stand-in translators.
+
+## Footnotes, Header and Footer (2026-10-27)
+
+Footnotes are the GitHub/Pandoc extension (`text[^1]`, `[^1]: note`),
+read by markdown-it's own footnote plugin (`mdit-py-plugins`, MIT), so
+every export parses them the same way: `html_export.markdown_parser()` is
+the one parser (CommonMark, no raw HTML, tables, strikethrough,
+footnotes) the four exports use. The plugin gives `footnote_ref` inline
+tokens and, after the text, a `footnote_block` of notes numbered by
+their first reference; each export collects the notes first and writes
+them where its format wants them: HTML at the end with DPUB-ARIA roles
+(`doc-noteref`, `doc-endnotes`, `doc-backlink`) and a page's `docId` in
+a notebook so ids stay unique; Typst's `#footnote[...]` at the reference,
+labelled, a second reference `#footnote(<label>)`; Word's own footnotes
+(`docx_export._Footnotes`: python-docx has no API for them, so the
+`word/footnotes.xml` part, its separators, its relationship and the
+"footnote text"/"footnote reference" styles are made with the first
+note; a second reference is the number as text, since Word has one
+reference per note); BRF the number in brackets and the notes after the
+text, laid out as list items (not yet BANA's note formats).
+
+**Trap:** equations are replaced by marks before Markdown parsing, a
+display equation by a paragraph of its own (`\n\nmark\n\n`), which
+ended a footnote's note. `markdown_math.with_marks` (now shared by the
+exports) keeps a display equation in a note as inline text; the exports
+still write it as a display equation. `footnotes.py` is the editor's side
+(Insert Footnote, Go to Footnote or Reference), skipping code and
+equations (`markdown_math.literal_ranges`).
+
+The header and footer are the document's own, in YAML front matter
+(`documents/front_matter.py`): only `key: value` lines are read, so a
+document starting with a rule is not mistaken for front matter; other
+keys are kept; values YAML would misread are written JSON-quoted. Every
+export renders `front_matter.body()`; the PDF attaches the whole source.
+They replaced the PDF dialog's per-export header (the user's choice:
+one header for every export). PDF: `set page(header:, footer:)`, the
+text at the left and the page number on its line, a notebook page with
+a different one starting with its own `set page`; Word: the section's
+header and footer, the page number after a centre tab, and a section
+of its own for such a notebook page.
 
 ## Newer UnicodeMathML Versions
 

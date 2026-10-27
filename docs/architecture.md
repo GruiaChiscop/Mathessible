@@ -66,8 +66,11 @@ them resolved (`editing/source_view.py`).
 
 ## Around it
 
-- `documents/`: notebooks (a folder or a `.msnb` archive) and HTML export,
-  where converter output passes `documents/mathml_sanitize.py` first.
+- `documents/`: notebooks (a folder or a `.msnb` archive) and the
+  exports (HTML, PDF, Word, BRF), which read Markdown through one parser
+  with footnotes (`html_export.markdown_parser`) and the header and
+  footer from the front matter (`front_matter.py`); converter output for
+  HTML passes `documents/mathml_sanitize.py` first.
 - `symbols/`: the dictionaries that name symbols while typing in the
   linear view (NVDA's `symbols.dic` format).
 - `settings.py`, `session_log.py` (`MATHESSIBLE_LOG=1`), `patch_check.py` (the

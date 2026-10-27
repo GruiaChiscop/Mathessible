@@ -71,7 +71,6 @@ class PdfExportTests(unittest.TestCase):
             font_size=12,
             justify=True,
             page_numbers=False,
-            header="Draft",
             author="A. B.",
             keywords=("algebra",),
             language="ro",
@@ -82,7 +81,6 @@ class PdfExportTests(unittest.TestCase):
             'lang: "ro"',
             "size: 12pt",
             "justify: true",
-            'header: align(right, "Draft")',
             'author: "A. B."',
             'keywords: ("algebra", )',
             "#outline()",
@@ -109,6 +107,33 @@ class PdfExportTests(unittest.TestCase):
             self.assertIn(expected, source)
         self.assertNotIn("show link", source)  # Only a colour like #1F4E79 is written.
         typst.compile(source.encode(), sys_inputs=pdf_inputs(self.pages), pdf_standards=["ua-1"])
+
+    def test_footnotes_are_typsts_at_their_references(self) -> None:
+        markdown = "Text[^a] with $x$, again[^a].\n\n[^a]: A *note* with $y$ and\n$$z$$\n"
+        source = typst_document([ExportPage("Notes", markdown)], "Notes", equation_of, PdfOptions())
+        self.assertIn(
+            'Text#footnote[A #emph[note] with #math.equation(alt: "said y", $y$) and '
+            '#math.equation(block: true, alt: "said z", $y$)]<mathessible-note-0-0>',
+            source,
+        )
+        self.assertIn("again#footnote(<mathessible-note-0-0>).", source)  # The same note, its number.
+        self.assertNotIn("[^a]", source)
+        typst.compile(source.encode(), sys_inputs=pdf_inputs([ExportPage("Notes", markdown)]))
+
+    def test_the_documents_header_and_footer_share_the_page_numbers_line(self) -> None:
+        markdown = "---\nheader: Calculus\nfooter: Chapter 2\n---\n# Limits\n"
+        pages = [ExportPage("A", markdown), ExportPage("B", "No header here.")]
+        source = typst_document(pages, "Notebook", equation_of, PdfOptions(page_number_position="bottom-right"))
+        self.assertIn('header: align(left, text("Calculus"))', source)
+        self.assertIn(
+            'footer: grid(columns: (1fr, auto), column-gutter: 1em, align(left, text("Chapter 2")), '
+            'context counter(page).display("1"))',
+            source,
+        )
+        self.assertIn("#set page(header: auto, footer: auto)", source)  # Page B: none of its own.
+        self.assertNotIn("Calculus\\n", source)
+        self.assertNotIn("header:", source.split("#set page(header: auto")[0].split("= Limits")[1])
+        typst.compile(source.encode(), sys_inputs=pdf_inputs(pages))
 
     def test_typst_compiles_it_as_pdf_ua_1_with_the_source_attached(self) -> None:
         pdf = typst.compile(

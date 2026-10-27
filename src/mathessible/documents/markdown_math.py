@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+from collections.abc import Callable
 from dataclasses import dataclass
 
 
@@ -113,6 +115,50 @@ def find_math_zones(source: str) -> list[MathZone]:
         zones.append(MathZone(position, content_start, closing, closing + 1, False))
         position = closing + 1
     return zones
+
+
+def literal_ranges(source: str) -> list[tuple[int, int]]:
+    """Code spans, code fences and equations: where Markdown's own syntax (`[^1]`) is not syntax."""
+    ranges: list[tuple[int, int]] = [(zone.start, zone.end) for zone in find_math_zones(source)]
+    position = 0
+    while position < len(source):
+        if source[position] == "`" and not _is_escaped(source, position):
+            end = _skip_code_span(source, position)
+            ranges.append((position, end))
+            position = end
+        elif source.startswith("~~~", position) and not _is_escaped(source, position):
+            end = _skip_tilde_fence(source, position)
+            ranges.append((position, end))
+            position = end
+        else:
+            position += 1
+    return sorted(ranges)
+
+
+def with_marks(source: str, zones: list[MathZone], mark: Callable[[int], str]) -> str:
+    """The Markdown with each equation replaced by its mark, for a Markdown parser that must not see it.
+
+    A display equation becomes a paragraph of its own, except in a
+    footnote's note, which a paragraph break would end: there it stays in
+    the note's text (the exporters still write it as a display equation).
+    """
+    transformed = source
+    for index, zone in reversed(list(enumerate(zones))):
+        block = zone.display and not _in_footnote_note(source, zone.start)
+        transformed = (
+            transformed[: zone.start] + (f"\n\n{mark(index)}\n\n" if block else mark(index)) + transformed[zone.end :]
+        )
+    return transformed
+
+
+_NOTE_START = re.compile(r" {0,3}\[\^[^\]\s]+\]:")
+
+
+def _in_footnote_note(source: str, position: int) -> bool:
+    """Whether the paragraph at `position` is a footnote's note (`[^1]: ...`)."""
+    paragraph = source.rfind("\n\n", 0, position)
+    start = 0 if paragraph < 0 else paragraph + 2
+    return _NOTE_START.match(source, start) is not None
 
 
 def math_zone_at(source: str, start: int, end: int | None = None) -> MathZone | None:

@@ -83,6 +83,38 @@ a double click selects a word. View → Zoom In and Zoom Out
 `Command+=` is the subscript template) enlarge both views; Actual Size
 (`Command+Option+0`) goes back to 100%.
 
+### Footnotes
+
+Insert → Footnote (`Command+Shift+F`, `Ctrl+Alt+F` elsewhere) puts a
+footnote reference at the caret, `[^1]`, and its note at the end of the
+document, `[^1]: `, with the caret in it to type the note, as in Word.
+This is the footnote syntax GitHub and Pandoc read. A note may hold
+equations, and may be anywhere in the document; labels are names, so
+`[^limits]` works too, and the exports number the notes in the order
+their references come. Insert → Go to Footnote or Reference
+(`Command+Option+Shift+F`, `Ctrl+Alt+Shift+F`) goes from a reference to
+its note, and from a note back to its reference. The preview and every
+export have them: HTML with the notes at the end, linked both ways; PDF
+and Word as their own footnotes, at the bottom of the page; BRF with
+the number in brackets and the notes after the text.
+
+### Header and footer
+
+Insert → Header and Footer… sets the document's header and footer: a
+line of text at the top and the bottom of every page of the PDF and
+Word exports, beside the page number. They are kept in the document, at
+its top, as front matter (the block Pandoc and GitHub read between two
+`---` lines):
+
+```
+---
+header: Calculus notes
+footer: Chapter 2
+---
+```
+
+and can be edited there too. In a notebook, each page has its own.
+
 Edit → Find (`Command+F`, `Ctrl+F` elsewhere) and Replace
 (`Command+Option+F`, `Ctrl+H`) search the Markdown, equations' source
 included; Find Next and Find Previous (`Command+G` and
@@ -314,7 +346,7 @@ PDF only:
   margins, columns (one to three), the font (Typst's own or any
   installed), its size and the line spacing, landscape and justified
   text.
-- **Content**: a header text and a watermark across every page, where
+- **Content**: a watermark across every page, where
   the page numbers go, numbers for headings (1., 1.1) and for display
   equations ((1), [1]; a number written in the equation, `#(1)`, is kept
   as it is, so a document with its own numbers is best left without),
@@ -330,8 +362,9 @@ PDF only:
 
 Layout and content start from `Settings → PDF`, the defaults; **Save as
 Defaults** makes this PDF's layout, content, standard and author the
-defaults. The title, header, watermark and passwords belong to one PDF
-and are never kept.
+defaults. The title, watermark and passwords belong to one PDF and are
+never kept; the header and footer are the document's (Insert → Header
+and Footer).
 
 The PDF is typeset by Typst and tagged for screen readers: headings,
 paragraphs, lists, tables and links are marked as such, the headings are

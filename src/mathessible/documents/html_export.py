@@ -8,8 +8,10 @@ from html import escape
 from pathlib import Path
 
 from markdown_it import MarkdownIt
+from mdit_py_plugins.footnote import footnote_plugin
 
-from mathessible.documents.markdown_math import find_math_zones
+from mathessible.documents.front_matter import body as without_front_matter
+from mathessible.documents.markdown_math import find_math_zones, with_marks
 from mathessible.documents.mathml_sanitize import sanitize_mathml
 
 MathConverter = Callable[[str], str]
@@ -24,14 +26,54 @@ class ExportPage:
     source: str
 
 
-def render_markdown(source: str, convert_math: MathConverter) -> str:
-    """Render safe Markdown and replace math zones with native MathML."""
+def _note_number(tokens: Sequence[object], index: int) -> str:
+    return str(tokens[index].meta["id"] + 1)
+
+
+def _footnote_reference(self: object, tokens: Sequence[object], index: int, options: object, env: dict) -> str:
+    identifier = self.rules["footnote_anchor_name"](tokens, index, options, env)
+    sub = tokens[index].meta.get("subId", 0)
+    reference = identifier + (f":{sub}" if sub > 0 else "")
+    number = _note_number(tokens, index)
+    return (
+        f'<sup class="footnote-ref"><a href="#fn{identifier}" id="fnref{reference}" role="doc-noteref" '
+        f'aria-label="Footnote {number}">{number}</a></sup>'
+    )
+
+
+def _footnotes_open(self: object, tokens: Sequence[object], index: int, options: object, env: dict) -> str:
+    return '<section class="footnotes" role="doc-endnotes" aria-label="Footnotes">\n<hr>\n<ol class="footnotes-list">\n'
+
+
+def _footnote_back_link(self: object, tokens: Sequence[object], index: int, options: object, env: dict) -> str:
+    identifier = self.rules["footnote_anchor_name"](tokens, index, options, env)
+    sub = tokens[index].meta.get("subId", 0)
+    reference = identifier + (f":{sub}" if sub > 0 else "")
+    number = _note_number(tokens, index)
+    return (
+        f' <a href="#fnref{reference}" class="footnote-backref" role="doc-backlink" '
+        f'aria-label="Back to reference {number}">\u21a9\ufe0e</a>'
+    )
+
+
+def markdown_parser(**options: bool) -> MarkdownIt:
+    """markdown-it as every export reads Markdown: CommonMark, no raw HTML, tables, footnotes."""
+    parser = MarkdownIt("commonmark", {"html": False, **options}).enable(["table", "strikethrough"])
+    return parser.use(footnote_plugin)
+
+
+def render_markdown(source: str, convert_math: MathConverter, prefix: str = "") -> str:
+    """Render safe Markdown and replace math zones with native MathML; `prefix` keeps a page's note ids apart."""
+    source = without_front_matter(source)
     replacements: dict[str, str] = {}
-    transformed = source
-    for index, zone in reversed(list(enumerate(find_math_zones(source)))):
+    zones = find_math_zones(source)
+    tokens: list[str] = []
+    for index in range(len(zones)):
         token = f"MATHESSIBLEMATHZONE{index}TOKEN"
         while token in source:
             token += "X"
+        tokens.append(token)
+    for index, zone in enumerate(zones):
         equation = zone.content(source)
         try:
             mathml = sanitize_mathml(convert_math(equation))
@@ -46,12 +88,14 @@ def render_markdown(source: str, convert_math: MathConverter) -> str:
                 f'<code class="math-error" title="Equation could not be converted">'
                 f"{escape(delimiter + equation + delimiter)}</code>"
             )
-        replacements[token] = rendered
-        placeholder = f"\n\n{token}\n\n" if zone.display else token
-        transformed = transformed[: zone.start] + placeholder + transformed[zone.end :]
+        replacements[tokens[index]] = rendered
+    transformed = with_marks(source, zones, tokens.__getitem__)
 
-    renderer = MarkdownIt("commonmark", {"html": False, "linkify": True}).enable("table")
-    rendered_markdown = renderer.render(transformed)
+    renderer = markdown_parser(linkify=True)
+    renderer.add_render_rule("footnote_ref", _footnote_reference)
+    renderer.add_render_rule("footnote_block_open", _footnotes_open)
+    renderer.add_render_rule("footnote_anchor", _footnote_back_link)
+    rendered_markdown = renderer.render(transformed, {"docId": prefix} if prefix else {})
     for token, rendered in replacements.items():
         rendered_markdown = rendered_markdown.replace(f"<p>{token}</p>", rendered)
         rendered_markdown = rendered_markdown.replace(token, rendered)
@@ -78,6 +122,7 @@ PREVIEW_PAGE = """<!doctype html>
     th, td { border: 1px solid GrayText; padding: .35rem .6rem; }
     pre { overflow-x: auto; padding: .8rem; background: color-mix(in srgb, CanvasText 8%, Canvas); }
     .empty { color: GrayText; font-style: italic; }
+    .footnotes { font-size: .9em; margin-top: 2rem; }
   </style>
 </head>
 <body>
@@ -156,7 +201,9 @@ def notebook_html(
         for index, page in enumerate(pages, start=1):
             identifier = f"page-{index}"
             navigation.append(f'<li><a href="#{identifier}">{escape(page.title)}</a></li>')
-            body, _headings = _with_heading_ids(render_markdown(page.source, convert_math), f"{identifier}-section-")
+            body, _headings = _with_heading_ids(
+                render_markdown(page.source, convert_math, identifier), f"{identifier}-section-"
+            )
             sections.append(
                 f'<section class="notebook-page" id="{identifier}" aria-labelledby="{identifier}-title">\n'
                 f'<h2 id="{identifier}-title">{escape(page.title)}</h2>\n{body}</section>'
@@ -197,6 +244,7 @@ def notebook_html(
     table {{ border-collapse: collapse; }}
     th, td {{ border: 1px solid GrayText; padding: .35rem .6rem; }}
     pre {{ overflow-x: auto; padding: .8rem; background: color-mix(in srgb, CanvasText 8%, Canvas); }}
+    .footnotes {{ font-size: .9em; margin-top: 2rem; }}
     @media print {{
       nav {{ display: none; }}
       .notebook-page {{ break-before: page; }}

@@ -30,6 +30,24 @@ class HtmlExportTests(unittest.TestCase):
         self.assertIn('<span class="math-inline"><math><mi>x+1</mi></math></span>', rendered)
         self.assertIn('<div class="math-display"><math><mi>a/b</mi></math></div>', rendered)
 
+    def test_footnotes_link_both_ways_and_the_front_matter_is_not_text(self) -> None:
+        source = "---\nheader: Notes\n---\nRoots[^a] of $x$.\n\n[^a]: Where $y$ is real.\n"
+        rendered = render_markdown(source, fake_mathml)
+        self.assertNotIn("header", rendered)
+        self.assertIn('<a href="#fn1" id="fnref1" role="doc-noteref" aria-label="Footnote 1">1</a>', rendered)
+        self.assertIn('<section class="footnotes" role="doc-endnotes" aria-label="Footnotes">', rendered)
+        self.assertIn(
+            '<span class="math-inline"><math display="inline"><mi>y</mi></math></span>',
+            rendered.replace("<math><mi>y</mi></math>", '<math display="inline"><mi>y</mi></math>'),
+        )
+        self.assertIn('href="#fnref1" class="footnote-backref" role="doc-backlink"', rendered)
+
+    def test_each_notebook_pages_notes_have_their_own_ids(self) -> None:
+        pages = [ExportPage("One", "A[^1].\n\n[^1]: a"), ExportPage("Two", "B[^1].\n\n[^1]: b")]
+        html = notebook_html("Notebook", pages, fake_mathml)
+        self.assertIn('id="fn-page-1-1"', html)
+        self.assertIn('id="fn-page-2-1"', html)
+
     def test_inline_math_is_inline_although_the_converter_writes_block(self) -> None:
         def block_mathml(source: str) -> str:
             return f'<math display="block"><mi>{source}</mi></math>'

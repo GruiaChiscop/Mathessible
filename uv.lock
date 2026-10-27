@@ -231,6 +231,7 @@ dependencies = [
     { name = "babel" },
     { name = "markdown-it-py" },
     { name = "mathessible-mathcat" },
+    { name = "mdit-py-plugins" },
     { name = "prismatoid" },
     { name = "pypdf", extra = ["crypto"] },
     { name = "python-docx" },
@@ -248,6 +249,7 @@ requires-dist = [
     { name = "babel", specifier = ">=2.14,<3" },
     { name = "markdown-it-py", specifier = ">=3,<5" },
     { name = "mathessible-mathcat", directory = "native/mathcat_py" },
+    { name = "mdit-py-plugins", specifier = ">=0.5,<0.6" },
     { name = "prismatoid", specifier = ">=0.16,<0.17" },
     { name = "pypdf", extras = ["crypto"], specifier = ">=5,<7" },
     { name = "python-docx", specifier = ">=1.1,<2" },
@@ -262,6 +264,18 @@ dev = [{ name = "ruff", specifier = ">=0.6" }]
 name = "mathessible-mathcat"
 version = "0.1.0"
 source = { directory = "native/mathcat_py" }
+
+[[package]]
+name = "mdit-py-plugins"
+version = "0.5.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "markdown-it-py" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b2/fd/a756d36c0bfba5f6e39a1cdbdbfdd448dc02692467d83816dff4592a1ebc/mdit_py_plugins-0.5.0.tar.gz", hash = "sha256:f4918cb50119f50446560513a8e311d574ff6aaed72606ddae6d35716fe809c6", size = 44655, upload-time = "2025-08-11T07:25:49.083Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fb/86/dd6e5db36df29e76c7a7699123569a4a18c1623ce68d826ed96c62643cae/mdit_py_plugins-0.5.0-py3-none-any.whl", hash = "sha256:07a08422fc1936a5d26d146759e9155ea466e842f5ab2f7d2266dd084c8dab1f", size = 57205, upload-time = "2025-08-11T07:25:47.597Z" },
+]
 
 [[package]]
 name = "mdurl"
