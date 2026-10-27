@@ -939,364 +939,426 @@ msgstr "przy równaniu"
 msgid "base"
 msgstr "podstawa"
 
-#: src/mathessible/editor/equation_editor.py:1208 src/mathessible/spoken.py:28
+#: src/mathessible/spoken.py:28
+msgid "binomial"
+msgstr "symbol Newtona"
+
+#: src/mathessible/editor/equation_editor.py:1208 src/mathessible/spoken.py:29
 msgid "blank"
 msgstr "puste"
 
+#: src/mathessible/spoken.py:30
+msgid "bottom"
+msgstr "dolna część"
+
+#: src/mathessible/spoken.py:31
+msgid "box"
+msgstr "ramka"
+
 #: src/mathessible/editing/equation_errors.py:26 src/mathessible/editing/equation_errors.py:27
-#: src/mathessible/spoken.py:29
+#: src/mathessible/spoken.py:32
 msgid "brace"
 msgstr "nawias klamrowy"
 
 #: src/mathessible/editing/equation_errors.py:24 src/mathessible/editing/equation_errors.py:25
 #: src/mathessible/editing/equation_errors.py:32 src/mathessible/editing/equation_errors.py:33
-#: src/mathessible/spoken.py:30
+#: src/mathessible/spoken.py:33
 msgid "bracket"
 msgstr "nawias kwadratowy"
 
 #: src/mathessible/editor/assist.py:90 src/mathessible/editor/equation_editor.py:1175
-#: src/mathessible/editor/equation_editor.py:1353 src/mathessible/spoken.py:31
+#: src/mathessible/editor/equation_editor.py:1353 src/mathessible/spoken.py:34
 msgid "built"
 msgstr "zbudowano"
 
-#: src/mathessible/spoken.py:32
+#: src/mathessible/spoken.py:35
 msgid "case"
 msgstr "przypadek"
 
-#: src/mathessible/spoken.py:33
+#: src/mathessible/spoken.py:36
 msgid "cases"
 msgstr "przypadki"
 
-#: src/mathessible/spoken.py:34
+#: src/mathessible/spoken.py:37
 msgid "cell"
 msgstr "komórka"
 
-#: src/mathessible/spoken.py:35
+#: src/mathessible/spoken.py:38
 msgid "condition"
 msgstr "warunek"
 
-#: src/mathessible/spoken.py:36
+#: src/mathessible/spoken.py:39
+msgid "content"
+msgstr "zawartość"
+
+#: src/mathessible/spoken.py:40
+msgid "coproduct"
+msgstr "koiloczyn"
+
+#: src/mathessible/spoken.py:41
 msgid "denominator"
 msgstr "mianownik"
 
-#: src/mathessible/spoken.py:37
+#: src/mathessible/spoken.py:42
 msgid "determinant"
 msgstr "wyznacznik"
 
-#: src/mathessible/spoken.py:38
+#: src/mathessible/spoken.py:43
 msgid "empty"
 msgstr "pusty"
 
-#: src/mathessible/spoken.py:39
+#: src/mathessible/spoken.py:44
 msgid "empty slot"
 msgstr "puste miejsce"
 
-#: src/mathessible/spoken.py:40
+#: src/mathessible/spoken.py:45
 msgid "end of math"
 msgstr "koniec matematyki"
 
-#: src/mathessible/spoken.py:41
+#: src/mathessible/spoken.py:46
 msgid "equation"
 msgstr "równanie"
 
-#: src/mathessible/spoken.py:42 src/mathessible/templates/math_templates.py:29
+#: src/mathessible/spoken.py:47 src/mathessible/templates/math_templates.py:29
 msgid "equation number"
 msgstr "numer równania"
 
-#: src/mathessible/spoken.py:43
+#: src/mathessible/spoken.py:48
 msgid "equations"
 msgstr "równania"
 
-#: src/mathessible/spoken.py:44
+#: src/mathessible/spoken.py:49
 msgid "factor"
 msgstr "czynnik"
 
-#: src/mathessible/spoken.py:45
+#: src/mathessible/spoken.py:50
 msgid "fraction"
 msgstr "ułamek"
 
-#: src/mathessible/spoken.py:46
+#: src/mathessible/spoken.py:51
 msgid "function name"
 msgstr "nazwa funkcji"
 
 #: src/mathessible/editing/equation_errors.py:30 src/mathessible/editing/equation_errors.py:31
-#: src/mathessible/spoken.py:47
+#: src/mathessible/spoken.py:52
 msgid "group"
 msgstr "grupa"
 
-#: src/mathessible/spoken.py:48
+#: src/mathessible/spoken.py:53
 msgid "in an empty slot"
 msgstr "w pustym miejscu"
 
-#: src/mathessible/spoken.py:49
+#: src/mathessible/spoken.py:54
 msgid "index"
 msgstr "stopień pierwiastka"
 
-#: src/mathessible/spoken.py:50
+#: src/mathessible/spoken.py:55
 msgid "integral"
 msgstr "całka"
 
-#: src/mathessible/spoken.py:51
+#: src/mathessible/spoken.py:56
 msgid "integrand"
 msgstr "funkcja podcałkowa"
 
-#: src/mathessible/spoken.py:52
+#: src/mathessible/spoken.py:57
+msgid "intersection"
+msgstr "iloczyn zbiorów"
+
+#: src/mathessible/spoken.py:58
 msgid "label"
 msgstr "etykieta"
 
-#: src/mathessible/spoken.py:53
+#: src/mathessible/spoken.py:59
 msgid "limit"
 msgstr "granica"
 
-#: src/mathessible/spoken.py:54 src/mathessible/templates/math_templates.py:41
+#: src/mathessible/spoken.py:60 src/mathessible/templates/math_templates.py:41
 #: src/mathessible/templates/math_templates.py:43 src/mathessible/templates/math_templates.py:44
 msgid "limit condition"
 msgstr "warunek granicy"
 
-#: src/mathessible/spoken.py:55
+#: src/mathessible/spoken.py:61
 msgid "limits"
 msgstr "granice"
 
-#: src/mathessible/spoken.py:56 src/mathessible/templates/fraction_styles.py:14
+#: src/mathessible/spoken.py:62 src/mathessible/templates/fraction_styles.py:14
 msgid "linear"
 msgstr "liniowy"
 
 #: src/mathessible/editor/assist.py:243 src/mathessible/editor/equation_editor.py:612
-#: src/mathessible/editor/structures.py:481 src/mathessible/spoken.py:57
+#: src/mathessible/editor/structures.py:481 src/mathessible/spoken.py:63
 msgid "linear mode"
 msgstr "tryb liniowy"
 
-#: src/mathessible/spoken.py:58
+#: src/mathessible/spoken.py:64
 msgid "logarithm"
 msgstr "logarytm"
 
-#: src/mathessible/spoken.py:59 src/mathessible/templates/math_templates.py:695
+#: src/mathessible/spoken.py:65 src/mathessible/templates/math_templates.py:695
 msgid "lower limit"
 msgstr "dolna granica"
 
-#: src/mathessible/spoken.py:60
+#: src/mathessible/spoken.py:66
 msgid "matrix"
 msgstr "macierz"
 
 #: src/mathessible/editor/built.py:828 src/mathessible/editor/equation_editor.py:1134
-#: src/mathessible/spoken.py:61
+#: src/mathessible/spoken.py:67
 msgid "no slot"
 msgstr "brak miejsca"
 
-#: src/mathessible/spoken.py:62 src/mathessible/templates/structure_edits.py:327
+#: src/mathessible/spoken.py:68 src/mathessible/templates/structure_edits.py:327
 msgid "norm"
 msgstr "norma"
 
-#: src/mathessible/editor/structures.py:504 src/mathessible/spoken.py:63
+#: src/mathessible/editor/structures.py:504 src/mathessible/spoken.py:69
 msgid "not in a table"
 msgstr "nie w tabeli"
 
-#: src/mathessible/spoken.py:64
+#: src/mathessible/spoken.py:70
 msgid "nothing selected"
 msgstr "nic nie zaznaczono"
 
-#: src/mathessible/spoken.py:65
+#: src/mathessible/spoken.py:71
+msgid "number"
+msgstr "numer"
+
+#: src/mathessible/spoken.py:72
 msgid "numbered equation"
 msgstr "równanie numerowane"
 
-#: src/mathessible/spoken.py:66
+#: src/mathessible/spoken.py:73
 msgid "numerator"
 msgstr "licznik"
 
-#: src/mathessible/spoken.py:67
+#: src/mathessible/spoken.py:74
 msgid "operator"
 msgstr "operator"
 
-#: src/mathessible/spoken.py:68
+#: src/mathessible/spoken.py:75
+msgid "overbrace"
+msgstr "klamra górna"
+
+#: src/mathessible/spoken.py:76
 msgid "overscript"
 msgstr "nadpis"
 
-#: src/mathessible/spoken.py:69 src/mathessible/templates/structure_edits.py:320
+#: src/mathessible/spoken.py:77 src/mathessible/templates/structure_edits.py:320
 msgid "parentheses"
 msgstr "nawiasy okrągłe"
 
 #: src/mathessible/editing/equation_errors.py:22 src/mathessible/editing/equation_errors.py:23
-#: src/mathessible/spoken.py:70
+#: src/mathessible/spoken.py:78
 msgid "parenthesis"
 msgstr "nawias okrągły"
 
-#: src/mathessible/spoken.py:71
+#: src/mathessible/spoken.py:79
 msgid "press again to delete it"
 msgstr "naciśnij ponownie, aby to usunąć"
 
-#: src/mathessible/spoken.py:72
+#: src/mathessible/spoken.py:80
+msgid "product"
+msgstr "iloczyn"
+
+#: src/mathessible/spoken.py:81
 msgid "radicand"
 msgstr "wyrażenie podpierwiastkowe"
 
-#: src/mathessible/spoken.py:73
+#: src/mathessible/spoken.py:82
 msgid "root"
 msgstr "pierwiastek"
 
-#: src/mathessible/spoken.py:74
+#: src/mathessible/spoken.py:83
 msgid "row"
 msgstr "wiersz"
 
-#: src/mathessible/spoken.py:75
+#: src/mathessible/spoken.py:84
 msgid "script"
 msgstr "indeks"
 
-#: src/mathessible/spoken.py:76
+#: src/mathessible/spoken.py:85
 msgid "scripts"
 msgstr "indeksy"
 
-#: src/mathessible/spoken.py:77
+#: src/mathessible/spoken.py:86
 msgid "selected"
 msgstr "zaznaczono"
 
-#: src/mathessible/editor/equation_editor.py:911 src/mathessible/spoken.py:78
+#: src/mathessible/editor/equation_editor.py:911 src/mathessible/spoken.py:87
 msgid "selection cleared"
 msgstr "anulowano zaznaczenie"
 
-#: src/mathessible/spoken.py:79 src/mathessible/templates/math_templates.py:59
+#: src/mathessible/spoken.py:88 src/mathessible/templates/math_templates.py:59
 #: src/mathessible/templates/math_templates.py:782
 msgid "square root"
 msgstr "pierwiastek kwadratowy"
 
-#: src/mathessible/spoken.py:80
+#: src/mathessible/spoken.py:89
 msgid "start of math"
 msgstr "początek matematyki"
 
-#: src/mathessible/spoken.py:81
+#: src/mathessible/spoken.py:90
 msgid "subscript"
 msgstr "indeks dolny"
 
-#: src/mathessible/spoken.py:82
+#: src/mathessible/spoken.py:91
 msgid "sum"
 msgstr "suma"
 
-#: src/mathessible/spoken.py:83
+#: src/mathessible/spoken.py:92
 msgid "summand"
 msgstr "składnik"
 
-#: src/mathessible/spoken.py:84
+#: src/mathessible/spoken.py:93
 msgid "superscript"
 msgstr "indeks górny"
 
-#: src/mathessible/spoken.py:85 src/mathessible/templates/math_templates.py:64
+#: src/mathessible/spoken.py:94
+msgid "term"
+msgstr "składnik"
+
+#: src/mathessible/spoken.py:95 src/mathessible/templates/math_templates.py:64
 msgid "text above"
 msgstr "tekst powyżej"
 
-#: src/mathessible/spoken.py:86 src/mathessible/templates/math_templates.py:64
+#: src/mathessible/spoken.py:96 src/mathessible/templates/math_templates.py:64
 msgid "text below"
 msgstr "tekst poniżej"
 
-#: src/mathessible/spoken.py:87
+#: src/mathessible/spoken.py:97
+msgid "top"
+msgstr "górna część"
+
+#: src/mathessible/spoken.py:98
+msgid "underbrace"
+msgstr "klamra dolna"
+
+#: src/mathessible/spoken.py:99
 msgid "underscript"
 msgstr "podpis"
 
-#: src/mathessible/spoken.py:88
+#: src/mathessible/spoken.py:100
+msgid "union"
+msgstr "suma zbiorów"
+
+#: src/mathessible/spoken.py:101
 msgid "unselected"
 msgstr "odznaczono"
 
-#: src/mathessible/spoken.py:89 src/mathessible/templates/math_templates.py:695
+#: src/mathessible/spoken.py:102 src/mathessible/templates/math_templates.py:695
 msgid "upper limit"
 msgstr "górna granica"
 
-#: src/mathessible/spoken.py:90
+#: src/mathessible/spoken.py:103
 msgid "value"
 msgstr "wartość"
 
-#: src/mathessible/spoken.py:95 src/mathessible/templates/matrix_templates.py:285
+#: src/mathessible/spoken.py:108 src/mathessible/templates/matrix_templates.py:285
 #, python-brace-format
 msgid "row {row}, column {column}"
 msgstr "wiersz {row}, kolumna {column}"
 
-#: src/mathessible/spoken.py:96
+#: src/mathessible/spoken.py:109
 #, python-brace-format
 msgid "cell row {row}, column {column}, {content}"
 msgstr "komórka wiersz {row}, kolumna {column}, {content}"
 
-#: src/mathessible/spoken.py:97
+#: src/mathessible/spoken.py:110
 #, python-brace-format
 msgid "equation number {number}"
 msgstr "numer równania {number}"
 
-#: src/mathessible/spoken.py:98
+#: src/mathessible/spoken.py:111
 #, python-brace-format
 msgid "equation {number}"
 msgstr "równanie {number}"
 
-#: src/mathessible/spoken.py:99
+#: src/mathessible/spoken.py:112
 #, python-brace-format
 msgid "case {number}"
 msgstr "przypadek {number}"
 
-#: src/mathessible/spoken.py:100
+#: src/mathessible/spoken.py:113
 #, python-brace-format
 msgid "row {row}"
 msgstr "wiersz {row}"
 
-#: src/mathessible/spoken.py:101
+#: src/mathessible/spoken.py:114
 #, python-brace-format
 msgid "column {column}"
 msgstr "kolumna {column}"
 
-#: src/mathessible/spoken.py:102
+#: src/mathessible/spoken.py:115
 #, python-brace-format
 msgid "start of {region}"
 msgstr "początek: {region}"
 
-#: src/mathessible/spoken.py:103
+#: src/mathessible/spoken.py:116
 #, python-brace-format
 msgid "end of {region}"
 msgstr "koniec: {region}"
 
-#: src/mathessible/spoken.py:104
+#: src/mathessible/spoken.py:117
 #, python-brace-format
 msgid "start {region}"
 msgstr "początek {region}"
 
-#: src/mathessible/spoken.py:105
+#: src/mathessible/spoken.py:118
 #, python-brace-format
 msgid "end {region}"
 msgstr "koniec {region}"
 
-#: src/mathessible/spoken.py:106
+#: src/mathessible/spoken.py:119
 #, python-brace-format
 msgid "inside {region}"
 msgstr "wewnątrz: {region}"
 
-#: src/mathessible/spoken.py:107
+#: src/mathessible/spoken.py:120
 #, python-brace-format
 msgid "in empty {region}"
 msgstr "w pustym elemencie: {region}"
 
-#: src/mathessible/spoken.py:108
+#: src/mathessible/spoken.py:121
+#, python-brace-format
+msgid "empty {role}"
+msgstr "puste: {role}"
+
+#: src/mathessible/spoken.py:122
+#, python-brace-format
+msgid "line {number}"
+msgstr "wiersz {number}"
+
+#: src/mathessible/spoken.py:123
 #, python-brace-format
 msgid "after {item}"
 msgstr "po: {item}"
 
-#: src/mathessible/spoken.py:109
+#: src/mathessible/spoken.py:124
 #, python-brace-format
 msgid "before {item}"
 msgstr "przed: {item}"
 
-#: src/mathessible/spoken.py:110
+#: src/mathessible/spoken.py:125
 #, python-brace-format
 msgid "the {structure}"
 msgstr "{structure}"
 
-#: src/mathessible/spoken.py:111
+#: src/mathessible/spoken.py:126
 #, python-brace-format
 msgid "deleted {item}"
 msgstr "usunięto: {item}"
 
-#: src/mathessible/spoken.py:112
+#: src/mathessible/spoken.py:127
 #, python-brace-format
 msgid "cut {item}"
 msgstr "wycięto: {item}"
 
-#: src/mathessible/spoken.py:113
+#: src/mathessible/spoken.py:128
 #, python-brace-format
 msgid "selected {item}"
 msgstr "zaznaczono: {item}"
 
-#: src/mathessible/spoken.py:114
+#: src/mathessible/spoken.py:129
 #, python-brace-format
 msgid "built {structure}"
 msgstr "zbudowano: {structure}"

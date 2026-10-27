@@ -49,6 +49,17 @@ class SettingsTests(unittest.TestCase):
         self.assertTrue(settings.auto_zoom_out)
         self.assertEqual(settings.recognized_functions, ("sin", "tg"))
 
+    def test_languages_are_saved_and_unknown_ones_dropped(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            save_settings(AppSettings(interface_language="zh-TW", speech_language="de"), path)
+            settings = load_settings(path)
+            self.assertEqual((settings.interface_language, settings.speech_language), ("zh-TW", "de"))
+            save_settings(AppSettings(interface_language="ro", speech_language="xx"), path)
+            settings = load_settings(path)
+        # Not one of MathCAT's languages: the system's, and the interface's for speech.
+        self.assertEqual((settings.interface_language, settings.speech_language), ("", ""))
+
     def test_invalid_settings_file_uses_defaults(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "settings.json"

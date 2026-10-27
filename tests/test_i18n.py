@@ -20,6 +20,21 @@ msgstr[0] "{count} Ersetzung vorgenommen."
 msgstr[1] "{count} Ersetzungen vorgenommen."
 """
 
+SLOT_CATALOG = r"""msgid ""
+msgstr ""
+"Language: de\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "empty {role}"
+msgstr "leer: {role}"
+
+msgid "line {number}"
+msgstr "Zeile {number}"
+
+msgid "numerator"
+msgstr "Zähler"
+"""
+
 
 class I18nTests(unittest.TestCase):
     def tearDown(self) -> None:
@@ -55,6 +70,36 @@ class I18nTests(unittest.TestCase):
         codes = {code.replace("-", "_") for code, _name in i18n.LANGUAGES}
         shipped = {path.parent.parent.name for path in i18n.LOCALE_DIRECTORY.glob("*/LC_MESSAGES/*.po")}
         self.assertLessEqual(shipped, codes)
+
+    def test_every_slot_role_and_template_name_can_be_spoken(self) -> None:
+        from babel.messages.pofile import read_po
+
+        from mathessible import spoken
+        from mathessible.templates import math_templates
+
+        with (i18n.LOCALE_DIRECTORY / f"{i18n.DOMAIN}.pot").open("rb") as file:
+            texts = {message.id for message in read_po(file) if message.id}
+        names = set(math_templates.NARYAND_ROLES) | set(math_templates.NARYAND_ROLES.values())
+        names |= {name for pair in math_templates.CONTENT_SIGNS.values() for name in pair}
+        names |= {pair[1] for pair in math_templates.BRACKET_PAIRS.values()}
+        names |= {"fraction", "numerator", "denominator", "root", "index", "radicand", "scripts", "base"}
+        names |= {"subscript", "superscript", "binomial", "top", "bottom", "argument", "value", "label"}
+        self.assertLessEqual(names, texts)
+        # The forms slots are announced in ("empty numerator", "end binomial", "empty line 1").
+        for form in ("empty {role}", "end {region}", "line {number}"):
+            self.assertIn(form, texts)
+        self.assertEqual(spoken.translate("empty line 1"), "empty line 1")  # English: unchanged.
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory)
+            path = i18n.catalog_path("de", folder)
+            path.parent.mkdir(parents=True)
+            path.write_text(SLOT_CATALOG, encoding="utf-8")
+            i18n.set_speech_language("de", folder)
+            try:
+                self.assertEqual(spoken.translate("empty numerator"), "leer: Zähler")
+                self.assertEqual(spoken.translate("empty line 1"), "leer: Zeile 1")
+            finally:
+                i18n.set_speech_language("en")
 
     def test_every_translation_keeps_its_placeholders_and_mnemonic(self) -> None:
         from babel.messages.pofile import read_po

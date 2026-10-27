@@ -25,7 +25,10 @@ WORDS = (
     N_("arrow"),
     N_("at equation"),
     N_("base"),
+    N_("binomial"),
     N_("blank"),
+    N_("bottom"),
+    N_("box"),
     N_("brace"),
     N_("bracket"),
     N_("built"),
@@ -33,6 +36,8 @@ WORDS = (
     N_("cases"),
     N_("cell"),
     N_("condition"),
+    N_("content"),
+    N_("coproduct"),
     N_("denominator"),
     N_("determinant"),
     N_("empty"),
@@ -49,6 +54,7 @@ WORDS = (
     N_("index"),
     N_("integral"),
     N_("integrand"),
+    N_("intersection"),
     N_("label"),
     N_("limit"),
     N_("limit condition"),
@@ -62,13 +68,16 @@ WORDS = (
     N_("norm"),
     N_("not in a table"),
     N_("nothing selected"),
+    N_("number"),
     N_("numbered equation"),
     N_("numerator"),
     N_("operator"),
+    N_("overbrace"),
     N_("overscript"),
     N_("parentheses"),
     N_("parenthesis"),
     N_("press again to delete it"),
+    N_("product"),
     N_("radicand"),
     N_("root"),
     N_("row"),
@@ -82,9 +91,13 @@ WORDS = (
     N_("sum"),
     N_("summand"),
     N_("superscript"),
+    N_("term"),
     N_("text above"),
     N_("text below"),
+    N_("top"),
+    N_("underbrace"),
     N_("underscript"),
+    N_("union"),
     N_("unselected"),
     N_("upper limit"),
     N_("value"),
@@ -105,6 +118,8 @@ _PATTERNS = (
     (re.compile(r"^end (.+)$"), N_("end {region}")),
     (re.compile(r"^inside (.+)$"), N_("inside {region}")),
     (re.compile(r"^in empty (.+)$"), N_("in empty {region}")),
+    (re.compile(r"^empty (.+)$"), N_("empty {role}")),
+    (re.compile(r"^line (\d+)$"), N_("line {number}")),
     (re.compile(r"^after (.+)$"), N_("after {item}")),
     (re.compile(r"^before (.+)$"), N_("before {item}")),
     (re.compile(r"^the (.+)$"), N_("the {structure}")),
@@ -125,7 +140,8 @@ def _piece(text: str) -> str:
         if match is None:
             continue
         names = _PLACEHOLDERS.findall(message)
-        values = {name: spoken(value) for name, value in zip(names, match.groups(), strict=True)}
+        # A value may be composed too ("empty line 1").
+        values = {name: _piece(value) for name, value in zip(names, match.groups(), strict=True)}
         return spoken(message).format(**values)
     return text
 
