@@ -1549,11 +1549,23 @@ one), and Up/Down there go line by line, reading the line (`editing/source_lines
 the build; patch 0009 writes an unfenced table as `\begin{aligned}` or
 `\begin{matrix}` (it was bare rows, which lost Markdown's `aligned` too).
 
-Not yet for `.tex` (disabled, `_enable_unless_tex`): the preview, every
-export, print, footnotes, header and footer, Edit > Equations in LaTeX.
-The user wants packages later: 3b reads the common text commands for the
-preview and the accessible exports; 3c compiles the PDF with the user's
-own LaTeX (packages and `\newcommand` then work as LaTeX's own).
+Stage 3b (2026-10-28): the preview, Print and the exports read a .tex
+document through
+[documents/tex_markdown.py](../src/mathessible/documents/tex_markdown.py)
+`tex_to_markdown` (`MainFrame._readable_source`, also `_export_pages`):
+Markdown with `math: latex`, so every exporter works unchanged and the
+file is never touched. Equations and verbatim text are protected first
+(`\x00N\x00` marks, by `tex_math`), then comments go, then a small reader
+writes the title block at `\maketitle`, headings, styles, tight lists
+(nested by two spaces), quotations, footnotes (numbered, at the end),
+links, LaTeX's special characters and dashes, escaping Markdown's own;
+every other command keeps its text arguments (a package's command is
+never lost text) and every other environment its content. Lines' leading
+spaces go (LaTeX ignores them; Markdown reads four as code). A PDF export
+attaches that Markdown, so reopening it gives a Markdown document, not
+the .tex. Still Markdown's only (`_enable_unless_tex`): Insert >
+Footnote, Go to Footnote, Header and Footer, and Edit > Equations in
+LaTeX (a .tex document is LaTeX).
 
 LaTeX files, stage 3c (2026-10-28): File > Compile PDF with LaTeX
 ([documents/tex_compile.py](../src/mathessible/documents/tex_compile.py),

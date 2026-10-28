@@ -50,6 +50,7 @@ from mathessible.documents.tex_compile import (
     megabytes,
     tinytex_directory,
 )
+from mathessible.documents.tex_markdown import tex_to_markdown
 from mathessible.documents.typst_math import TypstEquation, typst_math
 from mathessible.editing.pasted_math import plain_letters
 from mathessible.error_messages import explain
@@ -365,23 +366,14 @@ if wx is not None:
                 lambda event: event.Enable(self.editor.tex and not self._tex_busy),
                 id=self._compile_tex_id,
             )
-            # A .tex document has no Markdown: no footnotes, front matter, preview or export yet (stage 3b).
-            for command_id in (
-                self._footnote_id,
-                self._go_to_footnote_id,
-                self._header_footer_id,
-                self._export_html_id,
-                self._export_brf_id,
-                self._export_pdf_id,
-                self._export_docx_id,
-                wx.ID_PRINT,
-            ):
+            # Markdown's own footnotes and front matter: a .tex document writes LaTeX's (\footnote) itself.
+            for command_id in (self._footnote_id, self._go_to_footnote_id, self._header_footer_id):
                 self.Bind(wx.EVT_UPDATE_UI, self._enable_unless_tex, id=command_id)
             self.Bind(wx.EVT_MENU, self._open_settings, id=wx.ID_PREFERENCES)
             self.Bind(wx.EVT_MENU, self._toggle_preview, id=self._preview_id)
             self.Bind(
                 wx.EVT_UPDATE_UI,
-                lambda event: (event.Check(self.splitter.IsSplit()), event.Enable(not self.editor.tex)),
+                lambda event: event.Check(self.splitter.IsSplit()),
                 id=self._preview_id,
             )
             self.Bind(wx.EVT_MENU, self._new_notebook, id=self._new_notebook_id)
@@ -486,13 +478,11 @@ if wx is not None:
         def _update_preview(self) -> None:
             if not self or self.preview is None or not self._preview_ready or not self.splitter.IsSplit():
                 return
-            if self.editor.tex:
-                return  # The preview reads Markdown.
             equation_editor = self.editor.equation_window.equation
             if not equation_editor.converter_ready or equation_editor.converter_busy:
                 self._schedule_preview(delay=300)
                 return
-            script = preview_update_script(self.editor.source, self.editor.equation_converter())
+            script = preview_update_script(self._readable_source(), self.editor.equation_converter())
             self.preview.RunScriptAsync(script)
 
         def _on_editor_position_changed(self, event: wx.Event) -> None:
@@ -1037,9 +1027,7 @@ if wx is not None:
                     frame.document_path = path
                     frame.dirty = False
                     frame._update_title()
-                    if frame.editor.tex:
-                        frame._set_preview_shown(False)  # The preview reads Markdown (a .tex one: stage 3b).
-                    else:
+                    if not frame.editor.tex:
                         wx.CallAfter(frame._offer_latex_mark)
             except (OSError, UnicodeError, NotebookError, PdfSourceError) as error:
                 self._show_error(_("open {name}").format(name=path.name), error)
@@ -1224,7 +1212,12 @@ if wx is not None:
             title = self.document_path.stem if self.document_path is not None else _("Mathessible document")
             stem = self.document_path.stem if self.document_path else "mathessible-document"
             folder = str(self.document_path.parent) if self.document_path else ""
-            return title, [ExportPage(title, self.editor.source)], stem, folder
+            return title, [ExportPage(title, self._readable_source())], stem, folder
+
+        def _readable_source(self) -> str:
+            """The document as the preview, Print and the exports read it: Markdown, a .tex file's read as
+            Markdown with LaTeX equations (`tex_markdown`; the file itself is never changed)."""
+            return tex_to_markdown(self.editor.source) if self.editor.tex else self.editor.source
 
         def _print(self, _event: wx.CommandEvent | None = None) -> None:
             """File > Print: the document as the preview shows it, through the system's print panel."""

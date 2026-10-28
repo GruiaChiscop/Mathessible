@@ -160,9 +160,15 @@ stops at an error, Mathessible says which and puts the caret on its line.
 A document that loads `fontspec` or `unicode-math` is compiled with
 LuaLaTeX (or XeLaTeX).
 
-For now a `.tex` document has no preview, export, print, footnotes or
-header and footer: those read Markdown. Its preview and accessible
-exports are planned.
+The preview, Print and every export (HTML, the accessible PDF, Word,
+BRF) read a `.tex` document too: Mathessible reads its title
+(`\maketitle`), sections, `\emph`, `\textbf`, lists, quotations,
+`verbatim`, footnotes and links, and keeps the text of any other
+command, so nothing is lost; the file itself is not changed. For the
+PDF your LaTeX would make, with every package, use Compile PDF with
+LaTeX; the exported PDF is the accessible one, its equations spoken
+and tagged. Insert → Footnote and Header and Footer are Markdown's:
+in a `.tex` file write `\footnote{...}` itself.
 
 ### Header and footer
 

@@ -97,9 +97,11 @@ links back, liblouis and BRF need a braille transcriber's convention.
   (`\mathbf{\frac{a}{b}}`), in Sargent's TeX2UnicodeMath.
 - [x] LaTeX, stage 3a: `.tex` files opened and saved as written, their
   equations (`$`, `\(`, `\[`, `equation`, `align` ...) edited.
-- [ ] LaTeX, stage 3b: a `.tex` file's preview and accessible exports
-  (HTML, Word, BRF), from the common text commands (sections, emphasis,
-  lists, footnotes, title).
+- [x] LaTeX, stage 3b: a `.tex` file's preview and accessible exports
+  (HTML, PDF, Word, BRF, Print), from the common text commands (sections,
+  emphasis, lists, footnotes, title); other commands keep their text.
+- [ ] LaTeX: tables (`tabular`), figures and `\ref`/`\cite` numbers in a
+  `.tex` file's preview and exports.
 - [x] LaTeX, stage 3c: the PDF of a `.tex` file compiled by the user's own
   LaTeX installation (TinyTeX offered and installed when there is none,
   missing packages installed with tlmgr), so that packages work.
