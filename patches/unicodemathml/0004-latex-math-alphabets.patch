@@ -1,0 +1,50 @@
+UnicodeMathML: LaTeX's math alphabets (\mathbb{R}) in TeX2UnicodeMath
+
+Mathessible stores a LaTeX document's equations as LaTeX and builds them
+through Murray Sargent's own LaTeX converter, TeX2UnicodeMath in the
+playground's TeX.js. \mathbb{R}, \mathbf{v}, \mathcal{L} came out as the
+text "\mathbb" and a fenced R: upstream added these control words to
+src/unicodemathml.js only (ddba23c), and dist/, which TeX.js runs with,
+predates them. Before its first pass, TeX2UnicodeMath now turns them into
+the Unicode math alphanumerics with dist's getMathAlphanumeric (ℝ, 𝐯, ℒ),
+\mathrm text into quoted upright text. Only a simple argument (one
+character, or letters, digits and spaces in braces); a structure in the
+braces (\mathbf{\frac{a}{b}}) is left as it was.
+
+Only playground/assets/TeX.js, which Mathessible loads after dist/.
+Applied by scripts/bootstrap.sh after 0001 to 0003.
+
+diff --git a/playground/assets/TeX.js b/playground/assets/TeX.js
+index 9142e69..5e40425 100644
+--- a/playground/assets/TeX.js
++++ b/playground/assets/TeX.js
+@@ -834,7 +834,29 @@ function TeX2UMath(tex) {
+     }
+     return uniTeX
+ }
++// The math alphabets of LaTeX, as mathStyles names: their letters and digits become
++// the Unicode math alphanumerics (\mathbb{R} is ℝ), \mathrm text upright. Only a
++// simple argument, one character or letters, digits and spaces in braces.
++const texMathAlphabets = {
++    'mathbb': 'Bbb', 'mathbf': 'mbf', 'mathit': 'mit', 'mathbfit': 'mbfit', 'mathcal': 'mscr',
++    'mathscr': 'mscr', 'mathfrak': 'mfrak', 'mathsf': 'msans', 'mathtt': 'mtt', 'mathrm': 'mup',
++}
++
++function TeXMathAlphabets(tex) {
++    return tex.replace(/\\(math(?:bb|bfit|bf|it|cal|scr|frak|sf|tt|rm))(?![A-Za-z])\s*(?:\{([A-Za-z0-9 ]*)\}|([A-Za-z0-9]))/g,
++        (match, name, braced, single) => {
++            const style = texMathAlphabets[name]
++            const chars = (braced != undefined ? braced : single).replace(/ /g, '')
++            if (!chars)
++                return match
++            if (style == 'mup')
++                return '"' + chars + '"'
++            return Array.from(chars, ch => getMathAlphanumeric(ch, style)).join('')
++        })
++}
++
+ function TeX2UnicodeMath(tex) {
++    tex = TeXMathAlphabets(tex)
+     // Pass 1: Convert control words in tex to Unicode symbols or strings
+     let cwPrev = ''
+     let macrosEnabled = ummlConfig && ummlConfig.texMacros

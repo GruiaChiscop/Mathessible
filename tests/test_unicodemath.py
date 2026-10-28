@@ -69,7 +69,8 @@ class UnicodeMathMLTests(unittest.TestCase):
             with self.assertRaises(StrayScriptResult):
                 decode_conversion(stray, 7)
         self.assertIn("{token: 7}", conversion_script("x", 7))
-        self.assertIn('window.mathessibleConvert("x", false)', conversion_script("x", decimal_comma=False))
+        self.assertIn('window.mathessibleConvert("x", false, false)', conversion_script("x", decimal_comma=False))
+        self.assertIn('window.mathessibleConvert("x", true, true)', conversion_script("x", latex=True))
         stopped = decode_conversion(
             json.dumps({"mathml": "<math/>", "error": None, "parseOffset": 3, "parseFound": ")"})
         )
@@ -140,6 +141,30 @@ class UnicodeMathMLTests(unittest.TestCase):
         self.assertEqual(words["nbsp"], "\u00a0")  # A \\u escape in the JS.
         self.assertNotIn("Bigl", words)  # Empty in the table.
         self.assertNotIn("Faraday", words)  # A playground example, not a symbol.
+
+
+class LaTeXConversionTests(unittest.TestCase):
+    """A LaTeX document's equations, built through Sargent's TeX2UnicodeMath (with patches/unicodemathml/0004)."""
+
+    @needs_node
+    def test_latex_builds_as_the_same_structures(self) -> None:
+        sources = [
+            "\\frac{a}{b+c}",
+            "\\sqrt[3]{y}",
+            "\\sum_{i=1}^{n} i^2",
+            "\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix}",
+            "x\\in\\mathbb{R}^n",
+            "\\mathbf{v}+\\mathcal{L}",
+        ]
+        results = convert_all(sources, latex=True)
+        self.assertIn("<mfrac>", results[0]["mathml"])
+        self.assertIn("<mroot>", results[1]["mathml"])
+        self.assertIn("<munderover>", results[2]["mathml"])
+        self.assertIn("<mtable", results[3]["mathml"])
+        self.assertIn("<mi>ℝ</mi>", results[4]["mathml"])
+        self.assertEqual(results[5]["unicodemath"], "𝐯+ℒ")
+        for result in results:
+            self.assertNotIn("\\math", result["mathml"])
 
 
 if __name__ == "__main__":

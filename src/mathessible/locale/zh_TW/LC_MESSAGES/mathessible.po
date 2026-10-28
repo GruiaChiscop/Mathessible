@@ -15,77 +15,77 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: src/mathessible/documents/notebook.py:42
+#: src/mathessible/documents/notebook.py:43
 msgid "The selected folder is not empty"
 msgstr "所選的資料夾不是空的"
 
-#: src/mathessible/documents/notebook.py:56
+#: src/mathessible/documents/notebook.py:57
 #, python-brace-format
 msgid "The selected folder does not contain {name}"
 msgstr "所選的資料夾不含 {name}"
 
-#: src/mathessible/documents/notebook.py:58
+#: src/mathessible/documents/notebook.py:59
 #, python-brace-format
 msgid "The notebook manifest could not be read: {error}"
 msgstr "無法讀取筆記本的清單檔：{error}"
 
-#: src/mathessible/documents/notebook.py:60
+#: src/mathessible/documents/notebook.py:61
 msgid "Unknown or incompatible notebook format"
 msgstr "不明或不相容的筆記本格式"
 
-#: src/mathessible/documents/notebook.py:64
+#: src/mathessible/documents/notebook.py:65
 msgid "The notebook manifest is incomplete"
 msgstr "筆記本的清單檔不完整"
 
-#: src/mathessible/documents/notebook.py:69
+#: src/mathessible/documents/notebook.py:70
 msgid "The manifest contains an invalid page"
 msgstr "清單檔含有無效的頁面"
 
-#: src/mathessible/documents/notebook.py:74
+#: src/mathessible/documents/notebook.py:75
 msgid "The manifest contains an incomplete page"
 msgstr "清單檔含有不完整的頁面"
 
-#: src/mathessible/documents/notebook.py:76
+#: src/mathessible/documents/notebook.py:77
 msgid "The manifest contains duplicate page identifiers"
 msgstr "清單檔含有重複的頁面識別碼"
 
-#: src/mathessible/documents/notebook.py:80
+#: src/mathessible/documents/notebook.py:81
 #, python-brace-format
 msgid "Page file is missing: {file}"
 msgstr "缺少頁面檔案：{file}"
 
-#: src/mathessible/documents/notebook.py:84
+#: src/mathessible/documents/notebook.py:85
 msgid "A notebook must contain at least one page"
 msgstr "筆記本至少必須有一頁"
 
-#: src/mathessible/documents/notebook.py:106 src/mathessible/documents/notebook.py:131
+#: src/mathessible/documents/notebook.py:107 src/mathessible/documents/notebook.py:132
 msgid "A page must have a title"
 msgstr "頁面必須有標題"
 
-#: src/mathessible/documents/notebook.py:156
+#: src/mathessible/documents/notebook.py:157
 msgid "A notebook must keep at least one page"
 msgstr "筆記本至少必須保留一頁"
 
-#: src/mathessible/documents/notebook.py:184
+#: src/mathessible/documents/notebook.py:185
 #, python-brace-format
 msgid "Unsafe page path: {file}"
 msgstr "不安全的頁面路徑：{file}"
 
-#: src/mathessible/documents/pdf_source.py:44
+#: src/mathessible/documents/pdf_source.py:47
 msgid "This PDF needs a password to open, so Mathessible cannot read its source."
 msgstr "此 PDF 需要密碼才能開啟，因此 Mathessible 無法讀取其原始碼。"
 
-#: src/mathessible/documents/pdf_source.py:52
+#: src/mathessible/documents/pdf_source.py:57
 msgid "This file is not a PDF Mathessible can read."
 msgstr "此檔案不是 Mathessible 能讀取的 PDF。"
 
-#: src/mathessible/documents/pdf_source.py:56
+#: src/mathessible/documents/pdf_source.py:61
 msgid ""
 "This PDF has no Markdown source attached. Only PDFs exported by Mathessible with \"Attach the "
 "Markdown source\" can be opened."
 msgstr "此 PDF 沒有附加 Markdown 原始碼。只有 Mathessible 以「附加 Markdown 原始碼」匯出的 PDF 才能開啟。"
 
-#: src/mathessible/documents/pdf_source.py:70
+#: src/mathessible/documents/pdf_source.py:75
 msgid "The Markdown attached to this PDF is not UTF-8 text."
 msgstr "附加在此 PDF 中的 Markdown 不是 UTF-8 文字。"
 
@@ -269,19 +269,19 @@ msgstr "沒有錯誤"
 msgid "{message}, selected {span}"
 msgstr "{message}，已選取 {span}"
 
-#: src/mathessible/editor/built.py:119 src/mathessible/editor/equation_editor.py:955
+#: src/mathessible/editor/built.py:119 src/mathessible/editor/equation_editor.py:977
 msgid "could not cut"
 msgstr "無法剪下"
 
-#: src/mathessible/editor/built.py:432 src/mathessible/editor/equation_editor.py:920
+#: src/mathessible/editor/built.py:432 src/mathessible/editor/equation_editor.py:942
 msgid "nothing to select"
 msgstr "沒有可選取的內容"
 
-#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:882
+#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:904
 msgid "nothing to undo"
 msgstr "沒有可復原的動作"
 
-#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:882
+#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:904
 msgid "nothing to redo"
 msgstr "沒有可重做的動作"
 
@@ -343,354 +343,362 @@ msgstr "請在此輸入 UnicodeMath，例如 (a+b)/2"
 msgid "Equation editor"
 msgstr "方程式編輯器"
 
-#: src/mathessible/editor/equation_editor.py:207 src/mathessible/ui/braille_signs_dialog.py:61
+#: src/mathessible/editor/equation_editor.py:210 src/mathessible/ui/braille_signs_dialog.py:61
 #: src/mathessible/ui/settings_dialog.py:74
 msgid "Braille"
 msgstr "點字"
 
-#: src/mathessible/editor/equation_editor.py:210
+#: src/mathessible/editor/equation_editor.py:213
 msgid "Equation braille"
 msgstr "方程式的點字"
 
-#: src/mathessible/editor/equation_editor.py:266
+#: src/mathessible/editor/equation_editor.py:269
 msgid "equation ready"
 msgstr "方程式已就緒"
 
-#: src/mathessible/editor/equation_editor.py:429
+#: src/mathessible/editor/equation_editor.py:432
 msgid "Equation editor, professional mode"
 msgstr "方程式編輯器，專業模式"
 
-#: src/mathessible/editor/equation_editor.py:431
+#: src/mathessible/editor/equation_editor.py:434
 msgid "Equation editor, linear mode"
 msgstr "方程式編輯器，線性模式"
 
-#: src/mathessible/editor/equation_editor.py:503
+#: src/mathessible/editor/equation_editor.py:506
 #, python-brace-format
 msgid "zoom {percent} percent"
 msgstr "縮放 {percent}%"
 
-#: src/mathessible/editor/equation_editor.py:557
+#: src/mathessible/editor/equation_editor.py:560
 msgid "The equation could not be built"
 msgstr "無法建構方程式"
 
-#: src/mathessible/editor/equation_editor.py:569
+#: src/mathessible/editor/equation_editor.py:572
 #, python-brace-format
 msgid "The equation could not be read. {error}"
 msgstr "無法讀取方程式。{error}"
 
-#: src/mathessible/editor/equation_editor.py:593
+#: src/mathessible/editor/equation_editor.py:596
 msgid "empty equation"
 msgstr "空的方程式"
 
-#: src/mathessible/editor/equation_editor.py:599
+#: src/mathessible/editor/equation_editor.py:602
 #, python-brace-format
 msgid "Professional mode could not be built. {error}"
 msgstr "無法建構專業模式。{error}"
 
-#: src/mathessible/editor/equation_editor.py:604
+#: src/mathessible/editor/equation_editor.py:607
 #, python-brace-format
 msgid "cannot be built, {errors}"
 msgstr "無法建構，{errors}"
 
-#: src/mathessible/editor/equation_editor.py:607
+#: src/mathessible/editor/equation_editor.py:610
 msgid "Professional mode could not be built"
 msgstr "無法建構專業模式"
 
-#: src/mathessible/editor/equation_editor.py:634
+#: src/mathessible/editor/equation_editor.py:646
 #, python-brace-format
 msgid "professional mode, {speech}"
 msgstr "專業模式，{speech}"
 
-#: src/mathessible/editor/equation_editor.py:750
+#: src/mathessible/editor/equation_editor.py:765
 msgid "writing mode"
 msgstr "書寫模式"
 
-#: src/mathessible/editor/equation_editor.py:750
+#: src/mathessible/editor/equation_editor.py:765
 msgid "exploration mode"
 msgstr "探索模式"
 
-#: src/mathessible/editor/equation_editor.py:753
+#: src/mathessible/editor/equation_editor.py:769
+msgid "LaTeX is written in the linear view, F2"
+msgstr "LaTeX 在線性檢視中撰寫，F2"
+
+#: src/mathessible/editor/equation_editor.py:771
 msgid "exploration mode, F10 to write"
 msgstr "探索模式，按 F10 書寫"
 
-#: src/mathessible/editor/equation_editor.py:915
+#: src/mathessible/editor/equation_editor.py:804
+msgid "templates are not available for LaTeX yet"
+msgstr "LaTeX 尚無範本可用"
+
+#: src/mathessible/editor/equation_editor.py:937
 #, python-brace-format
 msgid "{count} character selected"
 msgid_plural "{count} characters selected"
 msgstr[0] "已選取 {count} 個字元"
 
-#: src/mathessible/editor/equation_editor.py:934
+#: src/mathessible/editor/equation_editor.py:956
 #, python-brace-format
 msgid "copied {item}"
 msgstr "已複製{item}"
 
-#: src/mathessible/editor/equation_editor.py:936 src/mathessible/editor/equation_editor.py:944
+#: src/mathessible/editor/equation_editor.py:958 src/mathessible/editor/equation_editor.py:966
 msgid "could not copy"
 msgstr "無法複製"
 
-#: src/mathessible/editor/equation_editor.py:941
+#: src/mathessible/editor/equation_editor.py:963
 msgid "nothing to copy"
 msgstr "沒有可複製的內容"
 
-#: src/mathessible/editor/equation_editor.py:946
+#: src/mathessible/editor/equation_editor.py:968
 msgid "selection copied"
 msgstr "已複製選取範圍"
 
-#: src/mathessible/editor/equation_editor.py:946
+#: src/mathessible/editor/equation_editor.py:968
 msgid "equation copied"
 msgstr "已複製方程式"
 
-#: src/mathessible/editor/equation_editor.py:952
+#: src/mathessible/editor/equation_editor.py:974
 msgid "nothing to cut"
 msgstr "沒有可剪下的內容"
 
-#: src/mathessible/editor/equation_editor.py:959
+#: src/mathessible/editor/equation_editor.py:981
 msgid "selection cut"
 msgstr "已剪下選取範圍"
 
-#: src/mathessible/editor/equation_editor.py:962
+#: src/mathessible/editor/equation_editor.py:984
 msgid "equation cut"
 msgstr "已剪下方程式"
 
-#: src/mathessible/editor/equation_editor.py:980
+#: src/mathessible/editor/equation_editor.py:1005
 msgid "the pasted MathML could not be converted"
 msgstr "無法轉換貼上的 MathML"
 
-#: src/mathessible/editor/equation_editor.py:983 src/mathessible/editor/equation_editor.py:989
+#: src/mathessible/editor/equation_editor.py:1008 src/mathessible/editor/equation_editor.py:1014
 msgid "clipboard is empty"
 msgstr "剪貼簿是空的"
 
-#: src/mathessible/editor/equation_editor.py:996
+#: src/mathessible/editor/equation_editor.py:1021
 msgid "equation pasted"
 msgstr "已貼上方程式"
 
-#: src/mathessible/editor/equation_editor.py:1038
+#: src/mathessible/editor/equation_editor.py:1063
 msgid "still preparing the equation, please wait"
 msgstr "仍在準備方程式，請稍候"
 
-#: src/mathessible/editor/equation_editor.py:1218 src/mathessible/editor/equation_editor.py:1229
+#: src/mathessible/editor/equation_editor.py:1243 src/mathessible/editor/equation_editor.py:1254
 msgid "selection deleted"
 msgstr "已刪除選取範圍"
 
-#: src/mathessible/editor/equation_editor.py:1415
+#: src/mathessible/editor/equation_editor.py:1440
 msgid "cannot move there"
 msgstr "無法移到那裡"
 
-#: src/mathessible/editor/equation_editor.py:1419
+#: src/mathessible/editor/equation_editor.py:1444
 #, python-brace-format
 msgid "MathCAT could not read the equation, linear mode. {error}"
 msgstr "MathCAT 無法讀取方程式，線性模式。{error}"
 
-#: src/mathessible/editor/equation_editor.py:1489 src/mathessible/editor/equation_editor.py:1495
+#: src/mathessible/editor/equation_editor.py:1514 src/mathessible/editor/equation_editor.py:1520
 msgid "start"
 msgstr "開頭"
 
-#: src/mathessible/editor/equation_editor.py:1497
+#: src/mathessible/editor/equation_editor.py:1522
 msgid "end"
 msgstr "結尾"
 
-#: src/mathessible/editor/renderer.py:65
+#: src/mathessible/editor/renderer.py:67
 msgid "the UnicodeMathML engine did not initialize"
 msgstr "UnicodeMathML 引擎未能初始化"
 
-#: src/mathessible/editor/renderer.py:205
+#: src/mathessible/editor/renderer.py:218
 msgid "the UnicodeMathML converter is still loading"
 msgstr "UnicodeMathML 轉換器仍在載入"
 
-#: src/mathessible/editor/renderer.py:212
+#: src/mathessible/editor/renderer.py:225
 msgid "the UnicodeMathML converter is busy"
 msgstr "UnicodeMathML 轉換器忙碌中"
 
-#: src/mathessible/editor/renderer.py:242
+#: src/mathessible/editor/renderer.py:255
 msgid "the UnicodeMathML converter could not run"
 msgstr "無法執行 UnicodeMathML 轉換器"
 
-#: src/mathessible/editor/structures.py:148
+#: src/mathessible/editor/structures.py:149
 msgid "Switch to Professional View"
 msgstr "切換到專業檢視"
 
-#: src/mathessible/editor/structures.py:148
+#: src/mathessible/editor/structures.py:149
 msgid "Switch to Linear View"
 msgstr "切換到線性檢視"
 
-#: src/mathessible/editor/structures.py:159 src/mathessible/ui/document_editor.py:115
-#: src/mathessible/ui/main_frame.py:223
+#: src/mathessible/editor/structures.py:160 src/mathessible/ui/document_editor.py:122
+#: src/mathessible/ui/main_frame.py:232
 msgid "Cu&t"
 msgstr "剪下(&T)"
 
-#: src/mathessible/editor/structures.py:160 src/mathessible/ui/document_editor.py:116
-#: src/mathessible/ui/main_frame.py:224
+#: src/mathessible/editor/structures.py:161 src/mathessible/ui/document_editor.py:123
+#: src/mathessible/ui/main_frame.py:233
 msgid "&Copy"
 msgstr "複製(&C)"
 
-#: src/mathessible/editor/structures.py:161 src/mathessible/ui/document_editor.py:117
-#: src/mathessible/ui/main_frame.py:225
+#: src/mathessible/editor/structures.py:162 src/mathessible/ui/document_editor.py:124
+#: src/mathessible/ui/main_frame.py:234
 msgid "&Paste"
 msgstr "貼上(&P)"
 
-#: src/mathessible/editor/structures.py:163 src/mathessible/ui/document_editor.py:119
-#: src/mathessible/ui/main_frame.py:228
+#: src/mathessible/editor/structures.py:164 src/mathessible/ui/document_editor.py:126
+#: src/mathessible/ui/main_frame.py:237
 msgid "Select &All"
 msgstr "全選(&A)"
 
-#: src/mathessible/editor/structures.py:168 src/mathessible/ui/document_editor.py:138
-#: src/mathessible/ui/main_frame.py:252
+#: src/mathessible/editor/structures.py:170 src/mathessible/ui/document_editor.py:145
+#: src/mathessible/ui/main_frame.py:263
 msgid "&Insert"
 msgstr "插入(&I)"
 
-#: src/mathessible/editor/structures.py:190
+#: src/mathessible/editor/structures.py:192
 msgid "Insert Case &Above"
 msgstr "在上方插入情況(&A)"
 
-#: src/mathessible/editor/structures.py:190
+#: src/mathessible/editor/structures.py:192
 msgid "Insert Case &Below"
 msgstr "在下方插入情況(&B)"
 
-#: src/mathessible/editor/structures.py:190
+#: src/mathessible/editor/structures.py:192
 msgid "&Delete Case"
 msgstr "刪除情況(&D)"
 
-#: src/mathessible/editor/structures.py:192
+#: src/mathessible/editor/structures.py:194
 msgid "Insert Equation &Above"
 msgstr "在上方插入方程式(&A)"
 
-#: src/mathessible/editor/structures.py:192
+#: src/mathessible/editor/structures.py:194
 msgid "Insert Equation &Below"
 msgstr "在下方插入方程式(&B)"
 
-#: src/mathessible/editor/structures.py:192
+#: src/mathessible/editor/structures.py:194
 msgid "&Delete Equation"
 msgstr "刪除方程式(&D)"
 
-#: src/mathessible/editor/structures.py:203
+#: src/mathessible/editor/structures.py:205
 msgid "&Equations"
 msgstr "方程式(&E)"
 
-#: src/mathessible/editor/structures.py:203 src/mathessible/templates/insert_catalog.py:129
+#: src/mathessible/editor/structures.py:205 src/mathessible/templates/insert_catalog.py:129
 msgid "&Cases"
 msgstr "分段情況(&C)"
 
-#: src/mathessible/editor/structures.py:207
+#: src/mathessible/editor/structures.py:209
 msgid "Insert Row &Above"
 msgstr "在上方插入列(&A)"
 
-#: src/mathessible/editor/structures.py:208
+#: src/mathessible/editor/structures.py:210
 msgid "Insert Row &Below"
 msgstr "在下方插入列(&B)"
 
-#: src/mathessible/editor/structures.py:210
+#: src/mathessible/editor/structures.py:212
 msgid "Insert Column &Left"
 msgstr "在左側插入欄(&L)"
 
-#: src/mathessible/editor/structures.py:214
+#: src/mathessible/editor/structures.py:216
 msgid "Insert Column &Right"
 msgstr "在右側插入欄(&R)"
 
-#: src/mathessible/editor/structures.py:218
+#: src/mathessible/editor/structures.py:220
 msgid "Delete R&ow"
 msgstr "刪除列(&O)"
 
-#: src/mathessible/editor/structures.py:219
+#: src/mathessible/editor/structures.py:221
 msgid "Delete C&olumn"
 msgstr "刪除欄(&O)"
 
-#: src/mathessible/editor/structures.py:231
+#: src/mathessible/editor/structures.py:233
 msgid "Matri&x"
 msgstr "矩陣(&X)"
 
-#: src/mathessible/editor/structures.py:248 src/mathessible/templates/insert_catalog.py:63
+#: src/mathessible/editor/structures.py:250 src/mathessible/templates/insert_catalog.py:63
 msgid "&Fraction"
 msgstr "分數(&F)"
 
-#: src/mathessible/editor/structures.py:257
+#: src/mathessible/editor/structures.py:259
 msgid "&Add Index"
 msgstr "新增根指數(&A)"
 
-#: src/mathessible/editor/structures.py:258
+#: src/mathessible/editor/structures.py:260
 msgid "&Remove Index"
 msgstr "移除根指數(&R)"
 
-#: src/mathessible/editor/structures.py:265
+#: src/mathessible/editor/structures.py:267
 msgid "&Root"
 msgstr "根號(&R)"
 
-#: src/mathessible/editor/structures.py:277
+#: src/mathessible/editor/structures.py:279
 msgid "&Add Limits"
 msgstr "新增上下限(&A)"
 
-#: src/mathessible/editor/structures.py:278
+#: src/mathessible/editor/structures.py:280
 msgid "&Remove Limits"
 msgstr "移除上下限(&R)"
 
-#: src/mathessible/editor/structures.py:310
+#: src/mathessible/editor/structures.py:312
 msgid "Add &Subscript"
 msgstr "新增下標(&S)"
 
-#: src/mathessible/editor/structures.py:311
+#: src/mathessible/editor/structures.py:313
 msgid "Add Su&perscript"
 msgstr "新增上標(&P)"
 
-#: src/mathessible/editor/structures.py:312
+#: src/mathessible/editor/structures.py:314
 msgid "&Remove Subscript"
 msgstr "移除下標(&R)"
 
-#: src/mathessible/editor/structures.py:313
+#: src/mathessible/editor/structures.py:315
 msgid "Remove Superscrip&t"
 msgstr "移除上標(&T)"
 
-#: src/mathessible/editor/structures.py:314
+#: src/mathessible/editor/structures.py:316
 msgid "&Script"
 msgstr "上下標(&S)"
 
-#: src/mathessible/editor/structures.py:338
+#: src/mathessible/editor/structures.py:340
 msgid "Show &Opening Bracket"
 msgstr "顯示左括號(&O)"
 
-#: src/mathessible/editor/structures.py:338
+#: src/mathessible/editor/structures.py:340
 msgid "Hide &Opening Bracket"
 msgstr "隱藏左括號(&O)"
 
-#: src/mathessible/editor/structures.py:343
+#: src/mathessible/editor/structures.py:345
 msgid "Show &Closing Bracket"
 msgstr "顯示右括號(&C)"
 
-#: src/mathessible/editor/structures.py:343
+#: src/mathessible/editor/structures.py:345
 msgid "Hide &Closing Bracket"
 msgstr "隱藏右括號(&C)"
 
-#: src/mathessible/editor/structures.py:348
+#: src/mathessible/editor/structures.py:350
 msgid "&Remove Brackets"
 msgstr "移除括號(&R)"
 
-#: src/mathessible/editor/structures.py:349 src/mathessible/ui/matrix_dialog.py:37
+#: src/mathessible/editor/structures.py:351 src/mathessible/ui/matrix_dialog.py:37
 msgid "&Brackets"
 msgstr "括號(&B)"
 
-#: src/mathessible/editor/structures.py:364
+#: src/mathessible/editor/structures.py:366
 msgid "&Remove Accent"
 msgstr "移除重音符號(&R)"
 
-#: src/mathessible/editor/structures.py:365
+#: src/mathessible/editor/structures.py:367
 msgid "&Accent"
 msgstr "重音符號(&A)"
 
-#: src/mathessible/editor/structures.py:369
+#: src/mathessible/editor/structures.py:371
 msgid "Change to &Underbar"
 msgstr "改為底線(&U)"
 
-#: src/mathessible/editor/structures.py:369
+#: src/mathessible/editor/structures.py:371
 msgid "Change to &Overbar"
 msgstr "改為頂線(&O)"
 
-#: src/mathessible/editor/structures.py:370
+#: src/mathessible/editor/structures.py:372
 msgid "&Remove Bar"
 msgstr "移除線條(&R)"
 
-#: src/mathessible/editor/structures.py:465
+#: src/mathessible/editor/structures.py:467
 msgid "not available here"
 msgstr "此處無法使用"
 
-#: src/mathessible/editor/structures.py:539
+#: src/mathessible/editor/structures.py:541
 #, python-brace-format
 msgid "{announcement}. Professional mode could not be rebuilt, linear mode. {error}"
 msgstr "{announcement}。無法重新建構專業模式，線性模式。{error}"
@@ -811,103 +819,103 @@ msgstr "ASCIIMath（文字）"
 msgid "LaTeX (text)"
 msgstr "LaTeX（文字）"
 
-#: src/mathessible/settings.py:332
+#: src/mathessible/settings.py:335
 msgid "US Letter"
 msgstr "US Letter"
 
-#: src/mathessible/settings.py:332
+#: src/mathessible/settings.py:335
 msgid "US Legal"
 msgstr "US Legal"
 
-#: src/mathessible/settings.py:334
+#: src/mathessible/settings.py:337
 msgid "Bottom, centred"
 msgstr "底部，置中"
 
-#: src/mathessible/settings.py:335
+#: src/mathessible/settings.py:338
 msgid "Bottom, right"
 msgstr "底部，靠右"
 
-#: src/mathessible/settings.py:336
+#: src/mathessible/settings.py:339
 msgid "Top, right"
 msgstr "頂部，靠右"
 
-#: src/mathessible/settings.py:340
+#: src/mathessible/settings.py:343
 msgid "Tagged PDF"
 msgstr "加標籤的 PDF"
 
-#: src/mathessible/settings.py:341
+#: src/mathessible/settings.py:344
 msgid "PDF/UA-1 (accessible, checked)"
 msgstr "PDF/UA-1（無障礙，已檢查）"
 
-#: src/mathessible/settings.py:342
+#: src/mathessible/settings.py:345
 msgid "PDF/UA-1 and PDF/A-3a (accessible and archival)"
 msgstr "PDF/UA-1 和 PDF/A-3a（無障礙且可封存）"
 
-#: src/mathessible/settings.py:343
+#: src/mathessible/settings.py:346
 msgid "PDF/A-3a (archival)"
 msgstr "PDF/A-3a（可封存）"
 
-#: src/mathessible/settings.py:345 src/mathessible/settings.py:346
+#: src/mathessible/settings.py:348 src/mathessible/settings.py:349
 msgid "None"
 msgstr "無"
 
-#: src/mathessible/settings.py:349
+#: src/mathessible/settings.py:352
 msgid "Default (black)"
 msgstr "預設（黑色）"
 
-#: src/mathessible/settings.py:350
+#: src/mathessible/settings.py:353
 msgid "Dark grey"
 msgstr "深灰色"
 
-#: src/mathessible/settings.py:351
+#: src/mathessible/settings.py:354
 msgid "Dark blue"
 msgstr "深藍色"
 
-#: src/mathessible/settings.py:352
+#: src/mathessible/settings.py:355
 msgid "Link blue"
 msgstr "連結藍"
 
-#: src/mathessible/settings.py:353
+#: src/mathessible/settings.py:356
 msgid "Dark green"
 msgstr "深綠色"
 
-#: src/mathessible/settings.py:354
+#: src/mathessible/settings.py:357
 msgid "Dark red"
 msgstr "深紅色"
 
-#: src/mathessible/settings.py:355
+#: src/mathessible/settings.py:358
 msgid "Dark purple"
 msgstr "深紫色"
 
-#: src/mathessible/settings.py:358
+#: src/mathessible/settings.py:361
 msgid "Single"
 msgstr "單行"
 
-#: src/mathessible/settings.py:358
+#: src/mathessible/settings.py:361
 msgid "1.5 lines"
 msgstr "1.5 倍行高"
 
-#: src/mathessible/settings.py:358
+#: src/mathessible/settings.py:361
 msgid "Double"
 msgstr "雙行"
 
-#: src/mathessible/settings.py:359
+#: src/mathessible/settings.py:362
 msgid "Sans serif (the system's)"
 msgstr "無襯線（系統字型）"
 
-#: src/mathessible/settings.py:359
+#: src/mathessible/settings.py:362
 msgid "Serif"
 msgstr "襯線"
 
-#: src/mathessible/settings.py:361
+#: src/mathessible/settings.py:364
 msgid "Light or dark, as the reader's system"
 msgstr "淺色或深色，依讀者的系統"
 
-#: src/mathessible/settings.py:362
+#: src/mathessible/settings.py:365
 msgid "Light"
 msgstr "淺色"
 
-#: src/mathessible/settings.py:363
+#: src/mathessible/settings.py:366
 msgid "Dark"
 msgstr "深色"
 
@@ -925,7 +933,7 @@ msgstr "空格之後"
 msgid "angle bracket"
 msgstr "角括號"
 
-#: src/mathessible/editor/equation_editor.py:1170 src/mathessible/spoken.py:24
+#: src/mathessible/editor/equation_editor.py:1195 src/mathessible/spoken.py:24
 msgid "argument"
 msgstr "引數"
 
@@ -945,7 +953,7 @@ msgstr "底數"
 msgid "binomial"
 msgstr "二項式係數"
 
-#: src/mathessible/editor/equation_editor.py:1208 src/mathessible/spoken.py:29
+#: src/mathessible/editor/equation_editor.py:1233 src/mathessible/spoken.py:29
 msgid "blank"
 msgstr "空白"
 
@@ -968,8 +976,8 @@ msgstr "大括號"
 msgid "bracket"
 msgstr "方括號"
 
-#: src/mathessible/editor/assist.py:90 src/mathessible/editor/equation_editor.py:1175
-#: src/mathessible/editor/equation_editor.py:1353 src/mathessible/spoken.py:34
+#: src/mathessible/editor/assist.py:90 src/mathessible/editor/equation_editor.py:1200
+#: src/mathessible/editor/equation_editor.py:1378 src/mathessible/spoken.py:34
 msgid "built"
 msgstr "已建構"
 
@@ -1087,8 +1095,8 @@ msgstr "上下限"
 msgid "linear"
 msgstr "線性"
 
-#: src/mathessible/editor/assist.py:243 src/mathessible/editor/equation_editor.py:612
-#: src/mathessible/editor/structures.py:481 src/mathessible/spoken.py:63
+#: src/mathessible/editor/assist.py:243 src/mathessible/editor/equation_editor.py:619
+#: src/mathessible/editor/structures.py:483 src/mathessible/spoken.py:63
 msgid "linear mode"
 msgstr "線性模式"
 
@@ -1104,7 +1112,7 @@ msgstr "下限"
 msgid "matrix"
 msgstr "矩陣"
 
-#: src/mathessible/editor/built.py:828 src/mathessible/editor/equation_editor.py:1134
+#: src/mathessible/editor/built.py:828 src/mathessible/editor/equation_editor.py:1159
 #: src/mathessible/spoken.py:67
 msgid "no slot"
 msgstr "沒有位置"
@@ -1113,7 +1121,7 @@ msgstr "沒有位置"
 msgid "norm"
 msgstr "範數"
 
-#: src/mathessible/editor/structures.py:504 src/mathessible/spoken.py:69
+#: src/mathessible/editor/structures.py:506 src/mathessible/spoken.py:69
 msgid "not in a table"
 msgstr "不在表格中"
 
@@ -1186,7 +1194,7 @@ msgstr "上下標組"
 msgid "selected"
 msgstr "已選取"
 
-#: src/mathessible/editor/equation_editor.py:911 src/mathessible/spoken.py:87
+#: src/mathessible/editor/equation_editor.py:933 src/mathessible/spoken.py:87
 msgid "selection cleared"
 msgstr "已清除選取"
 
@@ -2379,7 +2387,7 @@ msgstr "數學自動校正對話方塊"
 msgid "&Replace"
 msgstr "取代(&R)"
 
-#: src/mathessible/ui/autocorrect_dialog.py:42 src/mathessible/ui/main_frame.py:500
+#: src/mathessible/ui/autocorrect_dialog.py:42 src/mathessible/ui/main_frame.py:513
 msgid "Replace"
 msgstr "取代"
 
@@ -2407,7 +2415,7 @@ msgstr "新增(&A)"
 
 #: src/mathessible/ui/autocorrect_dialog.py:55 src/mathessible/ui/braille_signs_dialog.py:71
 #: src/mathessible/ui/functions_dialog.py:49 src/mathessible/ui/gallery_dialog.py:56
-#: src/mathessible/ui/main_frame.py:226
+#: src/mathessible/ui/main_frame.py:235
 msgid "&Delete"
 msgstr "刪除(&D)"
 
@@ -2455,141 +2463,151 @@ msgstr "點字符號"
 msgid "{symbol}  {name}: {cells} (dots {dots})"
 msgstr "{symbol}  {name}：{cells}（點位 {dots}）"
 
-#: src/mathessible/ui/document_editor.py:64
+#: src/mathessible/ui/document_editor.py:71
 msgid "Equation Editor"
 msgstr "方程式編輯器"
 
-#: src/mathessible/ui/document_editor.py:69
+#: src/mathessible/ui/document_editor.py:76
 msgid "Equation Editor window"
 msgstr "方程式編輯器視窗"
 
-#: src/mathessible/ui/document_editor.py:76
+#: src/mathessible/ui/document_editor.py:83
 #, python-brace-format
 msgid "Enter or {shortcut} saves. Escape cancels."
 msgstr "按 Enter 或 {shortcut} 儲存。按 Escape 取消。"
 
-#: src/mathessible/ui/document_editor.py:91
+#: src/mathessible/ui/document_editor.py:98
 msgid "&Save Equation (Enter)"
 msgstr "儲存方程式(&S)（Enter）"
 
-#: src/mathessible/ui/document_editor.py:92
+#: src/mathessible/ui/document_editor.py:99
 msgid "&Cancel (Escape)"
 msgstr "取消(&C)（Escape）"
 
-#: src/mathessible/ui/document_editor.py:96
+#: src/mathessible/ui/document_editor.py:103
 msgid "&Errors…"
 msgstr "錯誤(&E)…"
 
-#: src/mathessible/ui/document_editor.py:98
+#: src/mathessible/ui/document_editor.py:105
 msgid "Save as &New Equation…"
 msgstr "另存為新方程式(&N)…"
 
-#: src/mathessible/ui/document_editor.py:100 src/mathessible/ui/document_editor.py:105
+#: src/mathessible/ui/document_editor.py:107 src/mathessible/ui/document_editor.py:112
 msgid "Change to &Display"
 msgstr "改為獨立方程式(&D)"
 
-#: src/mathessible/ui/document_editor.py:105
+#: src/mathessible/ui/document_editor.py:112
 msgid "Change to &Inline"
 msgstr "改為行內方程式(&I)"
 
-#: src/mathessible/ui/document_editor.py:109
+#: src/mathessible/ui/document_editor.py:116
 msgid "E&quation"
 msgstr "方程式(&Q)"
 
-#: src/mathessible/ui/document_editor.py:112 src/mathessible/ui/main_frame.py:220
+#: src/mathessible/ui/document_editor.py:119 src/mathessible/ui/main_frame.py:229
 msgid "&Undo"
 msgstr "復原(&U)"
 
-#: src/mathessible/ui/document_editor.py:113 src/mathessible/ui/main_frame.py:221
+#: src/mathessible/ui/document_editor.py:120 src/mathessible/ui/main_frame.py:230
 msgid "&Redo"
 msgstr "重做(&R)"
 
-#: src/mathessible/ui/document_editor.py:133 src/mathessible/ui/main_frame.py:243
+#: src/mathessible/ui/document_editor.py:140 src/mathessible/ui/main_frame.py:254
 msgid "&Edit"
 msgstr "編輯(&E)"
 
-#: src/mathessible/ui/document_editor.py:140
+#: src/mathessible/ui/document_editor.py:147
 msgid "&Professional View"
 msgstr "專業檢視(&P)"
 
-#: src/mathessible/ui/document_editor.py:141
+#: src/mathessible/ui/document_editor.py:148
 msgid "&Writing Mode"
 msgstr "書寫模式(&W)"
 
-#: src/mathessible/ui/document_editor.py:143
+#: src/mathessible/ui/document_editor.py:150
 msgid "Zoom &In"
 msgstr "放大(&I)"
 
-#: src/mathessible/ui/document_editor.py:144
+#: src/mathessible/ui/document_editor.py:151
 msgid "Zoom &Out"
 msgstr "縮小(&O)"
 
-#: src/mathessible/ui/document_editor.py:145
+#: src/mathessible/ui/document_editor.py:152
 msgid "&Actual Size"
 msgstr "實際大小(&A)"
 
-#: src/mathessible/ui/document_editor.py:157 src/mathessible/ui/main_frame.py:256
+#: src/mathessible/ui/document_editor.py:164 src/mathessible/ui/main_frame.py:267
 msgid "&View"
 msgstr "檢視(&V)"
 
-#: src/mathessible/ui/document_editor.py:181 src/mathessible/ui/document_editor.py:366
+#: src/mathessible/ui/document_editor.py:197 src/mathessible/ui/document_editor.py:397
 msgid "display equation"
 msgstr "獨立方程式"
 
-#: src/mathessible/ui/document_editor.py:181 src/mathessible/ui/document_editor.py:366
+#: src/mathessible/ui/document_editor.py:197 src/mathessible/ui/document_editor.py:397
 msgid "inline equation"
 msgstr "行內方程式"
 
-#: src/mathessible/ui/document_editor.py:188
+#: src/mathessible/ui/document_editor.py:205
+#, python-brace-format
+msgid "Edit display equation in LaTeX — Enter or {shortcut} saves. Escape cancels."
+msgstr "以 LaTeX 編輯獨立方程式 — Enter 或 {shortcut} 儲存。Escape 取消。"
+
+#: src/mathessible/ui/document_editor.py:207
+#, python-brace-format
+msgid "Edit inline equation in LaTeX — Enter or {shortcut} saves. Escape cancels."
+msgstr "以 LaTeX 編輯行內方程式 — Enter 或 {shortcut} 儲存。Escape 取消。"
+
+#: src/mathessible/ui/document_editor.py:209
 #, python-brace-format
 msgid "Edit display equation — Enter or {shortcut} saves. Escape cancels."
 msgstr "編輯獨立方程式 — 按 Enter 或 {shortcut} 儲存。按 Escape 取消。"
 
-#: src/mathessible/ui/document_editor.py:190
+#: src/mathessible/ui/document_editor.py:211
 #, python-brace-format
 msgid "Edit inline equation — Enter or {shortcut} saves. Escape cancels."
 msgstr "編輯行內方程式 — 按 Enter 或 {shortcut} 儲存。按 Escape 取消。"
 
-#: src/mathessible/ui/document_editor.py:267
+#: src/mathessible/ui/document_editor.py:288
 msgid "Markdown editor"
 msgstr "Markdown 編輯器"
 
-#: src/mathessible/ui/document_editor.py:358
+#: src/mathessible/ui/document_editor.py:389
 msgid "this equation cannot be inline"
 msgstr "此方程式不能設為行內"
 
-#: src/mathessible/ui/document_editor.py:376
+#: src/mathessible/ui/document_editor.py:407
 msgid "a footnote cannot go inside an equation"
 msgstr "註腳不能放在方程式內"
 
-#: src/mathessible/ui/document_editor.py:383
+#: src/mathessible/ui/document_editor.py:414
 #, python-brace-format
 msgid "footnote {label}, type the note"
 msgstr "註腳 {label}，請輸入註腳內容"
 
-#: src/mathessible/ui/document_editor.py:390
+#: src/mathessible/ui/document_editor.py:421
 msgid "not in a footnote or its reference"
 msgstr "不在註腳或其參照中"
 
-#: src/mathessible/ui/document_editor.py:396
+#: src/mathessible/ui/document_editor.py:427
 #, python-brace-format
 msgid "note {label}"
 msgstr "註腳 {label}"
 
-#: src/mathessible/ui/document_editor.py:396
+#: src/mathessible/ui/document_editor.py:427
 #, python-brace-format
 msgid "reference {label}"
 msgstr "參照 {label}"
 
-#: src/mathessible/ui/document_editor.py:509
+#: src/mathessible/ui/document_editor.py:541
 msgid "equation saved, new line"
 msgstr "已儲存方程式，新行"
 
-#: src/mathessible/ui/document_editor.py:509
+#: src/mathessible/ui/document_editor.py:541
 msgid "equation saved"
 msgstr "已儲存方程式"
 
-#: src/mathessible/ui/document_editor.py:512
+#: src/mathessible/ui/document_editor.py:544
 msgid "equation editing canceled"
 msgstr "已取消編輯方程式"
 
@@ -2877,11 +2895,11 @@ msgstr "{title}對話方塊"
 msgid "These options are now the defaults."
 msgstr "這些選項現在是預設值。"
 
-#: src/mathessible/ui/export_dialogs.py:103 src/mathessible/ui/main_frame.py:1016
+#: src/mathessible/ui/export_dialogs.py:103 src/mathessible/ui/main_frame.py:1094
 msgid "Export as BRF"
 msgstr "匯出為 BRF"
 
-#: src/mathessible/ui/export_dialogs.py:123 src/mathessible/ui/main_frame.py:1009
+#: src/mathessible/ui/export_dialogs.py:123 src/mathessible/ui/main_frame.py:1087
 msgid "Export as HTML"
 msgstr "匯出為 HTML"
 
@@ -2923,7 +2941,7 @@ msgstr "語言(&L)（例如 ro、en）"
 msgid "Language"
 msgstr "語言"
 
-#: src/mathessible/ui/export_dialogs.py:156 src/mathessible/ui/main_frame.py:1013
+#: src/mathessible/ui/export_dialogs.py:156 src/mathessible/ui/main_frame.py:1091
 msgid "Export as Word Document"
 msgstr "匯出為 Word 文件"
 
@@ -3060,26 +3078,26 @@ msgstr "說明(&H)"
 msgid "GNU General Public License, version 2 or later"
 msgstr "GNU 通用公共授權條款第 2 版或更新版本"
 
-#: src/mathessible/ui/main_frame.py:104
+#: src/mathessible/ui/main_frame.py:106
 msgid "Pages"
 msgstr "頁面"
 
-#: src/mathessible/ui/main_frame.py:106
+#: src/mathessible/ui/main_frame.py:108
 msgid "Notebook pages"
 msgstr "筆記本頁面"
 
-#: src/mathessible/ui/main_frame.py:154
+#: src/mathessible/ui/main_frame.py:163
 #, python-brace-format
 msgid ""
 "MathCAT's native extension could not be loaded, so equations can only be edited as text, not read"
 " or navigated ({error}). Run scripts/bootstrap.sh."
 msgstr "無法載入 MathCAT 的原生擴充功能，因此方程式只能以文字編輯，無法朗讀或瀏覽（{error}）。請執行 scripts/bootstrap.sh。"
 
-#: src/mathessible/ui/main_frame.py:161
+#: src/mathessible/ui/main_frame.py:170
 msgid "No web view is available to convert and show equations (on Linux, install WebKitGTK for wxPython)."
 msgstr "沒有可用的網頁檢視來轉換及顯示方程式（在 Linux 上，請為 wxPython 安裝 WebKitGTK）。"
 
-#: src/mathessible/ui/main_frame.py:172
+#: src/mathessible/ui/main_frame.py:181
 #, python-brace-format
 msgid ""
 "Mathessible's fixes to MathCAT and UnicodeMathML are not applied, so some equations will be read "
@@ -3095,477 +3113,522 @@ msgstr ""
 "缺少的修補程式：\n"
 "{patches}"
 
-#: src/mathessible/ui/main_frame.py:185
+#: src/mathessible/ui/main_frame.py:194
 msgid "Mathessible Setup"
 msgstr "Mathessible 設定"
 
-#: src/mathessible/ui/main_frame.py:194
+#: src/mathessible/ui/main_frame.py:203
 msgid "&New"
 msgstr "新增(&N)"
 
-#: src/mathessible/ui/main_frame.py:195
+#: src/mathessible/ui/main_frame.py:204
 msgid "&Open…"
 msgstr "開啟(&O)…"
 
-#: src/mathessible/ui/main_frame.py:199
+#: src/mathessible/ui/main_frame.py:208
 msgid "Open &Recent"
 msgstr "開啟最近使用的檔案(&R)"
 
-#: src/mathessible/ui/main_frame.py:201
+#: src/mathessible/ui/main_frame.py:210
 msgid "&Close Window"
 msgstr "關閉視窗(&C)"
 
-#: src/mathessible/ui/main_frame.py:202
+#: src/mathessible/ui/main_frame.py:211
 msgid "&Save"
 msgstr "儲存(&S)"
 
-#: src/mathessible/ui/main_frame.py:203
+#: src/mathessible/ui/main_frame.py:212
 msgid "Save &As…"
 msgstr "另存新檔(&A)…"
 
-#: src/mathessible/ui/main_frame.py:204
+#: src/mathessible/ui/main_frame.py:213
 msgid "Re&vert to Saved"
 msgstr "還原為已儲存的版本(&V)"
 
-#: src/mathessible/ui/main_frame.py:208
+#: src/mathessible/ui/main_frame.py:217
 msgid "&HTML…"
 msgstr "HTML(&H)…"
 
-#: src/mathessible/ui/main_frame.py:209
+#: src/mathessible/ui/main_frame.py:218
 msgid "&PDF…"
 msgstr "PDF(&P)…"
 
-#: src/mathessible/ui/main_frame.py:210
+#: src/mathessible/ui/main_frame.py:219
 msgid "&Word Document…"
 msgstr "Word 文件(&W)…"
 
-#: src/mathessible/ui/main_frame.py:211
+#: src/mathessible/ui/main_frame.py:220
 msgid "&BRF (Braille)…"
 msgstr "BRF（點字）(&B)…"
 
-#: src/mathessible/ui/main_frame.py:212
+#: src/mathessible/ui/main_frame.py:221
 msgid "&Export"
 msgstr "匯出(&E)"
 
-#: src/mathessible/ui/main_frame.py:214
+#: src/mathessible/ui/main_frame.py:223
 msgid "&Print…"
 msgstr "列印(&P)…"
 
-#: src/mathessible/ui/main_frame.py:216
+#: src/mathessible/ui/main_frame.py:225
 msgid "&Quit"
 msgstr "結束(&Q)"
 
-#: src/mathessible/ui/main_frame.py:218
+#: src/mathessible/ui/main_frame.py:227
 msgid "&File"
 msgstr "檔案(&F)"
 
-#: src/mathessible/ui/main_frame.py:234
+#: src/mathessible/ui/main_frame.py:243
 msgid "&Find…"
 msgstr "尋找(&F)…"
 
-#: src/mathessible/ui/main_frame.py:235
+#: src/mathessible/ui/main_frame.py:244
 msgid "Find &Next"
 msgstr "找下一個(&N)"
 
-#: src/mathessible/ui/main_frame.py:236
+#: src/mathessible/ui/main_frame.py:245
 msgid "Find Pre&vious"
 msgstr "找上一個(&V)"
 
-#: src/mathessible/ui/main_frame.py:237
+#: src/mathessible/ui/main_frame.py:246
 msgid "R&eplace…"
 msgstr "取代(&E)…"
 
-#: src/mathessible/ui/main_frame.py:240 src/mathessible/ui/main_frame.py:572
+#: src/mathessible/ui/main_frame.py:249 src/mathessible/ui/main_frame.py:649
 msgid "Change Equation to &Display"
 msgstr "將方程式改為獨立方程式(&Y)"
 
-#: src/mathessible/ui/main_frame.py:242
+#: src/mathessible/ui/main_frame.py:251
+msgid "Equations in &LaTeX"
+msgstr "LaTeX 方程式(&L)"
+
+#: src/mathessible/ui/main_frame.py:253
 msgid "&Settings…"
 msgstr "設定(&S)…"
 
-#: src/mathessible/ui/main_frame.py:248
+#: src/mathessible/ui/main_frame.py:259
 msgid "&Footnote"
 msgstr "註腳(&F)"
 
-#: src/mathessible/ui/main_frame.py:249
+#: src/mathessible/ui/main_frame.py:260
 msgid "&Go to Footnote or Reference"
 msgstr "前往註腳或參照(&G)"
 
-#: src/mathessible/ui/main_frame.py:251
+#: src/mathessible/ui/main_frame.py:262
 msgid "&Header and Footer…"
 msgstr "頁首及頁尾(&H)…"
 
-#: src/mathessible/ui/main_frame.py:255
+#: src/mathessible/ui/main_frame.py:266
 msgid "Document &Preview"
 msgstr "文件預覽(&P)"
 
-#: src/mathessible/ui/main_frame.py:270
+#: src/mathessible/ui/main_frame.py:281
 msgid "&New Notebook…"
 msgstr "新增筆記本(&N)…"
 
-#: src/mathessible/ui/main_frame.py:271
+#: src/mathessible/ui/main_frame.py:282
 msgid "New Notebook &Folder…"
 msgstr "新增筆記本資料夾(&F)…"
 
-#: src/mathessible/ui/main_frame.py:272
+#: src/mathessible/ui/main_frame.py:283
 msgid "&Open Notebook Folder…"
 msgstr "開啟筆記本資料夾(&O)…"
 
-#: src/mathessible/ui/main_frame.py:273
+#: src/mathessible/ui/main_frame.py:284
 msgid "Save Notebook as &Single File…"
 msgstr "將筆記本儲存為單一檔案(&S)…"
 
-#: src/mathessible/ui/main_frame.py:275
+#: src/mathessible/ui/main_frame.py:286
 msgid "&Add Page"
 msgstr "新增頁面(&A)"
 
-#: src/mathessible/ui/main_frame.py:276
+#: src/mathessible/ui/main_frame.py:287
 msgid "&Rename Page…"
 msgstr "重新命名頁面(&R)…"
 
-#: src/mathessible/ui/main_frame.py:277
+#: src/mathessible/ui/main_frame.py:288
 msgid "&Delete Page…"
 msgstr "刪除頁面(&D)…"
 
-#: src/mathessible/ui/main_frame.py:279
+#: src/mathessible/ui/main_frame.py:290
 msgid "Move Page &Up"
 msgstr "將頁面上移(&U)"
 
-#: src/mathessible/ui/main_frame.py:280
+#: src/mathessible/ui/main_frame.py:291
 msgid "Move Page Do&wn"
 msgstr "將頁面下移(&W)"
 
-#: src/mathessible/ui/main_frame.py:282
+#: src/mathessible/ui/main_frame.py:293
 msgid "&Previous Page"
 msgstr "上一頁(&P)"
 
-#: src/mathessible/ui/main_frame.py:283
+#: src/mathessible/ui/main_frame.py:294
 msgid "Ne&xt Page"
 msgstr "下一頁(&X)"
 
-#: src/mathessible/ui/main_frame.py:284
+#: src/mathessible/ui/main_frame.py:295
 msgid "&Notebook"
 msgstr "筆記本(&N)"
 
-#: src/mathessible/ui/main_frame.py:289
+#: src/mathessible/ui/main_frame.py:300
 msgid "&Next Window"
 msgstr "下一個視窗(&N)"
 
-#: src/mathessible/ui/main_frame.py:290
+#: src/mathessible/ui/main_frame.py:301
 msgid "&Previous Window"
 msgstr "上一個視窗(&P)"
 
-#: src/mathessible/ui/main_frame.py:292
+#: src/mathessible/ui/main_frame.py:303
 msgid "Bring All to &Front"
 msgstr "全部移至最前(&F)"
 
-#: src/mathessible/ui/main_frame.py:293
+#: src/mathessible/ui/main_frame.py:304
 msgid "&Window"
 msgstr "視窗(&W)"
 
-#: src/mathessible/ui/main_frame.py:412
+#: src/mathessible/ui/main_frame.py:425
 msgid "show the document preview"
 msgstr "顯示文件預覽"
 
-#: src/mathessible/ui/main_frame.py:414
+#: src/mathessible/ui/main_frame.py:427
 msgid "Document preview"
 msgstr "文件預覽"
 
-#: src/mathessible/ui/main_frame.py:500 src/mathessible/ui/main_frame.py:523
+#: src/mathessible/ui/main_frame.py:513 src/mathessible/ui/main_frame.py:536
 msgid "Find"
 msgstr "尋找"
 
-#: src/mathessible/ui/main_frame.py:522
+#: src/mathessible/ui/main_frame.py:535
 #, python-brace-format
 msgid "“{text}” was not found."
 msgstr "找不到「{text}」。"
 
-#: src/mathessible/ui/main_frame.py:556
+#: src/mathessible/ui/main_frame.py:569
 #, python-brace-format
 msgid "{count} replacement made."
 msgid_plural "{count} replacements made."
 msgstr[0] "已取代 {count} 處。"
 
-#: src/mathessible/ui/main_frame.py:557
+#: src/mathessible/ui/main_frame.py:570
 msgid "Replace All"
 msgstr "全部取代"
 
-#: src/mathessible/ui/main_frame.py:572
+#: src/mathessible/ui/main_frame.py:595
+msgid "change the equations"
+msgstr "變更方程式"
+
+#: src/mathessible/ui/main_frame.py:596 src/mathessible/ui/main_frame.py:996
+#: src/mathessible/ui/main_frame.py:1104
+msgid "The UnicodeMath converter is not ready yet. Please try again."
+msgstr "UnicodeMath 轉換器尚未就緒。請再試一次。"
+
+#: src/mathessible/ui/main_frame.py:601
+msgid "Write this document's equations in LaTeX?"
+msgstr "要以 LaTeX 撰寫此文件的方程式嗎？"
+
+#: src/mathessible/ui/main_frame.py:603
+msgid "Write this document's equations in UnicodeMath?"
+msgstr "要以 UnicodeMath 撰寫此文件的方程式嗎？"
+
+#: src/mathessible/ui/main_frame.py:604
+msgid "Equations in LaTeX"
+msgstr "LaTeX 方程式"
+
+#: src/mathessible/ui/main_frame.py:609
+msgid ""
+"Each equation is written again from what it builds, so its spacing and some details can change. "
+"Equations that do not build are kept as they are. Undo restores them."
+msgstr "每個方程式會依其建構結果重新撰寫，因此間距和部分細節可能改變。無法建構的方程式保持原樣。復原可將其還原。"
+
+#: src/mathessible/ui/main_frame.py:613
+msgid "&Write Again"
+msgstr "重新撰寫(&W)"
+
+#: src/mathessible/ui/main_frame.py:613 src/mathessible/ui/main_frame.py:933
+msgid "&Cancel"
+msgstr "取消(&C)"
+
+#: src/mathessible/ui/main_frame.py:637
+msgid "equations in LaTeX"
+msgstr "方程式為 LaTeX"
+
+#: src/mathessible/ui/main_frame.py:637
+msgid "equations in UnicodeMath"
+msgstr "方程式為 UnicodeMath"
+
+#: src/mathessible/ui/main_frame.py:640
+#, python-brace-format
+msgid "{count} that does not build kept as it was"
+msgid_plural "{count} that do not build kept as they were"
+msgstr[0] "{count} 個無法建構的方程式保持原樣"
+
+#: src/mathessible/ui/main_frame.py:649
 msgid "Change Equation to &Inline"
 msgstr "將方程式改為行內方程式(&I)"
 
-#: src/mathessible/ui/main_frame.py:593
+#: src/mathessible/ui/main_frame.py:670
 msgid "Untitled"
 msgstr "未命名"
 
-#: src/mathessible/ui/main_frame.py:595
+#: src/mathessible/ui/main_frame.py:672
 #, python-brace-format
 msgid "Mathessible — {name} — modified"
 msgstr "Mathessible — {name} — 已修改"
 
-#: src/mathessible/ui/main_frame.py:597
+#: src/mathessible/ui/main_frame.py:674
 #, python-brace-format
 msgid "Mathessible — {name}"
 msgstr "Mathessible — {name}"
 
-#: src/mathessible/ui/main_frame.py:608
+#: src/mathessible/ui/main_frame.py:685
 #, python-brace-format
 msgid "{notebook} — Page {page} of {pages}"
 msgstr "{notebook} — 第 {page} 頁，共 {pages} 頁"
 
-#: src/mathessible/ui/main_frame.py:612
+#: src/mathessible/ui/main_frame.py:689
 msgid "Untitled Markdown document"
 msgstr "未命名的 Markdown 文件"
 
-#: src/mathessible/ui/main_frame.py:614
+#: src/mathessible/ui/main_frame.py:691
 #, python-brace-format
 msgid "Line {line}, Column {column}"
 msgstr "第 {line} 行，第 {column} 欄"
 
-#: src/mathessible/ui/main_frame.py:620
+#: src/mathessible/ui/main_frame.py:697
 #, python-brace-format
 msgid "Could not {action}."
 msgstr "無法{action}。"
 
-#: src/mathessible/ui/main_frame.py:633
+#: src/mathessible/ui/main_frame.py:710
 msgid "The document has unsaved changes. Do you want to save them?"
 msgstr "文件有未儲存的變更。要儲存嗎？"
 
-#: src/mathessible/ui/main_frame.py:634
+#: src/mathessible/ui/main_frame.py:711
 msgid "Unsaved Changes"
 msgstr "未儲存的變更"
 
-#: src/mathessible/ui/main_frame.py:654
+#: src/mathessible/ui/main_frame.py:731
 msgid "save settings"
 msgstr "儲存設定"
 
-#: src/mathessible/ui/main_frame.py:705
+#: src/mathessible/ui/main_frame.py:782
 msgid "Open"
 msgstr "開啟"
 
-#: src/mathessible/ui/main_frame.py:707
+#: src/mathessible/ui/main_frame.py:784
 msgid "Documents and notebooks"
 msgstr "文件和筆記本"
 
-#: src/mathessible/ui/main_frame.py:709
+#: src/mathessible/ui/main_frame.py:786
 msgid "Markdown documents"
 msgstr "Markdown 文件"
 
-#: src/mathessible/ui/main_frame.py:711
+#: src/mathessible/ui/main_frame.py:788
 msgid "Notebooks"
 msgstr "筆記本"
 
-#: src/mathessible/ui/main_frame.py:713
+#: src/mathessible/ui/main_frame.py:790
 msgid "PDFs exported by Mathessible"
 msgstr "Mathessible 匯出的 PDF"
 
-#: src/mathessible/ui/main_frame.py:715 src/mathessible/ui/main_frame.py:948
-#: src/mathessible/ui/settings_dialog.py:470
+#: src/mathessible/ui/main_frame.py:792 src/mathessible/ui/main_frame.py:1026
+#: src/mathessible/ui/settings_dialog.py:477
 msgid "All files"
 msgstr "所有檔案"
 
-#: src/mathessible/ui/main_frame.py:763
+#: src/mathessible/ui/main_frame.py:841
 #, python-brace-format
 msgid "open {name}"
 msgstr "開啟 {name}"
 
-#: src/mathessible/ui/main_frame.py:825
+#: src/mathessible/ui/main_frame.py:903
 msgid "&Clear Menu"
 msgstr "清除清單(&C)"
 
-#: src/mathessible/ui/main_frame.py:851
+#: src/mathessible/ui/main_frame.py:929
 msgid "Revert to the saved version? The changes since it was saved will be lost."
 msgstr "要還原為已儲存的版本嗎？自上次儲存以來的變更將會遺失。"
 
-#: src/mathessible/ui/main_frame.py:852
+#: src/mathessible/ui/main_frame.py:930
 msgid "Revert to Saved"
 msgstr "還原為已儲存的版本"
 
-#: src/mathessible/ui/main_frame.py:855
+#: src/mathessible/ui/main_frame.py:933
 msgid "&Revert"
 msgstr "還原(&R)"
 
-#: src/mathessible/ui/main_frame.py:855
-msgid "&Cancel"
-msgstr "取消(&C)"
-
-#: src/mathessible/ui/main_frame.py:867
+#: src/mathessible/ui/main_frame.py:945
 msgid "read the saved document"
 msgstr "讀取已儲存的文件"
 
-#: src/mathessible/ui/main_frame.py:895
+#: src/mathessible/ui/main_frame.py:973
 msgid "read the notebook"
 msgstr "讀取筆記本"
 
-#: src/mathessible/ui/main_frame.py:904
+#: src/mathessible/ui/main_frame.py:982
 msgid "Mathessible document"
 msgstr "Mathessible 文件"
 
-#: src/mathessible/ui/main_frame.py:918 src/mathessible/ui/main_frame.py:1026
-msgid "The UnicodeMath converter is not ready yet. Please try again."
-msgstr "UnicodeMath 轉換器尚未就緒。請再試一次。"
-
-#: src/mathessible/ui/main_frame.py:924
+#: src/mathessible/ui/main_frame.py:1002
 msgid "print"
 msgstr "列印"
 
-#: src/mathessible/ui/main_frame.py:945
+#: src/mathessible/ui/main_frame.py:1023
 msgid "Save Markdown document"
 msgstr "儲存 Markdown 文件"
 
-#: src/mathessible/ui/main_frame.py:948
+#: src/mathessible/ui/main_frame.py:1026
 msgid "Markdown document"
 msgstr "Markdown 文件"
 
-#: src/mathessible/ui/main_frame.py:975 src/mathessible/ui/main_frame.py:1356
+#: src/mathessible/ui/main_frame.py:1053 src/mathessible/ui/main_frame.py:1435
 msgid "save the page"
 msgstr "儲存頁面"
 
-#: src/mathessible/ui/main_frame.py:991
+#: src/mathessible/ui/main_frame.py:1069
 msgid "save the document"
 msgstr "儲存文件"
 
-#: src/mathessible/ui/main_frame.py:1009
+#: src/mathessible/ui/main_frame.py:1087
 msgid "export the HTML document"
 msgstr "匯出 HTML 文件"
 
-#: src/mathessible/ui/main_frame.py:1009
+#: src/mathessible/ui/main_frame.py:1087
 msgid "HTML document"
 msgstr "HTML 文件"
 
-#: src/mathessible/ui/main_frame.py:1010
+#: src/mathessible/ui/main_frame.py:1088
 msgid "export the PDF document"
 msgstr "匯出 PDF 文件"
 
-#: src/mathessible/ui/main_frame.py:1010
+#: src/mathessible/ui/main_frame.py:1088
 msgid "PDF document"
 msgstr "PDF 文件"
 
-#: src/mathessible/ui/main_frame.py:1010 src/mathessible/ui/pdf_dialog.py:38
+#: src/mathessible/ui/main_frame.py:1088 src/mathessible/ui/pdf_dialog.py:38
 msgid "Export as PDF"
 msgstr "匯出為 PDF"
 
-#: src/mathessible/ui/main_frame.py:1012
+#: src/mathessible/ui/main_frame.py:1090
 msgid "export the Word document"
 msgstr "匯出 Word 文件"
 
-#: src/mathessible/ui/main_frame.py:1014
+#: src/mathessible/ui/main_frame.py:1092
 msgid "Word document"
 msgstr "Word 文件"
 
-#: src/mathessible/ui/main_frame.py:1016
+#: src/mathessible/ui/main_frame.py:1094
 msgid "export the BRF document"
 msgstr "匯出 BRF 文件"
 
-#: src/mathessible/ui/main_frame.py:1016
+#: src/mathessible/ui/main_frame.py:1094
 msgid "Braille ready file"
 msgstr "點字就緒檔案（BRF）"
 
-#: src/mathessible/ui/main_frame.py:1082
+#: src/mathessible/ui/main_frame.py:1160
 #, python-brace-format
 msgid "Exported {name}"
 msgstr "已匯出 {name}"
 
-#: src/mathessible/ui/main_frame.py:1083
+#: src/mathessible/ui/main_frame.py:1161
 #, python-brace-format
 msgid "exported {name}"
 msgstr "已匯出 {name}"
 
-#: src/mathessible/ui/main_frame.py:1164
+#: src/mathessible/ui/main_frame.py:1243
 msgid ""
 "PDF/A does not allow passwords or restrictions. Choose Tagged PDF or PDF/UA-1 under Security, or "
 "export without them."
 msgstr "PDF/A 不允許密碼或限制。請在「安全性」下選擇加標籤的 PDF 或 PDF/UA-1，或匯出時不使用它們。"
 
-#: src/mathessible/ui/main_frame.py:1337
+#: src/mathessible/ui/main_frame.py:1416
 msgid "open the page"
 msgstr "開啟頁面"
 
-#: src/mathessible/ui/main_frame.py:1376
+#: src/mathessible/ui/main_frame.py:1455
 msgid "Choose or create the new notebook folder"
 msgstr "選擇或建立新筆記本的資料夾"
 
-#: src/mathessible/ui/main_frame.py:1388
+#: src/mathessible/ui/main_frame.py:1467
 msgid "create the notebook"
 msgstr "建立筆記本"
 
-#: src/mathessible/ui/main_frame.py:1402
+#: src/mathessible/ui/main_frame.py:1481
 msgid "Save portable notebook"
 msgstr "儲存可攜式筆記本"
 
-#: src/mathessible/ui/main_frame.py:1404
+#: src/mathessible/ui/main_frame.py:1483
 msgid "Mathessible notebooks"
 msgstr "Mathessible 筆記本"
 
-#: src/mathessible/ui/main_frame.py:1424
+#: src/mathessible/ui/main_frame.py:1503
 msgid "create the portable notebook"
 msgstr "建立可攜式筆記本"
 
-#: src/mathessible/ui/main_frame.py:1436
+#: src/mathessible/ui/main_frame.py:1515
 msgid "Choose the notebook folder"
 msgstr "選擇筆記本資料夾"
 
-#: src/mathessible/ui/main_frame.py:1446
+#: src/mathessible/ui/main_frame.py:1525
 msgid "Page title:"
 msgstr "頁面標題："
 
-#: src/mathessible/ui/main_frame.py:1458
+#: src/mathessible/ui/main_frame.py:1537
 msgid "Add Page"
 msgstr "新增頁面"
 
-#: src/mathessible/ui/main_frame.py:1458
+#: src/mathessible/ui/main_frame.py:1537
 #, python-brace-format
 msgid "Page {number}"
 msgstr "第 {number} 頁"
 
-#: src/mathessible/ui/main_frame.py:1464
+#: src/mathessible/ui/main_frame.py:1543
 msgid "add the page"
 msgstr "新增頁面"
 
-#: src/mathessible/ui/main_frame.py:1474
+#: src/mathessible/ui/main_frame.py:1553
 msgid "Rename Page"
 msgstr "重新命名頁面"
 
-#: src/mathessible/ui/main_frame.py:1480
+#: src/mathessible/ui/main_frame.py:1559
 msgid "rename the page"
 msgstr "重新命名頁面"
 
-#: src/mathessible/ui/main_frame.py:1492
+#: src/mathessible/ui/main_frame.py:1571
 #, python-brace-format
 msgid "Delete the page “{title}”?"
 msgstr "要刪除頁面「{title}」嗎？"
 
-#: src/mathessible/ui/main_frame.py:1493
+#: src/mathessible/ui/main_frame.py:1572
 msgid "Delete Page"
 msgstr "刪除頁面"
 
-#: src/mathessible/ui/main_frame.py:1502
+#: src/mathessible/ui/main_frame.py:1581
 msgid "delete the page"
 msgstr "刪除頁面"
 
-#: src/mathessible/ui/main_frame.py:1518
+#: src/mathessible/ui/main_frame.py:1597
 msgid "move the page"
 msgstr "移動頁面"
 
-#: src/mathessible/ui/main_frame.py:1534
+#: src/mathessible/ui/main_frame.py:1613
 msgid "update the portable notebook"
 msgstr "更新可攜式筆記本"
 
-#: src/mathessible/ui/main_frame.py:1547
+#: src/mathessible/ui/main_frame.py:1626
 #, python-brace-format
 msgid "Mathessible closed without saving {count} document. Recover the unsaved changes?"
 msgid_plural "Mathessible closed without saving {count} documents. Recover the unsaved changes?"
 msgstr[0] "Mathessible 關閉時有 {count} 份文件未儲存。要復原未儲存的變更嗎？"
 
-#: src/mathessible/ui/main_frame.py:1551
+#: src/mathessible/ui/main_frame.py:1630
 msgid "Recover Unsaved Changes"
 msgstr "復原未儲存的變更"
 
-#: src/mathessible/ui/main_frame.py:1554
+#: src/mathessible/ui/main_frame.py:1633
 msgid "&Recover"
 msgstr "復原(&R)"
 
-#: src/mathessible/ui/main_frame.py:1554
+#: src/mathessible/ui/main_frame.py:1633
 msgid "&Discard"
 msgstr "捨棄(&D)"
 
@@ -3710,328 +3773,336 @@ msgid "Word"
 msgstr "Word"
 
 #: src/mathessible/ui/settings_dialog.py:96
+msgid "Write the equations of new documents and pages in LaTeX"
+msgstr "以 LaTeX 撰寫新文件和新頁面的方程式"
+
+#: src/mathessible/ui/settings_dialog.py:97
+msgid "Write equations in LaTeX"
+msgstr "以 LaTeX 撰寫方程式"
+
+#: src/mathessible/ui/settings_dialog.py:102
 msgid "Convert control words (for example \\alpha) when Space or punctuation is typed"
 msgstr "輸入空格或標點符號時轉換控制字（例如 \\alpha）"
 
-#: src/mathessible/ui/settings_dialog.py:97
+#: src/mathessible/ui/settings_dialog.py:103
 msgid "Convert control words while typing"
 msgstr "輸入時轉換控制字"
 
-#: src/mathessible/ui/settings_dialog.py:102
+#: src/mathessible/ui/settings_dialog.py:108
 msgid "Suggest control words while one is typed (Up/Down browse, Tab completes)"
 msgstr "輸入控制字時提供建議（上/下鍵瀏覽，Tab 鍵補全）"
 
-#: src/mathessible/ui/settings_dialog.py:103
+#: src/mathessible/ui/settings_dialog.py:109
 msgid "Suggest control words while typing"
 msgstr "輸入時建議控制字"
 
-#: src/mathessible/ui/settings_dialog.py:109
+#: src/mathessible/ui/settings_dialog.py:115
 msgid ""
 "Convert symbol shortcuts (for example << or ->) as soon as they are typed, in equations and the "
 "document"
 msgstr "在方程式和文件中，一輸入符號捷徑（例如 << 或 ->）就立即轉換"
 
-#: src/mathessible/ui/settings_dialog.py:111
+#: src/mathessible/ui/settings_dialog.py:117
 msgid "Convert symbol shortcuts immediately"
 msgstr "立即轉換符號捷徑"
 
-#: src/mathessible/ui/settings_dialog.py:114
+#: src/mathessible/ui/settings_dialog.py:120
 msgid "Math &AutoCorrect…"
 msgstr "數學自動校正(&A)…"
 
-#: src/mathessible/ui/settings_dialog.py:120
+#: src/mathessible/ui/settings_dialog.py:126
 msgid ""
 "Math AutoCorrect is one list, as in Word: the converter's control words, Mathessible's shortcuts "
 "and your own entries, each one can be changed or deleted."
 msgstr "數學自動校正是單一清單，與 Word 相同：轉換器的控制字、Mathessible 的捷徑及您自己的項目；每一項都可以變更或刪除。"
 
-#: src/mathessible/ui/settings_dialog.py:127
+#: src/mathessible/ui/settings_dialog.py:133
 msgid ""
 "Deleted AutoCorrect control words still show as their symbol (off: they stay the text typed, as "
 "in Word)"
 msgstr "從自動校正刪除的控制字仍顯示為其符號（關閉時：保留為輸入的文字，與 Word 相同）"
 
-#: src/mathessible/ui/settings_dialog.py:129
+#: src/mathessible/ui/settings_dialog.py:135
 msgid "Deleted AutoCorrect control words still show as their symbol"
 msgstr "從自動校正刪除的控制字仍顯示為其符號"
 
-#: src/mathessible/ui/settings_dialog.py:134
+#: src/mathessible/ui/settings_dialog.py:140
 msgid "Use Math AutoCorrect in an equation's normal text (control words and shortcuts convert there too)"
 msgstr "在方程式的一般文字中使用數學自動校正（控制字和捷徑在那裡也會轉換）"
 
-#: src/mathessible/ui/settings_dialog.py:135
+#: src/mathessible/ui/settings_dialog.py:141
 msgid "Use Math AutoCorrect in an equation's normal text"
 msgstr "在方程式的一般文字中使用數學自動校正"
 
-#: src/mathessible/ui/settings_dialog.py:141
+#: src/mathessible/ui/settings_dialog.py:147
 msgid ""
 "Use Math AutoCorrect in the document too, text and equations alike (as Word's rule outside math "
 "regions)"
 msgstr "在文件中也使用數學自動校正，文字和方程式皆適用（如同 Word 在數學區域外的規則）"
 
-#: src/mathessible/ui/settings_dialog.py:143
+#: src/mathessible/ui/settings_dialog.py:149
 msgid "Use Math AutoCorrect in the document"
 msgstr "在文件中使用數學自動校正"
 
-#: src/mathessible/ui/settings_dialog.py:148
+#: src/mathessible/ui/settings_dialog.py:154
 msgid "Insert templates as control words (for example \\sum and \\sqrt instead of ∑ and √)"
 msgstr "以控制字插入範本（例如 \\sum 和 \\sqrt，而不是 ∑ 和 √）"
 
-#: src/mathessible/ui/settings_dialog.py:149
+#: src/mathessible/ui/settings_dialog.py:155
 msgid "Insert templates as control words"
 msgstr "以控制字插入範本"
 
-#: src/mathessible/ui/settings_dialog.py:155
+#: src/mathessible/ui/settings_dialog.py:161
 #, python-brace-format
 msgid ""
 "Decimal comma: 1,5 is a number and a set is written {1, 2, 3}; off: decimal point (3.14), and "
 "{1,2,3} is a set"
 msgstr "小數逗號：1,5 是一個數，集合寫成 {1, 2, 3}；關閉時：小數點（3.14），而 {1,2,3} 是集合"
 
-#: src/mathessible/ui/settings_dialog.py:158
+#: src/mathessible/ui/settings_dialog.py:164
 msgid "Decimal comma"
 msgstr "小數逗號"
 
-#: src/mathessible/ui/settings_dialog.py:163
+#: src/mathessible/ui/settings_dialog.py:169
 msgid "Remove spaces that change nothing when saving the equation or switching to linear view"
 msgstr "儲存方程式或切換到線性檢視時，移除不影響內容的空格"
 
-#: src/mathessible/ui/settings_dialog.py:164
+#: src/mathessible/ui/settings_dialog.py:170
 msgid "Remove extra spaces"
 msgstr "移除多餘的空格"
 
-#: src/mathessible/ui/settings_dialog.py:171
+#: src/mathessible/ui/settings_dialog.py:177
 msgid "Build equations as you type (on Space or an operator, what is complete; the rest stays linear)"
 msgstr "輸入時建構方程式（按空白鍵或輸入運算子時建構已完整的部分；其餘維持線性）"
 
-#: src/mathessible/ui/settings_dialog.py:172
+#: src/mathessible/ui/settings_dialog.py:178
 msgid "Build equations as you type"
 msgstr "輸入時建構方程式"
 
-#: src/mathessible/ui/settings_dialog.py:177
+#: src/mathessible/ui/settings_dialog.py:183
 msgid "Say what was built while typing (for example, built fraction)"
 msgstr "輸入時說出建構了什麼（例如：已建構分數）"
 
-#: src/mathessible/ui/settings_dialog.py:178
+#: src/mathessible/ui/settings_dialog.py:184
 msgid "Say what was built"
 msgstr "說出建構了什麼"
 
-#: src/mathessible/ui/settings_dialog.py:183
+#: src/mathessible/ui/settings_dialog.py:189
 msgid "Open equations built (professional view), ready to navigate and type into"
 msgstr "以已建構的形式開啟方程式（專業檢視），可直接瀏覽和輸入"
 
-#: src/mathessible/ui/settings_dialog.py:184
+#: src/mathessible/ui/settings_dialog.py:190
 msgid "Open equations built"
 msgstr "以已建構的形式開啟方程式"
 
-#: src/mathessible/ui/settings_dialog.py:189
+#: src/mathessible/ui/settings_dialog.py:195
 msgid "Open a function's argument as soon as its parenthesis is closed (instead of on Space)"
 msgstr "函數的括號一閉合就開啟其引數（而不是在按空白鍵時）"
 
-#: src/mathessible/ui/settings_dialog.py:190
+#: src/mathessible/ui/settings_dialog.py:196
 msgid "Open the argument on the closing parenthesis"
 msgstr "在右括號處開啟引數"
 
-#: src/mathessible/ui/settings_dialog.py:193
+#: src/mathessible/ui/settings_dialog.py:199
 msgid "&Recognized Functions…"
 msgstr "可辨識的函數(&R)…"
 
-#: src/mathessible/ui/settings_dialog.py:199
+#: src/mathessible/ui/settings_dialog.py:205
 msgid ""
 "Space after a recognized function (sin, log, lim…) opens its argument, and it is navigated as "
 "function name and argument, as in Word."
 msgstr "在可辨識的函數（sin、log、lim…）後輸入空格會開啟其引數，並以函數名稱和引數的方式瀏覽，與 Word 相同。"
 
-#: src/mathessible/ui/settings_dialog.py:207
+#: src/mathessible/ui/settings_dialog.py:213
 msgid "Use linear navigation in exploration mode (F10; writing mode is always linear)"
 msgstr "在探索模式中使用線性瀏覽（F10；書寫模式一律為線性）"
 
-#: src/mathessible/ui/settings_dialog.py:208
+#: src/mathessible/ui/settings_dialog.py:214
 msgid "Linear navigation in exploration mode"
 msgstr "探索模式中的線性瀏覽"
 
-#: src/mathessible/ui/settings_dialog.py:214
+#: src/mathessible/ui/settings_dialog.py:220
 msgid ""
 "Stop at the start and end of every structure (for example \"start fraction\", \"end numerator\") "
 "and of the math"
 msgstr "在每個結構（例如「開始分數」、「結束分子」）和數學的開頭與結尾停下"
 
-#: src/mathessible/ui/settings_dialog.py:217
+#: src/mathessible/ui/settings_dialog.py:223
 msgid "Stop at structure start and end"
 msgstr "在結構的開頭與結尾停下"
 
-#: src/mathessible/ui/settings_dialog.py:222
+#: src/mathessible/ui/settings_dialog.py:228
 msgid "Stop at invisible operators (for example the invisible times in 3x)"
 msgstr "在隱形運算子處停下（例如 3x 中隱形的乘號）"
 
-#: src/mathessible/ui/settings_dialog.py:223
+#: src/mathessible/ui/settings_dialog.py:229
 msgid "Stop at invisible operators"
 msgstr "在隱形運算子處停下"
 
-#: src/mathessible/ui/settings_dialog.py:228
+#: src/mathessible/ui/settings_dialog.py:234
 msgid "Leave a structure automatically at its end (for example, from the numerator to the denominator)"
 msgstr "在結構結尾時自動離開（例如從分子到分母）"
 
-#: src/mathessible/ui/settings_dialog.py:229
+#: src/mathessible/ui/settings_dialog.py:235
 msgid "Leave structures automatically"
 msgstr "自動離開結構"
 
-#: src/mathessible/ui/settings_dialog.py:235
+#: src/mathessible/ui/settings_dialog.py:241
 msgid ""
 "When enabled, the right arrow enters structures such as fractions automatically, so you can read "
 "more of an expression without pressing Down."
 msgstr "啟用時，右方向鍵會自動進入分數等結構，讓您不必按下方向鍵就能讀到更多運算式內容。"
 
-#: src/mathessible/ui/settings_dialog.py:241
+#: src/mathessible/ui/settings_dialog.py:247
 msgid "&Symbol dictionary (names spoken for symbols while typing)"
 msgstr "符號字典(&S)（輸入時為符號說出的名稱）"
 
-#: src/mathessible/ui/settings_dialog.py:243
+#: src/mathessible/ui/settings_dialog.py:249
 msgid "Symbol dictionary"
 msgstr "符號字典"
 
-#: src/mathessible/ui/settings_dialog.py:246
+#: src/mathessible/ui/settings_dialog.py:252
 msgid "&Import dictionary…"
 msgstr "匯入字典(&I)…"
 
-#: src/mathessible/ui/settings_dialog.py:248
+#: src/mathessible/ui/settings_dialog.py:254
 msgid "&Download NVDA dictionaries…"
 msgstr "下載 NVDA 字典(&D)…"
 
-#: src/mathessible/ui/settings_dialog.py:259
+#: src/mathessible/ui/settings_dialog.py:265
 msgid ""
 "Any file in NVDA's symbols.dic format can be imported. NVDA's own dictionaries are downloaded "
 "from the NVDA project on GitHub. The built equation is always read by MathCAT."
 msgstr "可匯入任何採用 NVDA symbols.dic 格式的檔案。NVDA 本身的字典會從 GitHub 上的 NVDA 專案下載。已建構的方程式一律由 MathCAT 朗讀。"
 
-#: src/mathessible/ui/settings_dialog.py:265
+#: src/mathessible/ui/settings_dialog.py:271
 msgid "Say symbols MathCAT does not know by their Unicode name (for example, alchemical symbol for air)"
 msgstr "以 Unicode 名稱說出 MathCAT 不認識的符號（例如 alchemical symbol for air）"
 
-#: src/mathessible/ui/settings_dialog.py:266
+#: src/mathessible/ui/settings_dialog.py:272
 msgid "Name unknown symbols"
 msgstr "說出不明符號的名稱"
 
-#: src/mathessible/ui/settings_dialog.py:271
+#: src/mathessible/ui/settings_dialog.py:277
 msgid "&Braille code (the braille strip under the equation)"
 msgstr "點字碼(&B)（方程式下方的點字列）"
 
-#: src/mathessible/ui/settings_dialog.py:273
+#: src/mathessible/ui/settings_dialog.py:279
 msgid "Braille code"
 msgstr "點字碼"
 
-#: src/mathessible/ui/settings_dialog.py:277
+#: src/mathessible/ui/settings_dialog.py:283
 msgid "Braille si&gns…"
 msgstr "點字符號(&G)…"
 
-#: src/mathessible/ui/settings_dialog.py:285
+#: src/mathessible/ui/settings_dialog.py:291
 msgid ""
 "Braille signs are your own braille for symbols in the code chosen above, for symbols it has no "
 "sign for, or to replace its own."
 msgstr "點字符號是您為上方所選點字碼中的符號自訂的點字，用於該點字碼沒有對應符號的符號，或取代它自己的符號。"
 
-#: src/mathessible/ui/settings_dialog.py:289
+#: src/mathessible/ui/settings_dialog.py:295
 msgid "BRF export (its dialog can change them for one file)"
 msgstr "BRF 匯出（其對話方塊可針對單一檔案變更）"
 
-#: src/mathessible/ui/settings_dialog.py:310
+#: src/mathessible/ui/settings_dialog.py:316
 msgid "The system's"
 msgstr "系統語言"
 
-#: src/mathessible/ui/settings_dialog.py:312
+#: src/mathessible/ui/settings_dialog.py:318
 msgid "&Interface"
 msgstr "介面(&I)"
 
-#: src/mathessible/ui/settings_dialog.py:312
+#: src/mathessible/ui/settings_dialog.py:318
 msgid "Interface language"
 msgstr "介面語言"
 
-#: src/mathessible/ui/settings_dialog.py:314
+#: src/mathessible/ui/settings_dialog.py:320
 msgid "The interface's"
 msgstr "與介面相同"
 
-#: src/mathessible/ui/settings_dialog.py:316
+#: src/mathessible/ui/settings_dialog.py:322
 msgid "&Speech of equations"
 msgstr "方程式語音(&S)"
 
-#: src/mathessible/ui/settings_dialog.py:316
+#: src/mathessible/ui/settings_dialog.py:322
 msgid "Speech language"
 msgstr "語音語言"
 
-#: src/mathessible/ui/settings_dialog.py:322
+#: src/mathessible/ui/settings_dialog.py:328
 msgid ""
 "The interface changes when Mathessible starts again; the speech of equations at once. These are "
 "MathCAT's languages. Translations other than English are drafts that a native speaker has yet to "
 "review."
 msgstr "介面會在下次啟動 Mathessible 時變更；方程式的語音則立即變更。這些是 MathCAT 的語言。英文以外的翻譯皆為草稿，尚待母語人士審閱。"
 
-#: src/mathessible/ui/settings_dialog.py:334
+#: src/mathessible/ui/settings_dialog.py:340
 msgid "Default &author"
 msgstr "預設作者(&A)"
 
-#: src/mathessible/ui/settings_dialog.py:334
+#: src/mathessible/ui/settings_dialog.py:340
 msgid "Default author"
 msgstr "預設作者"
 
-#: src/mathessible/ui/settings_dialog.py:339
+#: src/mathessible/ui/settings_dialog.py:345
 msgid ""
 "These are the defaults for every PDF; the export's dialog can change them for one PDF, and holds "
 "the title, watermark and passwords, which are never kept."
 msgstr "這些是每個 PDF 的預設值；匯出的對話方塊可針對單一 PDF 變更，並包含標題、浮水印和密碼，這些絕不保留。"
 
-#: src/mathessible/ui/settings_dialog.py:469
+#: src/mathessible/ui/settings_dialog.py:476
 msgid "Import a symbol dictionary"
 msgstr "匯入符號字典"
 
-#: src/mathessible/ui/settings_dialog.py:470
+#: src/mathessible/ui/settings_dialog.py:477
 msgid "NVDA symbol dictionaries"
 msgstr "NVDA 符號字典"
 
-#: src/mathessible/ui/settings_dialog.py:479
+#: src/mathessible/ui/settings_dialog.py:486
 msgid "Import failed"
 msgstr "匯入失敗"
 
-#: src/mathessible/ui/settings_dialog.py:486
+#: src/mathessible/ui/settings_dialog.py:493
 msgid "Listing NVDA's languages…"
 msgstr "正在取得 NVDA 的語言清單…"
 
-#: src/mathessible/ui/settings_dialog.py:491
+#: src/mathessible/ui/settings_dialog.py:498
 msgid "Choose the languages to download (Space checks one)."
 msgstr "選擇要下載的語言（按空白鍵勾選）。"
 
-#: src/mathessible/ui/settings_dialog.py:492 src/mathessible/ui/settings_dialog.py:525
-#: src/mathessible/ui/settings_dialog.py:530 src/mathessible/ui/settings_dialog.py:551
+#: src/mathessible/ui/settings_dialog.py:499 src/mathessible/ui/settings_dialog.py:532
+#: src/mathessible/ui/settings_dialog.py:537 src/mathessible/ui/settings_dialog.py:558
 msgid "Download NVDA dictionaries"
 msgstr "下載 NVDA 字典"
 
-#: src/mathessible/ui/settings_dialog.py:503
+#: src/mathessible/ui/settings_dialog.py:510
 #, python-brace-format
 msgid "Downloading {count} dictionary…"
 msgid_plural "Downloading {count} dictionaries…"
 msgstr[0] "正在下載 {count} 個字典…"
 
-#: src/mathessible/ui/settings_dialog.py:518
+#: src/mathessible/ui/settings_dialog.py:525
 #, python-brace-format
 msgid "{count} dictionary downloaded."
 msgid_plural "{count} dictionaries downloaded."
 msgstr[0] "已下載 {count} 個字典。"
 
-#: src/mathessible/ui/settings_dialog.py:522
+#: src/mathessible/ui/settings_dialog.py:529
 #, python-brace-format
 msgid "NVDA has no symbol dictionary for: {languages}."
 msgstr "NVDA 沒有以下語言的符號字典：{languages}。"
 
-#: src/mathessible/ui/settings_dialog.py:550
+#: src/mathessible/ui/settings_dialog.py:557
 #, python-brace-format
 msgid "The download failed: {error}"
 msgstr "下載失敗：{error}"
 
-#: src/mathessible/ui/settings_dialog.py:570 src/mathessible/ui/settings_dialog.py:571
-#: src/mathessible/ui/settings_dialog.py:608
+#: src/mathessible/ui/settings_dialog.py:577 src/mathessible/ui/settings_dialog.py:578
+#: src/mathessible/ui/settings_dialog.py:615
 msgid "Settings"
 msgstr "設定"
 
-#: src/mathessible/ui/settings_dialog.py:609
+#: src/mathessible/ui/settings_dialog.py:616
 msgid "Settings dialog"
 msgstr "設定對話方塊"
 

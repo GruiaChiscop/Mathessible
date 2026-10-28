@@ -147,6 +147,19 @@ class HtmlExportTests(unittest.TestCase):
         self.assertNotIn("<script>", script)
         self.assertIn("Empty document", preview_update_script("  \n", lambda _s: ""))
 
+    def test_a_latex_pages_equations_are_converted_as_latex(self) -> None:
+        calls = []
+
+        def convert(source: str, latex: bool = False) -> str:
+            calls.append((source, latex))
+            return "<math><mi>x</mi></math>"
+
+        pages = [ExportPage("One", "---\nmath: latex\n---\n$\\frac{a}{b}$"), ExportPage("Two", "$a/b$")]
+        notebook_html("Notebook", pages, convert)
+        self.assertEqual(calls, [("\\frac{a}{b}", True), ("a/b", False)])
+        self.assertTrue(pages[0].latex)
+        self.assertFalse(pages[1].latex)
+
 
 if __name__ == "__main__":
     unittest.main()

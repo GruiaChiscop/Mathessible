@@ -4,12 +4,14 @@ import json
 import re
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from functools import partial
 from html import escape
 from pathlib import Path
 
 from markdown_it import MarkdownIt
 from mdit_py_plugins.footnote import footnote_plugin
 
+from mathessible.documents.front_matter import LATEX, equation_language
 from mathessible.documents.front_matter import body as without_front_matter
 from mathessible.documents.markdown_math import find_math_zones, with_marks
 from mathessible.documents.mathml_sanitize import sanitize_mathml
@@ -24,6 +26,20 @@ _BLOCK_DISPLAY = re.compile(r'^(<math\b[^>]*?\sdisplay=")block(")')
 class ExportPage:
     title: str
     source: str
+
+    @property
+    def latex(self) -> bool:
+        """The page's equations are LaTeX (its front matter says `math: latex`)."""
+        return equation_language(self.source) == LATEX
+
+
+def for_page[F: Callable[..., object]](convert: F, page: ExportPage) -> F:
+    """An export's equation function for this page: called with `latex=True` on a LaTeX page.
+
+    The functions the exports are given take a page's equation source; the
+    app's also take `latex`, which a UnicodeMath page never passes.
+    """
+    return partial(convert, latex=True) if page.latex else convert
 
 
 def _note_number(tokens: Sequence[object], index: int) -> str:
@@ -185,7 +201,9 @@ def notebook_html(
 
     contents: list[str] = []
     if len(pages) == 1:
-        body, headings = _with_heading_ids(render_markdown(pages[0].source, convert_math), "section-")
+        body, headings = _with_heading_ids(
+            render_markdown(pages[0].source, for_page(convert_math, pages[0])), "section-"
+        )
         if options.table_of_contents and len(headings) > 1:
             items = "".join(
                 f'<li class="level-{level}"><a href="#{identifier}">{text}</a></li>'
@@ -202,7 +220,7 @@ def notebook_html(
             identifier = f"page-{index}"
             navigation.append(f'<li><a href="#{identifier}">{escape(page.title)}</a></li>')
             body, _headings = _with_heading_ids(
-                render_markdown(page.source, convert_math, identifier), f"{identifier}-section-"
+                render_markdown(page.source, for_page(convert_math, page), identifier), f"{identifier}-section-"
             )
             sections.append(
                 f'<section class="notebook-page" id="{identifier}" aria-labelledby="{identifier}-title">\n'

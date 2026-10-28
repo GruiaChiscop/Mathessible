@@ -108,6 +108,12 @@ class NemethInUebTests(unittest.TestCase):
     def test_the_switch_indicators_and_their_spaces(self) -> None:
         self.assertEqual(ascii_braille(nemeth_in_ueb(letters("x"))), "_% X _:")
 
+    def test_a_notebook_pages_front_matter_is_not_text(self) -> None:
+        pages = [ExportPage("One", "---\nheader: H\nmath: latex\n---\nx"), ExportPage("Two", "y")]
+        brf = notebook_brf(pages, letters, lambda source, latex=False: letters(f"[{source}{latex}]"), BrfLayout(20, 5))
+        self.assertNotIn("HEADER", brf)
+        self.assertIn("X", brf)
+
 
 if __name__ == "__main__":
     unittest.main()

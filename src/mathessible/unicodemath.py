@@ -107,6 +107,20 @@ def control_words() -> dict[str, str]:
     return words
 
 
+def latex_converter_path() -> Path:
+    """Murray Sargent's LaTeX converter (LaTeX to UnicodeMath, MathML to LaTeX), from UnicodeMathML's playground.
+
+    It is not in the dist build, but is the same project's (MIT): the converter itself
+    calls its `TeX2UnicodeMath` for a source in `\\( ... \\)`.
+    """
+    path = distribution_directory().parent / "playground" / "assets" / "TeX.js"
+    if not path.is_file():
+        raise FileNotFoundError(
+            "The UnicodeMathML submodule is not initialized. Run: git submodule update --init --recursive"
+        )
+    return path
+
+
 def renderer_page() -> tuple[str, str]:
     """Return the private, non-accessible page used only for visual MathML rendering."""
     distribution = distribution_directory()
@@ -147,7 +161,15 @@ def renderer_page() -> tuple[str, str]:
 <body aria-hidden="true">
   <div id="equation" aria-hidden="true"></div>
   <script>
-    window.mathessibleConvert = function(source, decimalComma) {
+    window.mathessibleConvert = function(source, decimalComma, latex) {
+      if (latex) {
+        // A LaTeX equation: Sargent's own LaTeX to UnicodeMath, then the converter as always.
+        try {
+          source = TeX2UnicodeMath(source);
+        } catch (error) {
+          return {mathml: "", error: "LaTeX: " + String(error), parseOffset: null, parseFound: null};
+        }
+      }
       const result = convertUnicodeMathToMathML(source, {
         decimalComma: decimalComma !== false,
         splitInput: true,
@@ -169,9 +191,18 @@ def renderer_page() -> tuple[str, str]:
       return {
         mathml: result.mathml,
         error: errorNode ? errorNode.textContent : null,
-        parseOffset: parseError ? parseError.offset : null,
-        parseFound: parseError ? parseError.found : null
+        // A LaTeX source's offsets are in the UnicodeMath it became, not in the LaTeX.
+        parseOffset: parseError && !latex ? parseError.offset : null,
+        parseFound: parseError && !latex ? parseError.found : null
       };
+    };
+    // An equation's MathML as LaTeX (Sargent's MathMLtoTeX), for a document changed to LaTeX.
+    window.mathessibleToLaTeX = function(mathml) {
+      try {
+        return {latex: MathMLtoTeX(mathml)};
+      } catch (error) {
+        return {error: String(error)};
+      }
     };
     // Pasted MathML (a web page's, Word's) back to UnicodeMath, by the converter's own lineariser.
     window.mathessibleFromMathML = function(mathml) {
@@ -288,7 +319,8 @@ def renderer_page() -> tuple[str, str]:
 </html>"""
     # WebKit blocks file:// script subresources in pages created with SetPage.
     # Keeping both official files inline also makes page readiness deterministic.
-    page = page_start + parser_javascript + "\n" + converter_javascript + page_end
+    latex_javascript = latex_converter_path().read_text(encoding="utf-8-sig")
+    page = page_start + parser_javascript + "\n" + converter_javascript + "\n" + latex_javascript + page_end
     return page, base_url
 
 
@@ -309,9 +341,9 @@ def caret_script(spec: dict | None) -> str:
     return f"window.mathessibleCaret({json.dumps(spec)})"
 
 
-def conversion_script(source: str, token: int | None = None, decimal_comma: bool = True) -> str:
-    """The script converting `source`; `decimal_comma` False makes "1,2" a list (only "." is decimal)."""
-    call = f"window.mathessibleConvert({json.dumps(source)}, {json.dumps(decimal_comma)})"
+def conversion_script(source: str, token: int | None = None, decimal_comma: bool = True, latex: bool = False) -> str:
+    """The script converting `source` (LaTeX with `latex`); `decimal_comma` False makes "1,2" a list."""
+    call = f"window.mathessibleConvert({json.dumps(source)}, {json.dumps(decimal_comma)}, {json.dumps(latex)})"
     if token is None:
         return f"JSON.stringify({call})"
     return f"JSON.stringify(Object.assign({call}, {{token: {int(token)}}}))"
@@ -320,6 +352,20 @@ def conversion_script(source: str, token: int | None = None, decimal_comma: bool
 def from_mathml_script(mathml: str, token: int) -> str:
     """The script turning pasted MathML into UnicodeMath (`mathessibleFromMathML`)."""
     return f"JSON.stringify(Object.assign(window.mathessibleFromMathML({json.dumps(mathml)}), {{token: {int(token)}}}))"
+
+
+def to_latex_script(mathml: str, token: int) -> str:
+    """The script turning an equation's MathML into LaTeX (`mathessibleToLaTeX`)."""
+    return f"JSON.stringify(Object.assign(window.mathessibleToLaTeX({json.dumps(mathml)}), {{token: {int(token)}}}))"
+
+
+def decode_to_latex(value: str, token: int) -> str:
+    """The LaTeX `mathessibleToLaTeX` gave; its failure raises `UnicodeMathError`."""
+    decoded = _decoded(value, token)
+    latex = decoded.get("latex")
+    if not isinstance(latex, str):
+        raise UnicodeMathError(str(decoded.get("error") or "the equation could not be written as LaTeX"))
+    return latex
 
 
 def _decoded(value: str, token: int | None) -> dict:

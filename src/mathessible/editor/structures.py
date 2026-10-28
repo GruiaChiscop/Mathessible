@@ -138,11 +138,12 @@ class StructureActionsMixin:
     def _show_context_menu(self, position: wx.Point) -> None:
         menu = wx.Menu()
         self._append_edit_items(menu)
-        self._append_table_menu(menu)
-        self._append_fraction_menu(menu)
-        self._append_root_menu(menu)
-        self._append_nary_menu(menu)
-        self._append_caret_structure_menus(menu)
+        if not self.latex:  # The structure edits write UnicodeMath.
+            self._append_table_menu(menu)
+            self._append_fraction_menu(menu)
+            self._append_root_menu(menu)
+            self._append_nary_menu(menu)
+            self._append_caret_structure_menus(menu)
         if menu.GetMenuItemCount():
             menu.AppendSeparator()
         switch = _("Switch to Professional View") if self.mode == "linear" else _("Switch to Linear View")
@@ -161,11 +162,12 @@ class StructureActionsMixin:
         paste_item = menu.Append(wx.ID_ANY, _("&Paste") + "\tCtrl+V")
         menu.AppendSeparator()
         select_all_item = menu.Append(wx.ID_ANY, _("Select &All") + "\tCtrl+A")
-        menu.AppendSeparator()
-        insert_menu = wx.Menu()
-        for item_id, entry in append_insert_items(insert_menu).items():
-            self.Bind(wx.EVT_MENU, lambda _e, entry=entry: self.insert_item(entry), id=item_id)
-        menu.AppendSubMenu(insert_menu, _("&Insert"))
+        if not self.latex:  # The Insert entries are UnicodeMath templates.
+            menu.AppendSeparator()
+            insert_menu = wx.Menu()
+            for item_id, entry in append_insert_items(insert_menu).items():
+                self.Bind(wx.EVT_MENU, lambda _e, entry=entry: self.insert_item(entry), id=item_id)
+            menu.AppendSubMenu(insert_menu, _("&Insert"))
         cut_item.Enable(has_content)
         copy_item.Enable(has_content)
         paste_item.Enable(get_clipboard_text() is not None)

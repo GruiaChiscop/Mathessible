@@ -93,6 +93,8 @@ class AppSettings:
     # ("" is the interface's): i18n.LANGUAGES, MathCAT's languages.
     interface_language: str = ""
     speech_language: str = ""
+    # New documents and notebook pages write their equations in LaTeX (front matter `math: latex`).
+    latex_new_documents: bool = False
     # MathCAT's braille code for the braille strip (BRAILLE_CODES).
     braille_code: str = "Nemeth"
     # BRF export: liblouis's table for the text ("" is the system language's), and the page.
@@ -200,6 +202,7 @@ def load_settings(path: Path | None = None) -> AppSettings:
         braille_code=_braille_code(data.get("braille_code")),
         interface_language=_language(data.get("interface_language")),
         speech_language=_language(data.get("speech_language")),
+        latex_new_documents=bool(data.get("latex_new_documents", False)),
         braille_text_table=str(data.get("braille_text_table", "")),
         brf_cells_per_line=_bounded(data.get("brf_cells_per_line"), 40, BRF_CELLS),
         brf_lines_per_page=_bounded(data.get("brf_lines_per_page"), 25, BRF_LINES),

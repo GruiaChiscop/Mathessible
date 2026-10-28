@@ -1,6 +1,15 @@
 import unittest
 
-from mathessible.documents.front_matter import HeaderFooter, body, header_and_footer, with_header_and_footer
+from mathessible.documents.front_matter import (
+    LATEX,
+    UNICODEMATH,
+    HeaderFooter,
+    body,
+    equation_language,
+    header_and_footer,
+    with_equation_language,
+    with_header_and_footer,
+)
 
 
 class FrontMatterTests(unittest.TestCase):
@@ -23,6 +32,18 @@ class FrontMatterTests(unittest.TestCase):
         self.assertEqual(with_header_and_footer("Text\n", "", ""), "Text\n")
         self.assertEqual(with_header_and_footer("---\nheader: A\n---\nText\n", "", ""), "Text\n")
         self.assertEqual(with_header_and_footer("Text\n", "#1", ""), '---\nheader: "#1"\n---\nText\n')
+
+    def test_math_latex_marks_a_latex_document(self) -> None:
+        self.assertEqual(equation_language("---\nmath: latex\n---\n$\\frac{a}{b}$\n"), LATEX)
+        self.assertEqual(equation_language("---\nmath: LaTeX\nheader: H\n---\n"), LATEX)
+        self.assertEqual(equation_language("$a/b$\n"), UNICODEMATH)
+        self.assertEqual(equation_language("---\nmath: unicodemath\n---\n"), UNICODEMATH)
+        marked = with_equation_language("---\nheader: H\n---\nText\n", LATEX)
+        self.assertEqual(marked, "---\nmath: latex\nheader: H\n---\nText\n")
+        self.assertEqual(with_equation_language(marked, UNICODEMATH), "---\nheader: H\n---\nText\n")
+        self.assertEqual(with_equation_language("Text\n", UNICODEMATH), "Text\n")
+        self.assertEqual(header_and_footer(with_header_and_footer(marked, "A", "")).header, "A")
+        self.assertEqual(equation_language(with_header_and_footer(marked, "A", "")), LATEX)  # Kept.
 
 
 if __name__ == "__main__":

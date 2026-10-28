@@ -32,7 +32,7 @@ from docx.text.paragraph import Paragraph
 
 from mathessible.documents.front_matter import HeaderFooter, header_and_footer
 from mathessible.documents.front_matter import body as without_front_matter
-from mathessible.documents.html_export import ExportPage, markdown_parser
+from mathessible.documents.html_export import ExportPage, for_page, markdown_parser
 from mathessible.documents.markdown_math import find_math_zones, with_marks
 from mathessible.documents.omml_math import M, OmmlEquation
 
@@ -467,7 +467,7 @@ def docx_document(pages: Sequence[ExportPage], title: str, omml_of: OmmlOf, opti
             elif number:
                 document.add_page_break()
             document.add_heading(page.title, level=1)
-        _Writer(document, page.source, omml_of, footnotes).body()
+        _Writer(document, page.source, for_page(omml_of, page), footnotes).body()
     output = io.BytesIO()
     document.save(output)
     return output.getvalue()

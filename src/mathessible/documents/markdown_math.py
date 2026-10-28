@@ -161,6 +161,21 @@ def _in_footnote_note(source: str, position: int) -> bool:
     return _NOTE_START.match(source, start) is not None
 
 
+def rewrite_equations(source: str, rewrite: Callable[[str], str | None]) -> tuple[str, int]:
+    """Every equation rewritten (into another equation language); `rewrite` returns None for one it cannot.
+
+    The new source, and how many equations were kept as they were.
+    """
+    kept = 0
+    for zone in reversed(find_math_zones(source)):
+        new = rewrite(zone.content(source))
+        if new is None:
+            kept += 1
+            continue
+        source = source[: zone.content_start] + new + source[zone.content_end :]
+    return source, kept
+
+
 def math_zone_at(source: str, start: int, end: int | None = None) -> MathZone | None:
     end = start if end is None else end
     for zone in find_math_zones(source):

@@ -36,14 +36,15 @@ class Notebook:
     pages: list[NotebookPage]
 
     @classmethod
-    def create(cls, root: str | Path, title: str | None = None) -> Notebook:
+    def create(cls, root: str | Path, title: str | None = None, first_page: str = "") -> Notebook:
+        """A new notebook with one page, `first_page` its source."""
         root = Path(root).expanduser()
         if root.exists() and any(root.iterdir()):
             raise NotebookError(_("The selected folder is not empty"))
         root.mkdir(parents=True, exist_ok=True)
         (root / "pages").mkdir()
         notebook = cls(root=root, title=title or root.name, pages=[])
-        notebook.add_page("Page 1")
+        notebook.add_page("Page 1", first_page)
         return notebook
 
     @classmethod

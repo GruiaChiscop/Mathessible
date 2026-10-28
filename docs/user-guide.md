@@ -98,6 +98,27 @@ export have them: HTML with the notes at the end, linked both ways; PDF
 and Word as their own footnotes, at the bottom of the page; BRF with
 the number in brackets and the notes after the text.
 
+### Equations in LaTeX
+
+A document's equations are UnicodeMath, unless its front matter says
+`math: latex`; then they are LaTeX, kept in the document as you type
+them (`$\frac{a}{b}$`), as GitHub and Pandoc write Markdown math. Edit →
+Equations in LaTeX makes a document LaTeX, or UnicodeMath again: it
+asks first, then writes every equation again from what it builds, so
+spacing and some details can change (an equation that does not build is
+kept as it is, and Undo restores them all). `Settings → Typing` can
+start every new document and notebook page in LaTeX.
+
+In a LaTeX document the equation editor's linear view is the LaTeX,
+typed as it is written: no Math AutoCorrect, suggestions or templates,
+with the built equation previewed under it. F2 shows the professional
+view, read and navigated with MathCAT as any equation, but not edited
+there yet (edit the LaTeX in the linear view). Speech, braille, the
+preview, copying and every export work as for UnicodeMath. Most LaTeX
+math is understood (fractions, roots, scripts, sums and integrals,
+`\begin{pmatrix}`, `\left( \right)`, `\mathbb{R}`, `\text{}`), not yet
+`\pmatrix{...}`.
+
 ### Header and footer
 
 Insert → Header and Footer… sets the document's header and footer: a

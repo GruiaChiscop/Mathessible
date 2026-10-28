@@ -91,6 +91,12 @@ if wx is not None:
             return page
 
         def _typing_page(self, page: wx.Panel, settings: AppSettings) -> None:
+            self.latex_new_documents = self._checkbox(
+                page,
+                _("Write the equations of new documents and pages in LaTeX"),
+                _("Write equations in LaTeX"),
+                settings.latex_new_documents,
+            )
             self.convert_on_space = self._checkbox(
                 page,
                 _("Convert control words (for example \\alpha) when Space or punctuation is typed"),
@@ -388,6 +394,7 @@ if wx is not None:
             self._settings.structure_stops = self.structure_stops.GetValue()
             self._settings.invisible_operator_stops = self.invisible_operator_stops.GetValue()
             self._settings.convert_on_space = self.convert_on_space.GetValue()
+            self._settings.latex_new_documents = self.latex_new_documents.GetValue()
             self._settings.complete_control_words = self.complete_control_words.GetValue()
             self._settings.decimal_separator = "," if self.decimal_comma.GetValue() else "."
             self._settings.convert_shortcuts_immediately = self.convert_shortcuts_immediately.GetValue()

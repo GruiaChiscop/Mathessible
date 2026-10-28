@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 
 from mathessible.documents.front_matter import HeaderFooter, header_and_footer
 from mathessible.documents.front_matter import body as without_front_matter
-from mathessible.documents.html_export import ExportPage, markdown_parser
+from mathessible.documents.html_export import ExportPage, for_page, markdown_parser
 from mathessible.documents.markdown_math import find_math_zones, with_marks
 from mathessible.documents.pdf_security import PdfSecurity
 from mathessible.documents.pdf_source import DOCUMENT_DESCRIPTION, PAGE_DESCRIPTION
@@ -376,7 +376,7 @@ def typst_document(pages: Sequence[ExportPage], title: str, equation_of: Equatio
             elif number:
                 parts.append("#pagebreak()")
             parts.append(f"= {escape_markup(page.title)}\n")
-        parts.append(_Writer(page.source, equation_of, number).body())
+        parts.append(_Writer(page.source, for_page(equation_of, page), number).body())
     if options.attach_source:
         names: set[str] = set()
         for number, page in enumerate(pages):

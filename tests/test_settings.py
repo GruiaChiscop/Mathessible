@@ -100,6 +100,13 @@ class BrailleCodeSettingTests(unittest.TestCase):
             path.write_text('{"braille_code": "Klingon"}', encoding="utf-8")
             self.assertEqual(load_settings(path).braille_code, "Nemeth")
 
+    def test_latex_for_new_documents_is_kept(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            self.assertFalse(load_settings(path).latex_new_documents)
+            save_settings(AppSettings(latex_new_documents=True), path)
+            self.assertTrue(load_settings(path).latex_new_documents)
+
 
 if __name__ == "__main__":
     unittest.main()

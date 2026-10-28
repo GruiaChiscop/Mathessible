@@ -12,7 +12,7 @@ import shutil
 import subprocess
 import unittest
 
-from mathessible.unicodemath import distribution_directory
+from mathessible.unicodemath import distribution_directory, latex_converter_path
 
 needs_node = unittest.skipUnless(shutil.which("node"), "Node is needed to run the UnicodeMathML converter")
 
@@ -37,20 +37,32 @@ const context = {performance: require('perf_hooks').performance, console: {log()
 vm.createContext(context);
 vm.runInContext(fs.readFileSync(process.argv[1], 'utf8'), context);
 vm.runInContext(fs.readFileSync(process.argv[2], 'utf8'), context);
+vm.runInContext(fs.readFileSync(process.argv[3], 'utf8').replace(/^\ufeff/, ''), context);
 const request = JSON.parse(fs.readFileSync(0, 'utf8'));
 process.stdout.write(JSON.stringify(request.sources.map(source => {
-  const result = context.convertUnicodeMathToMathML(source, request.options);
-  return {mathml: result.mathml, parseError: result.parseError || null};
+  // As the renderer page's mathessibleConvert: LaTeX through Sargent's TeX2UnicodeMath first.
+  let unicodemath = source;
+  if (request.latex) {
+    try {
+      unicodemath = vm.runInContext('TeX2UnicodeMath(' + JSON.stringify(source) + ')', context);
+    } catch (error) {
+      return {mathml: '', parseError: null, unicodemath: null, error: 'LaTeX: ' + String(error)};
+    }
+  }
+  const result = context.convertUnicodeMathToMathML(unicodemath, request.options);
+  return {mathml: result.mathml, parseError: result.parseError || null, unicodemath: unicodemath};
 })));
 """
 
 
-def convert_all(sources: list[str], **options: object) -> list[dict]:
-    """Each source's {"mathml", "parseError"}; `options` added to the renderer's."""
+def convert_all(sources: list[str], latex: bool = False, **options: object) -> list[dict]:
+    """Each source's {"mathml", "parseError", "unicodemath"} (LaTeX sources with `latex`); `options` added to the
+    renderer's."""
     distribution = distribution_directory()
+    scripts = [distribution / "unicodemathml-parser.js", distribution / "unicodemathml.js", latex_converter_path()]
     completed = subprocess.run(
-        ["node", "-e", _PROGRAM, str(distribution / "unicodemathml-parser.js"), str(distribution / "unicodemathml.js")],
-        input=json.dumps({"sources": sources, "options": {**RENDERER_OPTIONS, **options}}),
+        ["node", "-e", _PROGRAM, *map(str, scripts)],
+        input=json.dumps({"sources": sources, "latex": latex, "options": {**RENDERER_OPTIONS, **options}}),
         check=True,
         capture_output=True,
         text=True,

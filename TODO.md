@@ -86,5 +86,17 @@ links back, liblouis and BRF need a braille transcriber's convention.
   languages (Python's locale is "C" in a macOS app).
 - [ ] Propose Mathessible's patches upstream (`patches/mathcat`,
   `patches/unicodemathml`).
-- [ ] LaTeX input in the equation editor.
+- [x] LaTeX documents, stage 1: `math: latex` in the front matter, the
+  equations stored as LaTeX and built, read, brailled and exported
+  through Sargent's TeX2UnicodeMath; the built view read-only.
+- [ ] LaTeX, stage 2: editing in the professional view (MathCAT's leaves
+  mapped to the LaTeX), templates, the Insert menu and the Structure
+  Gallery writing LaTeX; `\pmatrix{...}`. Word rewrites a built
+  equation's LaTeX when it goes back to the linear view; Mathessible
+  keeps the LaTeX as typed and rewrites it only after an edit in the
+  professional view.
+- [ ] LaTeX, stage 3: `.tex` files, opened and saved as LaTeX documents
+  (`$`, `\(`, `\[` and `equation` environments).
+- [ ] Opening Markdown written elsewhere (GitHub, Pandoc) whose equations
+  are LaTeX but which has no `math: latex`.
 - [ ] The visual design of the equation editor.

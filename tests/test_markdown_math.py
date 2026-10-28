@@ -1,6 +1,6 @@
 import unittest
 
-from mathessible.documents.markdown_math import find_math_zones, math_zone_at, toggle_display
+from mathessible.documents.markdown_math import find_math_zones, math_zone_at, rewrite_equations, toggle_display
 
 
 class MarkdownMathTests(unittest.TestCase):
@@ -51,6 +51,15 @@ class ToggleDisplayTests(unittest.TestCase):
                 zone = math_zone_at(source, 2)
                 assert zone is not None
                 self.assertIsNone(toggle_display(source, zone))
+
+
+class RewriteEquationsTests(unittest.TestCase):
+    def test_every_equation_is_rewritten_and_one_that_cannot_be_is_kept(self) -> None:
+        source = "Roots $a/b$ and $$x^2$$ and `$code$` and $bad$."
+        rewritten = {"a/b": "\\frac{a}{b}", "x^2": "x^{2}"}
+        new, kept = rewrite_equations(source, rewritten.get)
+        self.assertEqual(new, "Roots $\\frac{a}{b}$ and $$x^{2}$$ and `$code$` and $bad$.")
+        self.assertEqual(kept, 1)
 
 
 if __name__ == "__main__":

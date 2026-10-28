@@ -18,10 +18,12 @@ from mathessible.unicodemath import (
     conversion_script,
     decode_conversion,
     decode_from_mathml,
+    decode_to_latex,
     from_mathml_script,
     highlight_script,
     render_script,
     renderer_page,
+    to_latex_script,
     zoom_script,
 )
 
@@ -184,16 +186,27 @@ class EquationRendererMixin:
         return self._renderer_ready and self._webview is not None
 
     def convert_unicode_math(self, source: str) -> str:
-        # Control words deleted from Math AutoCorrect stay text, as in Word (every path converts here).
-        source = literal_text(source, self._literal_words())
+        """The equation being edited (or one like it) as MathML: in its document's language (`self.latex`)."""
+        return self.convert_equation(source, self.latex)
+
+    def convert_equation(self, source: str, latex: bool = False) -> str:
+        """An equation as MathML, UnicodeMath or (`latex`) LaTeX; raises `UnicodeMathError`."""
+        if not latex:
+            # Control words deleted from Math AutoCorrect stay text, as in Word (every path converts here).
+            source = literal_text(source, self._literal_words())
         decimal_comma = self.settings.decimal_separator == ","
         conversion = self._run_converter(
-            lambda token: conversion_script(source, token, decimal_comma=decimal_comma), decode_conversion
+            lambda token: conversion_script(source, token, decimal_comma=decimal_comma, latex=latex),
+            decode_conversion,
         )
         self._last_conversion = (source, conversion)  # Its parse error position, for the error list.
         if conversion.error:
             raise UnicodeMathError(conversion.error)
         return conversion.mathml
+
+    def latex_from_mathml(self, mathml: str) -> str:
+        """An equation's MathML as LaTeX (Sargent's MathMLtoTeX); raises `UnicodeMathError`."""
+        return self._run_converter(lambda token: to_latex_script(mathml, token), decode_to_latex)
 
     def unicode_math_from_mathml(self, mathml: str) -> str:
         """Pasted MathML as UnicodeMath, by the converter's own lineariser; raises `UnicodeMathError`."""
@@ -252,6 +265,10 @@ class EquationRendererMixin:
         built equation can be mapped back to the real source.
         """
         source = self.document.source
+        if self.latex:
+            # LaTeX is built as it is: the repairs and linear runs are UnicodeMath's.
+            self._repair = literal_repair(source, frozenset(), ())
+            return ConversionResult(mathml=self.convert_unicode_math(source))
         # A professional edit checks the build and then rebuilds: one conversion for both.
         literal = self._literal_words()
         runs = self._linear_runs

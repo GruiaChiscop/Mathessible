@@ -19,7 +19,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
 from mathessible.documents.front_matter import body as without_front_matter
-from mathessible.documents.html_export import ExportPage, markdown_parser
+from mathessible.documents.html_export import ExportPage, for_page, markdown_parser
 from mathessible.documents.markdown_math import find_math_zones, with_marks
 
 BrailleOf = Callable[[str], str]
@@ -246,7 +246,11 @@ def notebook_brf(
     """Every page, its title as a main heading, each starting on a new braille page, the pages numbered."""
     sections = [
         braille_lines(
-            (f"# {page.title}\n\n" if len(pages) > 1 else "") + page.source, text_braille, math_braille, layout
+            # Without the front matter, which before the page's title would be text.
+            (f"# {page.title}\n\n" if len(pages) > 1 else "") + without_front_matter(page.source),
+            text_braille,
+            for_page(math_braille, page),
+            layout,
         )
         for page in pages
     ]

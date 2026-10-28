@@ -1,4 +1,4 @@
-"""A document's header and footer, kept in the Markdown as front matter.
+"""A document's header, footer and equation language, kept in the Markdown as front matter.
 
 Front matter is the block Pandoc, Jekyll and GitHub read at the very top of
 a Markdown file, between two `---` lines:
@@ -6,12 +6,14 @@ a Markdown file, between two `---` lines:
     ---
     header: Calculus notes
     footer: Chapter 2
+    math: latex
     ---
 
-Only simple `key: value` lines are read (a value plain, or quoted as YAML
-and JSON quote it); a block holding anything else is not front matter but
-the document's own text (a rule, a heading). Keys other than the header and
-footer are kept as they are.
+`math: latex` makes the document's equations LaTeX, stored as written;
+without it they are UnicodeMath. Only simple `key: value` lines are read
+(a value plain, or quoted as YAML and JSON quote it); a block holding
+anything else is not front matter but the document's own text (a rule, a
+heading). Other keys are kept as they are.
 """
 
 from __future__ import annotations
@@ -74,16 +76,29 @@ def _front_matter(source: str) -> _FrontMatter | None:
     return None
 
 
-def header_and_footer(source: str) -> HeaderFooter:
+# A document's equation languages, as `math:` names them.
+UNICODEMATH = "unicodemath"
+LATEX = "latex"
+
+
+def _fields(source: str) -> dict[str, str]:
     front = _front_matter(source)
-    if front is None:
-        return HeaderFooter()
     fields: dict[str, str] = {}
-    for line in front.lines:
+    for line in front.lines if front else ():
         match = _FIELD.match(line)
         if match is not None:
             fields[match.group(1).lower()] = _value(match.group(2))
+    return fields
+
+
+def header_and_footer(source: str) -> HeaderFooter:
+    fields = _fields(source)
     return HeaderFooter(fields.get("header", ""), fields.get("footer", ""))
+
+
+def equation_language(source: str) -> str:
+    """LATEX when the front matter says `math: latex`, else UNICODEMATH."""
+    return LATEX if _fields(source).get("math", "").strip().lower() == LATEX else UNICODEMATH
 
 
 def body_start(source: str) -> int:
@@ -97,11 +112,16 @@ def body(source: str) -> str:
     return source[body_start(source) :]
 
 
-def with_header_and_footer(source: str, header: str, footer: str) -> str:
-    """The document with this header and footer ("" removes one), its other front matter kept."""
+def _with_fields(source: str, values: dict[str, str]) -> str:
+    """The document with these front matter fields ("" removes one), its other front matter kept."""
     front = _front_matter(source)
-    kept = [line for line in (front.lines if front else ()) if not _is_ours(line)]
-    fields = [f"{key}: {_quoted(value)}" for key, value in (("header", header), ("footer", footer)) if value]
+
+    def ours(line: str) -> bool:
+        match = _FIELD.match(line)
+        return match is not None and match.group(1).lower() in values
+
+    kept = [line for line in (front.lines if front else ()) if not ours(line)]
+    fields = [f"{key}: {_quoted(value)}" for key, value in values.items() if value]
     text = source[front.end :] if front else source
     lines = fields + kept
     if not any(line.strip() for line in lines):
@@ -109,6 +129,11 @@ def with_header_and_footer(source: str, header: str, footer: str) -> str:
     return "---\n" + "\n".join(lines) + "\n---\n" + text
 
 
-def _is_ours(line: str) -> bool:
-    match = _FIELD.match(line)
-    return match is not None and match.group(1).lower() in ("header", "footer")
+def with_header_and_footer(source: str, header: str, footer: str) -> str:
+    """The document with this header and footer ("" removes one), its other front matter kept."""
+    return _with_fields(source, {"header": header, "footer": footer})
+
+
+def with_equation_language(source: str, language: str) -> str:
+    """The document marked as LaTeX (`math: latex`) or, for UNICODEMATH, unmarked; nothing else changed."""
+    return _with_fields(source, {"math": LATEX if language == LATEX else ""})

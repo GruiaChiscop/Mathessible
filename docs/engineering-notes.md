@@ -1437,6 +1437,40 @@ a different one starting with its own `set page`; Word: the section's
 header and footer, the page number after a centre tab, and a section
 of its own for such a notebook page.
 
+## LaTeX Documents (2026-10-28)
+
+The user's decision: a LaTeX document's equations are stored as LaTeX, as
+typed, not converted to UnicodeMath (Word keeps OMML and offers LaTeX only
+as a linear format), so that Mathessible can edit `.tex` files later. A
+document is LaTeX when its front matter says `math: latex`
+(`front_matter.equation_language`); the whole document is, as a `.tex`
+file is, never one zone. Settings (Typing) can start new documents and
+notebook pages with the mark (`latex_new_documents`). Edit > Equations in
+LaTeX rewrites every equation through MathML (`markdown_math.rewrite_equations`;
+to LaTeX by Sargent's `MathMLtoTeX`, back by `MathMLtoUnicodeMath`),
+asked first, those that do not build kept, one undo.
+
+Building: the renderer page also loads Sargent's own LaTeX converter,
+`playground/assets/TeX.js` (UnicodeMathML's, MIT; not in `dist/`, but the
+converter itself calls its `TeX2UnicodeMath` for `\( ... \)`), and
+`mathessibleConvert(source, decimalComma, latex)` turns LaTeX into
+UnicodeMath before converting; parse error offsets are then the
+UnicodeMath's, so none are reported. `EquationEditor.convert_equation`
+takes the language; `convert_unicode_math` is the editor's, in the open
+equation's (`latex`, set by `EquationWindow.prepare` from the document).
+Exports get a page-agnostic function: `html_export.for_page` passes it
+`latex=True` for a LaTeX page (`ExportPage.latex`), so a notebook may mix.
+
+Editing, stage 1: the linear view is LaTeX text, typed as it is written
+(`_typing_text` is true: no Math AutoCorrect, completion, templates,
+building as you type or space tidying), with the preview under it. The
+built view reads and navigates (MathCAT), but is read-only, as
+exploration mode: MathCAT's leaves are not mapped to LaTeX
+(`source_map` is UnicodeMath's), so editing there is stage 2, with LaTeX
+templates. Known converter gaps: `\pmatrix{...}` throws (the
+`\begin{pmatrix}` form works), and a math alphabet over a structure
+(`\mathbf{\frac{a}{b}}`) is left as text.
+
 ## Newer UnicodeMathML Versions
 
 Checked 2026-10-26 against upstream `636dc8f` (2026-10-06; the submodule
@@ -1544,6 +1578,12 @@ still `1,2` and `,3`, and `MathMLtoUnicodeMath` still loses an integral's
   two letters, the second subscripted) threw in `preprocess` (the "⒡"
   dictation check read `x.atoms[0]`, `atoms` being one object there) and
   the whole equation came back as an error span; found by the audit.
+  0004 (`playground/assets/TeX.js`, Sargent's LaTeX converter, which
+  Mathessible loads after `dist/`): LaTeX's math alphabets, `\mathbb{R}`,
+  `\mathbf{v}`, `\mathcal{L}`, came out as the text "\mathbb" and a fenced
+  R, since upstream added them to `src/` only; `TeX2UnicodeMath` now makes
+  them math alphanumerics with dist's `getMathAlphanumeric` first
+  (`\mathrm` text quoted upright), a simple argument only.
 
 ## Symbol Dictionaries and Licence
 

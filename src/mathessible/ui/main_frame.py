@@ -16,6 +16,7 @@ from mathessible.documents.brf_export import BrfLayout, nemeth_in_ueb, notebook_
 from mathessible.documents.document_io import read_markdown, write_markdown
 from mathessible.documents.docx_export import DocxOptions, docx_document
 from mathessible.documents.find_text import FindOptions, find, is_match, replace_all
+from mathessible.documents.front_matter import LATEX, UNICODEMATH, with_equation_language
 from mathessible.documents.front_matter import body as without_front_matter
 from mathessible.documents.html_export import (
     PREVIEW_PAGE,
@@ -25,7 +26,7 @@ from mathessible.documents.html_export import (
     preview_update_script,
     write_notebook_html,
 )
-from mathessible.documents.markdown_math import find_math_zones
+from mathessible.documents.markdown_math import find_math_zones, rewrite_equations
 from mathessible.documents.notebook import Notebook, NotebookError
 from mathessible.documents.omml_math import OmmlEquation, omml_math
 from mathessible.documents.pdf_export import PdfDocument, options_for, pdf_inputs, typst_document
@@ -37,6 +38,7 @@ from mathessible.documents.recent_files import menu_labels, remember, still_ther
 from mathessible.documents.recovery import Recovered, delete_record, pending_records, record_name, write_record
 from mathessible.documents.recovery import now as recovery_time
 from mathessible.documents.typst_math import TypstEquation, typst_math
+from mathessible.editing.pasted_math import plain_letters
 from mathessible.error_messages import explain
 from mathessible.i18n import _, ngettext
 from mathessible.mathcat.document_speech import equation_speech
@@ -59,7 +61,7 @@ from mathessible.ui.help_menu import append_help_menu
 from mathessible.ui.macos_webview import guard_webview_key_equivalents
 from mathessible.ui.pdf_dialog import PdfExportDialog
 from mathessible.ui.settings_dialog import forget_settings_window, show_settings
-from mathessible.unicodemath import UnicodeMathError
+from mathessible.unicodemath import UnicodeMathError, mathml_has_parse_error
 
 try:
     import wx
@@ -137,8 +139,15 @@ if wx is not None:
             self._recovery_timer.Start(RECOVERY_INTERVAL_MS)
             if self.settings.show_preview:
                 self._set_preview_shown(True)
+            if self.settings.latex_new_documents:
+                self.editor.set_source(self._new_source())
+                self.editor.markdown.SetInsertionPointEnd()
             self._update_title()
             self._check_patches_once()
+
+        def _new_source(self) -> str:
+            """What a new document or notebook page starts with: nothing, or the LaTeX mark (Settings)."""
+            return with_equation_language("", LATEX) if self.settings.latex_new_documents else ""
 
         def _check_patches_once(self) -> None:
             """Warn once per run when the setup is incomplete: MathCAT, the WebView, bootstrap's patches."""
@@ -238,6 +247,8 @@ if wx is not None:
             edit_menu.AppendSeparator()
             self._display_id = wx.NewIdRef()
             edit_menu.Append(self._display_id, _("Change Equation to &Display"))
+            self._latex_id = wx.NewIdRef()
+            edit_menu.AppendCheckItem(self._latex_id, _("Equations in &LaTeX"))
             edit_menu.AppendSeparator()
             edit_menu.Append(wx.ID_PREFERENCES, _("&Settings…"))
             menu_bar.Append(edit_menu, _("&Edit"))
@@ -330,6 +341,8 @@ if wx is not None:
             self.Bind(wx.EVT_FIND_REPLACE_ALL, self._on_replace_all)
             self.Bind(wx.EVT_FIND_CLOSE, self._on_find_close)
             self.Bind(wx.EVT_UPDATE_UI, self._on_update_display_item, id=self._display_id)
+            self.Bind(wx.EVT_MENU, self._switch_equation_language, id=self._latex_id)
+            self.Bind(wx.EVT_UPDATE_UI, lambda event: event.Check(self.editor.latex), id=self._latex_id)
             self.Bind(wx.EVT_MENU, self._open_settings, id=wx.ID_PREFERENCES)
             self.Bind(wx.EVT_MENU, self._toggle_preview, id=self._preview_id)
             self.Bind(
@@ -443,7 +456,7 @@ if wx is not None:
             if not equation_editor.converter_ready or equation_editor.converter_busy:
                 self._schedule_preview(delay=300)
                 return
-            script = preview_update_script(self.editor.source, equation_editor.convert_unicode_math)
+            script = preview_update_script(self.editor.source, self.editor.equation_converter())
             self.preview.RunScriptAsync(script)
 
         def _on_editor_position_changed(self, event: wx.Event) -> None:
@@ -564,6 +577,70 @@ if wx is not None:
                 self._find_dialog.Destroy()
                 self._find_dialog = None
             self.editor.markdown.SetFocus()
+
+        def _switch_equation_language(self, _event: wx.CommandEvent | None = None) -> None:
+            """Edit > Equations in LaTeX: the document's equations rewritten in LaTeX, or back in UnicodeMath.
+
+            Each one goes through the converter (MathML) and back, so its spacing and some details
+            can change: asked first. One that does not build is kept as it is. Undo restores it all.
+            """
+            if self.editor.editing_equation:
+                return
+            source = self.editor.source
+            to_latex = not self.editor.latex
+            equation_editor = self.editor.equation_window.equation
+            if find_math_zones(source):
+                if not equation_editor.converter_ready:
+                    self._show_error(
+                        _("change the equations"),
+                        RuntimeError(_("The UnicodeMath converter is not ready yet. Please try again.")),
+                    )
+                    return
+                dialog = wx.MessageDialog(
+                    self,
+                    _("Write this document's equations in LaTeX?")
+                    if to_latex
+                    else _("Write this document's equations in UnicodeMath?"),
+                    _("Equations in LaTeX"),
+                    wx.YES_NO | wx.ICON_QUESTION,
+                )
+                dialog.SetExtendedMessage(
+                    _(
+                        "Each equation is written again from what it builds, so its spacing and some details "
+                        "can change. Equations that do not build are kept as they are. Undo restores them."
+                    )
+                )
+                dialog.SetYesNoLabels(_("&Write Again"), _("&Cancel"))
+                try:
+                    if dialog.ShowModal() != wx.ID_YES:
+                        return
+                finally:
+                    dialog.Destroy()
+
+            def rewrite(equation: str) -> str | None:
+                try:
+                    mathml = equation_editor.convert_equation(equation, not to_latex)
+                    if mathml_has_parse_error(mathml):
+                        return None
+                    if to_latex:
+                        return equation_editor.latex_from_mathml(mathml)
+                    return plain_letters(equation_editor.unicode_math_from_mathml(mathml))
+                except (UnicodeMathError, RuntimeError, ValueError):
+                    return None
+
+            rewritten, kept = rewrite_equations(source, rewrite)
+            new_source = with_equation_language(rewritten, LATEX if to_latex else UNICODEMATH)
+            caret = self.editor.markdown.GetInsertionPoint()
+            self.editor.replace_source(new_source)
+            self.editor.markdown.SetInsertionPoint(min(caret, len(new_source)))
+            session_log.write("command", f"equations in {'LaTeX' if to_latex else 'UnicodeMath'}, {kept} kept")
+            message = _("equations in LaTeX") if to_latex else _("equations in UnicodeMath")
+            if kept:
+                message += ", " + ngettext(
+                    "{count} that does not build kept as it was", "{count} that do not build kept as they were", kept
+                ).format(count=kept)
+            self.SetStatusText(message, 0)
+            self.editor.announce(message)
 
         def _on_update_display_item(self, event: wx.UpdateUIEvent) -> None:
             zone = self.editor.equation_at_caret()
@@ -727,7 +804,8 @@ if wx is not None:
 
         def _is_blank(self) -> bool:
             """An untouched Untitled window, which an opened file takes instead of a new window."""
-            return not self.dirty and self.document_path is None and self.notebook is None and not self.editor.source
+            untouched = self.editor.source in ("", self._new_source())
+            return not self.dirty and self.document_path is None and self.notebook is None and untouched
 
         def open_path(self, path: Path) -> MainFrame | None:
             """Open a document, a notebook folder or a .msnb notebook, in this window if it is blank."""
@@ -919,7 +997,7 @@ if wx is not None:
                 )
                 return
             try:
-                html = notebook_html(title, pages, equation_editor.convert_unicode_math)
+                html = notebook_html(title, pages, equation_editor.convert_equation)
             except (RuntimeError, ValueError) as error:
                 self._show_error(_("print"), error)
                 return
@@ -1058,7 +1136,7 @@ if wx is not None:
                         colour_scheme=options.html_colour_scheme,
                     )
                     exported_path = write_notebook_html(
-                        destination, document.title or title, pages, equation_editor.convert_unicode_math, html_options
+                        destination, document.title or title, pages, equation_editor.convert_equation, html_options
                     )
                 elif kind == "pdf":
                     exported_path = self._write_pdf(destination, pages, title, (options, document))
@@ -1125,20 +1203,20 @@ if wx is not None:
             settings, document = chosen
             equation_editor = self.editor.equation_window.equation
             navigator = equation_editor.mathcat
-            built: dict[str, str] = {}  # Each equation that builds, as MathML.
+            built: dict[tuple[str, bool], str] = {}  # Each equation that builds (and is LaTeX or not), as MathML.
             for page in pages:
                 body = without_front_matter(page.source)
                 for zone in find_math_zones(body):
-                    source = zone.content(body)
-                    if source in built:
+                    key = (zone.content(body), page.latex)
+                    if key in built:
                         continue
                     try:
-                        mathml = equation_editor.convert_unicode_math(source)
+                        mathml = equation_editor.convert_equation(*key)
                     except (UnicodeMathError, RuntimeError, ValueError):
                         continue
                     if 'mathcolor="#F00"' not in mathml:
-                        built[source] = mathml
-            speeches: dict[str, str] = {}
+                        built[key] = mathml
+            speeches: dict[tuple[str, bool], str] = {}
             if navigator is not None:
                 spoken_forms = equation_speech(
                     list(built.values()),
@@ -1149,11 +1227,12 @@ if wx is not None:
                 )
                 speeches = dict(zip(built, spoken_forms, strict=True))
 
-            def equation_of(source: str) -> tuple[TypstEquation | None, str]:
-                if source not in built:
+            def equation_of(source: str, latex: bool = False) -> tuple[TypstEquation | None, str]:
+                key = (source, latex)
+                if key not in built:
                     return None, ""
                 try:
-                    return typst_math(built[source]), speeches.get(source, "")
+                    return typst_math(built[key]), speeches.get(key, "")
                 except (ValueError, ElementTree.ParseError):
                     return None, ""
 
@@ -1182,9 +1261,9 @@ if wx is not None:
             """A Word document; every equation Word's own (omml_math), as typed in Word."""
             equation_editor = self.editor.equation_window.equation
 
-            def omml_of(source: str) -> OmmlEquation | None:
+            def omml_of(source: str, latex: bool = False) -> OmmlEquation | None:
                 try:
-                    mathml = equation_editor.convert_unicode_math(source)
+                    mathml = equation_editor.convert_equation(source, latex)
                     if 'mathcolor="#F00"' in mathml:
                         return None
                     return omml_math(mathml)
@@ -1231,9 +1310,9 @@ if wx is not None:
             def text_braille(text: str) -> str:
                 return mathessible_mathcat.text_braille(table_path, text)
 
-            def math_braille(source: str) -> str:
+            def math_braille(source: str, latex: bool = False) -> str:
                 try:
-                    navigator.load(equation_editor.convert_unicode_math(source), speak=False)
+                    navigator.load(equation_editor.convert_equation(source, latex), speak=False)
                     cells = navigator.expression_braille()
                     return nemeth_in_ueb(cells) if switches else cells
                 except (UnicodeMathError, RuntimeError, ValueError):
@@ -1383,7 +1462,7 @@ if wx is not None:
             finally:
                 dialog.Destroy()
             try:
-                notebook = Notebook.create(root)
+                notebook = Notebook.create(root, first_page=self._new_source())
             except (OSError, NotebookError) as error:
                 self._show_error(_("create the notebook"), error)
                 return
@@ -1417,7 +1496,7 @@ if wx is not None:
                 return
             workspace = tempfile.TemporaryDirectory(prefix="mathessible-")
             try:
-                notebook = Notebook.create(Path(workspace.name) / "notebook", archive_path.stem)
+                notebook = Notebook.create(Path(workspace.name) / "notebook", archive_path.stem, self._new_source())
                 archive_path = save_portable(notebook, archive_path)
             except (OSError, NotebookError) as error:
                 workspace.cleanup()
@@ -1459,7 +1538,7 @@ if wx is not None:
             if title is None:
                 return
             try:
-                self.notebook.add_page(title)
+                self.notebook.add_page(title, self._new_source())
             except (OSError, NotebookError) as error:
                 self._show_error(_("add the page"), error)
                 return

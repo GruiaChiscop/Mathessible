@@ -120,6 +120,9 @@ if wx is not None:
             # change the equation, Space always reads in professional view (no
             # typing streak), and navigation follows the settings (`_linear_now`).
             self.writing_enabled = True
+            # The document's equations are LaTeX (front matter `math: latex`): the linear view is
+            # LaTeX text, built through Sargent's converter, and the built equation is only read.
+            self.latex = False
             set_speech_language(self._speech_language)
             self.mathcat: MathCatNavigator | None = create_mathcat_navigator(
                 recognized_functions=self.settings.recognized_functions,
@@ -576,7 +579,7 @@ if wx is not None:
                 # with "busy".
                 wx.CallLater(30, self._retry_toggle_mode, attempts - 1)
                 return
-            selection = self._built_selection()
+            selection = None if self.latex else self._built_selection()
             if selection is not None:
                 # As Word's Linear/Professional on a selection: only that part changes.
                 self._toggle_selection_linear(*selection)
@@ -607,7 +610,11 @@ if wx is not None:
                 self._enter_professional_mode(conversion, error_prefix=spoken("Professional mode could not be built"))
             else:
                 self.mode = "linear"
-                self.remove_extra_spaces()  # As Word's linear format: no space that changes nothing.
+                if self.latex:
+                    self.writing_enabled = True  # LaTeX is written here (the built view only reads).
+                    self.apply_settings()
+                else:
+                    self.remove_extra_spaces()  # As Word's linear format: no space that changes nothing.
                 self._update_braille_display()
                 self._announce(spoken("linear mode"))
             self.Refresh()
@@ -619,6 +626,11 @@ if wx is not None:
         def _enter_professional_mode(self, conversion: ConversionResult, error_prefix: str) -> bool:
             self._clear_selection()  # A linear view selection is not kept: MathCAT starts over.
             self._professional_mathml = conversion.mathml
+            if self.latex and self.writing_enabled:
+                # A LaTeX equation is read and navigated here, not edited (MathCAT's leaves are not mapped
+                # to the LaTeX): as exploration mode.
+                self.writing_enabled = False
+                self.apply_settings()
             try:
                 self.mode = "professional"
                 self.mathml_document = MathMLDocument.parse(
@@ -662,6 +674,9 @@ if wx is not None:
                 self._show_context_menu(self._caret_point())
                 return
             if key == wx.WXK_F10 and not event.ShiftDown() and not command_modifier:
+                if self.latex and self.mode == "professional":
+                    self._announce_writing_off()
+                    return
                 self.toggle_writing()
                 return
             if not self.writing_enabled and self._is_edit_key(event, key):
@@ -750,6 +765,9 @@ if wx is not None:
             self._announce(spoken("writing mode") if self.writing_enabled else spoken("exploration mode"))
 
         def _announce_writing_off(self) -> None:
+            if self.latex and self.mode == "professional":
+                self._announce(spoken("LaTeX is written in the linear view, F2"))
+                return
             self._announce(spoken("exploration mode, F10 to write"))
 
         def _writing_off(self) -> bool:
@@ -782,6 +800,9 @@ if wx is not None:
         def insert_item(self, item: InsertItem) -> None:
             """Insert an Insert-menu entry at the caret, or where MathCAT is in professional view."""
             session_log.write("command", f"insert {item.label!r}")
+            if self.latex:
+                self._announce(spoken("templates are not available for LaTeX yet"))
+                return
             if self._writing_off():
                 return
             if self.mode == "professional" and self.mathcat is not None and self.mathcat.structure is not None:
@@ -818,9 +839,10 @@ if wx is not None:
             return edit.announcement
 
         def _typing_text(self) -> bool:
-            """The caret is in a normal text and Math AutoCorrect stays out of it (the setting)."""
-            return not self.settings.autocorrect_in_text and in_text(
-                self.document.source, self.caret, self._linear_runs
+            """The caret is in a normal text and Math AutoCorrect stays out of it (the setting), or the
+            equation is LaTeX, typed as it is written: no AutoCorrect, completion or building while typing."""
+            return self.latex or (
+                not self.settings.autocorrect_in_text and in_text(self.document.source, self.caret, self._linear_runs)
             )
 
         def edit_command(self, command: str) -> None:
@@ -973,9 +995,12 @@ if wx is not None:
             text = get_clipboard_text()
             mathml = pasted_mathml(text, get_clipboard_html())
             if mathml is not None:
-                # A web page's or Word's MathML: its UnicodeMath, in the letters typed.
+                # A web page's or Word's MathML: its UnicodeMath (or LaTeX), in the letters typed.
                 try:
-                    text = plain_letters(self.unicode_math_from_mathml(mathml))
+                    if self.latex:
+                        text = self.latex_from_mathml(mathml)
+                    else:
+                        text = plain_letters(self.unicode_math_from_mathml(mathml))
                 except (UnicodeMathError, RuntimeError):
                     self._announce(spoken("the pasted MathML could not be converted"))
                     return

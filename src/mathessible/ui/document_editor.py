@@ -7,7 +7,14 @@ from dataclasses import dataclass
 from mathessible import session_log
 from mathessible.documents.clipboard_html import document_html
 from mathessible.documents.footnotes import counterpart, insert_footnote
-from mathessible.documents.front_matter import HeaderFooter, body_start, header_and_footer, with_header_and_footer
+from mathessible.documents.front_matter import (
+    LATEX,
+    HeaderFooter,
+    body_start,
+    equation_language,
+    header_and_footer,
+    with_header_and_footer,
+)
 from mathessible.documents.markdown_math import MathZone, math_zone_at, toggle_display
 from mathessible.editing.autocorrect import AutoCorrectTable, autocorrect_defaults
 from mathessible.editing.space_conversion import convert_in_text, convert_shortcut_on_character
@@ -134,7 +141,7 @@ if wx is not None:
             insert_menu = wx.Menu()
             for item_id, entry in append_insert_items(insert_menu).items():
                 self.Bind(wx.EVT_MENU, lambda _event, entry=entry: self.equation.insert_item(entry), id=item_id)
-                self.Bind(wx.EVT_UPDATE_UI, self._enable_when_editable, id=item_id)
+                self.Bind(wx.EVT_UPDATE_UI, self._enable_insert, id=item_id)
             menu_bar.Append(insert_menu, _("&Insert"))
             view_menu = wx.Menu()
             professional_item = view_menu.AppendCheckItem(wx.ID_ANY, _("&Professional View") + "\tF2")
@@ -162,10 +169,19 @@ if wx is not None:
             event.Enable(self.equation.mode == "linear")
 
         def _enable_when_editable(self, event: wx.UpdateUIEvent) -> None:
-            # Professional view edits the source too, where MathCAT is.
-            event.Enable(self.equation.mode == "linear" or self.equation.mathcat is not None)
+            # Professional view edits the source too, where MathCAT is (not a LaTeX equation's: it is read there).
+            built = self.equation.mathcat is not None and not self.equation.latex
+            event.Enable(self.equation.mode == "linear" or built)
 
-        def prepare(self, source: str, display: bool) -> None:
+        def _enable_insert(self, event: wx.UpdateUIEvent) -> None:
+            # The Insert entries are UnicodeMath templates.
+            if self.equation.latex:
+                event.Enable(False)
+            else:
+                self._enable_when_editable(event)
+
+        def prepare(self, source: str, display: bool, latex: bool = False) -> None:
+            self.equation.latex = latex
             self.equation.display = display
             self._show_kind()
             self.equation.set_source(source)
@@ -184,7 +200,12 @@ if wx is not None:
                 pass
 
         def _show_kind(self) -> None:
-            if self.equation.display:
+            if self.equation.latex:
+                if self.equation.display:
+                    heading = _("Edit display equation in LaTeX — Enter or {shortcut} saves. Escape cancels.")
+                else:
+                    heading = _("Edit inline equation in LaTeX — Enter or {shortcut} saves. Escape cancels.")
+            elif self.equation.display:
                 heading = _("Edit display equation — Enter or {shortcut} saves. Escape cancels.")
             else:
                 heading = _("Edit inline equation — Enter or {shortcut} saves. Escape cancels.")
@@ -335,12 +356,22 @@ if wx is not None:
             if start == end or not equation.converter_ready:
                 return False
             text = self.markdown.GetValue()[start:end]
-            html = document_html(text, equation.convert_unicode_math)
+            html = document_html(text, self.equation_converter())
             if html is None or not set_clipboard_text(text, html):
                 return False
             if cut:
                 self.markdown.Remove(start, end)
             return True
+
+        @property
+        def latex(self) -> bool:
+            """The document's equations are LaTeX (`math: latex` in its front matter)."""
+            return equation_language(self.markdown.GetValue()) == LATEX
+
+        def equation_converter(self) -> Callable[[str], str]:
+            """Equation source to MathML, in this document's equation language."""
+            equation, latex = self.equation_window.equation, self.latex
+            return lambda source: equation.convert_equation(source, latex)
 
         def equation_at_caret(self) -> MathZone | None:
             start, end = self.markdown.GetSelection()
@@ -430,8 +461,8 @@ if wx is not None:
 
         def _on_markdown_char(self, event: wx.KeyEvent) -> None:
             """Math AutoCorrect anywhere in the document, when on: Space, punctuation or Enter converts the entry before it."""
-            if not self.settings.autocorrect_in_document or self.editing_equation:
-                event.Skip()
+            if not self.settings.autocorrect_in_document or self.editing_equation or self.latex:
+                event.Skip()  # LaTeX is typed as it is written.
                 return
             key = event.GetKeyCode()
             character = "\n" if key in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER) else chr(event.GetUnicodeKey() or 0)
@@ -479,7 +510,8 @@ if wx is not None:
                 content = zone.content(source)
 
             self._session = EquationEditSession(zone, selection_start, selection_end)
-            self.equation_window.prepare(content, zone.display)
+            latex = equation_language(source) == LATEX
+            self.equation_window.prepare(content, zone.display, latex)
             wx.CallAfter(self.equation_window.equation.SetFocus)
             if content:
                 wx.CallAfter(self.equation_window.equation.read_expression)
