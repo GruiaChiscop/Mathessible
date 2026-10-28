@@ -148,9 +148,21 @@ own marks, and a new one is written `$...$` (inline) or `\[...\]`
 its line breaks shown as ↵ (Up and Down go from line to line and read it; in the professional view they go from row to row); `\label`, `\tag` and `\nonumber` stay in
 the text but are not read as math.
 
+File → Compile PDF with LaTeX (`Command+Shift+B`, `Ctrl+Shift+B`
+elsewhere) saves the `.tex` file and compiles it with your own LaTeX
+distribution, so every package you load works; the PDF is written beside
+the file, and Mathessible offers to open it. It finds MacTeX, TinyTeX,
+TeX Live and MiKTeX by itself. With none installed, it offers to install
+TinyTeX: a small distribution (about 65 MB) put in your home folder,
+with no administrator password; a progress window shows how much of it is downloaded, and Cancel stops it. When a document loads a package that is
+not installed, Mathessible installs it and compiles again. If LaTeX
+stops at an error, Mathessible says which and puts the caret on its line.
+A document that loads `fontspec` or `unicode-math` is compiled with
+LuaLaTeX (or XeLaTeX).
+
 For now a `.tex` document has no preview, export, print, footnotes or
-header and footer: those read Markdown. They are planned, and so is a
-PDF compiled by your own LaTeX installation, with the packages you use.
+header and footer: those read Markdown. Its preview and accessible
+exports are planned.
 
 ### Header and footer
 

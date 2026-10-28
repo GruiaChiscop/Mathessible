@@ -100,8 +100,12 @@ links back, liblouis and BRF need a braille transcriber's convention.
 - [ ] LaTeX, stage 3b: a `.tex` file's preview and accessible exports
   (HTML, Word, BRF), from the common text commands (sections, emphasis,
   lists, footnotes, title).
-- [ ] LaTeX, stage 3c: the PDF of a `.tex` file compiled by the user's own
-  LaTeX installation, so that packages and `\newcommand` work.
+- [x] LaTeX, stage 3c: the PDF of a `.tex` file compiled by the user's own
+  LaTeX installation (TinyTeX offered and installed when there is none,
+  missing packages installed with tlmgr), so that packages work.
+- [ ] LaTeX: a tagged, accessible PDF from a `.tex` file (LuaLaTeX's
+  `\DocumentMetadata` tagging), and `\newcommand` macros understood in
+  the equation editor.
 - [x] Opening Markdown written elsewhere (GitHub, Pandoc) whose equations
   are LaTeX but which has no `math: latex`: asked whether to mark it.
 - [ ] The visual design of the equation editor.

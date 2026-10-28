@@ -272,19 +272,19 @@ msgstr "aucune erreur"
 msgid "{message}, selected {span}"
 msgstr "{message}, sélectionné {span}"
 
-#: src/mathessible/editor/built.py:119 src/mathessible/editor/equation_editor.py:1095
+#: src/mathessible/editor/built.py:119 src/mathessible/editor/equation_editor.py:1096
 msgid "could not cut"
 msgstr "impossible de couper"
 
-#: src/mathessible/editor/built.py:432 src/mathessible/editor/equation_editor.py:1060
+#: src/mathessible/editor/built.py:432 src/mathessible/editor/equation_editor.py:1061
 msgid "nothing to select"
 msgstr "rien à sélectionner"
 
-#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:1022
+#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:1023
 msgid "nothing to undo"
 msgstr "rien à annuler"
 
-#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:1022
+#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:1023
 msgid "nothing to redo"
 msgstr "rien à rétablir"
 
@@ -353,171 +353,171 @@ msgstr "Tapez du LaTeX ici, par exemple \\frac{a+b}{2}"
 msgid "Type UnicodeMath here, e.g. (a+b)/2"
 msgstr "Tapez de l’UnicodeMath ici, par exemple (a+b)/2"
 
-#: src/mathessible/editor/equation_editor.py:124
+#: src/mathessible/editor/equation_editor.py:125
 msgid "Equation editor"
 msgstr "Éditeur d’équations"
 
-#: src/mathessible/editor/equation_editor.py:229 src/mathessible/ui/braille_signs_dialog.py:61
+#: src/mathessible/editor/equation_editor.py:230 src/mathessible/ui/braille_signs_dialog.py:61
 #: src/mathessible/ui/settings_dialog.py:74
 msgid "Braille"
 msgstr "Braille"
 
-#: src/mathessible/editor/equation_editor.py:232
+#: src/mathessible/editor/equation_editor.py:233
 msgid "Equation braille"
 msgstr "Braille de l’équation"
 
-#: src/mathessible/editor/equation_editor.py:288
+#: src/mathessible/editor/equation_editor.py:289
 msgid "equation ready"
 msgstr "équation prête"
 
-#: src/mathessible/editor/equation_editor.py:463
+#: src/mathessible/editor/equation_editor.py:464
 msgid "Equation editor, professional mode"
 msgstr "Éditeur d’équations, mode professionnel"
 
-#: src/mathessible/editor/equation_editor.py:465
+#: src/mathessible/editor/equation_editor.py:466
 msgid "Equation editor, linear mode"
 msgstr "Éditeur d’équations, mode linéaire"
 
-#: src/mathessible/editor/equation_editor.py:537
+#: src/mathessible/editor/equation_editor.py:538
 #, python-brace-format
 msgid "zoom {percent} percent"
 msgstr "zoom {percent} pour cent"
 
-#: src/mathessible/editor/equation_editor.py:594
+#: src/mathessible/editor/equation_editor.py:595
 msgid "The equation could not be built"
 msgstr "L’équation n’a pas pu être construite"
 
-#: src/mathessible/editor/equation_editor.py:606
+#: src/mathessible/editor/equation_editor.py:607
 #, python-brace-format
 msgid "The equation could not be read. {error}"
 msgstr "L’équation n’a pas pu être lue. {error}"
 
-#: src/mathessible/editor/equation_editor.py:630
+#: src/mathessible/editor/equation_editor.py:631
 msgid "empty equation"
 msgstr "équation vide"
 
-#: src/mathessible/editor/equation_editor.py:639
+#: src/mathessible/editor/equation_editor.py:640
 #, python-brace-format
 msgid "Professional mode could not be built. {error}"
 msgstr "Le mode professionnel n’a pas pu être construit. {error}"
 
-#: src/mathessible/editor/equation_editor.py:645 src/mathessible/editor/equation_editor.py:703
+#: src/mathessible/editor/equation_editor.py:646 src/mathessible/editor/equation_editor.py:704
 #, python-brace-format
 msgid "cannot be built, {errors}"
 msgstr "ne peut pas être construite, {errors}"
 
-#: src/mathessible/editor/equation_editor.py:648
+#: src/mathessible/editor/equation_editor.py:649
 msgid "Professional mode could not be built"
 msgstr "Le mode professionnel n’a pas pu être construit"
 
-#: src/mathessible/editor/equation_editor.py:680
+#: src/mathessible/editor/equation_editor.py:681
 #, python-brace-format
 msgid "professional mode, {speech}"
 msgstr "mode professionnel, {speech}"
 
-#: src/mathessible/editor/equation_editor.py:700
+#: src/mathessible/editor/equation_editor.py:701
 msgid "the LaTeX has errors"
 msgstr "le LaTeX comporte des erreurs"
 
-#: src/mathessible/editor/equation_editor.py:736
+#: src/mathessible/editor/equation_editor.py:737
 msgid "the equation has errors"
 msgstr "l’équation comporte des erreurs"
 
-#: src/mathessible/editor/equation_editor.py:739
+#: src/mathessible/editor/equation_editor.py:740
 #, python-brace-format
 msgid "cannot be written in LaTeX, {error}"
 msgstr "ne peut pas s’écrire en LaTeX, {error}"
 
-#: src/mathessible/editor/equation_editor.py:859
+#: src/mathessible/editor/equation_editor.py:860
 msgid "writing mode"
 msgstr "mode écriture"
 
-#: src/mathessible/editor/equation_editor.py:859
+#: src/mathessible/editor/equation_editor.py:860
 msgid "exploration mode"
 msgstr "mode exploration"
 
-#: src/mathessible/editor/equation_editor.py:862
+#: src/mathessible/editor/equation_editor.py:863
 msgid "exploration mode, F10 to write"
 msgstr "mode exploration, F10 pour écrire"
 
-#: src/mathessible/editor/equation_editor.py:927 src/mathessible/editor/structures.py:466
+#: src/mathessible/editor/equation_editor.py:928 src/mathessible/editor/structures.py:466
 msgid "not available here"
 msgstr "non disponible ici"
 
-#: src/mathessible/editor/equation_editor.py:1055
+#: src/mathessible/editor/equation_editor.py:1056
 #, python-brace-format
 msgid "{count} character selected"
 msgid_plural "{count} characters selected"
 msgstr[0] "{count} caractère sélectionné"
 msgstr[1] "{count} caractères sélectionnés"
 
-#: src/mathessible/editor/equation_editor.py:1074
+#: src/mathessible/editor/equation_editor.py:1075
 #, python-brace-format
 msgid "copied {item}"
 msgstr "{item} copié"
 
-#: src/mathessible/editor/equation_editor.py:1076 src/mathessible/editor/equation_editor.py:1084
+#: src/mathessible/editor/equation_editor.py:1077 src/mathessible/editor/equation_editor.py:1085
 msgid "could not copy"
 msgstr "impossible de copier"
 
-#: src/mathessible/editor/equation_editor.py:1081
+#: src/mathessible/editor/equation_editor.py:1082
 msgid "nothing to copy"
 msgstr "rien à copier"
 
-#: src/mathessible/editor/equation_editor.py:1086
+#: src/mathessible/editor/equation_editor.py:1087
 msgid "selection copied"
 msgstr "sélection copiée"
 
-#: src/mathessible/editor/equation_editor.py:1086
+#: src/mathessible/editor/equation_editor.py:1087
 msgid "equation copied"
 msgstr "équation copiée"
 
-#: src/mathessible/editor/equation_editor.py:1092
+#: src/mathessible/editor/equation_editor.py:1093
 msgid "nothing to cut"
 msgstr "rien à couper"
 
-#: src/mathessible/editor/equation_editor.py:1099
+#: src/mathessible/editor/equation_editor.py:1100
 msgid "selection cut"
 msgstr "sélection coupée"
 
-#: src/mathessible/editor/equation_editor.py:1102
+#: src/mathessible/editor/equation_editor.py:1103
 msgid "equation cut"
 msgstr "équation coupée"
 
-#: src/mathessible/editor/equation_editor.py:1123
+#: src/mathessible/editor/equation_editor.py:1124
 msgid "the pasted MathML could not be converted"
 msgstr "le MathML collé n’a pas pu être converti"
 
-#: src/mathessible/editor/equation_editor.py:1126 src/mathessible/editor/equation_editor.py:1132
+#: src/mathessible/editor/equation_editor.py:1127 src/mathessible/editor/equation_editor.py:1133
 msgid "clipboard is empty"
 msgstr "le presse-papiers est vide"
 
-#: src/mathessible/editor/equation_editor.py:1139
+#: src/mathessible/editor/equation_editor.py:1140
 msgid "equation pasted"
 msgstr "équation collée"
 
-#: src/mathessible/editor/equation_editor.py:1181
+#: src/mathessible/editor/equation_editor.py:1182
 msgid "still preparing the equation, please wait"
 msgstr "l’équation est encore en préparation, veuillez patienter"
 
-#: src/mathessible/editor/equation_editor.py:1361 src/mathessible/editor/equation_editor.py:1372
+#: src/mathessible/editor/equation_editor.py:1370 src/mathessible/editor/equation_editor.py:1381
 msgid "selection deleted"
 msgstr "sélection supprimée"
 
-#: src/mathessible/editor/equation_editor.py:1558
+#: src/mathessible/editor/equation_editor.py:1567
 msgid "cannot move there"
 msgstr "impossible d’aller là"
 
-#: src/mathessible/editor/equation_editor.py:1562
+#: src/mathessible/editor/equation_editor.py:1571
 #, python-brace-format
 msgid "MathCAT could not read the equation, linear mode. {error}"
 msgstr "MathCAT n’a pas pu lire l’équation, mode linéaire. {error}"
 
-#: src/mathessible/editor/equation_editor.py:1632 src/mathessible/editor/equation_editor.py:1638
+#: src/mathessible/editor/equation_editor.py:1641 src/mathessible/editor/equation_editor.py:1647
 msgid "start"
 msgstr "début"
 
-#: src/mathessible/editor/equation_editor.py:1640
+#: src/mathessible/editor/equation_editor.py:1649
 msgid "end"
 msgstr "fin"
 
@@ -550,27 +550,27 @@ msgid "Switch to Linear View"
 msgstr "Passer à la vue linéaire"
 
 #: src/mathessible/editor/structures.py:160 src/mathessible/ui/document_editor.py:129
-#: src/mathessible/ui/main_frame.py:233
+#: src/mathessible/ui/main_frame.py:248
 msgid "Cu&t"
 msgstr "Co&uper"
 
 #: src/mathessible/editor/structures.py:161 src/mathessible/ui/document_editor.py:130
-#: src/mathessible/ui/main_frame.py:234
+#: src/mathessible/ui/main_frame.py:249
 msgid "&Copy"
 msgstr "&Copier"
 
 #: src/mathessible/editor/structures.py:162 src/mathessible/ui/document_editor.py:131
-#: src/mathessible/ui/main_frame.py:235
+#: src/mathessible/ui/main_frame.py:250
 msgid "&Paste"
 msgstr "Co&ller"
 
 #: src/mathessible/editor/structures.py:164 src/mathessible/ui/document_editor.py:133
-#: src/mathessible/ui/main_frame.py:238
+#: src/mathessible/ui/main_frame.py:253
 msgid "Select &All"
 msgstr "&Tout sélectionner"
 
 #: src/mathessible/editor/structures.py:169 src/mathessible/ui/document_editor.py:152
-#: src/mathessible/ui/main_frame.py:264
+#: src/mathessible/ui/main_frame.py:279
 msgid "&Insert"
 msgstr "&Insertion"
 
@@ -963,7 +963,7 @@ msgstr "après espace"
 msgid "angle bracket"
 msgstr "chevron"
 
-#: src/mathessible/editor/equation_editor.py:1313 src/mathessible/spoken.py:24
+#: src/mathessible/editor/equation_editor.py:1314 src/mathessible/spoken.py:24
 msgid "argument"
 msgstr "argument"
 
@@ -983,7 +983,8 @@ msgstr "base"
 msgid "binomial"
 msgstr "coefficient binomial"
 
-#: src/mathessible/editor/equation_editor.py:1351 src/mathessible/spoken.py:29
+#: src/mathessible/editor/equation_editor.py:1352 src/mathessible/editor/equation_editor.py:1360
+#: src/mathessible/spoken.py:29
 msgid "blank"
 msgstr "vide"
 
@@ -1006,8 +1007,8 @@ msgstr "accolade"
 msgid "bracket"
 msgstr "crochet"
 
-#: src/mathessible/editor/assist.py:90 src/mathessible/editor/equation_editor.py:1318
-#: src/mathessible/editor/equation_editor.py:1496 src/mathessible/spoken.py:34
+#: src/mathessible/editor/assist.py:90 src/mathessible/editor/equation_editor.py:1319
+#: src/mathessible/editor/equation_editor.py:1505 src/mathessible/spoken.py:34
 msgid "built"
 msgstr "construit"
 
@@ -1125,7 +1126,7 @@ msgstr "bornes"
 msgid "linear"
 msgstr "linéaire"
 
-#: src/mathessible/editor/assist.py:243 src/mathessible/editor/equation_editor.py:658
+#: src/mathessible/editor/assist.py:243 src/mathessible/editor/equation_editor.py:659
 #: src/mathessible/editor/structures.py:482 src/mathessible/spoken.py:63
 msgid "linear mode"
 msgstr "mode linéaire"
@@ -1142,7 +1143,7 @@ msgstr "borne inférieure"
 msgid "matrix"
 msgstr "matrice"
 
-#: src/mathessible/editor/built.py:828 src/mathessible/editor/equation_editor.py:1277
+#: src/mathessible/editor/built.py:828 src/mathessible/editor/equation_editor.py:1278
 #: src/mathessible/spoken.py:67
 msgid "no slot"
 msgstr "aucun emplacement"
@@ -1224,7 +1225,7 @@ msgstr "indices et exposants"
 msgid "selected"
 msgstr "sélectionné"
 
-#: src/mathessible/editor/equation_editor.py:1051 src/mathessible/spoken.py:87
+#: src/mathessible/editor/equation_editor.py:1052 src/mathessible/spoken.py:87
 msgid "selection cleared"
 msgstr "sélection annulée"
 
@@ -2419,7 +2420,7 @@ msgstr "Boîte de dialogue Correction automatique mathématique"
 msgid "&Replace"
 msgstr "&Remplacer"
 
-#: src/mathessible/ui/autocorrect_dialog.py:42 src/mathessible/ui/main_frame.py:528
+#: src/mathessible/ui/autocorrect_dialog.py:42 src/mathessible/ui/main_frame.py:549
 msgid "Replace"
 msgstr "Remplacer"
 
@@ -2447,7 +2448,7 @@ msgstr "&Ajouter"
 
 #: src/mathessible/ui/autocorrect_dialog.py:55 src/mathessible/ui/braille_signs_dialog.py:71
 #: src/mathessible/ui/functions_dialog.py:49 src/mathessible/ui/gallery_dialog.py:56
-#: src/mathessible/ui/main_frame.py:236
+#: src/mathessible/ui/main_frame.py:251
 msgid "&Delete"
 msgstr "&Supprimer"
 
@@ -2537,15 +2538,15 @@ msgstr "Changer en équation en &ligne"
 msgid "E&quation"
 msgstr "É&quation"
 
-#: src/mathessible/ui/document_editor.py:126 src/mathessible/ui/main_frame.py:230
+#: src/mathessible/ui/document_editor.py:126 src/mathessible/ui/main_frame.py:245
 msgid "&Undo"
 msgstr "&Annuler"
 
-#: src/mathessible/ui/document_editor.py:127 src/mathessible/ui/main_frame.py:231
+#: src/mathessible/ui/document_editor.py:127 src/mathessible/ui/main_frame.py:246
 msgid "&Redo"
 msgstr "&Rétablir"
 
-#: src/mathessible/ui/document_editor.py:147 src/mathessible/ui/main_frame.py:255
+#: src/mathessible/ui/document_editor.py:147 src/mathessible/ui/main_frame.py:270
 msgid "&Edit"
 msgstr "&Édition"
 
@@ -2569,7 +2570,7 @@ msgstr "Zoom a&rrière"
 msgid "&Actual Size"
 msgstr "&Taille réelle"
 
-#: src/mathessible/ui/document_editor.py:171 src/mathessible/ui/main_frame.py:268
+#: src/mathessible/ui/document_editor.py:171 src/mathessible/ui/main_frame.py:283
 msgid "&View"
 msgstr "&Affichage"
 
@@ -2931,11 +2932,11 @@ msgstr "Boîte de dialogue {title}"
 msgid "These options are now the defaults."
 msgstr "Ces options sont maintenant les valeurs par défaut."
 
-#: src/mathessible/ui/export_dialogs.py:103 src/mathessible/ui/main_frame.py:1165
+#: src/mathessible/ui/export_dialogs.py:103 src/mathessible/ui/main_frame.py:1340
 msgid "Export as BRF"
 msgstr "Exporter en BRF"
 
-#: src/mathessible/ui/export_dialogs.py:123 src/mathessible/ui/main_frame.py:1158
+#: src/mathessible/ui/export_dialogs.py:123 src/mathessible/ui/main_frame.py:1333
 msgid "Export as HTML"
 msgstr "Exporter en HTML"
 
@@ -2977,7 +2978,7 @@ msgstr "&Langue (par exemple ro, en)"
 msgid "Language"
 msgstr "Langue"
 
-#: src/mathessible/ui/export_dialogs.py:156 src/mathessible/ui/main_frame.py:1162
+#: src/mathessible/ui/export_dialogs.py:156 src/mathessible/ui/main_frame.py:1337
 msgid "Export as Word Document"
 msgstr "Exporter en document Word"
 
@@ -3118,15 +3119,15 @@ msgstr "Ai&de"
 msgid "GNU General Public License, version 2 or later"
 msgstr "Licence publique générale GNU, version 2 ou ultérieure"
 
-#: src/mathessible/ui/main_frame.py:107
+#: src/mathessible/ui/main_frame.py:120
 msgid "Pages"
 msgstr "Pages"
 
-#: src/mathessible/ui/main_frame.py:109
+#: src/mathessible/ui/main_frame.py:122
 msgid "Notebook pages"
 msgstr "Pages du cahier"
 
-#: src/mathessible/ui/main_frame.py:164
+#: src/mathessible/ui/main_frame.py:177
 #, python-brace-format
 msgid ""
 "MathCAT's native extension could not be loaded, so equations can only be edited as text, not read"
@@ -3135,13 +3136,13 @@ msgstr ""
 "L’extension native de MathCAT n’a pas pu être chargée, les équations ne peuvent donc être "
 "modifiées que comme du texte, pas lues ni parcourues ({error}). Exécutez scripts/bootstrap.sh."
 
-#: src/mathessible/ui/main_frame.py:171
+#: src/mathessible/ui/main_frame.py:184
 msgid "No web view is available to convert and show equations (on Linux, install WebKitGTK for wxPython)."
 msgstr ""
 "Aucune vue web n’est disponible pour convertir et afficher les équations (sous Linux, installez "
 "WebKitGTK pour wxPython)."
 
-#: src/mathessible/ui/main_frame.py:182
+#: src/mathessible/ui/main_frame.py:195
 #, python-brace-format
 msgid ""
 "Mathessible's fixes to MathCAT and UnicodeMathML are not applied, so some equations will be read "
@@ -3158,228 +3159,232 @@ msgstr ""
 "Correctifs manquants :\n"
 "{patches}"
 
-#: src/mathessible/ui/main_frame.py:195
+#: src/mathessible/ui/main_frame.py:208
 msgid "Mathessible Setup"
 msgstr "Configuration de Mathessible"
 
-#: src/mathessible/ui/main_frame.py:204
+#: src/mathessible/ui/main_frame.py:218
 msgid "&New"
 msgstr "&Nouveau"
 
-#: src/mathessible/ui/main_frame.py:205
+#: src/mathessible/ui/main_frame.py:219
 msgid "&Open…"
 msgstr "&Ouvrir…"
 
-#: src/mathessible/ui/main_frame.py:209
+#: src/mathessible/ui/main_frame.py:223
 msgid "Open &Recent"
 msgstr "Ouvrir &récent"
 
-#: src/mathessible/ui/main_frame.py:211
+#: src/mathessible/ui/main_frame.py:225
 msgid "&Close Window"
 msgstr "&Fermer la fenêtre"
 
-#: src/mathessible/ui/main_frame.py:212
+#: src/mathessible/ui/main_frame.py:226
 msgid "&Save"
 msgstr "&Enregistrer"
 
-#: src/mathessible/ui/main_frame.py:213
+#: src/mathessible/ui/main_frame.py:227
 msgid "Save &As…"
 msgstr "Enregistrer &sous…"
 
-#: src/mathessible/ui/main_frame.py:214
+#: src/mathessible/ui/main_frame.py:228
 msgid "Re&vert to Saved"
 msgstr "Re&venir à la version enregistrée"
 
-#: src/mathessible/ui/main_frame.py:218
+#: src/mathessible/ui/main_frame.py:232
 msgid "&HTML…"
 msgstr "&HTML…"
 
-#: src/mathessible/ui/main_frame.py:219
+#: src/mathessible/ui/main_frame.py:233
 msgid "&PDF…"
 msgstr "&PDF…"
 
-#: src/mathessible/ui/main_frame.py:220
+#: src/mathessible/ui/main_frame.py:234
 msgid "&Word Document…"
 msgstr "Document &Word…"
 
-#: src/mathessible/ui/main_frame.py:221
+#: src/mathessible/ui/main_frame.py:235
 msgid "&BRF (Braille)…"
 msgstr "&BRF (braille)…"
 
-#: src/mathessible/ui/main_frame.py:222
+#: src/mathessible/ui/main_frame.py:236
 msgid "&Export"
 msgstr "E&xporter"
 
-#: src/mathessible/ui/main_frame.py:224
+#: src/mathessible/ui/main_frame.py:237
+msgid "Compile PDF with &LaTeX"
+msgstr "Compiler le PDF avec &LaTeX"
+
+#: src/mathessible/ui/main_frame.py:239
 msgid "&Print…"
 msgstr "&Imprimer…"
 
-#: src/mathessible/ui/main_frame.py:226
+#: src/mathessible/ui/main_frame.py:241
 msgid "&Quit"
 msgstr "&Quitter"
 
-#: src/mathessible/ui/main_frame.py:228
+#: src/mathessible/ui/main_frame.py:243
 msgid "&File"
 msgstr "&Fichier"
 
-#: src/mathessible/ui/main_frame.py:244
+#: src/mathessible/ui/main_frame.py:259
 msgid "&Find…"
 msgstr "Rec&hercher…"
 
-#: src/mathessible/ui/main_frame.py:245
+#: src/mathessible/ui/main_frame.py:260
 msgid "Find &Next"
 msgstr "Rechercher le sui&vant"
 
-#: src/mathessible/ui/main_frame.py:246
+#: src/mathessible/ui/main_frame.py:261
 msgid "Find Pre&vious"
 msgstr "Rechercher le &précédent"
 
-#: src/mathessible/ui/main_frame.py:247
+#: src/mathessible/ui/main_frame.py:262
 msgid "R&eplace…"
 msgstr "Re&mplacer…"
 
-#: src/mathessible/ui/main_frame.py:250 src/mathessible/ui/main_frame.py:671
+#: src/mathessible/ui/main_frame.py:265 src/mathessible/ui/main_frame.py:846
 msgid "Change Equation to &Display"
 msgstr "Changer l’équation en ce&ntrée"
 
-#: src/mathessible/ui/main_frame.py:252
+#: src/mathessible/ui/main_frame.py:267
 msgid "Equations in &LaTeX"
 msgstr "Équations en LaTe&X"
 
-#: src/mathessible/ui/main_frame.py:254
+#: src/mathessible/ui/main_frame.py:269
 msgid "&Settings…"
 msgstr "Paramètr&es…"
 
-#: src/mathessible/ui/main_frame.py:260
+#: src/mathessible/ui/main_frame.py:275
 msgid "&Footnote"
 msgstr "&Note de bas de page"
 
-#: src/mathessible/ui/main_frame.py:261
+#: src/mathessible/ui/main_frame.py:276
 msgid "&Go to Footnote or Reference"
 msgstr "&Aller à la note ou à l’appel"
 
-#: src/mathessible/ui/main_frame.py:263
+#: src/mathessible/ui/main_frame.py:278
 msgid "&Header and Footer…"
 msgstr "&En-tête et pied de page…"
 
-#: src/mathessible/ui/main_frame.py:267
+#: src/mathessible/ui/main_frame.py:282
 msgid "Document &Preview"
 msgstr "&Aperçu du document"
 
-#: src/mathessible/ui/main_frame.py:282
+#: src/mathessible/ui/main_frame.py:297
 msgid "&New Notebook…"
 msgstr "&Nouveau cahier…"
 
-#: src/mathessible/ui/main_frame.py:283
+#: src/mathessible/ui/main_frame.py:298
 msgid "New Notebook &Folder…"
 msgstr "Nouveau &dossier de cahier…"
 
-#: src/mathessible/ui/main_frame.py:284
+#: src/mathessible/ui/main_frame.py:299
 msgid "&Open Notebook Folder…"
 msgstr "&Ouvrir un dossier de cahier…"
 
-#: src/mathessible/ui/main_frame.py:285
+#: src/mathessible/ui/main_frame.py:300
 msgid "Save Notebook as &Single File…"
 msgstr "Enregistrer le cahier en un &seul fichier…"
 
-#: src/mathessible/ui/main_frame.py:287
+#: src/mathessible/ui/main_frame.py:302
 msgid "&Add Page"
 msgstr "&Ajouter une page"
 
-#: src/mathessible/ui/main_frame.py:288
+#: src/mathessible/ui/main_frame.py:303
 msgid "&Rename Page…"
 msgstr "&Renommer la page…"
 
-#: src/mathessible/ui/main_frame.py:289
+#: src/mathessible/ui/main_frame.py:304
 msgid "&Delete Page…"
 msgstr "Su&pprimer la page…"
 
-#: src/mathessible/ui/main_frame.py:291
+#: src/mathessible/ui/main_frame.py:306
 msgid "Move Page &Up"
 msgstr "Déplacer la page vers le &haut"
 
-#: src/mathessible/ui/main_frame.py:292
+#: src/mathessible/ui/main_frame.py:307
 msgid "Move Page Do&wn"
 msgstr "Déplacer la page vers le &bas"
 
-#: src/mathessible/ui/main_frame.py:294
+#: src/mathessible/ui/main_frame.py:309
 msgid "&Previous Page"
 msgstr "Page pré&cédente"
 
-#: src/mathessible/ui/main_frame.py:295
+#: src/mathessible/ui/main_frame.py:310
 msgid "Ne&xt Page"
 msgstr "Page sui&vante"
 
-#: src/mathessible/ui/main_frame.py:296
+#: src/mathessible/ui/main_frame.py:311
 msgid "&Notebook"
 msgstr "&Cahier"
 
-#: src/mathessible/ui/main_frame.py:301
+#: src/mathessible/ui/main_frame.py:316
 msgid "&Next Window"
 msgstr "Fenêtre &suivante"
 
-#: src/mathessible/ui/main_frame.py:302
+#: src/mathessible/ui/main_frame.py:317
 msgid "&Previous Window"
 msgstr "Fenêtre &précédente"
 
-#: src/mathessible/ui/main_frame.py:304
+#: src/mathessible/ui/main_frame.py:319
 msgid "Bring All to &Front"
 msgstr "Tout ramener au premier pla&n"
 
-#: src/mathessible/ui/main_frame.py:305
+#: src/mathessible/ui/main_frame.py:320
 msgid "&Window"
 msgstr "Fe&nêtre"
 
-#: src/mathessible/ui/main_frame.py:438
+#: src/mathessible/ui/main_frame.py:459
 msgid "show the document preview"
 msgstr "afficher l’aperçu du document"
 
-#: src/mathessible/ui/main_frame.py:440
+#: src/mathessible/ui/main_frame.py:461
 msgid "Document preview"
 msgstr "Aperçu du document"
 
-#: src/mathessible/ui/main_frame.py:528 src/mathessible/ui/main_frame.py:551
+#: src/mathessible/ui/main_frame.py:549 src/mathessible/ui/main_frame.py:572
 msgid "Find"
 msgstr "Rechercher"
 
-#: src/mathessible/ui/main_frame.py:550
+#: src/mathessible/ui/main_frame.py:571
 #, python-brace-format
 msgid "“{text}” was not found."
 msgstr "« {text} » est introuvable."
 
-#: src/mathessible/ui/main_frame.py:584
+#: src/mathessible/ui/main_frame.py:605
 #, python-brace-format
 msgid "{count} replacement made."
 msgid_plural "{count} replacements made."
 msgstr[0] "{count} remplacement effectué."
 msgstr[1] "{count} remplacements effectués."
 
-#: src/mathessible/ui/main_frame.py:585
+#: src/mathessible/ui/main_frame.py:606
 msgid "Replace All"
 msgstr "Tout remplacer"
 
-#: src/mathessible/ui/main_frame.py:610
+#: src/mathessible/ui/main_frame.py:631
 msgid "change the equations"
 msgstr "changer les équations"
 
-#: src/mathessible/ui/main_frame.py:611 src/mathessible/ui/main_frame.py:1063
-#: src/mathessible/ui/main_frame.py:1175
+#: src/mathessible/ui/main_frame.py:632 src/mathessible/ui/main_frame.py:1238
+#: src/mathessible/ui/main_frame.py:1350
 msgid "The UnicodeMath converter is not ready yet. Please try again."
 msgstr "Le convertisseur UnicodeMath n’est pas encore prêt. Veuillez réessayer."
 
-#: src/mathessible/ui/main_frame.py:616
+#: src/mathessible/ui/main_frame.py:637
 msgid "Write this document's equations in LaTeX?"
 msgstr "Écrire les équations de ce document en LaTeX ?"
 
-#: src/mathessible/ui/main_frame.py:618
+#: src/mathessible/ui/main_frame.py:639
 msgid "Write this document's equations in UnicodeMath?"
 msgstr "Écrire les équations de ce document en UnicodeMath ?"
 
-#: src/mathessible/ui/main_frame.py:619 src/mathessible/ui/main_frame.py:892
+#: src/mathessible/ui/main_frame.py:640 src/mathessible/ui/main_frame.py:1067
 msgid "Equations in LaTeX"
 msgstr "Équations en LaTeX"
 
-#: src/mathessible/ui/main_frame.py:624
+#: src/mathessible/ui/main_frame.py:645
 msgid ""
 "Each equation is written again from what it builds, so its spacing and some details can change. "
 "Equations that do not build are kept as they are. Undo restores them."
@@ -3388,117 +3393,217 @@ msgstr ""
 " peuvent donc changer. Les équations qui ne se construisent pas restent telles quelles. Annuler "
 "les rétablit."
 
-#: src/mathessible/ui/main_frame.py:628
+#: src/mathessible/ui/main_frame.py:649
 msgid "&Write Again"
 msgstr "&Réécrire"
 
-#: src/mathessible/ui/main_frame.py:628 src/mathessible/ui/main_frame.py:1000
+#: src/mathessible/ui/main_frame.py:649 src/mathessible/ui/main_frame.py:768
+#: src/mathessible/ui/main_frame.py:1175
 msgid "&Cancel"
 msgstr "&Annuler"
 
-#: src/mathessible/ui/main_frame.py:652
+#: src/mathessible/ui/main_frame.py:673
 msgid "equations in LaTeX"
 msgstr "équations en LaTeX"
 
-#: src/mathessible/ui/main_frame.py:652
+#: src/mathessible/ui/main_frame.py:673
 msgid "equations in UnicodeMath"
 msgstr "équations en UnicodeMath"
 
-#: src/mathessible/ui/main_frame.py:655
+#: src/mathessible/ui/main_frame.py:676
 #, python-brace-format
 msgid "{count} that does not build kept as it was"
 msgid_plural "{count} that do not build kept as they were"
 msgstr[0] "{count} qui ne se construit pas laissée telle quelle"
 msgstr[1] "{count} qui ne se construisent pas laissées telles quelles"
 
-#: src/mathessible/ui/main_frame.py:671
+#: src/mathessible/ui/main_frame.py:695
+#, python-brace-format
+msgid "Compiling {name} with {distribution}…"
+msgstr "Compilation de {name} avec {distribution}…"
+
+#: src/mathessible/ui/main_frame.py:716
+#, python-brace-format
+msgid "installing the LaTeX package {package}…"
+msgstr "installation du paquet LaTeX {package}…"
+
+#: src/mathessible/ui/main_frame.py:724
+msgid "the PDF could not be compiled"
+msgstr "le PDF n’a pas pu être compilé"
+
+#: src/mathessible/ui/main_frame.py:726
+#, python-brace-format
+msgid "LaTeX stopped at line {line}: {error}"
+msgstr "LaTeX s’est arrêté à la ligne {line} : {error}"
+
+#: src/mathessible/ui/main_frame.py:728
+#, python-brace-format
+msgid "LaTeX stopped: {error}"
+msgstr "LaTeX s’est arrêté : {error}"
+
+#: src/mathessible/ui/main_frame.py:730 src/mathessible/ui/main_frame.py:742
+#: src/mathessible/ui/main_frame.py:758 src/mathessible/ui/main_frame.py:827
+msgid "Compile PDF with LaTeX"
+msgstr "Compiler le PDF avec LaTeX"
+
+#: src/mathessible/ui/main_frame.py:738
+#, python-brace-format
+msgid "PDF compiled: {name}"
+msgstr "PDF compilé : {name}"
+
+#: src/mathessible/ui/main_frame.py:741
+#, python-brace-format
+msgid "The PDF is ready: {name}. Open it?"
+msgstr "Le PDF est prêt : {name}. L’ouvrir ?"
+
+#: src/mathessible/ui/main_frame.py:745
+msgid "&Open PDF"
+msgstr "&Ouvrir le PDF"
+
+#: src/mathessible/ui/main_frame.py:745
+msgid "&Close"
+msgstr "&Fermer"
+
+#: src/mathessible/ui/main_frame.py:757
+msgid "No LaTeX distribution was found. Install TinyTeX?"
+msgstr "Aucune distribution LaTeX n’a été trouvée. Installer TinyTeX ?"
+
+#: src/mathessible/ui/main_frame.py:763
+msgid ""
+"TinyTeX is a small LaTeX distribution (about 65 MB to download), installed in your home folder "
+"without an administrator password. Mathessible installs the packages a document needs when it "
+"compiles it. You can also install MacTeX, MiKTeX or TeX Live yourself instead."
+msgstr ""
+"TinyTeX est une petite distribution LaTeX (environ 65 Mo à télécharger), installée dans votre "
+"dossier personnel sans mot de passe administrateur. Mathessible installe les paquets dont un "
+"document a besoin quand il le compile. Vous pouvez aussi installer vous-même MacTeX, MiKTeX ou "
+"TeX Live."
+
+#: src/mathessible/ui/main_frame.py:768
+msgid "&Install TinyTeX"
+msgstr "&Installer TinyTeX"
+
+#: src/mathessible/ui/main_frame.py:778
+msgid "Installing TinyTeX"
+msgstr "Installation de TinyTeX"
+
+#: src/mathessible/ui/main_frame.py:779
+msgid "Downloading TinyTeX…"
+msgstr "Téléchargement de TinyTeX…"
+
+#: src/mathessible/ui/main_frame.py:790
+msgid "Unpacking TinyTeX…"
+msgstr "Décompression de TinyTeX…"
+
+#: src/mathessible/ui/main_frame.py:792
+#, python-brace-format
+msgid "Downloading TinyTeX: {received} MB of {total} MB"
+msgstr "Téléchargement de TinyTeX : {received} Mo sur {total} Mo"
+
+#: src/mathessible/ui/main_frame.py:820
+msgid "TinyTeX installation cancelled"
+msgstr "Installation de TinyTeX annulée"
+
+#: src/mathessible/ui/main_frame.py:823
+msgid "TinyTeX could not be installed"
+msgstr "TinyTeX n’a pas pu être installé"
+
+#: src/mathessible/ui/main_frame.py:826
+msgid "TinyTeX could not be installed."
+msgstr "TinyTeX n’a pas pu être installé."
+
+#: src/mathessible/ui/main_frame.py:832
+msgid "TinyTeX installed"
+msgstr "TinyTeX installé"
+
+#: src/mathessible/ui/main_frame.py:846
 msgid "Change Equation to &Inline"
 msgstr "Changer l’équation en li&gne"
 
-#: src/mathessible/ui/main_frame.py:692
+#: src/mathessible/ui/main_frame.py:867
 msgid "Untitled"
 msgstr "Sans titre"
 
-#: src/mathessible/ui/main_frame.py:694
+#: src/mathessible/ui/main_frame.py:869
 #, python-brace-format
 msgid "Mathessible — {name} — modified"
 msgstr "Mathessible — {name} — modifié"
 
-#: src/mathessible/ui/main_frame.py:696
+#: src/mathessible/ui/main_frame.py:871
 #, python-brace-format
 msgid "Mathessible — {name}"
 msgstr "Mathessible — {name}"
 
-#: src/mathessible/ui/main_frame.py:707
+#: src/mathessible/ui/main_frame.py:882
 #, python-brace-format
 msgid "{notebook} — Page {page} of {pages}"
 msgstr "{notebook} — Page {page} sur {pages}"
 
-#: src/mathessible/ui/main_frame.py:711
+#: src/mathessible/ui/main_frame.py:886
 msgid "Untitled Markdown document"
 msgstr "Document Markdown sans titre"
 
-#: src/mathessible/ui/main_frame.py:713
+#: src/mathessible/ui/main_frame.py:888
 #, python-brace-format
 msgid "Line {line}, Column {column}"
 msgstr "Ligne {line}, colonne {column}"
 
-#: src/mathessible/ui/main_frame.py:719
+#: src/mathessible/ui/main_frame.py:894
 #, python-brace-format
 msgid "Could not {action}."
 msgstr "Impossible de {action}."
 
-#: src/mathessible/ui/main_frame.py:732
+#: src/mathessible/ui/main_frame.py:907
 msgid "The document has unsaved changes. Do you want to save them?"
 msgstr "Le document contient des modifications non enregistrées. Voulez-vous les enregistrer ?"
 
-#: src/mathessible/ui/main_frame.py:733
+#: src/mathessible/ui/main_frame.py:908
 msgid "Unsaved Changes"
 msgstr "Modifications non enregistrées"
 
-#: src/mathessible/ui/main_frame.py:753
+#: src/mathessible/ui/main_frame.py:928
 msgid "save settings"
 msgstr "enregistrer les paramètres"
 
-#: src/mathessible/ui/main_frame.py:804
+#: src/mathessible/ui/main_frame.py:979
 msgid "Open"
 msgstr "Ouvrir"
 
-#: src/mathessible/ui/main_frame.py:806
+#: src/mathessible/ui/main_frame.py:981
 msgid "Documents and notebooks"
 msgstr "Documents et cahiers"
 
-#: src/mathessible/ui/main_frame.py:808
+#: src/mathessible/ui/main_frame.py:983
 msgid "Markdown documents"
 msgstr "Documents Markdown"
 
-#: src/mathessible/ui/main_frame.py:810
+#: src/mathessible/ui/main_frame.py:985
 msgid "LaTeX documents"
 msgstr "Documents LaTeX"
 
-#: src/mathessible/ui/main_frame.py:812
+#: src/mathessible/ui/main_frame.py:987
 msgid "Notebooks"
 msgstr "Cahiers"
 
-#: src/mathessible/ui/main_frame.py:814
+#: src/mathessible/ui/main_frame.py:989
 msgid "PDFs exported by Mathessible"
 msgstr "PDF exportés par Mathessible"
 
-#: src/mathessible/ui/main_frame.py:816 src/mathessible/ui/main_frame.py:1097
+#: src/mathessible/ui/main_frame.py:991 src/mathessible/ui/main_frame.py:1272
 #: src/mathessible/ui/settings_dialog.py:477
 msgid "All files"
 msgstr "Tous les fichiers"
 
-#: src/mathessible/ui/main_frame.py:870
+#: src/mathessible/ui/main_frame.py:1045
 #, python-brace-format
 msgid "open {name}"
 msgstr "ouvrir {name}"
 
-#: src/mathessible/ui/main_frame.py:891
+#: src/mathessible/ui/main_frame.py:1066
 msgid "This document's equations look like LaTeX. Mark it as a LaTeX document?"
 msgstr "Les équations de ce document ressemblent à du LaTeX. Le marquer comme document LaTeX ?"
 
-#: src/mathessible/ui/main_frame.py:897
+#: src/mathessible/ui/main_frame.py:1072
 msgid ""
 "Its equations are then built as LaTeX and kept as they are, and the line math: latex is added at "
 "its top. Without it, Mathessible reads them as UnicodeMath."
@@ -3506,119 +3611,119 @@ msgstr ""
 "Ses équations sont alors construites en LaTeX et gardées telles quelles, et la ligne math: latex "
 "est ajoutée en tête. Sans elle, Mathessible les lit comme de l’UnicodeMath."
 
-#: src/mathessible/ui/main_frame.py:901
+#: src/mathessible/ui/main_frame.py:1076
 msgid "&Mark as LaTeX"
 msgstr "&Marquer comme LaTeX"
 
-#: src/mathessible/ui/main_frame.py:901
+#: src/mathessible/ui/main_frame.py:1076
 msgid "&Leave as It Is"
 msgstr "&Laisser tel quel"
 
-#: src/mathessible/ui/main_frame.py:970
+#: src/mathessible/ui/main_frame.py:1145
 msgid "&Clear Menu"
 msgstr "&Effacer la liste"
 
-#: src/mathessible/ui/main_frame.py:996
+#: src/mathessible/ui/main_frame.py:1171
 msgid "Revert to the saved version? The changes since it was saved will be lost."
 msgstr ""
 "Revenir à la version enregistrée ? Les modifications faites depuis l’enregistrement seront "
 "perdues."
 
-#: src/mathessible/ui/main_frame.py:997
+#: src/mathessible/ui/main_frame.py:1172
 msgid "Revert to Saved"
 msgstr "Revenir à la version enregistrée"
 
-#: src/mathessible/ui/main_frame.py:1000
+#: src/mathessible/ui/main_frame.py:1175
 msgid "&Revert"
 msgstr "&Revenir"
 
-#: src/mathessible/ui/main_frame.py:1012
+#: src/mathessible/ui/main_frame.py:1187
 msgid "read the saved document"
 msgstr "lire le document enregistré"
 
-#: src/mathessible/ui/main_frame.py:1040
+#: src/mathessible/ui/main_frame.py:1215
 msgid "read the notebook"
 msgstr "lire le cahier"
 
-#: src/mathessible/ui/main_frame.py:1049
+#: src/mathessible/ui/main_frame.py:1224
 msgid "Mathessible document"
 msgstr "Document Mathessible"
 
-#: src/mathessible/ui/main_frame.py:1069
+#: src/mathessible/ui/main_frame.py:1244
 msgid "print"
 msgstr "imprimer"
 
-#: src/mathessible/ui/main_frame.py:1088
+#: src/mathessible/ui/main_frame.py:1263
 msgid "Save LaTeX document"
 msgstr "Enregistrer le document LaTeX"
 
-#: src/mathessible/ui/main_frame.py:1088
+#: src/mathessible/ui/main_frame.py:1263
 msgid "LaTeX document"
 msgstr "Document LaTeX"
 
-#: src/mathessible/ui/main_frame.py:1090
+#: src/mathessible/ui/main_frame.py:1265
 msgid "Save Markdown document"
 msgstr "Enregistrer le document Markdown"
 
-#: src/mathessible/ui/main_frame.py:1090
+#: src/mathessible/ui/main_frame.py:1265
 msgid "Markdown document"
 msgstr "Document Markdown"
 
-#: src/mathessible/ui/main_frame.py:1124 src/mathessible/ui/main_frame.py:1507
+#: src/mathessible/ui/main_frame.py:1299 src/mathessible/ui/main_frame.py:1682
 msgid "save the page"
 msgstr "enregistrer la page"
 
-#: src/mathessible/ui/main_frame.py:1140
+#: src/mathessible/ui/main_frame.py:1315
 msgid "save the document"
 msgstr "enregistrer le document"
 
-#: src/mathessible/ui/main_frame.py:1158
+#: src/mathessible/ui/main_frame.py:1333
 msgid "export the HTML document"
 msgstr "exporter le document HTML"
 
-#: src/mathessible/ui/main_frame.py:1158
+#: src/mathessible/ui/main_frame.py:1333
 msgid "HTML document"
 msgstr "Document HTML"
 
-#: src/mathessible/ui/main_frame.py:1159
+#: src/mathessible/ui/main_frame.py:1334
 msgid "export the PDF document"
 msgstr "exporter le document PDF"
 
-#: src/mathessible/ui/main_frame.py:1159
+#: src/mathessible/ui/main_frame.py:1334
 msgid "PDF document"
 msgstr "Document PDF"
 
-#: src/mathessible/ui/main_frame.py:1159 src/mathessible/ui/pdf_dialog.py:38
+#: src/mathessible/ui/main_frame.py:1334 src/mathessible/ui/pdf_dialog.py:38
 msgid "Export as PDF"
 msgstr "Exporter en PDF"
 
-#: src/mathessible/ui/main_frame.py:1161
+#: src/mathessible/ui/main_frame.py:1336
 msgid "export the Word document"
 msgstr "exporter le document Word"
 
-#: src/mathessible/ui/main_frame.py:1163
+#: src/mathessible/ui/main_frame.py:1338
 msgid "Word document"
 msgstr "Document Word"
 
-#: src/mathessible/ui/main_frame.py:1165
+#: src/mathessible/ui/main_frame.py:1340
 msgid "export the BRF document"
 msgstr "exporter le document BRF"
 
-#: src/mathessible/ui/main_frame.py:1165
+#: src/mathessible/ui/main_frame.py:1340
 msgid "Braille ready file"
 msgstr "Fichier prêt pour le braille (BRF)"
 
-#: src/mathessible/ui/main_frame.py:1231
+#: src/mathessible/ui/main_frame.py:1406
 #, python-brace-format
 msgid "Exported {name}"
 msgstr "{name} exporté"
 
-#: src/mathessible/ui/main_frame.py:1232
+#: src/mathessible/ui/main_frame.py:1407
 #, python-brace-format
 msgid "exported {name}"
 msgstr "{name} exporté"
 
-#: src/mathessible/ui/main_frame.py:1314
+#: src/mathessible/ui/main_frame.py:1489
 msgid ""
 "PDF/A does not allow passwords or restrictions. Choose Tagged PDF or PDF/UA-1 under Security, or "
 "export without them."
@@ -3626,81 +3731,81 @@ msgstr ""
 "PDF/A n’autorise ni mots de passe ni restrictions. Choisissez PDF balisé ou PDF/UA-1 sous "
 "Sécurité, ou exportez sans eux."
 
-#: src/mathessible/ui/main_frame.py:1488
+#: src/mathessible/ui/main_frame.py:1663
 msgid "open the page"
 msgstr "ouvrir la page"
 
-#: src/mathessible/ui/main_frame.py:1527
+#: src/mathessible/ui/main_frame.py:1702
 msgid "Choose or create the new notebook folder"
 msgstr "Choisissez ou créez le dossier du nouveau cahier"
 
-#: src/mathessible/ui/main_frame.py:1539
+#: src/mathessible/ui/main_frame.py:1714
 msgid "create the notebook"
 msgstr "créer le cahier"
 
-#: src/mathessible/ui/main_frame.py:1553
+#: src/mathessible/ui/main_frame.py:1728
 msgid "Save portable notebook"
 msgstr "Enregistrer le cahier portable"
 
-#: src/mathessible/ui/main_frame.py:1555
+#: src/mathessible/ui/main_frame.py:1730
 msgid "Mathessible notebooks"
 msgstr "Cahiers Mathessible"
 
-#: src/mathessible/ui/main_frame.py:1575
+#: src/mathessible/ui/main_frame.py:1750
 msgid "create the portable notebook"
 msgstr "créer le cahier portable"
 
-#: src/mathessible/ui/main_frame.py:1587
+#: src/mathessible/ui/main_frame.py:1762
 msgid "Choose the notebook folder"
 msgstr "Choisissez le dossier du cahier"
 
-#: src/mathessible/ui/main_frame.py:1597
+#: src/mathessible/ui/main_frame.py:1772
 msgid "Page title:"
 msgstr "Titre de la page :"
 
-#: src/mathessible/ui/main_frame.py:1609
+#: src/mathessible/ui/main_frame.py:1784
 msgid "Add Page"
 msgstr "Ajouter une page"
 
-#: src/mathessible/ui/main_frame.py:1609
+#: src/mathessible/ui/main_frame.py:1784
 #, python-brace-format
 msgid "Page {number}"
 msgstr "Page {number}"
 
-#: src/mathessible/ui/main_frame.py:1615
+#: src/mathessible/ui/main_frame.py:1790
 msgid "add the page"
 msgstr "ajouter la page"
 
-#: src/mathessible/ui/main_frame.py:1625
+#: src/mathessible/ui/main_frame.py:1800
 msgid "Rename Page"
 msgstr "Renommer la page"
 
-#: src/mathessible/ui/main_frame.py:1631
+#: src/mathessible/ui/main_frame.py:1806
 msgid "rename the page"
 msgstr "renommer la page"
 
-#: src/mathessible/ui/main_frame.py:1643
+#: src/mathessible/ui/main_frame.py:1818
 #, python-brace-format
 msgid "Delete the page “{title}”?"
 msgstr "Supprimer la page « {title} » ?"
 
-#: src/mathessible/ui/main_frame.py:1644
+#: src/mathessible/ui/main_frame.py:1819
 msgid "Delete Page"
 msgstr "Supprimer la page"
 
-#: src/mathessible/ui/main_frame.py:1653
+#: src/mathessible/ui/main_frame.py:1828
 msgid "delete the page"
 msgstr "supprimer la page"
 
-#: src/mathessible/ui/main_frame.py:1669
+#: src/mathessible/ui/main_frame.py:1844
 msgid "move the page"
 msgstr "déplacer la page"
 
-#: src/mathessible/ui/main_frame.py:1685
+#: src/mathessible/ui/main_frame.py:1860
 msgid "update the portable notebook"
 msgstr "mettre à jour le cahier portable"
 
-#: src/mathessible/ui/main_frame.py:1698
+#: src/mathessible/ui/main_frame.py:1873
 #, python-brace-format
 msgid "Mathessible closed without saving {count} document. Recover the unsaved changes?"
 msgid_plural "Mathessible closed without saving {count} documents. Recover the unsaved changes?"
@@ -3711,15 +3816,15 @@ msgstr[1] ""
 "Mathessible s’est fermé sans enregistrer {count} documents. Récupérer les modifications non "
 "enregistrées ?"
 
-#: src/mathessible/ui/main_frame.py:1702
+#: src/mathessible/ui/main_frame.py:1877
 msgid "Recover Unsaved Changes"
 msgstr "Récupérer les modifications non enregistrées"
 
-#: src/mathessible/ui/main_frame.py:1705
+#: src/mathessible/ui/main_frame.py:1880
 msgid "&Recover"
 msgstr "&Récupérer"
 
-#: src/mathessible/ui/main_frame.py:1705
+#: src/mathessible/ui/main_frame.py:1880
 msgid "&Discard"
 msgstr "&Ignorer"
 
@@ -4267,4 +4372,7 @@ msgstr "Symboles correspondants"
 
 #~ msgid "templates are not available for LaTeX yet"
 #~ msgstr "les modèles ne sont pas encore disponibles pour LaTeX"
+
+#~ msgid "Installing TinyTeX, this takes a few minutes…"
+#~ msgstr "Installation de TinyTeX, cela prend quelques minutes…"
 

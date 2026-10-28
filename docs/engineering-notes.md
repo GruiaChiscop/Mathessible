@@ -1555,6 +1555,26 @@ The user wants packages later: 3b reads the common text commands for the
 preview and the accessible exports; 3c compiles the PDF with the user's
 own LaTeX (packages and `\newcommand` then work as LaTeX's own).
 
+LaTeX files, stage 3c (2026-10-28): File > Compile PDF with LaTeX
+([documents/tex_compile.py](../src/mathessible/documents/tex_compile.py),
+`MainFrame._compile_tex`, on a thread). The user's choice: Mathessible
+finds the distribution itself and, with none, offers TinyTeX (not
+MacTeX: ~65 MB, no administrator password). `find_installation` looks
+at TinyTeX's folders first (~/Library/TinyTeX, ~/.TinyTeX, %APPDATA%),
+then MacTeX's /Library/TeX/texbin, /usr/local/texlive, MiKTeX's, the
+PATH and Homebrew's: an application started from the Finder gets no
+shell PATH. TinyTeX is installed by its authors' own script
+(`tinytex.yihui.org/install-bin-unix.sh`, `sh -s - --no-path` so it asks
+for no sudo to change the PATH; Windows: their .bat through PowerShell). Its download is shown in a native `wx.ProgressDialog` (megabytes received of the total, then the unpacking, Cancel stopping it and removing the half-unpacked folder): the script downloads with curl, whose progress meter (lines ended by `\r`: percent, total, percent, received) `install_tinytex` reads from the script's output (`download_progress`). Windows' script shows none.
+TinyTeX installs missing packages only for R users: here a log's "File
+`x.sty' not found" runs `tlmgr search --global --file /x.sty`, the
+package named before that path is installed, and the run does not count.
+pdflatex (LuaLaTeX, else XeLaTeX, when fontspec or unicode-math is
+loaded), `-interaction=nonstopmode -halt-on-error`, again while the log
+says Rerun, at most four runs. An error: its `! ...` line and `l.N`, the
+caret put on that line. Not yet: a tagged (accessible) PDF; LuaLaTeX's
+`\DocumentMetadata` tagging is the way when it is stable.
+
 ## Newer UnicodeMathML Versions
 
 Checked 2026-10-26 against upstream `636dc8f` (2026-10-06; the submodule

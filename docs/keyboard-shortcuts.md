@@ -14,6 +14,7 @@ both are given. What each command does is explained in the
 | Save | `Command+S` | `Ctrl+S` |
 | Save as | `Command+Shift+S` | `Ctrl+Shift+S` |
 | Print | `Command+P` | `Ctrl+P` |
+| Compile a .tex file's PDF with LaTeX | `Command+Shift+B` | `Ctrl+Shift+B` |
 | Close window | `Command+W` | `Ctrl+W` |
 | Quit | `Command+Q` | `Ctrl+Q` |
 | New notebook (one .msnb file) | `Command+Option+N` | `Ctrl+Alt+N` |

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import dataclasses
 import os
+import shutil
+import subprocess
 import sys
 import tempfile
 import threading
@@ -38,6 +40,16 @@ from mathessible.documents.recent_files import LIMIT as RECENT_LIMIT
 from mathessible.documents.recent_files import menu_labels, remember, still_there
 from mathessible.documents.recovery import Recovered, delete_record, pending_records, record_name, write_record
 from mathessible.documents.recovery import now as recovery_time
+from mathessible.documents.tex_compile import (
+    ENGINES,
+    CompileResult,
+    DownloadProgress,
+    compile_tex,
+    find_installation,
+    install_tinytex,
+    megabytes,
+    tinytex_directory,
+)
 from mathessible.documents.typst_math import TypstEquation, typst_math
 from mathessible.editing.pasted_math import plain_letters
 from mathessible.error_messages import explain
@@ -90,6 +102,7 @@ if wx is not None:
             self.document_path: Path | None = None
             # Where Save first offers to put a document that has no file yet (one opened from a PDF).
             self._suggested_path: Path | None = None
+            self._tex_busy = False  # A LaTeX compilation or TinyTeX's installation is running.
             self.notebook: Notebook | None = None
             self.notebook_archive_path: Path | None = None
             self._portable_workspace: tempfile.TemporaryDirectory[str] | None = None
@@ -200,6 +213,7 @@ if wx is not None:
             self._export_brf_id = wx.NewIdRef()
             self._export_pdf_id = wx.NewIdRef()
             self._export_docx_id = wx.NewIdRef()
+            self._compile_tex_id = wx.NewIdRef()
             # In the order of Apple's guidelines; Quit goes to the application menu on macOS.
             file_menu.Append(wx.ID_NEW, _("&New") + "\tCtrl+N")
             file_menu.Append(wx.ID_OPEN, _("&Open…") + "\tCtrl+O")
@@ -220,6 +234,7 @@ if wx is not None:
             export_menu.Append(self._export_docx_id, _("&Word Document…"))
             export_menu.Append(self._export_brf_id, _("&BRF (Braille)…"))
             file_menu.AppendSubMenu(export_menu, _("&Export"))
+            file_menu.Append(self._compile_tex_id, _("Compile PDF with &LaTeX") + "\tCtrl+Shift+B")
             file_menu.AppendSeparator()
             file_menu.Append(wx.ID_PRINT, _("&Print…") + "\tCtrl+P")
             file_menu.AppendSeparator()
@@ -344,6 +359,12 @@ if wx is not None:
             self.Bind(wx.EVT_UPDATE_UI, self._on_update_display_item, id=self._display_id)
             self.Bind(wx.EVT_MENU, self._switch_equation_language, id=self._latex_id)
             self.Bind(wx.EVT_UPDATE_UI, self._on_update_latex_item, id=self._latex_id)
+            self.Bind(wx.EVT_MENU, self._compile_tex, id=self._compile_tex_id)
+            self.Bind(
+                wx.EVT_UPDATE_UI,
+                lambda event: event.Enable(self.editor.tex and not self._tex_busy),
+                id=self._compile_tex_id,
+            )
             # A .tex document has no Markdown: no footnotes, front matter, preview or export yet (stage 3b).
             for command_id in (
                 self._footnote_id,
@@ -656,6 +677,160 @@ if wx is not None:
                 ).format(count=kept)
             self.SetStatusText(message, 0)
             self.editor.announce(message)
+
+        def _compile_tex(self, _event: wx.CommandEvent | None = None) -> None:
+            """File > Compile PDF with LaTeX: the .tex file (saved first) compiled by the user's own LaTeX, the
+            missing packages installed on the way (`tex_compile`); TinyTeX offered when there is none."""
+            if not self.editor.tex or self._tex_busy:
+                return
+            self.editor.commit_active_equation()
+            if (self.dirty or self.document_path is None) and not self.save_document():
+                return
+            installation = find_installation()
+            if installation is None:
+                self._offer_tinytex()
+                return
+            path = self.document_path
+            self._tex_busy = True
+            self._say(_("Compiling {name} with {distribution}…").format(name=path.name, distribution=installation.name))
+            session_log.write("command", f"compile {path.name} with {installation.bin_directory}")
+
+            def progress(step: str) -> None:
+                wx.CallAfter(self._tex_progress, step)
+
+            def work() -> None:
+                try:
+                    result = compile_tex(path, installation, progress=progress)
+                except (OSError, subprocess.SubprocessError) as error:
+                    result = CompileResult(None, str(error))
+                wx.CallAfter(self._tex_compiled, result)
+
+            threading.Thread(target=work, name="mathessible-latex-compile", daemon=True).start()
+
+        def _say(self, message: str) -> None:
+            self.SetStatusText(message, 0)
+            self.editor.announce(message)
+
+        def _tex_progress(self, step: str) -> None:
+            if self and step not in ENGINES:
+                self._say(_("installing the LaTeX package {package}…").format(package=step))
+
+        def _tex_compiled(self, result: CompileResult) -> None:
+            if not self:
+                return
+            self._tex_busy = False
+            session_log.write("command", f"compiled: {result.pdf or result.error!r}, installed {result.installed}")
+            if result.pdf is None:
+                self._say(_("the PDF could not be compiled"))
+                message = (
+                    _("LaTeX stopped at line {line}: {error}").format(line=result.line, error=result.error)
+                    if result.line
+                    else _("LaTeX stopped: {error}").format(error=result.error)
+                )
+                wx.MessageBox(message, _("Compile PDF with LaTeX"), wx.OK | wx.ICON_ERROR, self)
+                if result.line:
+                    position = self.editor.markdown.XYToPosition(0, result.line - 1)
+                    if position >= 0:
+                        self.editor.markdown.SetInsertionPoint(position)
+                        self.editor.markdown.ShowPosition(position)
+                self.editor.markdown.SetFocus()
+                return
+            self._say(_("PDF compiled: {name}").format(name=result.pdf.name))
+            dialog = wx.MessageDialog(
+                self,
+                _("The PDF is ready: {name}. Open it?").format(name=result.pdf.name),
+                _("Compile PDF with LaTeX"),
+                wx.YES_NO | wx.ICON_INFORMATION,
+            )
+            dialog.SetYesNoLabels(_("&Open PDF"), _("&Close"))
+            try:
+                if dialog.ShowModal() == wx.ID_YES:
+                    wx.LaunchDefaultApplication(str(result.pdf))
+            finally:
+                dialog.Destroy()
+            self.editor.markdown.SetFocus()
+
+        def _offer_tinytex(self) -> None:
+            """No LaTeX distribution: TinyTeX offered, installed by its own script in the home folder."""
+            dialog = wx.MessageDialog(
+                self,
+                _("No LaTeX distribution was found. Install TinyTeX?"),
+                _("Compile PDF with LaTeX"),
+                wx.YES_NO | wx.ICON_QUESTION,
+            )
+            dialog.SetExtendedMessage(
+                _(
+                    "TinyTeX is a small LaTeX distribution (about 65 MB to download), installed in your home folder "
+                    "without an administrator password. Mathessible installs the packages a document needs when it "
+                    "compiles it. You can also install MacTeX, MiKTeX or TeX Live yourself instead."
+                )
+            )
+            dialog.SetYesNoLabels(_("&Install TinyTeX"), _("&Cancel"))
+            try:
+                if dialog.ShowModal() != wx.ID_YES:
+                    return
+            finally:
+                dialog.Destroy()
+            self._tex_busy = True
+            session_log.write("command", "install TinyTeX")
+            # A native progress window: the download's megabytes, then the unpacking; Cancel stops it.
+            progress_dialog = wx.ProgressDialog(
+                _("Installing TinyTeX"),
+                _("Downloading TinyTeX…"),
+                maximum=100,
+                parent=self,
+                style=wx.PD_CAN_ABORT | wx.PD_APP_MODAL | wx.PD_ELAPSED_TIME | wx.PD_REMAINING_TIME,
+            )
+            cancel = threading.Event()
+
+            def show(meter: DownloadProgress | None) -> None:
+                if not progress_dialog or cancel.is_set():
+                    return
+                if meter is None:
+                    keep_going, _skip = progress_dialog.Pulse(_("Unpacking TinyTeX…"))
+                else:
+                    message = _("Downloading TinyTeX: {received} MB of {total} MB").format(
+                        received=megabytes(meter.received), total=megabytes(meter.total)
+                    )
+                    keep_going, _skip = progress_dialog.Update(min(meter.percent, 99), message)
+                if not keep_going:
+                    cancel.set()
+
+            def work() -> None:
+                try:
+                    ok, output = install_tinytex(lambda meter: wx.CallAfter(show, meter), cancel.is_set)
+                except (OSError, subprocess.SubprocessError) as error:
+                    ok, output = False, str(error)
+                wx.CallAfter(self._tinytex_installed, progress_dialog, ok, cancel.is_set(), output)
+
+            threading.Thread(target=work, name="mathessible-tinytex", daemon=True).start()
+
+        def _tinytex_installed(
+            self, progress_dialog: wx.ProgressDialog, ok: bool, cancelled: bool, output: str
+        ) -> None:
+            if progress_dialog:
+                progress_dialog.Destroy()
+            if not self:
+                return
+            self._tex_busy = False
+            session_log.write("command", f"TinyTeX installer ({'done' if ok else 'stopped'}): {output[-2000:]!r}")
+            if cancelled:
+                # Stopped part way: the TinyTeX folder it was unpacking is incomplete (there was none before).
+                shutil.rmtree(tinytex_directory(), ignore_errors=True)
+                self._say(_("TinyTeX installation cancelled"))
+                return
+            if not ok or find_installation() is None:
+                self._say(_("TinyTeX could not be installed"))
+                last = "\n".join(output.splitlines()[-6:])
+                wx.MessageBox(
+                    _("TinyTeX could not be installed.") + ("\n\n" + last if last else ""),
+                    _("Compile PDF with LaTeX"),
+                    wx.OK | wx.ICON_ERROR,
+                    self,
+                )
+                return
+            self._say(_("TinyTeX installed"))
+            self._compile_tex()
 
         def _on_update_latex_item(self, event: wx.UpdateUIEvent) -> None:
             event.Check(self.editor.latex)
