@@ -1307,8 +1307,26 @@ markdown-it with `html: False` (raw HTML is text). The attached sources
 are passed as `sys.inputs`, never written into the code. Typst's
 standards: PDF/A-2 forbids attachments and PDF/A-4f excludes UA-1, so
 Settings offers tagged, UA-1, UA-1 + A-3a and A-3a; the attachments carry
-`relationship: "source"` for PDF/A-3. The alt text is MathCAT's English
-speech whatever the document's language (MathCAT has no Romanian).
+`relationship: "source"` for PDF/A-3.
+
+The alt text is in the document's language (the dialog's Language),
+English when MathCAT has none (2026-10-27, `mathcat/document_speech.py`).
+**Trap:** MathCAT's state is per thread, so starting the editor's MathCAT
+in another language would leave the editor speaking it, and loading an
+export's equations into it replaced the equation being edited. The
+export's equations are read on a thread of their own that starts its
+own MathCAT and ends with the export; the converter (a WebView) still
+runs on the main thread first, all equations at once.
+
+File > Open reads a PDF's attached Markdown back with pypdf
+(`documents/pdf_source.py`, decrypting a permissions-only PDF with the
+empty password). A PDF lists attachments by name, so a notebook's pages
+came back alphabetically and two pages of one title shared an
+attachment: each page's description now carries its number ("The
+Markdown source of page 3, ...", parsed back) and names are made unique
+("Zeta (2).md"). It opens unsaved: a document with Save offering a `.md`
+beside the PDF (`MainFrame._suggested_path`), a notebook in a temporary
+workspace whose Save writes a free `.msnb` name beside the PDF.
 
 Stage 2 (2026-10-26): `PdfOptions` also has a watermark (page
 `background`, an artifact for the tags), heading and equation numbering

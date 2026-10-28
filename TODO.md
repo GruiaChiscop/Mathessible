@@ -48,7 +48,7 @@ links back, liblouis and BRF need a braille transcriber's convention.
   none; not with PDF/A), a watermark, heading and equation numbering,
   colours, columns.
 - [ ] Stage 3: PDF/UA-2 with MathML in the Formula tags, when Typst has it.
-- [ ] Open a PDF with an attached Markdown source in Mathessible.
+- [x] Open a PDF with an attached Markdown source in Mathessible.
 
 ## DOCX export
 
@@ -60,10 +60,11 @@ links back, liblouis and BRF need a braille transcriber's convention.
 
 ## A professional application
 
-- [ ] The interface in more languages, Romanian first (a translation
-  system, gettext or wx's own; every string in English in the code).
-- [ ] The equations' spoken form in the PDF in the document's language:
-  MathCAT has no Romanian yet, so it is English today.
+- [ ] The interface in more languages than MathCAT's 14, Romanian first:
+  the translation system is there (docs/translating.md), but equations
+  would still be spoken in another language.
+- [x] The equations' spoken form in the PDF in the document's language,
+  when MathCAT has it (English otherwise: it has no Romanian).
 - [ ] Check with VoiceOver what is only tested without a screen: the Find
   dialog (wx's generic one), Undo after the commands that change the
   document (Change to Display, Replace All, AutoCorrect in the text) and

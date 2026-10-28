@@ -127,8 +127,12 @@ applications have them:
 
 - **New** (`Command+N`, `Ctrl+N` elsewhere): a new document, in a window
   of its own.
-- **Open…** (`Command+O`): a Markdown document or a notebook saved as one
-  `.msnb` file. **Open Recent** lists the last ten documents and
+- **Open…** (`Command+O`): a Markdown document, a notebook saved as one
+  `.msnb` file, or a PDF Mathessible exported with its Markdown source
+  attached (the default), which opens as the document or notebook it was
+  made from, not yet saved: Save puts it beside the PDF, as a `.md` (you
+  choose where) or a `.msnb`, never over the PDF. A PDF that needs a
+  password to open cannot be read. **Open Recent** lists the last ten documents and
   notebooks opened or saved, and **Clear Menu** empties it. An untouched
   Untitled window is used for what is opened; something already open is
   brought to the front instead of being opened twice.
@@ -369,7 +373,9 @@ and Footer).
 The PDF is typeset by Typst and tagged for screen readers: headings,
 paragraphs, lists, tables and links are marked as such, the headings are
 bookmarks, and every equation carries its spoken form, MathCAT's, for a
-screen reader to read. Equations are typeset as built structures
+screen reader to read, in the language given in the Document tab when
+MathCAT speaks it (English otherwise), whatever the editor's speech
+language. Equations are typeset as built structures
 (fractions, roots, limits, matrices, cases, equation arrays and numbers).
 
 ### Word export

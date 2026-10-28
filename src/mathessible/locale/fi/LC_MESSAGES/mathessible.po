@@ -71,6 +71,26 @@ msgstr "Muistikirjaan on jäätävä vähintään yksi sivu"
 msgid "Unsafe page path: {file}"
 msgstr "Vaarallinen sivun polku: {file}"
 
+#: src/mathessible/documents/pdf_source.py:44
+msgid "This PDF needs a password to open, so Mathessible cannot read its source."
+msgstr "Tämän PDF:n avaamiseen tarvitaan salasana, joten Mathessible ei voi lukea sen lähdettä."
+
+#: src/mathessible/documents/pdf_source.py:52
+msgid "This file is not a PDF Mathessible can read."
+msgstr "Tämä tiedosto ei ole PDF, jota Mathessible voi lukea."
+
+#: src/mathessible/documents/pdf_source.py:56
+msgid ""
+"This PDF has no Markdown source attached. Only PDFs exported by Mathessible with \"Attach the "
+"Markdown source\" can be opened."
+msgstr ""
+"Tähän PDF:ään ei ole liitetty Markdown-lähdettä. Vain PDF:t, jotka Mathessible on vienyt "
+"valinnalla ”Liitä Markdown-lähde”, voi avata."
+
+#: src/mathessible/documents/pdf_source.py:70
+msgid "The Markdown attached to this PDF is not UTF-8 text."
+msgstr "Tähän PDF:ään liitetty Markdown ei ole UTF-8-tekstiä."
+
 #: src/mathessible/documents/portable_notebook.py:43
 msgid "The temporary notebook folder is not empty"
 msgstr "Muistikirjan väliaikainen kansio ei ole tyhjä"
@@ -504,27 +524,27 @@ msgid "Switch to Linear View"
 msgstr "Vaihda lineaariseen näkymään"
 
 #: src/mathessible/editor/structures.py:159 src/mathessible/ui/document_editor.py:115
-#: src/mathessible/ui/main_frame.py:218
+#: src/mathessible/ui/main_frame.py:223
 msgid "Cu&t"
 msgstr "&Leikkaa"
 
 #: src/mathessible/editor/structures.py:160 src/mathessible/ui/document_editor.py:116
-#: src/mathessible/ui/main_frame.py:219
+#: src/mathessible/ui/main_frame.py:224
 msgid "&Copy"
 msgstr "K&opioi"
 
 #: src/mathessible/editor/structures.py:161 src/mathessible/ui/document_editor.py:117
-#: src/mathessible/ui/main_frame.py:220
+#: src/mathessible/ui/main_frame.py:225
 msgid "&Paste"
 msgstr "L&iitä"
 
 #: src/mathessible/editor/structures.py:163 src/mathessible/ui/document_editor.py:119
-#: src/mathessible/ui/main_frame.py:223
+#: src/mathessible/ui/main_frame.py:228
 msgid "Select &All"
 msgstr "&Valitse kaikki"
 
 #: src/mathessible/editor/structures.py:168 src/mathessible/ui/document_editor.py:138
-#: src/mathessible/ui/main_frame.py:247
+#: src/mathessible/ui/main_frame.py:252
 msgid "&Insert"
 msgstr "&Lisää"
 
@@ -2375,7 +2395,7 @@ msgstr "Matematiikan automaattinen korjaus -valintaikkuna"
 msgid "&Replace"
 msgstr "&Korvaa"
 
-#: src/mathessible/ui/autocorrect_dialog.py:42 src/mathessible/ui/main_frame.py:495
+#: src/mathessible/ui/autocorrect_dialog.py:42 src/mathessible/ui/main_frame.py:500
 msgid "Replace"
 msgstr "Korvaa"
 
@@ -2403,7 +2423,7 @@ msgstr "&Lisää"
 
 #: src/mathessible/ui/autocorrect_dialog.py:55 src/mathessible/ui/braille_signs_dialog.py:71
 #: src/mathessible/ui/functions_dialog.py:49 src/mathessible/ui/gallery_dialog.py:56
-#: src/mathessible/ui/main_frame.py:221
+#: src/mathessible/ui/main_frame.py:226
 msgid "&Delete"
 msgstr "&Poista"
 
@@ -2493,15 +2513,15 @@ msgstr "Muuta teksti&nsisäiseksi"
 msgid "E&quation"
 msgstr "&Yhtälö"
 
-#: src/mathessible/ui/document_editor.py:112 src/mathessible/ui/main_frame.py:215
+#: src/mathessible/ui/document_editor.py:112 src/mathessible/ui/main_frame.py:220
 msgid "&Undo"
 msgstr "&Kumoa"
 
-#: src/mathessible/ui/document_editor.py:113 src/mathessible/ui/main_frame.py:216
+#: src/mathessible/ui/document_editor.py:113 src/mathessible/ui/main_frame.py:221
 msgid "&Redo"
 msgstr "&Tee uudelleen"
 
-#: src/mathessible/ui/document_editor.py:133 src/mathessible/ui/main_frame.py:238
+#: src/mathessible/ui/document_editor.py:133 src/mathessible/ui/main_frame.py:243
 msgid "&Edit"
 msgstr "&Muokkaa"
 
@@ -2525,7 +2545,7 @@ msgstr "L&oitonna"
 msgid "&Actual Size"
 msgstr "&Todellinen koko"
 
-#: src/mathessible/ui/document_editor.py:157 src/mathessible/ui/main_frame.py:251
+#: src/mathessible/ui/document_editor.py:157 src/mathessible/ui/main_frame.py:256
 msgid "&View"
 msgstr "&Näytä"
 
@@ -2875,11 +2895,11 @@ msgstr "{title} -valintaikkuna"
 msgid "These options are now the defaults."
 msgstr "Nämä asetukset ovat nyt oletuksia."
 
-#: src/mathessible/ui/export_dialogs.py:103 src/mathessible/ui/main_frame.py:973
+#: src/mathessible/ui/export_dialogs.py:103 src/mathessible/ui/main_frame.py:1016
 msgid "Export as BRF"
 msgstr "Vie BRF-muodossa"
 
-#: src/mathessible/ui/export_dialogs.py:123 src/mathessible/ui/main_frame.py:966
+#: src/mathessible/ui/export_dialogs.py:123 src/mathessible/ui/main_frame.py:1009
 msgid "Export as HTML"
 msgstr "Vie HTML-muodossa"
 
@@ -2921,7 +2941,7 @@ msgstr "&Kieli (esimerkiksi ro, en)"
 msgid "Language"
 msgstr "Kieli"
 
-#: src/mathessible/ui/export_dialogs.py:156 src/mathessible/ui/main_frame.py:970
+#: src/mathessible/ui/export_dialogs.py:156 src/mathessible/ui/main_frame.py:1013
 msgid "Export as Word Document"
 msgstr "Vie Word-asiakirjana"
 
@@ -3062,15 +3082,15 @@ msgstr "&Ohje"
 msgid "GNU General Public License, version 2 or later"
 msgstr "GNU General Public License, versio 2 tai myöhempi"
 
-#: src/mathessible/ui/main_frame.py:99
+#: src/mathessible/ui/main_frame.py:104
 msgid "Pages"
 msgstr "Sivut"
 
-#: src/mathessible/ui/main_frame.py:101
+#: src/mathessible/ui/main_frame.py:106
 msgid "Notebook pages"
 msgstr "Muistikirjan sivut"
 
-#: src/mathessible/ui/main_frame.py:149
+#: src/mathessible/ui/main_frame.py:154
 #, python-brace-format
 msgid ""
 "MathCAT's native extension could not be loaded, so equations can only be edited as text, not read"
@@ -3079,13 +3099,13 @@ msgstr ""
 "MathCATin natiivia laajennusta ei voitu ladata, joten yhtälöitä voi muokata vain tekstinä, ei "
 "lukea eikä selata ({error}). Suorita scripts/bootstrap.sh."
 
-#: src/mathessible/ui/main_frame.py:156
+#: src/mathessible/ui/main_frame.py:161
 msgid "No web view is available to convert and show equations (on Linux, install WebKitGTK for wxPython)."
 msgstr ""
 "Yhtälöiden muuntamiseen ja näyttämiseen ei ole verkkonäkymää (Linuxissa asenna WebKitGTK "
 "wxPythonille)."
 
-#: src/mathessible/ui/main_frame.py:167
+#: src/mathessible/ui/main_frame.py:172
 #, python-brace-format
 msgid ""
 "Mathessible's fixes to MathCAT and UnicodeMathML are not applied, so some equations will be read "
@@ -3102,380 +3122,384 @@ msgstr ""
 "Puuttuvat korjaukset:\n"
 "{patches}"
 
-#: src/mathessible/ui/main_frame.py:180
+#: src/mathessible/ui/main_frame.py:185
 msgid "Mathessible Setup"
 msgstr "Mathessiblen asennus"
 
-#: src/mathessible/ui/main_frame.py:189
+#: src/mathessible/ui/main_frame.py:194
 msgid "&New"
 msgstr "&Uusi"
 
-#: src/mathessible/ui/main_frame.py:190
+#: src/mathessible/ui/main_frame.py:195
 msgid "&Open…"
 msgstr "&Avaa…"
 
-#: src/mathessible/ui/main_frame.py:194
+#: src/mathessible/ui/main_frame.py:199
 msgid "Open &Recent"
 msgstr "Avaa &viimeisin"
 
-#: src/mathessible/ui/main_frame.py:196
+#: src/mathessible/ui/main_frame.py:201
 msgid "&Close Window"
 msgstr "&Sulje ikkuna"
 
-#: src/mathessible/ui/main_frame.py:197
+#: src/mathessible/ui/main_frame.py:202
 msgid "&Save"
 msgstr "&Tallenna"
 
-#: src/mathessible/ui/main_frame.py:198
+#: src/mathessible/ui/main_frame.py:203
 msgid "Save &As…"
 msgstr "Tallenna &nimellä…"
 
-#: src/mathessible/ui/main_frame.py:199
+#: src/mathessible/ui/main_frame.py:204
 msgid "Re&vert to Saved"
 msgstr "&Palauta tallennettu"
 
-#: src/mathessible/ui/main_frame.py:203
+#: src/mathessible/ui/main_frame.py:208
 msgid "&HTML…"
 msgstr "&HTML…"
 
-#: src/mathessible/ui/main_frame.py:204
+#: src/mathessible/ui/main_frame.py:209
 msgid "&PDF…"
 msgstr "&PDF…"
 
-#: src/mathessible/ui/main_frame.py:205
+#: src/mathessible/ui/main_frame.py:210
 msgid "&Word Document…"
 msgstr "&Word-asiakirja…"
 
-#: src/mathessible/ui/main_frame.py:206
+#: src/mathessible/ui/main_frame.py:211
 msgid "&BRF (Braille)…"
 msgstr "&BRF (pistekirjoitus)…"
 
-#: src/mathessible/ui/main_frame.py:207
+#: src/mathessible/ui/main_frame.py:212
 msgid "&Export"
 msgstr "Vi&e"
 
-#: src/mathessible/ui/main_frame.py:209
+#: src/mathessible/ui/main_frame.py:214
 msgid "&Print…"
 msgstr "Tul&osta…"
 
-#: src/mathessible/ui/main_frame.py:211
+#: src/mathessible/ui/main_frame.py:216
 msgid "&Quit"
 msgstr "&Lopeta"
 
-#: src/mathessible/ui/main_frame.py:213
+#: src/mathessible/ui/main_frame.py:218
 msgid "&File"
 msgstr "&Tiedosto"
 
-#: src/mathessible/ui/main_frame.py:229
+#: src/mathessible/ui/main_frame.py:234
 msgid "&Find…"
 msgstr "&Etsi…"
 
-#: src/mathessible/ui/main_frame.py:230
+#: src/mathessible/ui/main_frame.py:235
 msgid "Find &Next"
 msgstr "Etsi &seuraava"
 
-#: src/mathessible/ui/main_frame.py:231
+#: src/mathessible/ui/main_frame.py:236
 msgid "Find Pre&vious"
 msgstr "Etsi e&dellinen"
 
-#: src/mathessible/ui/main_frame.py:232
+#: src/mathessible/ui/main_frame.py:237
 msgid "R&eplace…"
 msgstr "Ko&rvaa…"
 
-#: src/mathessible/ui/main_frame.py:235 src/mathessible/ui/main_frame.py:567
+#: src/mathessible/ui/main_frame.py:240 src/mathessible/ui/main_frame.py:572
 msgid "Change Equation to &Display"
 msgstr "Muut&a yhtälö erilliseksi"
 
-#: src/mathessible/ui/main_frame.py:237
+#: src/mathessible/ui/main_frame.py:242
 msgid "&Settings…"
 msgstr "Aset&ukset…"
 
-#: src/mathessible/ui/main_frame.py:243
+#: src/mathessible/ui/main_frame.py:248
 msgid "&Footnote"
 msgstr "&Alaviite"
 
-#: src/mathessible/ui/main_frame.py:244
+#: src/mathessible/ui/main_frame.py:249
 msgid "&Go to Footnote or Reference"
 msgstr "&Siirry alaviitteeseen tai viittaukseen"
 
-#: src/mathessible/ui/main_frame.py:246
+#: src/mathessible/ui/main_frame.py:251
 msgid "&Header and Footer…"
 msgstr "&Ylä- ja alatunniste…"
 
-#: src/mathessible/ui/main_frame.py:250
+#: src/mathessible/ui/main_frame.py:255
 msgid "Document &Preview"
 msgstr "Asiakirjan &esikatselu"
 
-#: src/mathessible/ui/main_frame.py:265
+#: src/mathessible/ui/main_frame.py:270
 msgid "&New Notebook…"
 msgstr "&Uusi muistikirja…"
 
-#: src/mathessible/ui/main_frame.py:266
+#: src/mathessible/ui/main_frame.py:271
 msgid "New Notebook &Folder…"
 msgstr "Uusi muistikirja&kansio…"
 
-#: src/mathessible/ui/main_frame.py:267
+#: src/mathessible/ui/main_frame.py:272
 msgid "&Open Notebook Folder…"
 msgstr "&Avaa muistikirjakansio…"
 
-#: src/mathessible/ui/main_frame.py:268
+#: src/mathessible/ui/main_frame.py:273
 msgid "Save Notebook as &Single File…"
 msgstr "Tallenna muistikirja yhtenä &tiedostona…"
 
-#: src/mathessible/ui/main_frame.py:270
+#: src/mathessible/ui/main_frame.py:275
 msgid "&Add Page"
 msgstr "&Lisää sivu"
 
-#: src/mathessible/ui/main_frame.py:271
+#: src/mathessible/ui/main_frame.py:276
 msgid "&Rename Page…"
 msgstr "&Nimeä sivu uudelleen…"
 
-#: src/mathessible/ui/main_frame.py:272
+#: src/mathessible/ui/main_frame.py:277
 msgid "&Delete Page…"
 msgstr "&Poista sivu…"
 
-#: src/mathessible/ui/main_frame.py:274
+#: src/mathessible/ui/main_frame.py:279
 msgid "Move Page &Up"
 msgstr "Siirrä sivua &ylös"
 
-#: src/mathessible/ui/main_frame.py:275
+#: src/mathessible/ui/main_frame.py:280
 msgid "Move Page Do&wn"
 msgstr "Siirrä sivua ala&s"
 
-#: src/mathessible/ui/main_frame.py:277
+#: src/mathessible/ui/main_frame.py:282
 msgid "&Previous Page"
 msgstr "&Edellinen sivu"
 
-#: src/mathessible/ui/main_frame.py:278
+#: src/mathessible/ui/main_frame.py:283
 msgid "Ne&xt Page"
 msgstr "Seu&raava sivu"
 
-#: src/mathessible/ui/main_frame.py:279
+#: src/mathessible/ui/main_frame.py:284
 msgid "&Notebook"
 msgstr "Muisti&kirja"
 
-#: src/mathessible/ui/main_frame.py:284
+#: src/mathessible/ui/main_frame.py:289
 msgid "&Next Window"
 msgstr "&Seuraava ikkuna"
 
-#: src/mathessible/ui/main_frame.py:285
+#: src/mathessible/ui/main_frame.py:290
 msgid "&Previous Window"
 msgstr "&Edellinen ikkuna"
 
-#: src/mathessible/ui/main_frame.py:287
+#: src/mathessible/ui/main_frame.py:292
 msgid "Bring All to &Front"
 msgstr "Tuo &kaikki eteen"
 
-#: src/mathessible/ui/main_frame.py:288
+#: src/mathessible/ui/main_frame.py:293
 msgid "&Window"
 msgstr "&Ikkuna"
 
-#: src/mathessible/ui/main_frame.py:407
+#: src/mathessible/ui/main_frame.py:412
 msgid "show the document preview"
 msgstr "näytä asiakirjan esikatselu"
 
-#: src/mathessible/ui/main_frame.py:409
+#: src/mathessible/ui/main_frame.py:414
 msgid "Document preview"
 msgstr "Asiakirjan esikatselu"
 
-#: src/mathessible/ui/main_frame.py:495 src/mathessible/ui/main_frame.py:518
+#: src/mathessible/ui/main_frame.py:500 src/mathessible/ui/main_frame.py:523
 msgid "Find"
 msgstr "Etsi"
 
-#: src/mathessible/ui/main_frame.py:517
+#: src/mathessible/ui/main_frame.py:522
 #, python-brace-format
 msgid "“{text}” was not found."
 msgstr "Tekstiä ”{text}” ei löytynyt."
 
-#: src/mathessible/ui/main_frame.py:551
+#: src/mathessible/ui/main_frame.py:556
 #, python-brace-format
 msgid "{count} replacement made."
 msgid_plural "{count} replacements made."
 msgstr[0] "{count} korvaus tehty."
 msgstr[1] "{count} korvausta tehty."
 
-#: src/mathessible/ui/main_frame.py:552
+#: src/mathessible/ui/main_frame.py:557
 msgid "Replace All"
 msgstr "Korvaa kaikki"
 
-#: src/mathessible/ui/main_frame.py:567
+#: src/mathessible/ui/main_frame.py:572
 msgid "Change Equation to &Inline"
 msgstr "Muut&a yhtälö tekstinsisäiseksi"
 
-#: src/mathessible/ui/main_frame.py:588
+#: src/mathessible/ui/main_frame.py:593
 msgid "Untitled"
 msgstr "Nimetön"
 
-#: src/mathessible/ui/main_frame.py:590
+#: src/mathessible/ui/main_frame.py:595
 #, python-brace-format
 msgid "Mathessible — {name} — modified"
 msgstr "Mathessible — {name} — muokattu"
 
-#: src/mathessible/ui/main_frame.py:592
+#: src/mathessible/ui/main_frame.py:597
 #, python-brace-format
 msgid "Mathessible — {name}"
 msgstr "Mathessible — {name}"
 
-#: src/mathessible/ui/main_frame.py:603
+#: src/mathessible/ui/main_frame.py:608
 #, python-brace-format
 msgid "{notebook} — Page {page} of {pages}"
 msgstr "{notebook} — Sivu {page}/{pages}"
 
-#: src/mathessible/ui/main_frame.py:607
+#: src/mathessible/ui/main_frame.py:612
 msgid "Untitled Markdown document"
 msgstr "Nimetön Markdown-asiakirja"
 
-#: src/mathessible/ui/main_frame.py:609
+#: src/mathessible/ui/main_frame.py:614
 #, python-brace-format
 msgid "Line {line}, Column {column}"
 msgstr "Rivi {line}, sarake {column}"
 
-#: src/mathessible/ui/main_frame.py:615
+#: src/mathessible/ui/main_frame.py:620
 #, python-brace-format
 msgid "Could not {action}."
 msgstr "Toiminto epäonnistui: {action}."
 
-#: src/mathessible/ui/main_frame.py:628
+#: src/mathessible/ui/main_frame.py:633
 msgid "The document has unsaved changes. Do you want to save them?"
 msgstr "Asiakirjassa on tallentamattomia muutoksia. Haluatko tallentaa ne?"
 
-#: src/mathessible/ui/main_frame.py:629
+#: src/mathessible/ui/main_frame.py:634
 msgid "Unsaved Changes"
 msgstr "Tallentamattomia muutoksia"
 
-#: src/mathessible/ui/main_frame.py:649
+#: src/mathessible/ui/main_frame.py:654
 msgid "save settings"
 msgstr "asetusten tallennus"
 
-#: src/mathessible/ui/main_frame.py:700
+#: src/mathessible/ui/main_frame.py:705
 msgid "Open"
 msgstr "Avaa"
 
-#: src/mathessible/ui/main_frame.py:702
+#: src/mathessible/ui/main_frame.py:707
 msgid "Documents and notebooks"
 msgstr "Asiakirjat ja muistikirjat"
 
-#: src/mathessible/ui/main_frame.py:704
+#: src/mathessible/ui/main_frame.py:709
 msgid "Markdown documents"
 msgstr "Markdown-asiakirjat"
 
-#: src/mathessible/ui/main_frame.py:706
+#: src/mathessible/ui/main_frame.py:711
 msgid "Notebooks"
 msgstr "Muistikirjat"
 
-#: src/mathessible/ui/main_frame.py:708 src/mathessible/ui/main_frame.py:905
+#: src/mathessible/ui/main_frame.py:713
+msgid "PDFs exported by Mathessible"
+msgstr "Mathessiblen viemät PDF:t"
+
+#: src/mathessible/ui/main_frame.py:715 src/mathessible/ui/main_frame.py:948
 #: src/mathessible/ui/settings_dialog.py:470
 msgid "All files"
 msgstr "Kaikki tiedostot"
 
-#: src/mathessible/ui/main_frame.py:754
+#: src/mathessible/ui/main_frame.py:763
 #, python-brace-format
 msgid "open {name}"
 msgstr "tiedoston {name} avaaminen"
 
-#: src/mathessible/ui/main_frame.py:783
+#: src/mathessible/ui/main_frame.py:825
 msgid "&Clear Menu"
 msgstr "&Tyhjennä luettelo"
 
-#: src/mathessible/ui/main_frame.py:809
+#: src/mathessible/ui/main_frame.py:851
 msgid "Revert to the saved version? The changes since it was saved will be lost."
 msgstr "Palautetaanko tallennettu versio? Tallennuksen jälkeiset muutokset menetetään."
 
-#: src/mathessible/ui/main_frame.py:810
+#: src/mathessible/ui/main_frame.py:852
 msgid "Revert to Saved"
 msgstr "Palauta tallennettu"
 
-#: src/mathessible/ui/main_frame.py:813
+#: src/mathessible/ui/main_frame.py:855
 msgid "&Revert"
 msgstr "&Palauta"
 
-#: src/mathessible/ui/main_frame.py:813
+#: src/mathessible/ui/main_frame.py:855
 msgid "&Cancel"
 msgstr "&Peruuta"
 
-#: src/mathessible/ui/main_frame.py:825
+#: src/mathessible/ui/main_frame.py:867
 msgid "read the saved document"
 msgstr "tallennetun asiakirjan lukeminen"
 
-#: src/mathessible/ui/main_frame.py:853
+#: src/mathessible/ui/main_frame.py:895
 msgid "read the notebook"
 msgstr "muistikirjan lukeminen"
 
-#: src/mathessible/ui/main_frame.py:862
+#: src/mathessible/ui/main_frame.py:904
 msgid "Mathessible document"
 msgstr "Mathessible-asiakirja"
 
-#: src/mathessible/ui/main_frame.py:876 src/mathessible/ui/main_frame.py:983
+#: src/mathessible/ui/main_frame.py:918 src/mathessible/ui/main_frame.py:1026
 msgid "The UnicodeMath converter is not ready yet. Please try again."
 msgstr "UnicodeMath-muunnin ei ole vielä valmis. Yritä uudelleen."
 
-#: src/mathessible/ui/main_frame.py:882
+#: src/mathessible/ui/main_frame.py:924
 msgid "print"
 msgstr "tulostus"
 
-#: src/mathessible/ui/main_frame.py:902
+#: src/mathessible/ui/main_frame.py:945
 msgid "Save Markdown document"
 msgstr "Tallenna Markdown-asiakirja"
 
-#: src/mathessible/ui/main_frame.py:905
+#: src/mathessible/ui/main_frame.py:948
 msgid "Markdown document"
 msgstr "Markdown-asiakirja"
 
-#: src/mathessible/ui/main_frame.py:932 src/mathessible/ui/main_frame.py:1292
+#: src/mathessible/ui/main_frame.py:975 src/mathessible/ui/main_frame.py:1356
 msgid "save the page"
 msgstr "sivun tallennus"
 
-#: src/mathessible/ui/main_frame.py:948
+#: src/mathessible/ui/main_frame.py:991
 msgid "save the document"
 msgstr "asiakirjan tallennus"
 
-#: src/mathessible/ui/main_frame.py:966
+#: src/mathessible/ui/main_frame.py:1009
 msgid "export the HTML document"
 msgstr "HTML-asiakirjan vienti"
 
-#: src/mathessible/ui/main_frame.py:966
+#: src/mathessible/ui/main_frame.py:1009
 msgid "HTML document"
 msgstr "HTML-asiakirja"
 
-#: src/mathessible/ui/main_frame.py:967
+#: src/mathessible/ui/main_frame.py:1010
 msgid "export the PDF document"
 msgstr "PDF-asiakirjan vienti"
 
-#: src/mathessible/ui/main_frame.py:967
+#: src/mathessible/ui/main_frame.py:1010
 msgid "PDF document"
 msgstr "PDF-asiakirja"
 
-#: src/mathessible/ui/main_frame.py:967 src/mathessible/ui/pdf_dialog.py:38
+#: src/mathessible/ui/main_frame.py:1010 src/mathessible/ui/pdf_dialog.py:38
 msgid "Export as PDF"
 msgstr "Vie PDF-muodossa"
 
-#: src/mathessible/ui/main_frame.py:969
+#: src/mathessible/ui/main_frame.py:1012
 msgid "export the Word document"
 msgstr "Word-asiakirjan vienti"
 
-#: src/mathessible/ui/main_frame.py:971
+#: src/mathessible/ui/main_frame.py:1014
 msgid "Word document"
 msgstr "Word-asiakirja"
 
-#: src/mathessible/ui/main_frame.py:973
+#: src/mathessible/ui/main_frame.py:1016
 msgid "export the BRF document"
 msgstr "BRF-asiakirjan vienti"
 
-#: src/mathessible/ui/main_frame.py:973
+#: src/mathessible/ui/main_frame.py:1016
 msgid "Braille ready file"
 msgstr "Pistekirjoitusvalmis tiedosto (BRF)"
 
-#: src/mathessible/ui/main_frame.py:1039
+#: src/mathessible/ui/main_frame.py:1082
 #, python-brace-format
 msgid "Exported {name}"
 msgstr "Viety: {name}"
 
-#: src/mathessible/ui/main_frame.py:1040
+#: src/mathessible/ui/main_frame.py:1083
 #, python-brace-format
 msgid "exported {name}"
 msgstr "viety: {name}"
 
-#: src/mathessible/ui/main_frame.py:1100
+#: src/mathessible/ui/main_frame.py:1164
 msgid ""
 "PDF/A does not allow passwords or restrictions. Choose Tagged PDF or PDF/UA-1 under Security, or "
 "export without them."
@@ -3483,96 +3507,96 @@ msgstr ""
 "PDF/A ei salli salasanoja tai rajoituksia. Valitse Suojaus-kohdasta Merkitty PDF tai PDF/UA-1, "
 "tai vie ilman niitä."
 
-#: src/mathessible/ui/main_frame.py:1273
+#: src/mathessible/ui/main_frame.py:1337
 msgid "open the page"
 msgstr "sivun avaaminen"
 
-#: src/mathessible/ui/main_frame.py:1312
+#: src/mathessible/ui/main_frame.py:1376
 msgid "Choose or create the new notebook folder"
 msgstr "Valitse tai luo uuden muistikirjan kansio"
 
-#: src/mathessible/ui/main_frame.py:1324
+#: src/mathessible/ui/main_frame.py:1388
 msgid "create the notebook"
 msgstr "muistikirjan luominen"
 
-#: src/mathessible/ui/main_frame.py:1338
+#: src/mathessible/ui/main_frame.py:1402
 msgid "Save portable notebook"
 msgstr "Tallenna siirrettävä muistikirja"
 
-#: src/mathessible/ui/main_frame.py:1340
+#: src/mathessible/ui/main_frame.py:1404
 msgid "Mathessible notebooks"
 msgstr "Mathessible-muistikirjat"
 
-#: src/mathessible/ui/main_frame.py:1360
+#: src/mathessible/ui/main_frame.py:1424
 msgid "create the portable notebook"
 msgstr "siirrettävän muistikirjan luominen"
 
-#: src/mathessible/ui/main_frame.py:1372
+#: src/mathessible/ui/main_frame.py:1436
 msgid "Choose the notebook folder"
 msgstr "Valitse muistikirjan kansio"
 
-#: src/mathessible/ui/main_frame.py:1382
+#: src/mathessible/ui/main_frame.py:1446
 msgid "Page title:"
 msgstr "Sivun otsikko:"
 
-#: src/mathessible/ui/main_frame.py:1394
+#: src/mathessible/ui/main_frame.py:1458
 msgid "Add Page"
 msgstr "Lisää sivu"
 
-#: src/mathessible/ui/main_frame.py:1394
+#: src/mathessible/ui/main_frame.py:1458
 #, python-brace-format
 msgid "Page {number}"
 msgstr "Sivu {number}"
 
-#: src/mathessible/ui/main_frame.py:1400
+#: src/mathessible/ui/main_frame.py:1464
 msgid "add the page"
 msgstr "sivun lisääminen"
 
-#: src/mathessible/ui/main_frame.py:1410
+#: src/mathessible/ui/main_frame.py:1474
 msgid "Rename Page"
 msgstr "Nimeä sivu uudelleen"
 
-#: src/mathessible/ui/main_frame.py:1416
+#: src/mathessible/ui/main_frame.py:1480
 msgid "rename the page"
 msgstr "sivun nimeäminen uudelleen"
 
-#: src/mathessible/ui/main_frame.py:1428
+#: src/mathessible/ui/main_frame.py:1492
 #, python-brace-format
 msgid "Delete the page “{title}”?"
 msgstr "Poistetaanko sivu ”{title}”?"
 
-#: src/mathessible/ui/main_frame.py:1429
+#: src/mathessible/ui/main_frame.py:1493
 msgid "Delete Page"
 msgstr "Poista sivu"
 
-#: src/mathessible/ui/main_frame.py:1438
+#: src/mathessible/ui/main_frame.py:1502
 msgid "delete the page"
 msgstr "sivun poistaminen"
 
-#: src/mathessible/ui/main_frame.py:1454
+#: src/mathessible/ui/main_frame.py:1518
 msgid "move the page"
 msgstr "sivun siirtäminen"
 
-#: src/mathessible/ui/main_frame.py:1470
+#: src/mathessible/ui/main_frame.py:1534
 msgid "update the portable notebook"
 msgstr "siirrettävän muistikirjan päivittäminen"
 
-#: src/mathessible/ui/main_frame.py:1483
+#: src/mathessible/ui/main_frame.py:1547
 #, python-brace-format
 msgid "Mathessible closed without saving {count} document. Recover the unsaved changes?"
 msgid_plural "Mathessible closed without saving {count} documents. Recover the unsaved changes?"
 msgstr[0] "Mathessible suljettiin tallentamatta {count} asiakirjaa. Palautetaanko tallentamattomat muutokset?"
 msgstr[1] "Mathessible suljettiin tallentamatta {count} asiakirjaa. Palautetaanko tallentamattomat muutokset?"
 
-#: src/mathessible/ui/main_frame.py:1487
+#: src/mathessible/ui/main_frame.py:1551
 msgid "Recover Unsaved Changes"
 msgstr "Palauta tallentamattomat muutokset"
 
-#: src/mathessible/ui/main_frame.py:1490
+#: src/mathessible/ui/main_frame.py:1554
 msgid "&Recover"
 msgstr "&Palauta muutokset"
 
-#: src/mathessible/ui/main_frame.py:1490
+#: src/mathessible/ui/main_frame.py:1554
 msgid "&Discard"
 msgstr "&Hylkää"
 

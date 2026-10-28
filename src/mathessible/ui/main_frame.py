@@ -16,6 +16,7 @@ from mathessible.documents.brf_export import BrfLayout, nemeth_in_ueb, notebook_
 from mathessible.documents.document_io import read_markdown, write_markdown
 from mathessible.documents.docx_export import DocxOptions, docx_document
 from mathessible.documents.find_text import FindOptions, find, is_match, replace_all
+from mathessible.documents.front_matter import body as without_front_matter
 from mathessible.documents.html_export import (
     PREVIEW_PAGE,
     ExportPage,
@@ -29,6 +30,7 @@ from mathessible.documents.notebook import Notebook, NotebookError
 from mathessible.documents.omml_math import OmmlEquation, omml_math
 from mathessible.documents.pdf_export import PdfDocument, options_for, pdf_inputs, typst_document
 from mathessible.documents.pdf_security import protect
+from mathessible.documents.pdf_source import PdfSourceError, attached_markdown
 from mathessible.documents.portable_notebook import extract_portable, save_portable
 from mathessible.documents.recent_files import LIMIT as RECENT_LIMIT
 from mathessible.documents.recent_files import menu_labels, remember, still_there
@@ -37,6 +39,7 @@ from mathessible.documents.recovery import now as recovery_time
 from mathessible.documents.typst_math import TypstEquation, typst_math
 from mathessible.error_messages import explain
 from mathessible.i18n import _, ngettext
+from mathessible.mathcat.document_speech import equation_speech
 from mathessible.mathcat.navigator import MATHCAT_MISSING, mathcat_load_error
 from mathessible.patch_check import missing_patches
 from mathessible.settings import AppSettings, load_settings, save_settings
@@ -82,6 +85,8 @@ if wx is not None:
             guard_webview_key_equivalents()
             self.settings = settings or load_settings()
             self.document_path: Path | None = None
+            # Where Save first offers to put a document that has no file yet (one opened from a PDF).
+            self._suggested_path: Path | None = None
             self.notebook: Notebook | None = None
             self.notebook_archive_path: Path | None = None
             self._portable_workspace: tempfile.TemporaryDirectory[str] | None = None
@@ -694,17 +699,19 @@ if wx is not None:
             self._spawn_window()
 
         def _open_document(self, _event: wx.CommandEvent | None = None) -> None:
-            """File > Open: a Markdown document or a notebook in one file (.msnb)."""
+            """File > Open: a Markdown document, a notebook in one file (.msnb) or a PDF with its source attached."""
             dialog = wx.FileDialog(
                 self,
                 message=_("Open"),
                 wildcard=(
                     _("Documents and notebooks")
-                    + " (*.md;*.markdown;*.msnb)|*.md;*.markdown;*.msnb|"
+                    + " (*.md;*.markdown;*.msnb;*.pdf)|*.md;*.markdown;*.msnb;*.pdf|"
                     + _("Markdown documents")
                     + " (*.md;*.markdown)|*.md;*.markdown|"
                     + _("Notebooks")
                     + " (*.msnb)|*.msnb|"
+                    + _("PDFs exported by Mathessible")
+                    + " (*.pdf)|*.pdf|"
                     + _("All files")
                     + "|*.*"
                 ),
@@ -743,6 +750,8 @@ if wx is not None:
                         raise
                     frame = frame or self._spawn_window()
                     frame._activate_notebook(notebook, path, workspace)
+                elif path.suffix.lower() == ".pdf":
+                    frame = self._open_pdf(path, frame)
                 else:
                     source = read_markdown(path)
                     frame = frame or self._spawn_window()
@@ -750,10 +759,43 @@ if wx is not None:
                     frame.document_path = path
                     frame.dirty = False
                     frame._update_title()
-            except (OSError, UnicodeError, NotebookError) as error:
+            except (OSError, UnicodeError, NotebookError, PdfSourceError) as error:
                 self._show_error(_("open {name}").format(name=path.name), error)
                 return None
             self.note_recent(path)
+            return frame
+
+        def _open_pdf(self, path: Path, frame: MainFrame | None) -> MainFrame:
+            """A PDF exported by Mathessible, from its attached Markdown: unsaved, as a document or a notebook.
+
+            Save puts it beside the PDF (a .md, or a .msnb for a notebook), never over the PDF.
+            """
+            title, pages = attached_markdown(path.read_bytes())
+            if len(pages) == 1:
+                frame = frame or self._spawn_window()
+                frame.editor.set_source(pages[0].source)
+                frame.document_path = None
+                frame._suggested_path = path.with_suffix(".md")
+            else:
+                workspace = tempfile.TemporaryDirectory(prefix="mathessible-")
+                try:
+                    notebook = Notebook.create(Path(workspace.name) / "notebook", title or path.stem)
+                    for page in pages:
+                        notebook.add_page(page.title or path.stem, page.source)
+                    notebook.delete_page(0)  # The blank page a new notebook starts with.
+                except (OSError, NotebookError):
+                    workspace.cleanup()
+                    raise
+                archive = path.with_suffix(".msnb")
+                copy = 1
+                while archive.exists():  # Never over a notebook already there.
+                    copy += 1
+                    archive = path.with_name(f"{path.stem} {copy}.msnb")
+                frame = frame or self._spawn_window()
+                frame._activate_notebook(notebook, archive, workspace)
+            frame.dirty = True  # Not saved anywhere yet.
+            frame._update_title()
+            session_log.write("command", f"open: PDF source, {len(pages)} page(s)")
             return frame
 
         def _open_paths(self) -> set[Path]:
@@ -895,8 +937,9 @@ if wx is not None:
             view.SetPage(html, "")
 
         def _choose_save_path(self) -> Path | None:
-            default_directory = str(self.document_path.parent) if self.document_path else ""
-            default_file = self.document_path.name if self.document_path else "notebook.md"
+            suggested = self.document_path or self._suggested_path
+            default_directory = str(suggested.parent) if suggested else ""
+            default_file = suggested.name if suggested else "notebook.md"
             dialog = wx.FileDialog(
                 self,
                 message=_("Save Markdown document"),
@@ -1078,19 +1121,40 @@ if wx is not None:
         def _write_pdf(
             self, destination: Path, pages: list[ExportPage], title: str, chosen: tuple[AppSettings, PdfDocument]
         ) -> Path:
-            """Typst's tagged PDF: each equation's MathCAT speech is its alt text."""
+            """Typst's tagged PDF: each equation's MathCAT speech, in the document's language, is its alt text."""
             settings, document = chosen
             equation_editor = self.editor.equation_window.equation
             navigator = equation_editor.mathcat
+            built: dict[str, str] = {}  # Each equation that builds, as MathML.
+            for page in pages:
+                body = without_front_matter(page.source)
+                for zone in find_math_zones(body):
+                    source = zone.content(body)
+                    if source in built:
+                        continue
+                    try:
+                        mathml = equation_editor.convert_unicode_math(source)
+                    except (UnicodeMathError, RuntimeError, ValueError):
+                        continue
+                    if 'mathcolor="#F00"' not in mathml:
+                        built[source] = mathml
+            speeches: dict[str, str] = {}
+            if navigator is not None:
+                spoken_forms = equation_speech(
+                    list(built.values()),
+                    document.language,
+                    settings.decimal_separator,
+                    navigator.speech_style,
+                    navigator.verbosity,
+                )
+                speeches = dict(zip(built, spoken_forms, strict=True))
 
             def equation_of(source: str) -> tuple[TypstEquation | None, str]:
+                if source not in built:
+                    return None, ""
                 try:
-                    mathml = equation_editor.convert_unicode_math(source)
-                    if 'mathcolor="#F00"' in mathml:
-                        return None, ""
-                    speech = navigator.load(mathml) if navigator is not None else ""
-                    return typst_math(mathml), speech
-                except (UnicodeMathError, RuntimeError, ValueError, ElementTree.ParseError):
+                    return typst_math(built[source]), speeches.get(source, "")
+                except (ValueError, ElementTree.ParseError):
                     return None, ""
 
             options = options_for(settings, document, title)

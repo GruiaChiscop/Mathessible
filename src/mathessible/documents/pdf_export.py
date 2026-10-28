@@ -19,6 +19,7 @@ from mathessible.documents.front_matter import body as without_front_matter
 from mathessible.documents.html_export import ExportPage, markdown_parser
 from mathessible.documents.markdown_math import find_math_zones, with_marks
 from mathessible.documents.pdf_security import PdfSecurity
+from mathessible.documents.pdf_source import DOCUMENT_DESCRIPTION, PAGE_DESCRIPTION
 from mathessible.documents.typst_math import TypstEquation
 from mathessible.settings import AppSettings, pdf_standards
 
@@ -377,12 +378,18 @@ def typst_document(pages: Sequence[ExportPage], title: str, equation_of: Equatio
             parts.append(f"= {escape_markup(page.title)}\n")
         parts.append(_Writer(page.source, equation_of, number).body())
     if options.attach_source:
+        names: set[str] = set()
         for number, page in enumerate(pages):
-            name = f"{page.title or 'document'}.md" if len(pages) > 1 else f"{title or 'document'}.md"
+            stem = (page.title if len(pages) > 1 else title) or "document"
+            name, copy = f"{stem}.md", 1
+            while name.lower() in names:  # Two pages of the same title: a PDF's attachments need their own names.
+                copy += 1
+                name = f"{stem} ({copy}).md"
+            names.add(name.lower())
+            description = PAGE_DESCRIPTION.format(number=number + 1) if len(pages) > 1 else DOCUMENT_DESCRIPTION
             parts.append(
                 f"#pdf.attach({typst_string(name)}, bytes(sys.inputs.at({typst_string(f'page{number}')})), "
-                'mime-type: "text/markdown", relationship: "source", '
-                'description: "The Markdown source, to edit in Mathessible")'
+                f'mime-type: "text/markdown", relationship: "source", description: {typst_string(description)})'
             )
     return "\n".join(parts) + "\n"
 
