@@ -1,0 +1,150 @@
+MathCAT (LaTeX braille code): plain LaTeX, written again as LaTeX builds it
+
+Mathessible writes a LaTeX document's equations from their MathML with
+MathCAT's LaTeX braille code (an edit in the professional view, a paste,
+a document changed to LaTeX), and that LaTeX is built again by
+UnicodeMathML's TeX2UnicodeMath. What the code wrote did not always build
+back, or was no LaTeX:
+
+- The "ct:"/"tc:" concatenation markers (U+F8FE, U+F8FF) of the unicode
+  tables were left in the output (around \mathbf v, before Greek
+  letters): LaTeX_cleanup removes them, as speech does.
+- Math italic Greek wrote \mathmit, no LaTeX command: lowercase italic
+  Greek is LaTeX's own \alpha; capitals are \mathit\Gamma; \mathmit{\nabla}
+  and the like are \nabla.
+- A function name's limits (lim, max, sup, ...) were \underset{x \to 0}{\lim}:
+  they are now \lim_{x \to 0}, as the large operators' are.
+- The converter's combining accents (U+20D7, U+0303, ...) were
+  \overset{\vec}{v}: they are now accents, \vec{v} and \tilde{z}.
+- cases (a "{" before a table, with no closing fence) lost its structure:
+  \begin{cases} ... \end{cases}.
+- Text (mtext) was written as math letters: \text{...}, its spaces kept
+  as spaces (not \space or \~, which are for math).
+
+Applied by scripts/bootstrap.sh on top of upstream 85c89a37. Each is a bug
+in the LaTeX code itself, for braille readers too; worth proposing upstream.
+
+diff --git a/Rules/Braille/LaTeX/LaTeX_Rules.yaml b/Rules/Braille/LaTeX/LaTeX_Rules.yaml
+index b9237dee..9d7e285a 100644
+--- a/Rules/Braille/LaTeX/LaTeX_Rules.yaml
++++ b/Rules/Braille/LaTeX/LaTeX_Rules.yaml
+@@ -102,6 +102,15 @@
+   - x: "string($MatrixType)"     # need to get $MatrixType eval'd so that it is converted to braille (doesn't work if I do it in 'variables') 
+   - t: "}𝐖"
+ 
++-
++  name: cases
++  tag: mrow
++  match: "*[1][.='{'] and *[2][self::m:mtable] and (count(*)=2 or count(*)=3 and *[3][self::m:mo and normalize-space(translate(., '​', ''))=''])"
++  replace:
++  - t: "𝐖\\begin{cases}𝐖"
++  - x: "*[2]"
++  - t: "𝐖\\end{cases}𝐖"
++
+ -
+   name: default-mtable
+   tag: mtable
+@@ -213,6 +222,15 @@
+   - x: "text()"
+   - t: "𝐖"
+     
++-
++  name: text
++  tag: mtext
++  match: "."
++  replace:
++  - t: "\\text{"
++  - x: "text()"
++  - t: "}"
++
+ -
+   # FIX: need to deal with all caps
+   name: default
+@@ -336,7 +354,8 @@
+ -
+   name: "movable-limits"
+   tag: [munder, mover, munderover]
+-  match: "*[1][IsInDefinition(., 'Braille', 'MovableLimitsLargeOps') or @movablelimits='true']"
++  match: "*[1][IsInDefinition(., 'Braille', 'MovableLimitsLargeOps') or @movablelimits='true' or
++               (self::m:mi and IsInDefinition(., 'Braille', 'LateXFunctionNames'))]"
+   replace:
+   - x: "*[1]"
+   - test:
+diff --git a/Rules/Braille/LaTeX/definitions.yaml b/Rules/Braille/LaTeX/definitions.yaml
+index b808a7b6..2695e560 100644
+--- a/Rules/Braille/LaTeX/definitions.yaml
++++ b/Rules/Braille/LaTeX/definitions.yaml
+@@ -25,7 +25,8 @@
+   }
+ 
+ - Accents: {
+-    "→": "vec", ".": "dot", "·": "dot", "˙": "dot", "..": "ddot", "~": "tilde", "^": "hat", "⏞": "overbrace",
++    "→": "vec", "⃗": "vec", "̂": "hat", "̃": "tilde", "̇": "dot", "̈": "ddot", "̌": "check", "́": "acute", "̀": "grave", "̆": "breve",
++    ".": "dot", "·": "dot", "˙": "dot", "..": "ddot", "~": "tilde", "^": "hat", "⏞": "overbrace",
+   }
+ 
+ - UnderAccents: {
+diff --git a/Rules/Braille/LaTeX/unicode-full.yaml b/Rules/Braille/LaTeX/unicode-full.yaml
+index c6846f69..8ebb1f47 100644
+--- a/Rules/Braille/LaTeX/unicode-full.yaml
++++ b/Rules/Braille/LaTeX/unicode-full.yaml
+@@ -2669,7 +2669,7 @@
+  - "𝛠": [t: "\\mathbf{\\varrho}"]        # 0x1d6e0
+  - "𝛡": [t: "\\mathbf{\\varpi}"]         # 0x1d6e1
+  - "𝛢-𝛯":    # 0x1d6e2 - 0x1d6ef (Alpha - Xi)
+-    - tc: "\\mathmit"
++    - tc: "\\mathit"
+     - spell: "translate('.', '𝛢𝛣𝛤𝛥𝛦𝛧𝛨𝛩𝛪𝛫𝛬𝛭𝛮𝛯', 'ΑΒΓΔΕΖΗΘΙΚΛΜΝΞ')"
+  - "𝛰":                                  # 0x1d6f0
+      - test:
+@@ -2677,19 +2677,18 @@
+          then: [t: "~O"]
+          else: [t: "\\O"]
+  - "𝛱-𝛺":    # 0x1d6f1 - 0x1d6fa (Pi - Omega)
+-    - tc: "\\mathmit"
++    - tc: "\\mathit"
+     - spell: "translate('.', '𝛱𝛲𝛳𝛴𝛵𝛶𝛷𝛸𝛹𝛺', 'ΠΡΣΤΥΦΧΨΩ')"
+- - "𝛻": [t: "\\mathmit{\\nabla}"]        # 0x1d6fb
++ - "𝛻": [t: "\\nabla𝐖"]        # 0x1d6fb
+  - "𝛼-𝜔":    # 0x1d6fc - 0x1d714 (alpha - omega)
+-    - tc: "\\mathmit"
+     - spell: "translate('.', '𝛼𝛽𝛾𝛿𝜀𝜁𝜂𝜃𝜄𝜅𝜆𝜇𝜈𝜉𝜊𝜋𝜌𝜍𝜎𝜏𝜐𝜑𝜒𝜓𝜔', 'αβγδεζηθικλμνξοπρςστυφχψω')"
+  - "𝜕": [t: "\\partial𝐖"]                # 0x1d715
+  - "𝜖": [t: "\\in𝐖"]                     # 0x1d716
+- - "𝜗": [t: "\\mathmit{\\vartheta}"]     # 0x1d717
+- - "𝜘": [t: "\\mathmit{\\varkappa}"]     # 0x1d718
+- - "𝜙": [t: "\\mathmit{\\phi}"]          # 0x1d719
+- - "𝜚": [t: "\\mathmit{\\varrho}"]       # 0x1d71a
+- - "𝜛": [t: "\\mathmit{\\varpi}"]        # 0x1d71b
++ - "𝜗": [t: "\\vartheta𝐖"]     # 0x1d717
++ - "𝜘": [t: "\\varkappa𝐖"]     # 0x1d718
++ - "𝜙": [t: "\\phi𝐖"]          # 0x1d719
++ - "𝜚": [t: "\\varrho𝐖"]       # 0x1d71a
++ - "𝜛": [t: "\\varpi𝐖"]        # 0x1d71b
+  - "𝜜-𝜩":    # 0x1d71c - 0x1d729 (Alpha - Xi)
+     - tc: "\\mathbit"
+     - spell: "translate('.', '𝜜𝜝𝜞𝜟𝜠𝜡𝜢𝜣𝜤𝜥𝜦𝜧𝜨𝜩', 'ΑΒΓΔΕΖΗΘΙΚΛΜΝΞ')"
+diff --git a/src/braille.rs b/src/braille.rs
+index 4f0ac0ec..5faef8f3 100644
+--- a/src/braille.rs
++++ b/src/braille.rs
+@@ -3036,13 +3036,19 @@ fn russian_cleanup(_pref_manager: Ref<PreferenceManager>, raw_braille: String) -
+ fn LaTeX_cleanup(_pref_manager: Ref<PreferenceManager>, raw_braille: String) -> String {
+     static REMOVE_SPACE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r" ([\^_,;)\]}])").unwrap()); // '^', '_', ',', ';', ')', ']', '}'
+     static COLLAPSE_SPACES: LazyLock<Regex> = LazyLock::new(|| Regex::new(r" +").unwrap());
++    static TEXT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\\text\{[^{}]*\}").unwrap());
+     // debug!("LaTeX_cleanup: start={}", raw_braille);
+     let result = raw_braille.replace('𝐖', " ");
++    // the "ct:"/"tc:" concatenation markers of the unicode tables are removed (as speech does)
++    let result = result.replace(crate::speech::CONCAT_STRING, "").replace(crate::speech::CONCAT_INDICATOR, "")
++                       .replace(crate::speech::POSTFIX_CONCAT_STRING, "").replace(crate::speech::POSTFIX_CONCAT_INDICATOR, "");
+     // let result = COLLAPSE_SPACES.replace_all(&raw_braille, "⠀");
+     let result = COLLAPSE_SPACES.replace_all(&result, " ");
+     // debug!("After collapse: {}", &result);
+     let result = REMOVE_SPACE.replace_all(&result, "$1");
+     // debug!("After remove: {}", &result);
++    // a text's spaces are spaces, kept by the space removal above (not \space or \~, which are for math)
++    let result = TEXT.replace_all(&result, |text: &Captures| text[0].replace("\\space ", " ").replace("\\space", " ").replace("\\~", " "));
+     // let result = result.trim_matches('⠀');
+     let result = result.trim_matches(' ');
+    

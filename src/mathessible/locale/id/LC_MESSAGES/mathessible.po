@@ -272,19 +272,19 @@ msgstr "tidak ada kesalahan"
 msgid "{message}, selected {span}"
 msgstr "{message}, terpilih {span}"
 
-#: src/mathessible/editor/built.py:119 src/mathessible/editor/equation_editor.py:977
+#: src/mathessible/editor/built.py:119 src/mathessible/editor/equation_editor.py:1093
 msgid "could not cut"
 msgstr "tidak dapat memotong"
 
-#: src/mathessible/editor/built.py:432 src/mathessible/editor/equation_editor.py:942
+#: src/mathessible/editor/built.py:432 src/mathessible/editor/equation_editor.py:1058
 msgid "nothing to select"
 msgstr "tidak ada yang dipilih"
 
-#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:904
+#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:1020
 msgid "nothing to undo"
 msgstr "tidak ada yang diurungkan"
 
-#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:904
+#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:1020
 msgid "nothing to redo"
 msgstr "tidak ada yang diulangi"
 
@@ -348,178 +348,191 @@ msgstr "Perender matematika tidak tersedia"
 msgid "Type UnicodeMath here, e.g. (a+b)/2"
 msgstr "Ketik UnicodeMath di sini, mis. (a+b)/2"
 
-#: src/mathessible/editor/equation_editor.py:110
+#: src/mathessible/editor/equation_editor.py:124
 msgid "Equation editor"
 msgstr "Editor persamaan"
 
-#: src/mathessible/editor/equation_editor.py:210 src/mathessible/ui/braille_signs_dialog.py:61
+#: src/mathessible/editor/equation_editor.py:227 src/mathessible/ui/braille_signs_dialog.py:61
 #: src/mathessible/ui/settings_dialog.py:74
 msgid "Braille"
 msgstr "Braille"
 
-#: src/mathessible/editor/equation_editor.py:213
+#: src/mathessible/editor/equation_editor.py:230
 msgid "Equation braille"
 msgstr "Braille persamaan"
 
-#: src/mathessible/editor/equation_editor.py:269
+#: src/mathessible/editor/equation_editor.py:286
 msgid "equation ready"
 msgstr "persamaan siap"
 
-#: src/mathessible/editor/equation_editor.py:432
+#: src/mathessible/editor/equation_editor.py:461
 msgid "Equation editor, professional mode"
 msgstr "Editor persamaan, mode profesional"
 
-#: src/mathessible/editor/equation_editor.py:434
+#: src/mathessible/editor/equation_editor.py:463
 msgid "Equation editor, linear mode"
 msgstr "Editor persamaan, mode linear"
 
-#: src/mathessible/editor/equation_editor.py:506
+#: src/mathessible/editor/equation_editor.py:535
 #, python-brace-format
 msgid "zoom {percent} percent"
 msgstr "zoom {percent} persen"
 
-#: src/mathessible/editor/equation_editor.py:560
+#: src/mathessible/editor/equation_editor.py:592
 msgid "The equation could not be built"
 msgstr "Persamaan tidak dapat dibangun"
 
-#: src/mathessible/editor/equation_editor.py:572
+#: src/mathessible/editor/equation_editor.py:604
 #, python-brace-format
 msgid "The equation could not be read. {error}"
 msgstr "Persamaan tidak dapat dibaca. {error}"
 
-#: src/mathessible/editor/equation_editor.py:596
+#: src/mathessible/editor/equation_editor.py:628
 msgid "empty equation"
 msgstr "persamaan kosong"
 
-#: src/mathessible/editor/equation_editor.py:602
+#: src/mathessible/editor/equation_editor.py:637
 #, python-brace-format
 msgid "Professional mode could not be built. {error}"
 msgstr "Mode profesional tidak dapat dibangun. {error}"
 
-#: src/mathessible/editor/equation_editor.py:607
+#: src/mathessible/editor/equation_editor.py:643 src/mathessible/editor/equation_editor.py:701
 #, python-brace-format
 msgid "cannot be built, {errors}"
 msgstr "tidak dapat dibangun, {errors}"
 
-#: src/mathessible/editor/equation_editor.py:610
+#: src/mathessible/editor/equation_editor.py:646
 msgid "Professional mode could not be built"
 msgstr "Mode profesional tidak dapat dibangun"
 
-#: src/mathessible/editor/equation_editor.py:646
+#: src/mathessible/editor/equation_editor.py:678
 #, python-brace-format
 msgid "professional mode, {speech}"
 msgstr "mode profesional, {speech}"
 
-#: src/mathessible/editor/equation_editor.py:765
+#: src/mathessible/editor/equation_editor.py:698
+msgid "the LaTeX has errors"
+msgstr "LaTeX-nya memiliki kesalahan"
+
+#: src/mathessible/editor/equation_editor.py:734
+msgid "the equation has errors"
+msgstr "persamaan memiliki kesalahan"
+
+#: src/mathessible/editor/equation_editor.py:737
+#, python-brace-format
+msgid "cannot be written in LaTeX, {error}"
+msgstr "tidak dapat ditulis dalam LaTeX, {error}"
+
+#: src/mathessible/editor/equation_editor.py:857
 msgid "writing mode"
 msgstr "mode menulis"
 
-#: src/mathessible/editor/equation_editor.py:765
+#: src/mathessible/editor/equation_editor.py:857
 msgid "exploration mode"
 msgstr "mode jelajah"
 
-#: src/mathessible/editor/equation_editor.py:769
-msgid "LaTeX is written in the linear view, F2"
-msgstr "LaTeX ditulis di tampilan linear, F2"
-
-#: src/mathessible/editor/equation_editor.py:771
+#: src/mathessible/editor/equation_editor.py:860
 msgid "exploration mode, F10 to write"
 msgstr "mode jelajah, F10 untuk menulis"
 
-#: src/mathessible/editor/equation_editor.py:804
-msgid "templates are not available for LaTeX yet"
-msgstr "templat belum tersedia untuk LaTeX"
+#: src/mathessible/editor/equation_editor.py:925 src/mathessible/editor/structures.py:466
+msgid "not available here"
+msgstr "tidak tersedia di sini"
 
-#: src/mathessible/editor/equation_editor.py:937
+#: src/mathessible/editor/equation_editor.py:1053
 #, python-brace-format
 msgid "{count} character selected"
 msgid_plural "{count} characters selected"
 msgstr[0] "{count} karakter dipilih"
 msgstr[1] "{count} karakter dipilih"
 
-#: src/mathessible/editor/equation_editor.py:956
+#: src/mathessible/editor/equation_editor.py:1072
 #, python-brace-format
 msgid "copied {item}"
 msgstr "{item} disalin"
 
-#: src/mathessible/editor/equation_editor.py:958 src/mathessible/editor/equation_editor.py:966
+#: src/mathessible/editor/equation_editor.py:1074 src/mathessible/editor/equation_editor.py:1082
 msgid "could not copy"
 msgstr "tidak dapat menyalin"
 
-#: src/mathessible/editor/equation_editor.py:963
+#: src/mathessible/editor/equation_editor.py:1079
 msgid "nothing to copy"
 msgstr "tidak ada yang disalin"
 
-#: src/mathessible/editor/equation_editor.py:968
+#: src/mathessible/editor/equation_editor.py:1084
 msgid "selection copied"
 msgstr "pilihan disalin"
 
-#: src/mathessible/editor/equation_editor.py:968
+#: src/mathessible/editor/equation_editor.py:1084
 msgid "equation copied"
 msgstr "persamaan disalin"
 
-#: src/mathessible/editor/equation_editor.py:974
+#: src/mathessible/editor/equation_editor.py:1090
 msgid "nothing to cut"
 msgstr "tidak ada yang dipotong"
 
-#: src/mathessible/editor/equation_editor.py:981
+#: src/mathessible/editor/equation_editor.py:1097
 msgid "selection cut"
 msgstr "pilihan dipotong"
 
-#: src/mathessible/editor/equation_editor.py:984
+#: src/mathessible/editor/equation_editor.py:1100
 msgid "equation cut"
 msgstr "persamaan dipotong"
 
-#: src/mathessible/editor/equation_editor.py:1005
+#: src/mathessible/editor/equation_editor.py:1121
 msgid "the pasted MathML could not be converted"
 msgstr "MathML yang ditempel tidak dapat dikonversi"
 
-#: src/mathessible/editor/equation_editor.py:1008 src/mathessible/editor/equation_editor.py:1014
+#: src/mathessible/editor/equation_editor.py:1124 src/mathessible/editor/equation_editor.py:1130
 msgid "clipboard is empty"
 msgstr "papan klip kosong"
 
-#: src/mathessible/editor/equation_editor.py:1021
+#: src/mathessible/editor/equation_editor.py:1137
 msgid "equation pasted"
 msgstr "persamaan ditempel"
 
-#: src/mathessible/editor/equation_editor.py:1063
+#: src/mathessible/editor/equation_editor.py:1179
 msgid "still preparing the equation, please wait"
 msgstr "persamaan masih disiapkan, harap tunggu"
 
-#: src/mathessible/editor/equation_editor.py:1243 src/mathessible/editor/equation_editor.py:1254
+#: src/mathessible/editor/equation_editor.py:1359 src/mathessible/editor/equation_editor.py:1370
 msgid "selection deleted"
 msgstr "pilihan dihapus"
 
-#: src/mathessible/editor/equation_editor.py:1440
+#: src/mathessible/editor/equation_editor.py:1556
 msgid "cannot move there"
 msgstr "tidak dapat pindah ke sana"
 
-#: src/mathessible/editor/equation_editor.py:1444
+#: src/mathessible/editor/equation_editor.py:1560
 #, python-brace-format
 msgid "MathCAT could not read the equation, linear mode. {error}"
 msgstr "MathCAT tidak dapat membaca persamaan, mode linear. {error}"
 
-#: src/mathessible/editor/equation_editor.py:1514 src/mathessible/editor/equation_editor.py:1520
+#: src/mathessible/editor/equation_editor.py:1630 src/mathessible/editor/equation_editor.py:1636
 msgid "start"
 msgstr "awal"
 
-#: src/mathessible/editor/equation_editor.py:1522
+#: src/mathessible/editor/equation_editor.py:1638
 msgid "end"
 msgstr "akhir"
 
-#: src/mathessible/editor/renderer.py:67
+#: src/mathessible/editor/renderer.py:66
 msgid "the UnicodeMathML engine did not initialize"
 msgstr "mesin UnicodeMathML tidak berhasil diinisialisasi"
 
-#: src/mathessible/editor/renderer.py:218
+#: src/mathessible/editor/renderer.py:210
+msgid "the equation could not be written in LaTeX"
+msgstr "persamaan tidak dapat ditulis dalam LaTeX"
+
+#: src/mathessible/editor/renderer.py:220
 msgid "the UnicodeMathML converter is still loading"
 msgstr "pengonversi UnicodeMathML masih dimuat"
 
-#: src/mathessible/editor/renderer.py:225
+#: src/mathessible/editor/renderer.py:227
 msgid "the UnicodeMathML converter is busy"
 msgstr "pengonversi UnicodeMathML sedang sibuk"
 
-#: src/mathessible/editor/renderer.py:255
+#: src/mathessible/editor/renderer.py:257
 msgid "the UnicodeMathML converter could not run"
 msgstr "pengonversi UnicodeMathML tidak dapat dijalankan"
 
@@ -551,164 +564,160 @@ msgstr "&Tempel"
 msgid "Select &All"
 msgstr "Pilih se&mua"
 
-#: src/mathessible/editor/structures.py:170 src/mathessible/ui/document_editor.py:145
+#: src/mathessible/editor/structures.py:169 src/mathessible/ui/document_editor.py:145
 #: src/mathessible/ui/main_frame.py:263
 msgid "&Insert"
 msgstr "&Sisipkan"
 
-#: src/mathessible/editor/structures.py:192
+#: src/mathessible/editor/structures.py:191
 msgid "Insert Case &Above"
 msgstr "Sisipkan kasus di &atas"
 
-#: src/mathessible/editor/structures.py:192
+#: src/mathessible/editor/structures.py:191
 msgid "Insert Case &Below"
 msgstr "Sisipkan kasus di &bawah"
 
-#: src/mathessible/editor/structures.py:192
+#: src/mathessible/editor/structures.py:191
 msgid "&Delete Case"
 msgstr "&Hapus kasus"
 
-#: src/mathessible/editor/structures.py:194
+#: src/mathessible/editor/structures.py:193
 msgid "Insert Equation &Above"
 msgstr "Sisipkan persamaan di &atas"
 
-#: src/mathessible/editor/structures.py:194
+#: src/mathessible/editor/structures.py:193
 msgid "Insert Equation &Below"
 msgstr "Sisipkan persamaan di &bawah"
 
-#: src/mathessible/editor/structures.py:194
+#: src/mathessible/editor/structures.py:193
 msgid "&Delete Equation"
 msgstr "&Hapus persamaan"
 
-#: src/mathessible/editor/structures.py:205
+#: src/mathessible/editor/structures.py:204
 msgid "&Equations"
 msgstr "&Persamaan"
 
-#: src/mathessible/editor/structures.py:205 src/mathessible/templates/insert_catalog.py:129
+#: src/mathessible/editor/structures.py:204 src/mathessible/templates/insert_catalog.py:129
 msgid "&Cases"
 msgstr "&Kasus"
 
-#: src/mathessible/editor/structures.py:209
+#: src/mathessible/editor/structures.py:208
 msgid "Insert Row &Above"
 msgstr "Sisipkan baris di &atas"
 
-#: src/mathessible/editor/structures.py:210
+#: src/mathessible/editor/structures.py:209
 msgid "Insert Row &Below"
 msgstr "Sisipkan baris di &bawah"
 
-#: src/mathessible/editor/structures.py:212
+#: src/mathessible/editor/structures.py:211
 msgid "Insert Column &Left"
 msgstr "Sisipkan kolom di &kiri"
 
-#: src/mathessible/editor/structures.py:216
+#: src/mathessible/editor/structures.py:215
 msgid "Insert Column &Right"
 msgstr "Sisipkan kolom di ka&nan"
 
-#: src/mathessible/editor/structures.py:220
+#: src/mathessible/editor/structures.py:219
 msgid "Delete R&ow"
 msgstr "Hapus &baris"
 
-#: src/mathessible/editor/structures.py:221
+#: src/mathessible/editor/structures.py:220
 msgid "Delete C&olumn"
 msgstr "Hapus k&olom"
 
-#: src/mathessible/editor/structures.py:233
+#: src/mathessible/editor/structures.py:232
 msgid "Matri&x"
 msgstr "&Matriks"
 
-#: src/mathessible/editor/structures.py:250 src/mathessible/templates/insert_catalog.py:63
+#: src/mathessible/editor/structures.py:249 src/mathessible/templates/insert_catalog.py:63
 msgid "&Fraction"
 msgstr "&Pecahan"
 
-#: src/mathessible/editor/structures.py:259
+#: src/mathessible/editor/structures.py:258
 msgid "&Add Index"
 msgstr "&Tambah indeks akar"
 
-#: src/mathessible/editor/structures.py:260
+#: src/mathessible/editor/structures.py:259
 msgid "&Remove Index"
 msgstr "&Hapus indeks akar"
 
-#: src/mathessible/editor/structures.py:267
+#: src/mathessible/editor/structures.py:266
 msgid "&Root"
 msgstr "&Akar"
 
-#: src/mathessible/editor/structures.py:279
+#: src/mathessible/editor/structures.py:278
 msgid "&Add Limits"
 msgstr "&Tambah batas"
 
-#: src/mathessible/editor/structures.py:280
+#: src/mathessible/editor/structures.py:279
 msgid "&Remove Limits"
 msgstr "&Hapus batas"
 
-#: src/mathessible/editor/structures.py:312
+#: src/mathessible/editor/structures.py:311
 msgid "Add &Subscript"
 msgstr "Tambah &subskrip"
 
-#: src/mathessible/editor/structures.py:313
+#: src/mathessible/editor/structures.py:312
 msgid "Add Su&perscript"
 msgstr "Tambah &pangkat"
 
-#: src/mathessible/editor/structures.py:314
+#: src/mathessible/editor/structures.py:313
 msgid "&Remove Subscript"
 msgstr "&Hapus subskrip"
 
-#: src/mathessible/editor/structures.py:315
+#: src/mathessible/editor/structures.py:314
 msgid "Remove Superscrip&t"
 msgstr "Hapus pang&kat"
 
-#: src/mathessible/editor/structures.py:316
+#: src/mathessible/editor/structures.py:315
 msgid "&Script"
 msgstr "&Indeks"
 
-#: src/mathessible/editor/structures.py:340
+#: src/mathessible/editor/structures.py:339
 msgid "Show &Opening Bracket"
 msgstr "Tampilkan kurung &buka"
 
-#: src/mathessible/editor/structures.py:340
+#: src/mathessible/editor/structures.py:339
 msgid "Hide &Opening Bracket"
 msgstr "Sembunyikan kurung &buka"
 
-#: src/mathessible/editor/structures.py:345
+#: src/mathessible/editor/structures.py:344
 msgid "Show &Closing Bracket"
 msgstr "Tampilkan kurung &tutup"
 
-#: src/mathessible/editor/structures.py:345
+#: src/mathessible/editor/structures.py:344
 msgid "Hide &Closing Bracket"
 msgstr "Sembunyikan kurung &tutup"
 
-#: src/mathessible/editor/structures.py:350
+#: src/mathessible/editor/structures.py:349
 msgid "&Remove Brackets"
 msgstr "&Hapus kurung"
 
-#: src/mathessible/editor/structures.py:351 src/mathessible/ui/matrix_dialog.py:37
+#: src/mathessible/editor/structures.py:350 src/mathessible/ui/matrix_dialog.py:37
 msgid "&Brackets"
 msgstr "&Kurung"
 
-#: src/mathessible/editor/structures.py:366
+#: src/mathessible/editor/structures.py:365
 msgid "&Remove Accent"
 msgstr "&Hapus aksen"
 
-#: src/mathessible/editor/structures.py:367
+#: src/mathessible/editor/structures.py:366
 msgid "&Accent"
 msgstr "&Aksen"
 
-#: src/mathessible/editor/structures.py:371
+#: src/mathessible/editor/structures.py:370
 msgid "Change to &Underbar"
 msgstr "Ubah menjadi garis &bawah"
 
-#: src/mathessible/editor/structures.py:371
+#: src/mathessible/editor/structures.py:370
 msgid "Change to &Overbar"
 msgstr "Ubah menjadi garis &atas"
 
-#: src/mathessible/editor/structures.py:372
+#: src/mathessible/editor/structures.py:371
 msgid "&Remove Bar"
 msgstr "&Hapus garis"
 
-#: src/mathessible/editor/structures.py:467
-msgid "not available here"
-msgstr "tidak tersedia di sini"
-
-#: src/mathessible/editor/structures.py:541
+#: src/mathessible/editor/structures.py:540
 #, python-brace-format
 msgid "{announcement}. Professional mode could not be rebuilt, linear mode. {error}"
 msgstr "{announcement}. Mode profesional tidak dapat dibangun ulang, mode linear. {error}"
@@ -949,7 +958,7 @@ msgstr "setelah spasi"
 msgid "angle bracket"
 msgstr "kurung sudut"
 
-#: src/mathessible/editor/equation_editor.py:1195 src/mathessible/spoken.py:24
+#: src/mathessible/editor/equation_editor.py:1311 src/mathessible/spoken.py:24
 msgid "argument"
 msgstr "argumen"
 
@@ -969,7 +978,7 @@ msgstr "basis"
 msgid "binomial"
 msgstr "koefisien binomial"
 
-#: src/mathessible/editor/equation_editor.py:1233 src/mathessible/spoken.py:29
+#: src/mathessible/editor/equation_editor.py:1349 src/mathessible/spoken.py:29
 msgid "blank"
 msgstr "kosong"
 
@@ -992,8 +1001,8 @@ msgstr "kurung kurawal"
 msgid "bracket"
 msgstr "kurung siku"
 
-#: src/mathessible/editor/assist.py:90 src/mathessible/editor/equation_editor.py:1200
-#: src/mathessible/editor/equation_editor.py:1378 src/mathessible/spoken.py:34
+#: src/mathessible/editor/assist.py:90 src/mathessible/editor/equation_editor.py:1316
+#: src/mathessible/editor/equation_editor.py:1494 src/mathessible/spoken.py:34
 msgid "built"
 msgstr "terbangun"
 
@@ -1111,8 +1120,8 @@ msgstr "batas"
 msgid "linear"
 msgstr "linear"
 
-#: src/mathessible/editor/assist.py:243 src/mathessible/editor/equation_editor.py:619
-#: src/mathessible/editor/structures.py:483 src/mathessible/spoken.py:63
+#: src/mathessible/editor/assist.py:243 src/mathessible/editor/equation_editor.py:656
+#: src/mathessible/editor/structures.py:482 src/mathessible/spoken.py:63
 msgid "linear mode"
 msgstr "mode linear"
 
@@ -1128,7 +1137,7 @@ msgstr "batas bawah"
 msgid "matrix"
 msgstr "matriks"
 
-#: src/mathessible/editor/built.py:828 src/mathessible/editor/equation_editor.py:1159
+#: src/mathessible/editor/built.py:828 src/mathessible/editor/equation_editor.py:1275
 #: src/mathessible/spoken.py:67
 msgid "no slot"
 msgstr "tidak ada slot"
@@ -1137,7 +1146,7 @@ msgstr "tidak ada slot"
 msgid "norm"
 msgstr "norma"
 
-#: src/mathessible/editor/structures.py:506 src/mathessible/spoken.py:69
+#: src/mathessible/editor/structures.py:505 src/mathessible/spoken.py:69
 msgid "not in a table"
 msgstr "tidak dalam tabel"
 
@@ -1210,7 +1219,7 @@ msgstr "indeks-indeks"
 msgid "selected"
 msgstr "dipilih"
 
-#: src/mathessible/editor/equation_editor.py:933 src/mathessible/spoken.py:87
+#: src/mathessible/editor/equation_editor.py:1049 src/mathessible/spoken.py:87
 msgid "selection cleared"
 msgstr "pilihan dibatalkan"
 
@@ -2559,74 +2568,74 @@ msgstr "Ukuran &sebenarnya"
 msgid "&View"
 msgstr "&Tampilan"
 
-#: src/mathessible/ui/document_editor.py:197 src/mathessible/ui/document_editor.py:397
+#: src/mathessible/ui/document_editor.py:190 src/mathessible/ui/document_editor.py:393
 msgid "display equation"
 msgstr "persamaan terpisah"
 
-#: src/mathessible/ui/document_editor.py:197 src/mathessible/ui/document_editor.py:397
+#: src/mathessible/ui/document_editor.py:190 src/mathessible/ui/document_editor.py:393
 msgid "inline equation"
 msgstr "persamaan sebaris"
 
-#: src/mathessible/ui/document_editor.py:205
+#: src/mathessible/ui/document_editor.py:198
 #, python-brace-format
 msgid "Edit display equation in LaTeX — Enter or {shortcut} saves. Escape cancels."
 msgstr "Edit persamaan tampilan dalam LaTeX — Enter atau {shortcut} menyimpan. Escape membatalkan."
 
-#: src/mathessible/ui/document_editor.py:207
+#: src/mathessible/ui/document_editor.py:200
 #, python-brace-format
 msgid "Edit inline equation in LaTeX — Enter or {shortcut} saves. Escape cancels."
 msgstr "Edit persamaan sebaris dalam LaTeX — Enter atau {shortcut} menyimpan. Escape membatalkan."
 
-#: src/mathessible/ui/document_editor.py:209
+#: src/mathessible/ui/document_editor.py:202
 #, python-brace-format
 msgid "Edit display equation — Enter or {shortcut} saves. Escape cancels."
 msgstr "Edit persamaan terpisah — Enter atau {shortcut} menyimpan. Escape membatalkan."
 
-#: src/mathessible/ui/document_editor.py:211
+#: src/mathessible/ui/document_editor.py:204
 #, python-brace-format
 msgid "Edit inline equation — Enter or {shortcut} saves. Escape cancels."
 msgstr "Edit persamaan sebaris — Enter atau {shortcut} menyimpan. Escape membatalkan."
 
-#: src/mathessible/ui/document_editor.py:288
+#: src/mathessible/ui/document_editor.py:284
 msgid "Markdown editor"
 msgstr "Editor Markdown"
 
-#: src/mathessible/ui/document_editor.py:389
+#: src/mathessible/ui/document_editor.py:385
 msgid "this equation cannot be inline"
 msgstr "persamaan ini tidak bisa sebaris"
 
-#: src/mathessible/ui/document_editor.py:407
+#: src/mathessible/ui/document_editor.py:403
 msgid "a footnote cannot go inside an equation"
 msgstr "catatan kaki tidak bisa berada di dalam persamaan"
 
-#: src/mathessible/ui/document_editor.py:414
+#: src/mathessible/ui/document_editor.py:410
 #, python-brace-format
 msgid "footnote {label}, type the note"
 msgstr "catatan kaki {label}, ketik catatannya"
 
-#: src/mathessible/ui/document_editor.py:421
+#: src/mathessible/ui/document_editor.py:417
 msgid "not in a footnote or its reference"
 msgstr "tidak di catatan kaki atau rujukannya"
 
-#: src/mathessible/ui/document_editor.py:427
+#: src/mathessible/ui/document_editor.py:423
 #, python-brace-format
 msgid "note {label}"
 msgstr "catatan {label}"
 
-#: src/mathessible/ui/document_editor.py:427
+#: src/mathessible/ui/document_editor.py:423
 #, python-brace-format
 msgid "reference {label}"
 msgstr "rujukan {label}"
 
-#: src/mathessible/ui/document_editor.py:541
+#: src/mathessible/ui/document_editor.py:537
 msgid "equation saved, new line"
 msgstr "persamaan disimpan, baris baru"
 
-#: src/mathessible/ui/document_editor.py:541
+#: src/mathessible/ui/document_editor.py:537
 msgid "equation saved"
 msgstr "persamaan disimpan"
 
-#: src/mathessible/ui/document_editor.py:544
+#: src/mathessible/ui/document_editor.py:540
 msgid "equation editing canceled"
 msgstr "pengeditan persamaan dibatalkan"
 
@@ -4198,4 +4207,10 @@ msgstr "&Hasil yang cocok"
 #: src/mathessible/ui/symbol_dialog.py:46
 msgid "Matching symbols"
 msgstr "Simbol yang cocok"
+
+#~ msgid "LaTeX is written in the linear view, F2"
+#~ msgstr "LaTeX ditulis di tampilan linear, F2"
+
+#~ msgid "templates are not available for LaTeX yet"
+#~ msgstr "templat belum tersedia untuk LaTeX"
 

@@ -110,14 +110,22 @@ kept as it is, and Undo restores them all). `Settings → Typing` can
 start every new document and notebook page in LaTeX.
 
 In a LaTeX document the equation editor's linear view is the LaTeX,
-typed as it is written: no Math AutoCorrect, suggestions or templates,
-with the built equation previewed under it. F2 shows the professional
-view, read and navigated with MathCAT as any equation, but not edited
-there yet (edit the LaTeX in the linear view). Speech, braille, the
-preview, copying and every export work as for UnicodeMath. Most LaTeX
-math is understood (fractions, roots, scripts, sums and integrals,
-`\begin{pmatrix}`, `\left( \right)`, `\mathbb{R}`, `\text{}`), not yet
-`\pmatrix{...}`.
+typed as it is written: no Math AutoCorrect or suggestions while you
+type, nothing built until you ask, with the built equation previewed
+under it. The Insert menu and its shortcuts insert LaTeX there
+(`\frac{}{}`, the caret in the first empty slot). F2 builds it in the
+professional view, edited there as any equation, with templates and
+Math AutoCorrect. Leaving the professional view (F2, or saving the
+equation) keeps your LaTeX exactly as you typed it if you only read it
+there; after an edit there, it is written again from the edited equation
+(`\frac{a}{b}`, `x \in \mathbb R^n`), and one Undo in the linear view
+brings back the LaTeX as it was. Word, too, writes an equation's LaTeX
+again when it goes back to the linear view.
+
+Speech, braille, the preview, copying and every export work as for
+UnicodeMath. Most LaTeX math is understood (fractions, roots, scripts,
+sums and integrals, `\begin{pmatrix}`, `\begin{cases}`, `\left( \right)`,
+`\mathbb{R}`, `\text{}`), not yet `\pmatrix{...}`.
 
 ### Header and footer
 

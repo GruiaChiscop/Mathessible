@@ -141,7 +141,7 @@ if wx is not None:
             insert_menu = wx.Menu()
             for item_id, entry in append_insert_items(insert_menu).items():
                 self.Bind(wx.EVT_MENU, lambda _event, entry=entry: self.equation.insert_item(entry), id=item_id)
-                self.Bind(wx.EVT_UPDATE_UI, self._enable_insert, id=item_id)
+                self.Bind(wx.EVT_UPDATE_UI, self._enable_when_editable, id=item_id)
             menu_bar.Append(insert_menu, _("&Insert"))
             view_menu = wx.Menu()
             professional_item = view_menu.AppendCheckItem(wx.ID_ANY, _("&Professional View") + "\tF2")
@@ -169,19 +169,12 @@ if wx is not None:
             event.Enable(self.equation.mode == "linear")
 
         def _enable_when_editable(self, event: wx.UpdateUIEvent) -> None:
-            # Professional view edits the source too, where MathCAT is (not a LaTeX equation's: it is read there).
-            built = self.equation.mathcat is not None and not self.equation.latex
+            # Professional view edits the source too, where MathCAT is.
+            built = self.equation.mathcat is not None
             event.Enable(self.equation.mode == "linear" or built)
 
-        def _enable_insert(self, event: wx.UpdateUIEvent) -> None:
-            # The Insert entries are UnicodeMath templates.
-            if self.equation.latex:
-                event.Enable(False)
-            else:
-                self._enable_when_editable(event)
-
         def prepare(self, source: str, display: bool, latex: bool = False) -> None:
-            self.equation.latex = latex
+            self.equation.latex_document = latex
             self.equation.display = display
             self._show_kind()
             self.equation.set_source(source)
@@ -200,7 +193,7 @@ if wx is not None:
                 pass
 
         def _show_kind(self) -> None:
-            if self.equation.latex:
+            if self.equation.latex_document:
                 if self.equation.display:
                     heading = _("Edit display equation in LaTeX — Enter or {shortcut} saves. Escape cancels.")
                 else:
@@ -227,6 +220,9 @@ if wx is not None:
             """Close the editor; `new_line` (Enter) also starts a new line after the equation, as in Word."""
             on_done, self._on_done = self._on_done, None
             if on_done is None:
+                return
+            if saved and not self.equation.end_latex_editing():
+                self._on_done = on_done  # The edit cannot be written in LaTeX (said): the editor stays open.
                 return
             if saved:
                 self.equation.remove_extra_spaces()
@@ -328,7 +324,7 @@ if wx is not None:
             if self._session is None:
                 return source
             zone = self._session.zone
-            equation = self.equation_window.equation.source
+            equation = self.equation_window.equation.document_source
             return f"{source[: zone.start]}{zone.delimiter}{equation}{zone.delimiter}{source[zone.end :]}"
 
         def commit_active_equation(self) -> None:

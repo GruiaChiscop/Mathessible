@@ -274,19 +274,19 @@ msgstr "нет ошибок"
 msgid "{message}, selected {span}"
 msgstr "{message}, выделено {span}"
 
-#: src/mathessible/editor/built.py:119 src/mathessible/editor/equation_editor.py:977
+#: src/mathessible/editor/built.py:119 src/mathessible/editor/equation_editor.py:1093
 msgid "could not cut"
 msgstr "не удалось вырезать"
 
-#: src/mathessible/editor/built.py:432 src/mathessible/editor/equation_editor.py:942
+#: src/mathessible/editor/built.py:432 src/mathessible/editor/equation_editor.py:1058
 msgid "nothing to select"
 msgstr "нечего выделять"
 
-#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:904
+#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:1020
 msgid "nothing to undo"
 msgstr "нечего отменять"
 
-#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:904
+#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:1020
 msgid "nothing to redo"
 msgstr "нечего повторять"
 
@@ -350,89 +350,98 @@ msgstr "Модуль отображения формул недоступен"
 msgid "Type UnicodeMath here, e.g. (a+b)/2"
 msgstr "Введите UnicodeMath здесь, например (a+b)/2"
 
-#: src/mathessible/editor/equation_editor.py:110
+#: src/mathessible/editor/equation_editor.py:124
 msgid "Equation editor"
 msgstr "Редактор уравнений"
 
-#: src/mathessible/editor/equation_editor.py:210 src/mathessible/ui/braille_signs_dialog.py:61
+#: src/mathessible/editor/equation_editor.py:227 src/mathessible/ui/braille_signs_dialog.py:61
 #: src/mathessible/ui/settings_dialog.py:74
 msgid "Braille"
 msgstr "Брайль"
 
-#: src/mathessible/editor/equation_editor.py:213
+#: src/mathessible/editor/equation_editor.py:230
 msgid "Equation braille"
 msgstr "Брайль уравнения"
 
-#: src/mathessible/editor/equation_editor.py:269
+#: src/mathessible/editor/equation_editor.py:286
 msgid "equation ready"
 msgstr "уравнение готово"
 
-#: src/mathessible/editor/equation_editor.py:432
+#: src/mathessible/editor/equation_editor.py:461
 msgid "Equation editor, professional mode"
 msgstr "Редактор уравнений, профессиональный режим"
 
-#: src/mathessible/editor/equation_editor.py:434
+#: src/mathessible/editor/equation_editor.py:463
 msgid "Equation editor, linear mode"
 msgstr "Редактор уравнений, линейный режим"
 
-#: src/mathessible/editor/equation_editor.py:506
+#: src/mathessible/editor/equation_editor.py:535
 #, python-brace-format
 msgid "zoom {percent} percent"
 msgstr "масштаб {percent} процентов"
 
-#: src/mathessible/editor/equation_editor.py:560
+#: src/mathessible/editor/equation_editor.py:592
 msgid "The equation could not be built"
 msgstr "Не удалось построить уравнение"
 
-#: src/mathessible/editor/equation_editor.py:572
+#: src/mathessible/editor/equation_editor.py:604
 #, python-brace-format
 msgid "The equation could not be read. {error}"
 msgstr "Не удалось прочитать уравнение. {error}"
 
-#: src/mathessible/editor/equation_editor.py:596
+#: src/mathessible/editor/equation_editor.py:628
 msgid "empty equation"
 msgstr "пустое уравнение"
 
-#: src/mathessible/editor/equation_editor.py:602
+#: src/mathessible/editor/equation_editor.py:637
 #, python-brace-format
 msgid "Professional mode could not be built. {error}"
 msgstr "Не удалось построить профессиональный режим. {error}"
 
-#: src/mathessible/editor/equation_editor.py:607
+#: src/mathessible/editor/equation_editor.py:643 src/mathessible/editor/equation_editor.py:701
 #, python-brace-format
 msgid "cannot be built, {errors}"
 msgstr "не удаётся построить, {errors}"
 
-#: src/mathessible/editor/equation_editor.py:610
+#: src/mathessible/editor/equation_editor.py:646
 msgid "Professional mode could not be built"
 msgstr "Не удалось построить профессиональный режим"
 
-#: src/mathessible/editor/equation_editor.py:646
+#: src/mathessible/editor/equation_editor.py:678
 #, python-brace-format
 msgid "professional mode, {speech}"
 msgstr "профессиональный режим, {speech}"
 
-#: src/mathessible/editor/equation_editor.py:765
+#: src/mathessible/editor/equation_editor.py:698
+msgid "the LaTeX has errors"
+msgstr "в LaTeX есть ошибки"
+
+#: src/mathessible/editor/equation_editor.py:734
+msgid "the equation has errors"
+msgstr "в уравнении есть ошибки"
+
+#: src/mathessible/editor/equation_editor.py:737
+#, python-brace-format
+msgid "cannot be written in LaTeX, {error}"
+msgstr "невозможно записать в LaTeX, {error}"
+
+#: src/mathessible/editor/equation_editor.py:857
 msgid "writing mode"
 msgstr "режим письма"
 
-#: src/mathessible/editor/equation_editor.py:765
+#: src/mathessible/editor/equation_editor.py:857
 msgid "exploration mode"
 msgstr "режим исследования"
 
-#: src/mathessible/editor/equation_editor.py:769
-msgid "LaTeX is written in the linear view, F2"
-msgstr "LaTeX пишется в линейном виде, F2"
-
-#: src/mathessible/editor/equation_editor.py:771
+#: src/mathessible/editor/equation_editor.py:860
 msgid "exploration mode, F10 to write"
 msgstr "режим исследования, F10 для письма"
 
-#: src/mathessible/editor/equation_editor.py:804
-msgid "templates are not available for LaTeX yet"
-msgstr "шаблоны для LaTeX пока недоступны"
+#: src/mathessible/editor/equation_editor.py:925 src/mathessible/editor/structures.py:466
+msgid "not available here"
+msgstr "здесь недоступно"
 
-#: src/mathessible/editor/equation_editor.py:937
+#: src/mathessible/editor/equation_editor.py:1053
 #, python-brace-format
 msgid "{count} character selected"
 msgid_plural "{count} characters selected"
@@ -440,89 +449,93 @@ msgstr[0] "выделен {count} символ"
 msgstr[1] "выделено {count} символа"
 msgstr[2] "выделено {count} символов"
 
-#: src/mathessible/editor/equation_editor.py:956
+#: src/mathessible/editor/equation_editor.py:1072
 #, python-brace-format
 msgid "copied {item}"
 msgstr "скопировано: {item}"
 
-#: src/mathessible/editor/equation_editor.py:958 src/mathessible/editor/equation_editor.py:966
+#: src/mathessible/editor/equation_editor.py:1074 src/mathessible/editor/equation_editor.py:1082
 msgid "could not copy"
 msgstr "не удалось скопировать"
 
-#: src/mathessible/editor/equation_editor.py:963
+#: src/mathessible/editor/equation_editor.py:1079
 msgid "nothing to copy"
 msgstr "нечего копировать"
 
-#: src/mathessible/editor/equation_editor.py:968
+#: src/mathessible/editor/equation_editor.py:1084
 msgid "selection copied"
 msgstr "выделение скопировано"
 
-#: src/mathessible/editor/equation_editor.py:968
+#: src/mathessible/editor/equation_editor.py:1084
 msgid "equation copied"
 msgstr "уравнение скопировано"
 
-#: src/mathessible/editor/equation_editor.py:974
+#: src/mathessible/editor/equation_editor.py:1090
 msgid "nothing to cut"
 msgstr "нечего вырезать"
 
-#: src/mathessible/editor/equation_editor.py:981
+#: src/mathessible/editor/equation_editor.py:1097
 msgid "selection cut"
 msgstr "выделение вырезано"
 
-#: src/mathessible/editor/equation_editor.py:984
+#: src/mathessible/editor/equation_editor.py:1100
 msgid "equation cut"
 msgstr "уравнение вырезано"
 
-#: src/mathessible/editor/equation_editor.py:1005
+#: src/mathessible/editor/equation_editor.py:1121
 msgid "the pasted MathML could not be converted"
 msgstr "не удалось преобразовать вставленный MathML"
 
-#: src/mathessible/editor/equation_editor.py:1008 src/mathessible/editor/equation_editor.py:1014
+#: src/mathessible/editor/equation_editor.py:1124 src/mathessible/editor/equation_editor.py:1130
 msgid "clipboard is empty"
 msgstr "буфер обмена пуст"
 
-#: src/mathessible/editor/equation_editor.py:1021
+#: src/mathessible/editor/equation_editor.py:1137
 msgid "equation pasted"
 msgstr "уравнение вставлено"
 
-#: src/mathessible/editor/equation_editor.py:1063
+#: src/mathessible/editor/equation_editor.py:1179
 msgid "still preparing the equation, please wait"
 msgstr "уравнение ещё готовится, подождите"
 
-#: src/mathessible/editor/equation_editor.py:1243 src/mathessible/editor/equation_editor.py:1254
+#: src/mathessible/editor/equation_editor.py:1359 src/mathessible/editor/equation_editor.py:1370
 msgid "selection deleted"
 msgstr "выделение удалено"
 
-#: src/mathessible/editor/equation_editor.py:1440
+#: src/mathessible/editor/equation_editor.py:1556
 msgid "cannot move there"
 msgstr "туда перейти нельзя"
 
-#: src/mathessible/editor/equation_editor.py:1444
+#: src/mathessible/editor/equation_editor.py:1560
 #, python-brace-format
 msgid "MathCAT could not read the equation, linear mode. {error}"
 msgstr "MathCAT не смог прочитать уравнение, линейный режим. {error}"
 
-#: src/mathessible/editor/equation_editor.py:1514 src/mathessible/editor/equation_editor.py:1520
+#: src/mathessible/editor/equation_editor.py:1630 src/mathessible/editor/equation_editor.py:1636
 msgid "start"
 msgstr "начало"
 
-#: src/mathessible/editor/equation_editor.py:1522
+#: src/mathessible/editor/equation_editor.py:1638
 msgid "end"
 msgstr "конец"
 
-#: src/mathessible/editor/renderer.py:67
+#: src/mathessible/editor/renderer.py:66
 msgid "the UnicodeMathML engine did not initialize"
 msgstr "движок UnicodeMathML не инициализировался"
 
-#: src/mathessible/editor/renderer.py:218
+#: src/mathessible/editor/renderer.py:210
+msgid "the equation could not be written in LaTeX"
+msgstr "не удалось записать уравнение в LaTeX"
+
+#: src/mathessible/editor/renderer.py:220
 msgid "the UnicodeMathML converter is still loading"
 msgstr "преобразователь UnicodeMathML ещё загружается"
 
-#: src/mathessible/editor/renderer.py:225
+#: src/mathessible/editor/renderer.py:227
 msgid "the UnicodeMathML converter is busy"
 msgstr "преобразователь UnicodeMathML занят"
 
-#: src/mathessible/editor/renderer.py:255
+#: src/mathessible/editor/renderer.py:257
 msgid "the UnicodeMathML converter could not run"
 msgstr "не удалось запустить преобразователь UnicodeMathML"
 
@@ -554,164 +567,160 @@ msgstr "Вст&авить"
 msgid "Select &All"
 msgstr "Выделить в&сё"
 
-#: src/mathessible/editor/structures.py:170 src/mathessible/ui/document_editor.py:145
+#: src/mathessible/editor/structures.py:169 src/mathessible/ui/document_editor.py:145
 #: src/mathessible/ui/main_frame.py:263
 msgid "&Insert"
 msgstr "Вст&авка"
 
-#: src/mathessible/editor/structures.py:192
+#: src/mathessible/editor/structures.py:191
 msgid "Insert Case &Above"
 msgstr "Вставить случай &выше"
 
-#: src/mathessible/editor/structures.py:192
+#: src/mathessible/editor/structures.py:191
 msgid "Insert Case &Below"
 msgstr "Вставить случай &ниже"
 
-#: src/mathessible/editor/structures.py:192
+#: src/mathessible/editor/structures.py:191
 msgid "&Delete Case"
 msgstr "&Удалить случай"
 
-#: src/mathessible/editor/structures.py:194
+#: src/mathessible/editor/structures.py:193
 msgid "Insert Equation &Above"
 msgstr "Вставить уравнение &выше"
 
-#: src/mathessible/editor/structures.py:194
+#: src/mathessible/editor/structures.py:193
 msgid "Insert Equation &Below"
 msgstr "Вставить уравнение &ниже"
 
-#: src/mathessible/editor/structures.py:194
+#: src/mathessible/editor/structures.py:193
 msgid "&Delete Equation"
 msgstr "&Удалить уравнение"
 
-#: src/mathessible/editor/structures.py:205
+#: src/mathessible/editor/structures.py:204
 msgid "&Equations"
 msgstr "&Уравнения"
 
-#: src/mathessible/editor/structures.py:205 src/mathessible/templates/insert_catalog.py:129
+#: src/mathessible/editor/structures.py:204 src/mathessible/templates/insert_catalog.py:129
 msgid "&Cases"
 msgstr "&Случаи"
 
-#: src/mathessible/editor/structures.py:209
+#: src/mathessible/editor/structures.py:208
 msgid "Insert Row &Above"
 msgstr "Вставить строку &выше"
 
-#: src/mathessible/editor/structures.py:210
+#: src/mathessible/editor/structures.py:209
 msgid "Insert Row &Below"
 msgstr "Вставить строку &ниже"
 
-#: src/mathessible/editor/structures.py:212
+#: src/mathessible/editor/structures.py:211
 msgid "Insert Column &Left"
 msgstr "Вставить столбец с&лева"
 
-#: src/mathessible/editor/structures.py:216
+#: src/mathessible/editor/structures.py:215
 msgid "Insert Column &Right"
 msgstr "Вставить столбец с&права"
 
-#: src/mathessible/editor/structures.py:220
+#: src/mathessible/editor/structures.py:219
 msgid "Delete R&ow"
 msgstr "Удалить с&троку"
 
-#: src/mathessible/editor/structures.py:221
+#: src/mathessible/editor/structures.py:220
 msgid "Delete C&olumn"
 msgstr "Удалить сто&лбец"
 
-#: src/mathessible/editor/structures.py:233
+#: src/mathessible/editor/structures.py:232
 msgid "Matri&x"
 msgstr "&Матрица"
 
-#: src/mathessible/editor/structures.py:250 src/mathessible/templates/insert_catalog.py:63
+#: src/mathessible/editor/structures.py:249 src/mathessible/templates/insert_catalog.py:63
 msgid "&Fraction"
 msgstr "&Дробь"
 
-#: src/mathessible/editor/structures.py:259
+#: src/mathessible/editor/structures.py:258
 msgid "&Add Index"
 msgstr "&Добавить показатель корня"
 
-#: src/mathessible/editor/structures.py:260
+#: src/mathessible/editor/structures.py:259
 msgid "&Remove Index"
 msgstr "&Убрать показатель корня"
 
-#: src/mathessible/editor/structures.py:267
+#: src/mathessible/editor/structures.py:266
 msgid "&Root"
 msgstr "&Корень"
 
-#: src/mathessible/editor/structures.py:279
+#: src/mathessible/editor/structures.py:278
 msgid "&Add Limits"
 msgstr "&Добавить пределы"
 
-#: src/mathessible/editor/structures.py:280
+#: src/mathessible/editor/structures.py:279
 msgid "&Remove Limits"
 msgstr "&Убрать пределы"
 
-#: src/mathessible/editor/structures.py:312
+#: src/mathessible/editor/structures.py:311
 msgid "Add &Subscript"
 msgstr "Добавить &нижний индекс"
 
-#: src/mathessible/editor/structures.py:313
+#: src/mathessible/editor/structures.py:312
 msgid "Add Su&perscript"
 msgstr "Добавить &верхний индекс"
 
-#: src/mathessible/editor/structures.py:314
+#: src/mathessible/editor/structures.py:313
 msgid "&Remove Subscript"
 msgstr "&Убрать нижний индекс"
 
-#: src/mathessible/editor/structures.py:315
+#: src/mathessible/editor/structures.py:314
 msgid "Remove Superscrip&t"
 msgstr "Убрать верх&ний индекс"
 
-#: src/mathessible/editor/structures.py:316
+#: src/mathessible/editor/structures.py:315
 msgid "&Script"
 msgstr "&Индексы"
 
-#: src/mathessible/editor/structures.py:340
+#: src/mathessible/editor/structures.py:339
 msgid "Show &Opening Bracket"
 msgstr "Показать &открывающую скобку"
 
-#: src/mathessible/editor/structures.py:340
+#: src/mathessible/editor/structures.py:339
 msgid "Hide &Opening Bracket"
 msgstr "Скрыть &открывающую скобку"
 
-#: src/mathessible/editor/structures.py:345
+#: src/mathessible/editor/structures.py:344
 msgid "Show &Closing Bracket"
 msgstr "Показать &закрывающую скобку"
 
-#: src/mathessible/editor/structures.py:345
+#: src/mathessible/editor/structures.py:344
 msgid "Hide &Closing Bracket"
 msgstr "Скрыть &закрывающую скобку"
 
-#: src/mathessible/editor/structures.py:350
+#: src/mathessible/editor/structures.py:349
 msgid "&Remove Brackets"
 msgstr "&Убрать скобки"
 
-#: src/mathessible/editor/structures.py:351 src/mathessible/ui/matrix_dialog.py:37
+#: src/mathessible/editor/structures.py:350 src/mathessible/ui/matrix_dialog.py:37
 msgid "&Brackets"
 msgstr "&Скобки"
 
-#: src/mathessible/editor/structures.py:366
+#: src/mathessible/editor/structures.py:365
 msgid "&Remove Accent"
 msgstr "&Убрать знак над символом"
 
-#: src/mathessible/editor/structures.py:367
+#: src/mathessible/editor/structures.py:366
 msgid "&Accent"
 msgstr "&Знак над символом"
 
-#: src/mathessible/editor/structures.py:371
+#: src/mathessible/editor/structures.py:370
 msgid "Change to &Underbar"
 msgstr "Сделать &нижней чертой"
 
-#: src/mathessible/editor/structures.py:371
+#: src/mathessible/editor/structures.py:370
 msgid "Change to &Overbar"
 msgstr "Сделать &верхней чертой"
 
-#: src/mathessible/editor/structures.py:372
+#: src/mathessible/editor/structures.py:371
 msgid "&Remove Bar"
 msgstr "&Убрать черту"
 
-#: src/mathessible/editor/structures.py:467
-msgid "not available here"
-msgstr "здесь недоступно"
-
-#: src/mathessible/editor/structures.py:541
+#: src/mathessible/editor/structures.py:540
 #, python-brace-format
 msgid "{announcement}. Professional mode could not be rebuilt, linear mode. {error}"
 msgstr "{announcement}. Не удалось перестроить профессиональный режим, линейный режим. {error}"
@@ -952,7 +961,7 @@ msgstr "после пробела"
 msgid "angle bracket"
 msgstr "угловая скобка"
 
-#: src/mathessible/editor/equation_editor.py:1195 src/mathessible/spoken.py:24
+#: src/mathessible/editor/equation_editor.py:1311 src/mathessible/spoken.py:24
 msgid "argument"
 msgstr "аргумент"
 
@@ -972,7 +981,7 @@ msgstr "основание"
 msgid "binomial"
 msgstr "биномиальный коэффициент"
 
-#: src/mathessible/editor/equation_editor.py:1233 src/mathessible/spoken.py:29
+#: src/mathessible/editor/equation_editor.py:1349 src/mathessible/spoken.py:29
 msgid "blank"
 msgstr "пусто"
 
@@ -995,8 +1004,8 @@ msgstr "фигурная скобка"
 msgid "bracket"
 msgstr "квадратная скобка"
 
-#: src/mathessible/editor/assist.py:90 src/mathessible/editor/equation_editor.py:1200
-#: src/mathessible/editor/equation_editor.py:1378 src/mathessible/spoken.py:34
+#: src/mathessible/editor/assist.py:90 src/mathessible/editor/equation_editor.py:1316
+#: src/mathessible/editor/equation_editor.py:1494 src/mathessible/spoken.py:34
 msgid "built"
 msgstr "построено"
 
@@ -1114,8 +1123,8 @@ msgstr "пределы"
 msgid "linear"
 msgstr "линейный"
 
-#: src/mathessible/editor/assist.py:243 src/mathessible/editor/equation_editor.py:619
-#: src/mathessible/editor/structures.py:483 src/mathessible/spoken.py:63
+#: src/mathessible/editor/assist.py:243 src/mathessible/editor/equation_editor.py:656
+#: src/mathessible/editor/structures.py:482 src/mathessible/spoken.py:63
 msgid "linear mode"
 msgstr "линейный режим"
 
@@ -1131,7 +1140,7 @@ msgstr "нижний предел"
 msgid "matrix"
 msgstr "матрица"
 
-#: src/mathessible/editor/built.py:828 src/mathessible/editor/equation_editor.py:1159
+#: src/mathessible/editor/built.py:828 src/mathessible/editor/equation_editor.py:1275
 #: src/mathessible/spoken.py:67
 msgid "no slot"
 msgstr "нет места"
@@ -1140,7 +1149,7 @@ msgstr "нет места"
 msgid "norm"
 msgstr "норма"
 
-#: src/mathessible/editor/structures.py:506 src/mathessible/spoken.py:69
+#: src/mathessible/editor/structures.py:505 src/mathessible/spoken.py:69
 msgid "not in a table"
 msgstr "не в таблице"
 
@@ -1213,7 +1222,7 @@ msgstr "индексы"
 msgid "selected"
 msgstr "выделено"
 
-#: src/mathessible/editor/equation_editor.py:933 src/mathessible/spoken.py:87
+#: src/mathessible/editor/equation_editor.py:1049 src/mathessible/spoken.py:87
 msgid "selection cleared"
 msgstr "выделение снято"
 
@@ -2564,74 +2573,74 @@ msgstr "&Фактический размер"
 msgid "&View"
 msgstr "&Вид"
 
-#: src/mathessible/ui/document_editor.py:197 src/mathessible/ui/document_editor.py:397
+#: src/mathessible/ui/document_editor.py:190 src/mathessible/ui/document_editor.py:393
 msgid "display equation"
 msgstr "выносное уравнение"
 
-#: src/mathessible/ui/document_editor.py:197 src/mathessible/ui/document_editor.py:397
+#: src/mathessible/ui/document_editor.py:190 src/mathessible/ui/document_editor.py:393
 msgid "inline equation"
 msgstr "строчное уравнение"
 
-#: src/mathessible/ui/document_editor.py:205
+#: src/mathessible/ui/document_editor.py:198
 #, python-brace-format
 msgid "Edit display equation in LaTeX — Enter or {shortcut} saves. Escape cancels."
 msgstr "Правка выключной формулы в LaTeX — Enter или {shortcut} сохраняет. Escape отменяет."
 
-#: src/mathessible/ui/document_editor.py:207
+#: src/mathessible/ui/document_editor.py:200
 #, python-brace-format
 msgid "Edit inline equation in LaTeX — Enter or {shortcut} saves. Escape cancels."
 msgstr "Правка формулы в тексте в LaTeX — Enter или {shortcut} сохраняет. Escape отменяет."
 
-#: src/mathessible/ui/document_editor.py:209
+#: src/mathessible/ui/document_editor.py:202
 #, python-brace-format
 msgid "Edit display equation — Enter or {shortcut} saves. Escape cancels."
 msgstr "Правка выносного уравнения — Enter или {shortcut} сохраняет. Escape отменяет."
 
-#: src/mathessible/ui/document_editor.py:211
+#: src/mathessible/ui/document_editor.py:204
 #, python-brace-format
 msgid "Edit inline equation — Enter or {shortcut} saves. Escape cancels."
 msgstr "Правка строчного уравнения — Enter или {shortcut} сохраняет. Escape отменяет."
 
-#: src/mathessible/ui/document_editor.py:288
+#: src/mathessible/ui/document_editor.py:284
 msgid "Markdown editor"
 msgstr "Редактор Markdown"
 
-#: src/mathessible/ui/document_editor.py:389
+#: src/mathessible/ui/document_editor.py:385
 msgid "this equation cannot be inline"
 msgstr "это уравнение не может быть строчным"
 
-#: src/mathessible/ui/document_editor.py:407
+#: src/mathessible/ui/document_editor.py:403
 msgid "a footnote cannot go inside an equation"
 msgstr "сноска не может быть внутри формулы"
 
-#: src/mathessible/ui/document_editor.py:414
+#: src/mathessible/ui/document_editor.py:410
 #, python-brace-format
 msgid "footnote {label}, type the note"
 msgstr "сноска {label}, введите текст"
 
-#: src/mathessible/ui/document_editor.py:421
+#: src/mathessible/ui/document_editor.py:417
 msgid "not in a footnote or its reference"
 msgstr "не в сноске и не в её ссылке"
 
-#: src/mathessible/ui/document_editor.py:427
+#: src/mathessible/ui/document_editor.py:423
 #, python-brace-format
 msgid "note {label}"
 msgstr "сноска {label}"
 
-#: src/mathessible/ui/document_editor.py:427
+#: src/mathessible/ui/document_editor.py:423
 #, python-brace-format
 msgid "reference {label}"
 msgstr "ссылка {label}"
 
-#: src/mathessible/ui/document_editor.py:541
+#: src/mathessible/ui/document_editor.py:537
 msgid "equation saved, new line"
 msgstr "уравнение сохранено, новая строка"
 
-#: src/mathessible/ui/document_editor.py:541
+#: src/mathessible/ui/document_editor.py:537
 msgid "equation saved"
 msgstr "уравнение сохранено"
 
-#: src/mathessible/ui/document_editor.py:544
+#: src/mathessible/ui/document_editor.py:540
 msgid "equation editing canceled"
 msgstr "правка уравнения отменена"
 
@@ -4208,4 +4217,10 @@ msgstr "&Совпадения"
 #: src/mathessible/ui/symbol_dialog.py:46
 msgid "Matching symbols"
 msgstr "Подходящие символы"
+
+#~ msgid "LaTeX is written in the linear view, F2"
+#~ msgstr "LaTeX пишется в линейном виде, F2"
+
+#~ msgid "templates are not available for LaTeX yet"
+#~ msgstr "шаблоны для LaTeX пока недоступны"
 

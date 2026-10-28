@@ -269,19 +269,19 @@ msgstr "沒有錯誤"
 msgid "{message}, selected {span}"
 msgstr "{message}，已選取 {span}"
 
-#: src/mathessible/editor/built.py:119 src/mathessible/editor/equation_editor.py:977
+#: src/mathessible/editor/built.py:119 src/mathessible/editor/equation_editor.py:1093
 msgid "could not cut"
 msgstr "無法剪下"
 
-#: src/mathessible/editor/built.py:432 src/mathessible/editor/equation_editor.py:942
+#: src/mathessible/editor/built.py:432 src/mathessible/editor/equation_editor.py:1058
 msgid "nothing to select"
 msgstr "沒有可選取的內容"
 
-#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:904
+#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:1020
 msgid "nothing to undo"
 msgstr "沒有可復原的動作"
 
-#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:904
+#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:1020
 msgid "nothing to redo"
 msgstr "沒有可重做的動作"
 
@@ -339,177 +339,190 @@ msgstr "數學轉譯器無法使用"
 msgid "Type UnicodeMath here, e.g. (a+b)/2"
 msgstr "請在此輸入 UnicodeMath，例如 (a+b)/2"
 
-#: src/mathessible/editor/equation_editor.py:110
+#: src/mathessible/editor/equation_editor.py:124
 msgid "Equation editor"
 msgstr "方程式編輯器"
 
-#: src/mathessible/editor/equation_editor.py:210 src/mathessible/ui/braille_signs_dialog.py:61
+#: src/mathessible/editor/equation_editor.py:227 src/mathessible/ui/braille_signs_dialog.py:61
 #: src/mathessible/ui/settings_dialog.py:74
 msgid "Braille"
 msgstr "點字"
 
-#: src/mathessible/editor/equation_editor.py:213
+#: src/mathessible/editor/equation_editor.py:230
 msgid "Equation braille"
 msgstr "方程式的點字"
 
-#: src/mathessible/editor/equation_editor.py:269
+#: src/mathessible/editor/equation_editor.py:286
 msgid "equation ready"
 msgstr "方程式已就緒"
 
-#: src/mathessible/editor/equation_editor.py:432
+#: src/mathessible/editor/equation_editor.py:461
 msgid "Equation editor, professional mode"
 msgstr "方程式編輯器，專業模式"
 
-#: src/mathessible/editor/equation_editor.py:434
+#: src/mathessible/editor/equation_editor.py:463
 msgid "Equation editor, linear mode"
 msgstr "方程式編輯器，線性模式"
 
-#: src/mathessible/editor/equation_editor.py:506
+#: src/mathessible/editor/equation_editor.py:535
 #, python-brace-format
 msgid "zoom {percent} percent"
 msgstr "縮放 {percent}%"
 
-#: src/mathessible/editor/equation_editor.py:560
+#: src/mathessible/editor/equation_editor.py:592
 msgid "The equation could not be built"
 msgstr "無法建構方程式"
 
-#: src/mathessible/editor/equation_editor.py:572
+#: src/mathessible/editor/equation_editor.py:604
 #, python-brace-format
 msgid "The equation could not be read. {error}"
 msgstr "無法讀取方程式。{error}"
 
-#: src/mathessible/editor/equation_editor.py:596
+#: src/mathessible/editor/equation_editor.py:628
 msgid "empty equation"
 msgstr "空的方程式"
 
-#: src/mathessible/editor/equation_editor.py:602
+#: src/mathessible/editor/equation_editor.py:637
 #, python-brace-format
 msgid "Professional mode could not be built. {error}"
 msgstr "無法建構專業模式。{error}"
 
-#: src/mathessible/editor/equation_editor.py:607
+#: src/mathessible/editor/equation_editor.py:643 src/mathessible/editor/equation_editor.py:701
 #, python-brace-format
 msgid "cannot be built, {errors}"
 msgstr "無法建構，{errors}"
 
-#: src/mathessible/editor/equation_editor.py:610
+#: src/mathessible/editor/equation_editor.py:646
 msgid "Professional mode could not be built"
 msgstr "無法建構專業模式"
 
-#: src/mathessible/editor/equation_editor.py:646
+#: src/mathessible/editor/equation_editor.py:678
 #, python-brace-format
 msgid "professional mode, {speech}"
 msgstr "專業模式，{speech}"
 
-#: src/mathessible/editor/equation_editor.py:765
+#: src/mathessible/editor/equation_editor.py:698
+msgid "the LaTeX has errors"
+msgstr "LaTeX 有錯誤"
+
+#: src/mathessible/editor/equation_editor.py:734
+msgid "the equation has errors"
+msgstr "方程式有錯誤"
+
+#: src/mathessible/editor/equation_editor.py:737
+#, python-brace-format
+msgid "cannot be written in LaTeX, {error}"
+msgstr "無法以 LaTeX 撰寫，{error}"
+
+#: src/mathessible/editor/equation_editor.py:857
 msgid "writing mode"
 msgstr "書寫模式"
 
-#: src/mathessible/editor/equation_editor.py:765
+#: src/mathessible/editor/equation_editor.py:857
 msgid "exploration mode"
 msgstr "探索模式"
 
-#: src/mathessible/editor/equation_editor.py:769
-msgid "LaTeX is written in the linear view, F2"
-msgstr "LaTeX 在線性檢視中撰寫，F2"
-
-#: src/mathessible/editor/equation_editor.py:771
+#: src/mathessible/editor/equation_editor.py:860
 msgid "exploration mode, F10 to write"
 msgstr "探索模式，按 F10 書寫"
 
-#: src/mathessible/editor/equation_editor.py:804
-msgid "templates are not available for LaTeX yet"
-msgstr "LaTeX 尚無範本可用"
+#: src/mathessible/editor/equation_editor.py:925 src/mathessible/editor/structures.py:466
+msgid "not available here"
+msgstr "此處無法使用"
 
-#: src/mathessible/editor/equation_editor.py:937
+#: src/mathessible/editor/equation_editor.py:1053
 #, python-brace-format
 msgid "{count} character selected"
 msgid_plural "{count} characters selected"
 msgstr[0] "已選取 {count} 個字元"
 
-#: src/mathessible/editor/equation_editor.py:956
+#: src/mathessible/editor/equation_editor.py:1072
 #, python-brace-format
 msgid "copied {item}"
 msgstr "已複製{item}"
 
-#: src/mathessible/editor/equation_editor.py:958 src/mathessible/editor/equation_editor.py:966
+#: src/mathessible/editor/equation_editor.py:1074 src/mathessible/editor/equation_editor.py:1082
 msgid "could not copy"
 msgstr "無法複製"
 
-#: src/mathessible/editor/equation_editor.py:963
+#: src/mathessible/editor/equation_editor.py:1079
 msgid "nothing to copy"
 msgstr "沒有可複製的內容"
 
-#: src/mathessible/editor/equation_editor.py:968
+#: src/mathessible/editor/equation_editor.py:1084
 msgid "selection copied"
 msgstr "已複製選取範圍"
 
-#: src/mathessible/editor/equation_editor.py:968
+#: src/mathessible/editor/equation_editor.py:1084
 msgid "equation copied"
 msgstr "已複製方程式"
 
-#: src/mathessible/editor/equation_editor.py:974
+#: src/mathessible/editor/equation_editor.py:1090
 msgid "nothing to cut"
 msgstr "沒有可剪下的內容"
 
-#: src/mathessible/editor/equation_editor.py:981
+#: src/mathessible/editor/equation_editor.py:1097
 msgid "selection cut"
 msgstr "已剪下選取範圍"
 
-#: src/mathessible/editor/equation_editor.py:984
+#: src/mathessible/editor/equation_editor.py:1100
 msgid "equation cut"
 msgstr "已剪下方程式"
 
-#: src/mathessible/editor/equation_editor.py:1005
+#: src/mathessible/editor/equation_editor.py:1121
 msgid "the pasted MathML could not be converted"
 msgstr "無法轉換貼上的 MathML"
 
-#: src/mathessible/editor/equation_editor.py:1008 src/mathessible/editor/equation_editor.py:1014
+#: src/mathessible/editor/equation_editor.py:1124 src/mathessible/editor/equation_editor.py:1130
 msgid "clipboard is empty"
 msgstr "剪貼簿是空的"
 
-#: src/mathessible/editor/equation_editor.py:1021
+#: src/mathessible/editor/equation_editor.py:1137
 msgid "equation pasted"
 msgstr "已貼上方程式"
 
-#: src/mathessible/editor/equation_editor.py:1063
+#: src/mathessible/editor/equation_editor.py:1179
 msgid "still preparing the equation, please wait"
 msgstr "仍在準備方程式，請稍候"
 
-#: src/mathessible/editor/equation_editor.py:1243 src/mathessible/editor/equation_editor.py:1254
+#: src/mathessible/editor/equation_editor.py:1359 src/mathessible/editor/equation_editor.py:1370
 msgid "selection deleted"
 msgstr "已刪除選取範圍"
 
-#: src/mathessible/editor/equation_editor.py:1440
+#: src/mathessible/editor/equation_editor.py:1556
 msgid "cannot move there"
 msgstr "無法移到那裡"
 
-#: src/mathessible/editor/equation_editor.py:1444
+#: src/mathessible/editor/equation_editor.py:1560
 #, python-brace-format
 msgid "MathCAT could not read the equation, linear mode. {error}"
 msgstr "MathCAT 無法讀取方程式，線性模式。{error}"
 
-#: src/mathessible/editor/equation_editor.py:1514 src/mathessible/editor/equation_editor.py:1520
+#: src/mathessible/editor/equation_editor.py:1630 src/mathessible/editor/equation_editor.py:1636
 msgid "start"
 msgstr "開頭"
 
-#: src/mathessible/editor/equation_editor.py:1522
+#: src/mathessible/editor/equation_editor.py:1638
 msgid "end"
 msgstr "結尾"
 
-#: src/mathessible/editor/renderer.py:67
+#: src/mathessible/editor/renderer.py:66
 msgid "the UnicodeMathML engine did not initialize"
 msgstr "UnicodeMathML 引擎未能初始化"
 
-#: src/mathessible/editor/renderer.py:218
+#: src/mathessible/editor/renderer.py:210
+msgid "the equation could not be written in LaTeX"
+msgstr "無法以 LaTeX 撰寫方程式"
+
+#: src/mathessible/editor/renderer.py:220
 msgid "the UnicodeMathML converter is still loading"
 msgstr "UnicodeMathML 轉換器仍在載入"
 
-#: src/mathessible/editor/renderer.py:225
+#: src/mathessible/editor/renderer.py:227
 msgid "the UnicodeMathML converter is busy"
 msgstr "UnicodeMathML 轉換器忙碌中"
 
-#: src/mathessible/editor/renderer.py:255
+#: src/mathessible/editor/renderer.py:257
 msgid "the UnicodeMathML converter could not run"
 msgstr "無法執行 UnicodeMathML 轉換器"
 
@@ -541,164 +554,160 @@ msgstr "貼上(&P)"
 msgid "Select &All"
 msgstr "全選(&A)"
 
-#: src/mathessible/editor/structures.py:170 src/mathessible/ui/document_editor.py:145
+#: src/mathessible/editor/structures.py:169 src/mathessible/ui/document_editor.py:145
 #: src/mathessible/ui/main_frame.py:263
 msgid "&Insert"
 msgstr "插入(&I)"
 
-#: src/mathessible/editor/structures.py:192
+#: src/mathessible/editor/structures.py:191
 msgid "Insert Case &Above"
 msgstr "在上方插入情況(&A)"
 
-#: src/mathessible/editor/structures.py:192
+#: src/mathessible/editor/structures.py:191
 msgid "Insert Case &Below"
 msgstr "在下方插入情況(&B)"
 
-#: src/mathessible/editor/structures.py:192
+#: src/mathessible/editor/structures.py:191
 msgid "&Delete Case"
 msgstr "刪除情況(&D)"
 
-#: src/mathessible/editor/structures.py:194
+#: src/mathessible/editor/structures.py:193
 msgid "Insert Equation &Above"
 msgstr "在上方插入方程式(&A)"
 
-#: src/mathessible/editor/structures.py:194
+#: src/mathessible/editor/structures.py:193
 msgid "Insert Equation &Below"
 msgstr "在下方插入方程式(&B)"
 
-#: src/mathessible/editor/structures.py:194
+#: src/mathessible/editor/structures.py:193
 msgid "&Delete Equation"
 msgstr "刪除方程式(&D)"
 
-#: src/mathessible/editor/structures.py:205
+#: src/mathessible/editor/structures.py:204
 msgid "&Equations"
 msgstr "方程式(&E)"
 
-#: src/mathessible/editor/structures.py:205 src/mathessible/templates/insert_catalog.py:129
+#: src/mathessible/editor/structures.py:204 src/mathessible/templates/insert_catalog.py:129
 msgid "&Cases"
 msgstr "分段情況(&C)"
 
-#: src/mathessible/editor/structures.py:209
+#: src/mathessible/editor/structures.py:208
 msgid "Insert Row &Above"
 msgstr "在上方插入列(&A)"
 
-#: src/mathessible/editor/structures.py:210
+#: src/mathessible/editor/structures.py:209
 msgid "Insert Row &Below"
 msgstr "在下方插入列(&B)"
 
-#: src/mathessible/editor/structures.py:212
+#: src/mathessible/editor/structures.py:211
 msgid "Insert Column &Left"
 msgstr "在左側插入欄(&L)"
 
-#: src/mathessible/editor/structures.py:216
+#: src/mathessible/editor/structures.py:215
 msgid "Insert Column &Right"
 msgstr "在右側插入欄(&R)"
 
-#: src/mathessible/editor/structures.py:220
+#: src/mathessible/editor/structures.py:219
 msgid "Delete R&ow"
 msgstr "刪除列(&O)"
 
-#: src/mathessible/editor/structures.py:221
+#: src/mathessible/editor/structures.py:220
 msgid "Delete C&olumn"
 msgstr "刪除欄(&O)"
 
-#: src/mathessible/editor/structures.py:233
+#: src/mathessible/editor/structures.py:232
 msgid "Matri&x"
 msgstr "矩陣(&X)"
 
-#: src/mathessible/editor/structures.py:250 src/mathessible/templates/insert_catalog.py:63
+#: src/mathessible/editor/structures.py:249 src/mathessible/templates/insert_catalog.py:63
 msgid "&Fraction"
 msgstr "分數(&F)"
 
-#: src/mathessible/editor/structures.py:259
+#: src/mathessible/editor/structures.py:258
 msgid "&Add Index"
 msgstr "新增根指數(&A)"
 
-#: src/mathessible/editor/structures.py:260
+#: src/mathessible/editor/structures.py:259
 msgid "&Remove Index"
 msgstr "移除根指數(&R)"
 
-#: src/mathessible/editor/structures.py:267
+#: src/mathessible/editor/structures.py:266
 msgid "&Root"
 msgstr "根號(&R)"
 
-#: src/mathessible/editor/structures.py:279
+#: src/mathessible/editor/structures.py:278
 msgid "&Add Limits"
 msgstr "新增上下限(&A)"
 
-#: src/mathessible/editor/structures.py:280
+#: src/mathessible/editor/structures.py:279
 msgid "&Remove Limits"
 msgstr "移除上下限(&R)"
 
-#: src/mathessible/editor/structures.py:312
+#: src/mathessible/editor/structures.py:311
 msgid "Add &Subscript"
 msgstr "新增下標(&S)"
 
-#: src/mathessible/editor/structures.py:313
+#: src/mathessible/editor/structures.py:312
 msgid "Add Su&perscript"
 msgstr "新增上標(&P)"
 
-#: src/mathessible/editor/structures.py:314
+#: src/mathessible/editor/structures.py:313
 msgid "&Remove Subscript"
 msgstr "移除下標(&R)"
 
-#: src/mathessible/editor/structures.py:315
+#: src/mathessible/editor/structures.py:314
 msgid "Remove Superscrip&t"
 msgstr "移除上標(&T)"
 
-#: src/mathessible/editor/structures.py:316
+#: src/mathessible/editor/structures.py:315
 msgid "&Script"
 msgstr "上下標(&S)"
 
-#: src/mathessible/editor/structures.py:340
+#: src/mathessible/editor/structures.py:339
 msgid "Show &Opening Bracket"
 msgstr "顯示左括號(&O)"
 
-#: src/mathessible/editor/structures.py:340
+#: src/mathessible/editor/structures.py:339
 msgid "Hide &Opening Bracket"
 msgstr "隱藏左括號(&O)"
 
-#: src/mathessible/editor/structures.py:345
+#: src/mathessible/editor/structures.py:344
 msgid "Show &Closing Bracket"
 msgstr "顯示右括號(&C)"
 
-#: src/mathessible/editor/structures.py:345
+#: src/mathessible/editor/structures.py:344
 msgid "Hide &Closing Bracket"
 msgstr "隱藏右括號(&C)"
 
-#: src/mathessible/editor/structures.py:350
+#: src/mathessible/editor/structures.py:349
 msgid "&Remove Brackets"
 msgstr "移除括號(&R)"
 
-#: src/mathessible/editor/structures.py:351 src/mathessible/ui/matrix_dialog.py:37
+#: src/mathessible/editor/structures.py:350 src/mathessible/ui/matrix_dialog.py:37
 msgid "&Brackets"
 msgstr "括號(&B)"
 
-#: src/mathessible/editor/structures.py:366
+#: src/mathessible/editor/structures.py:365
 msgid "&Remove Accent"
 msgstr "移除重音符號(&R)"
 
-#: src/mathessible/editor/structures.py:367
+#: src/mathessible/editor/structures.py:366
 msgid "&Accent"
 msgstr "重音符號(&A)"
 
-#: src/mathessible/editor/structures.py:371
+#: src/mathessible/editor/structures.py:370
 msgid "Change to &Underbar"
 msgstr "改為底線(&U)"
 
-#: src/mathessible/editor/structures.py:371
+#: src/mathessible/editor/structures.py:370
 msgid "Change to &Overbar"
 msgstr "改為頂線(&O)"
 
-#: src/mathessible/editor/structures.py:372
+#: src/mathessible/editor/structures.py:371
 msgid "&Remove Bar"
 msgstr "移除線條(&R)"
 
-#: src/mathessible/editor/structures.py:467
-msgid "not available here"
-msgstr "此處無法使用"
-
-#: src/mathessible/editor/structures.py:541
+#: src/mathessible/editor/structures.py:540
 #, python-brace-format
 msgid "{announcement}. Professional mode could not be rebuilt, linear mode. {error}"
 msgstr "{announcement}。無法重新建構專業模式，線性模式。{error}"
@@ -933,7 +942,7 @@ msgstr "空格之後"
 msgid "angle bracket"
 msgstr "角括號"
 
-#: src/mathessible/editor/equation_editor.py:1195 src/mathessible/spoken.py:24
+#: src/mathessible/editor/equation_editor.py:1311 src/mathessible/spoken.py:24
 msgid "argument"
 msgstr "引數"
 
@@ -953,7 +962,7 @@ msgstr "底數"
 msgid "binomial"
 msgstr "二項式係數"
 
-#: src/mathessible/editor/equation_editor.py:1233 src/mathessible/spoken.py:29
+#: src/mathessible/editor/equation_editor.py:1349 src/mathessible/spoken.py:29
 msgid "blank"
 msgstr "空白"
 
@@ -976,8 +985,8 @@ msgstr "大括號"
 msgid "bracket"
 msgstr "方括號"
 
-#: src/mathessible/editor/assist.py:90 src/mathessible/editor/equation_editor.py:1200
-#: src/mathessible/editor/equation_editor.py:1378 src/mathessible/spoken.py:34
+#: src/mathessible/editor/assist.py:90 src/mathessible/editor/equation_editor.py:1316
+#: src/mathessible/editor/equation_editor.py:1494 src/mathessible/spoken.py:34
 msgid "built"
 msgstr "已建構"
 
@@ -1095,8 +1104,8 @@ msgstr "上下限"
 msgid "linear"
 msgstr "線性"
 
-#: src/mathessible/editor/assist.py:243 src/mathessible/editor/equation_editor.py:619
-#: src/mathessible/editor/structures.py:483 src/mathessible/spoken.py:63
+#: src/mathessible/editor/assist.py:243 src/mathessible/editor/equation_editor.py:656
+#: src/mathessible/editor/structures.py:482 src/mathessible/spoken.py:63
 msgid "linear mode"
 msgstr "線性模式"
 
@@ -1112,7 +1121,7 @@ msgstr "下限"
 msgid "matrix"
 msgstr "矩陣"
 
-#: src/mathessible/editor/built.py:828 src/mathessible/editor/equation_editor.py:1159
+#: src/mathessible/editor/built.py:828 src/mathessible/editor/equation_editor.py:1275
 #: src/mathessible/spoken.py:67
 msgid "no slot"
 msgstr "沒有位置"
@@ -1121,7 +1130,7 @@ msgstr "沒有位置"
 msgid "norm"
 msgstr "範數"
 
-#: src/mathessible/editor/structures.py:506 src/mathessible/spoken.py:69
+#: src/mathessible/editor/structures.py:505 src/mathessible/spoken.py:69
 msgid "not in a table"
 msgstr "不在表格中"
 
@@ -1194,7 +1203,7 @@ msgstr "上下標組"
 msgid "selected"
 msgstr "已選取"
 
-#: src/mathessible/editor/equation_editor.py:933 src/mathessible/spoken.py:87
+#: src/mathessible/editor/equation_editor.py:1049 src/mathessible/spoken.py:87
 msgid "selection cleared"
 msgstr "已清除選取"
 
@@ -2540,74 +2549,74 @@ msgstr "實際大小(&A)"
 msgid "&View"
 msgstr "檢視(&V)"
 
-#: src/mathessible/ui/document_editor.py:197 src/mathessible/ui/document_editor.py:397
+#: src/mathessible/ui/document_editor.py:190 src/mathessible/ui/document_editor.py:393
 msgid "display equation"
 msgstr "獨立方程式"
 
-#: src/mathessible/ui/document_editor.py:197 src/mathessible/ui/document_editor.py:397
+#: src/mathessible/ui/document_editor.py:190 src/mathessible/ui/document_editor.py:393
 msgid "inline equation"
 msgstr "行內方程式"
 
-#: src/mathessible/ui/document_editor.py:205
+#: src/mathessible/ui/document_editor.py:198
 #, python-brace-format
 msgid "Edit display equation in LaTeX — Enter or {shortcut} saves. Escape cancels."
 msgstr "以 LaTeX 編輯獨立方程式 — Enter 或 {shortcut} 儲存。Escape 取消。"
 
-#: src/mathessible/ui/document_editor.py:207
+#: src/mathessible/ui/document_editor.py:200
 #, python-brace-format
 msgid "Edit inline equation in LaTeX — Enter or {shortcut} saves. Escape cancels."
 msgstr "以 LaTeX 編輯行內方程式 — Enter 或 {shortcut} 儲存。Escape 取消。"
 
-#: src/mathessible/ui/document_editor.py:209
+#: src/mathessible/ui/document_editor.py:202
 #, python-brace-format
 msgid "Edit display equation — Enter or {shortcut} saves. Escape cancels."
 msgstr "編輯獨立方程式 — 按 Enter 或 {shortcut} 儲存。按 Escape 取消。"
 
-#: src/mathessible/ui/document_editor.py:211
+#: src/mathessible/ui/document_editor.py:204
 #, python-brace-format
 msgid "Edit inline equation — Enter or {shortcut} saves. Escape cancels."
 msgstr "編輯行內方程式 — 按 Enter 或 {shortcut} 儲存。按 Escape 取消。"
 
-#: src/mathessible/ui/document_editor.py:288
+#: src/mathessible/ui/document_editor.py:284
 msgid "Markdown editor"
 msgstr "Markdown 編輯器"
 
-#: src/mathessible/ui/document_editor.py:389
+#: src/mathessible/ui/document_editor.py:385
 msgid "this equation cannot be inline"
 msgstr "此方程式不能設為行內"
 
-#: src/mathessible/ui/document_editor.py:407
+#: src/mathessible/ui/document_editor.py:403
 msgid "a footnote cannot go inside an equation"
 msgstr "註腳不能放在方程式內"
 
-#: src/mathessible/ui/document_editor.py:414
+#: src/mathessible/ui/document_editor.py:410
 #, python-brace-format
 msgid "footnote {label}, type the note"
 msgstr "註腳 {label}，請輸入註腳內容"
 
-#: src/mathessible/ui/document_editor.py:421
+#: src/mathessible/ui/document_editor.py:417
 msgid "not in a footnote or its reference"
 msgstr "不在註腳或其參照中"
 
-#: src/mathessible/ui/document_editor.py:427
+#: src/mathessible/ui/document_editor.py:423
 #, python-brace-format
 msgid "note {label}"
 msgstr "註腳 {label}"
 
-#: src/mathessible/ui/document_editor.py:427
+#: src/mathessible/ui/document_editor.py:423
 #, python-brace-format
 msgid "reference {label}"
 msgstr "參照 {label}"
 
-#: src/mathessible/ui/document_editor.py:541
+#: src/mathessible/ui/document_editor.py:537
 msgid "equation saved, new line"
 msgstr "已儲存方程式，新行"
 
-#: src/mathessible/ui/document_editor.py:541
+#: src/mathessible/ui/document_editor.py:537
 msgid "equation saved"
 msgstr "已儲存方程式"
 
-#: src/mathessible/ui/document_editor.py:544
+#: src/mathessible/ui/document_editor.py:540
 msgid "equation editing canceled"
 msgstr "已取消編輯方程式"
 
@@ -4129,4 +4138,10 @@ msgstr "符合項目(&M)"
 #: src/mathessible/ui/symbol_dialog.py:46
 msgid "Matching symbols"
 msgstr "符合的符號"
+
+#~ msgid "LaTeX is written in the linear view, F2"
+#~ msgstr "LaTeX 在線性檢視中撰寫，F2"
+
+#~ msgid "templates are not available for LaTeX yet"
+#~ msgstr "LaTeX 尚無範本可用"
 

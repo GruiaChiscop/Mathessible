@@ -89,12 +89,12 @@ links back, liblouis and BRF need a braille transcriber's convention.
 - [x] LaTeX documents, stage 1: `math: latex` in the front matter, the
   equations stored as LaTeX and built, read, brailled and exported
   through Sargent's TeX2UnicodeMath; the built view read-only.
-- [ ] LaTeX, stage 2: editing in the professional view (MathCAT's leaves
-  mapped to the LaTeX), templates, the Insert menu and the Structure
-  Gallery writing LaTeX; `\pmatrix{...}`. Word rewrites a built
-  equation's LaTeX when it goes back to the linear view; Mathessible
-  keeps the LaTeX as typed and rewrites it only after an edit in the
-  professional view.
+- [x] LaTeX, stage 2: editing in the professional view (the UnicodeMath
+  the LaTeX builds as, written again in LaTeX by MathCAT only after an
+  edit there; Word rewrites it on every return), the Insert menu writing
+  LaTeX in the linear view.
+- [ ] LaTeX: `\pmatrix{...}`, and a math alphabet over a structure
+  (`\mathbf{\frac{a}{b}}`), in Sargent's TeX2UnicodeMath.
 - [ ] LaTeX, stage 3: `.tex` files, opened and saved as LaTeX documents
   (`$`, `\(`, `\[` and `equation` environments).
 - [ ] Opening Markdown written elsewhere (GitHub, Pandoc) whose equations

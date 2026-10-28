@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import threading
+from dataclasses import dataclass
 
 from mathessible import session_log
 from mathessible.documents.clipboard_html import equation_html
@@ -16,6 +17,7 @@ from mathessible.editing.character_speech import (
 from mathessible.editing.completion import Completion
 from mathessible.editing.edit_history import EditHistory, EditState
 from mathessible.editing.equation_source import EquationSource
+from mathessible.editing.latex_insert import insert_latex
 from mathessible.editing.linear_runs import Runs
 from mathessible.editing.normal_text import in_text, toggle_normal_text
 from mathessible.editing.pasted_math import pasted_mathml, plain_letters
@@ -57,7 +59,7 @@ from mathessible.templates.math_templates import group_function_argument, move_t
 from mathessible.ui.clipboard import get_clipboard_html, get_clipboard_text, set_clipboard_text
 from mathessible.ui.speech import AssistiveOutput, create_output
 from mathessible.ui.theme import Palette, palette
-from mathessible.unicodemath import ConversionResult, UnicodeMathError
+from mathessible.unicodemath import ConversionResult, UnicodeMathError, mathml_has_parse_error
 
 try:
     import wx
@@ -86,6 +88,18 @@ _KEYS_HANDLED_ON_KEY_DOWN = (
     if wx is not None
     else frozenset()
 )
+
+
+@dataclass(frozen=True, slots=True)
+class _LatexEditing:
+    """A LaTeX equation edited in the professional view: the linear view's LaTeX, caret and history as they
+    were, and the UnicodeMath the LaTeX built as (unchanged, the LaTeX is kept as typed)."""
+
+    latex: str
+    caret: int
+    unicodemath: str
+    history: EditHistory
+
 
 if wx is not None:
 
@@ -121,8 +135,11 @@ if wx is not None:
             # typing streak), and navigation follows the settings (`_linear_now`).
             self.writing_enabled = True
             # The document's equations are LaTeX (front matter `math: latex`): the linear view is
-            # LaTeX text, built through Sargent's converter, and the built equation is only read.
-            self.latex = False
+            # LaTeX text, built through Sargent's converter (`latex` says when the source is LaTeX).
+            self.latex_document = False
+            # While the professional view edits a LaTeX equation, it edits the UnicodeMath that the
+            # LaTeX builds as: the LaTeX is kept as typed unless it is edited there (`_LatexEditing`).
+            self._latex_editing: _LatexEditing | None = None
             set_speech_language(self._speech_language)
             self.mathcat: MathCatNavigator | None = create_mathcat_navigator(
                 recognized_functions=self.settings.recognized_functions,
@@ -317,6 +334,17 @@ if wx is not None:
         def source(self) -> str:
             return self.document.source
 
+        @property
+        def document_source(self) -> str:
+            """The equation as its document stores it: while the professional view edits a LaTeX equation,
+            the LaTeX it opened with (an edit is written in LaTeX on leaving it, `end_latex_editing`)."""
+            return self.document.source if self._latex_editing is None else self._latex_editing.latex
+
+        @property
+        def latex(self) -> bool:
+            """The source is LaTeX: a LaTeX document's equation, but for the professional view's UnicodeMath."""
+            return self.latex_document and self._latex_editing is None
+
         def set_source(self, source: str) -> None:
             session_log.write("open", repr(source))
             if not self.writing_enabled:
@@ -328,6 +356,7 @@ if wx is not None:
                     self.mathcat.structural_stops = self._structural_stops
             self.document = EquationSource(source)
             self.caret = len(source)
+            self._latex_editing = None
             self.selection_anchor = None
             self._selected_ids = ()
             self.mode = "linear"
@@ -554,8 +583,11 @@ if wx is not None:
                 return
             self._pending_read = False
             try:
+                opens_built = self.settings.open_built and self.mode == "linear"
+                if opens_built and self.latex and not self._begin_latex_editing():
+                    return
                 conversion = self._convert_source()
-                if self.settings.open_built and self.mode == "linear":
+                if opens_built:
                     # Open straight in professional view, MathCAT on the start of the math.
                     self._enter_professional_mode(conversion, error_prefix=spoken("The equation could not be built"))
                     return
@@ -579,7 +611,7 @@ if wx is not None:
                 # with "busy".
                 wx.CallLater(30, self._retry_toggle_mode, attempts - 1)
                 return
-            selection = None if self.latex else self._built_selection()
+            selection = None if self.latex_document else self._built_selection()
             if selection is not None:
                 # As Word's Linear/Professional on a selection: only that part changes.
                 self._toggle_selection_linear(*selection)
@@ -596,24 +628,29 @@ if wx is not None:
                 self._announce(spoken("empty equation"))
                 return
             if self.mode == "linear":
+                if self.latex and not self._begin_latex_editing():
+                    return
                 try:
                     conversion = self._convert_source()
                 except (UnicodeMathError, RuntimeError, ValueError) as error:
+                    self._cancel_latex_editing()
                     self._announce(spoken("Professional mode could not be built. {error}").format(error=error))
                     return
                 if 'mathcolor="#F00"' in conversion.mathml:
                     # Nothing parses: building would only show the source in red.
+                    self._cancel_latex_editing()
                     self._announce(
                         spoken("cannot be built, {errors}").format(errors=self._errors_summary(total_failure=True))
                     )
                     return
                 self._enter_professional_mode(conversion, error_prefix=spoken("Professional mode could not be built"))
             else:
-                self.mode = "linear"
-                if self.latex:
-                    self.writing_enabled = True  # LaTeX is written here (the built view only reads).
-                    self.apply_settings()
+                if self._latex_editing is not None:
+                    if not self.end_latex_editing():
+                        return
+                    self.mode = "linear"
                 else:
+                    self.mode = "linear"
                     self.remove_extra_spaces()  # As Word's linear format: no space that changes nothing.
                 self._update_braille_display()
                 self._announce(spoken("linear mode"))
@@ -626,11 +663,6 @@ if wx is not None:
         def _enter_professional_mode(self, conversion: ConversionResult, error_prefix: str) -> bool:
             self._clear_selection()  # A linear view selection is not kept: MathCAT starts over.
             self._professional_mathml = conversion.mathml
-            if self.latex and self.writing_enabled:
-                # A LaTeX equation is read and navigated here, not edited (MathCAT's leaves are not mapped
-                # to the LaTeX): as exploration mode.
-                self.writing_enabled = False
-                self.apply_settings()
             try:
                 self.mode = "professional"
                 self.mathml_document = MathMLDocument.parse(
@@ -648,8 +680,71 @@ if wx is not None:
                 return True
             except (OSError, RuntimeError, ValueError) as error:
                 self.mode = "linear"
+                self._cancel_latex_editing()
                 self._announce(f"{error_prefix}. {error}")
                 return False
+
+        def _begin_latex_editing(self) -> bool:
+            """Into the professional view with a LaTeX equation: the source becomes the UnicodeMath it builds as.
+
+            The converter's lineariser writes that UnicodeMath, in the letters typed, so the built view
+            edits it as any equation. The linear view's LaTeX and history wait in `_latex_editing`.
+            False (and said) when the LaTeX does not build.
+            """
+            latex = self.document.source
+            try:
+                mathml = self.convert_equation(latex, latex=True)
+                if mathml_has_parse_error(mathml):
+                    raise UnicodeMathError(spoken("the LaTeX has errors"))
+                unicodemath = plain_letters(self.unicode_math_from_mathml(mathml))
+            except (UnicodeMathError, RuntimeError, ValueError) as error:
+                self._announce(spoken("cannot be built, {errors}").format(errors=error))
+                return False
+            self._latex_editing = _LatexEditing(latex, self.caret, unicodemath, self.history)
+            self.document = EquationSource(unicodemath)
+            self.caret = len(unicodemath)
+            self.history = EditHistory(unicodemath, self.caret)
+            return True
+
+        def _cancel_latex_editing(self) -> None:
+            """Back to the LaTeX as it was, when the professional view could not open after all."""
+            editing, self._latex_editing = self._latex_editing, None
+            if editing is not None:
+                self.document = EquationSource(editing.latex)
+                self.caret = editing.caret
+                self.history = editing.history
+
+        def end_latex_editing(self) -> bool:
+            """Out of the professional view of a LaTeX equation: the LaTeX as typed if nothing was edited there,
+            else the edited equation written again in LaTeX (one undo in the linear view takes that back).
+
+            False (and said) when the edited equation cannot be written in LaTeX: it stays in the professional
+            view. True with nothing to do outside it.
+            """
+            editing = self._latex_editing
+            if editing is None:
+                return True
+            source = self.document.source
+            if source == editing.unicodemath:
+                latex, caret = editing.latex, editing.caret
+            else:
+                try:
+                    mathml = self.convert_equation(source)
+                    if mathml_has_parse_error(mathml):
+                        raise UnicodeMathError(spoken("the equation has errors"))
+                    latex = self.latex_from_mathml(mathml)
+                except (UnicodeMathError, RuntimeError, ValueError) as error:
+                    self._announce(spoken("cannot be written in LaTeX, {error}").format(error=error))
+                    return False
+                caret = len(latex)
+            self._latex_editing = None
+            self.history = editing.history
+            if latex != editing.latex:
+                session_log.write("command", f"LaTeX written again: {latex!r}")
+                self.history.push(latex, caret)
+            self.document = EquationSource(latex)
+            self.caret = caret
+            return True
 
         def _on_key_down(self, event: wx.KeyEvent) -> None:
             if session_log.enabled():
@@ -674,9 +769,6 @@ if wx is not None:
                 self._show_context_menu(self._caret_point())
                 return
             if key == wx.WXK_F10 and not event.ShiftDown() and not command_modifier:
-                if self.latex and self.mode == "professional":
-                    self._announce_writing_off()
-                    return
                 self.toggle_writing()
                 return
             if not self.writing_enabled and self._is_edit_key(event, key):
@@ -765,9 +857,6 @@ if wx is not None:
             self._announce(spoken("writing mode") if self.writing_enabled else spoken("exploration mode"))
 
         def _announce_writing_off(self) -> None:
-            if self.latex and self.mode == "professional":
-                self._announce(spoken("LaTeX is written in the linear view, F2"))
-                return
             self._announce(spoken("exploration mode, F10 to write"))
 
         def _writing_off(self) -> bool:
@@ -800,10 +889,10 @@ if wx is not None:
         def insert_item(self, item: InsertItem) -> None:
             """Insert an Insert-menu entry at the caret, or where MathCAT is in professional view."""
             session_log.write("command", f"insert {item.label!r}")
-            if self.latex:
-                self._announce(spoken("templates are not available for LaTeX yet"))
-                return
             if self._writing_off():
+                return
+            if self.latex:
+                self._insert_latex_item(item)
                 return
             if self.mode == "professional" and self.mathcat is not None and self.mathcat.structure is not None:
                 self._edit_in_built(lambda: self._insert_linear(item), glue=True)
@@ -811,6 +900,31 @@ if wx is not None:
             if self.mode != "linear":
                 return
             announcement = self._insert_linear(item)
+            if announcement:
+                self._announce(announcement)
+
+        def _insert_latex_item(self, item: InsertItem) -> None:
+            """An Insert entry in LaTeX typed in the linear view: its UnicodeMath template (a matrix, symbol or
+            gallery entry chosen first, as always) written in LaTeX by MathCAT, the caret in its first slot."""
+            if self.mode != "linear":
+                return
+            source, caret, history = self.document.source, self.caret, self.history
+            self._clear_selection()
+            # The template as it is inserted into an empty UnicodeMath equation.
+            self.document, self.caret, self.history = EquationSource(""), 0, EditHistory()
+            try:
+                announcement = self._insert_linear(item)
+                template = self.document.source
+            finally:
+                self.document, self.caret, self.history = EquationSource(source), caret, history
+            if not template:
+                return  # Its dialog was cancelled.
+            try:
+                latex = self.latex_from_mathml(self.convert_equation(template))
+            except (UnicodeMathError, RuntimeError, ValueError):
+                self._announce(spoken("not available here"))
+                return
+            self._replace_linear(*insert_latex(source, caret, latex))
             if announcement:
                 self._announce(announcement)
 
@@ -883,6 +997,8 @@ if wx is not None:
             """Remove the spaces that change nothing (`space_tidy`), when the setting asks: on save, F2 to linear."""
             if not self.settings.remove_extra_spaces or not self.converter_ready or self._converting:
                 return
+            if self.latex_document:
+                return  # The setting is UnicodeMath's: LaTeX is kept as typed.
 
             def convert(text: str) -> str | None:
                 try:

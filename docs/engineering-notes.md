@@ -1447,8 +1447,8 @@ document is LaTeX when its front matter says `math: latex`
 file is, never one zone. Settings (Typing) can start new documents and
 notebook pages with the mark (`latex_new_documents`). Edit > Equations in
 LaTeX rewrites every equation through MathML (`markdown_math.rewrite_equations`;
-to LaTeX by Sargent's `MathMLtoTeX`, back by `MathMLtoUnicodeMath`),
-asked first, those that do not build kept, one undo.
+to LaTeX by MathCAT, below, back by `MathMLtoUnicodeMath`), asked first,
+those that do not build kept, one undo.
 
 Building: the renderer page also loads Sargent's own LaTeX converter,
 `playground/assets/TeX.js` (UnicodeMathML's, MIT; not in `dist/`, but the
@@ -1461,14 +1461,57 @@ equation's (`latex`, set by `EquationWindow.prepare` from the document).
 Exports get a page-agnostic function: `html_export.for_page` passes it
 `latex=True` for a LaTeX page (`ExportPage.latex`), so a notebook may mix.
 
-Editing, stage 1: the linear view is LaTeX text, typed as it is written
-(`_typing_text` is true: no Math AutoCorrect, completion, templates,
-building as you type or space tidying), with the preview under it. The
-built view reads and navigates (MathCAT), but is read-only, as
-exploration mode: MathCAT's leaves are not mapped to LaTeX
-(`source_map` is UnicodeMath's), so editing there is stage 2, with LaTeX
-templates. Known converter gaps: `\pmatrix{...}` throws (the
-`\begin{pmatrix}` form works), and a math alphabet over a structure
+Editing: the linear view is LaTeX text, typed as it is written
+(`_typing_text` is true: no Math AutoCorrect, completion, building as you
+type or space tidying, `remove_extra_spaces` included), with the preview
+under it; Word builds LaTeX only on Convert to Professional too. Stage 1
+left the built view read-only, since MathCAT's leaves are mapped to
+UnicodeMath (`source_map`), never to LaTeX. Stage 2 (2026-10-28) edits it
+without such a map: entering the professional view
+(`_begin_latex_editing`) replaces the source with the UnicodeMath the
+LaTeX builds as (LaTeX to MathML, then the converter's own lineariser,
+`plain_letters`, as a paste), the LaTeX, caret and linear history kept in
+`_latex_editing`; `latex` (the source is LaTeX) is then false, so the
+built view, templates and AutoCorrect are UnicodeMath's, unchanged.
+Leaving it (`end_latex_editing`: F2, or saving, `EquationWindow.finish`)
+gives back the LaTeX as typed when the UnicodeMath is unchanged (the
+user's decision: their LaTeX is never rewritten for being read), else
+writes the edited equation's MathML in LaTeX, pushed on the linear
+history, so one undo takes it back. An edited equation with an error
+cannot be written in LaTeX: the editor says so and stays in the
+professional view. Autosave reads `document_source`, the LaTeX opened
+with. Word, too, writes the LaTeX again on leaving its professional
+view (the user's check). Sargent's lineariser gives back the same MathML
+for most LaTeX; `\lim`, `\,` and `\binom` build slightly differently
+(still built), which matters only once edited.
+
+Writing LaTeX: Sargent's `MathMLtoTeX` (`playground/assets/TeX.js`) is
+"Unicode TeX": `\frac{𝑎}{𝑏}`, `𝑥∈ℝ^𝑛`, `"d"` for upright, `\boxed` for a
+bar, cases as `align`, so it is not used. MathCAT's LaTeX braille code is
+plain LaTeX (`\frac{a}{b}`, `x \in \mathbb R^n`, `\begin{pmatrix}`):
+[mathcat/latex.py](../src/mathessible/mathcat/latex.py) `equation_latex`
+runs it on a thread of its own (MathCAT's state, braille code included,
+is per thread: the editor's is never touched; ~50 ms a call), its empty
+slots (`\dottedsquare`) written `{}`, which TeX2UnicodeMath builds as
+empty slots again, and spaced evenly by `tidy_latex` (MathCAT writes
+`x =0`; only for the stored source, braille keeps MathCAT's spacing).
+Patch 0009 fixes the code's own faults found on the way. The round trip
+(LaTeX, built, written by MathCAT, built again) gives the same MathML on
+tests/test_latex_writer.py's equations. `latex_from_mathml` (paste, the
+document switch, leaving the professional view) uses it, and needs the
+native MathCAT. Gaps: `\mathrm{d}` comes back `d`, and `\!` as `!`.
+
+Insert in the linear LaTeX view (`_insert_latex_item`): the entry is run
+on an empty UnicodeMath equation (its dialogs, gallery and symbol
+included, so nothing is duplicated), that template built and written in
+LaTeX by MathCAT, then inserted by
+[editing/latex_insert.py](../src/mathessible/editing/latex_insert.py)
+`insert_latex`: the caret in the first `{}`, and a space between a
+control word and a letter (`\alpha b`, never `\alphab`). The structure
+menus (context menu) stay the professional view's.
+
+Known converter gaps: `\pmatrix{...}` throws (the `\begin{pmatrix}`
+form works), and a math alphabet over a structure
 (`\mathbf{\frac{a}{b}}`) is left as text.
 
 ## Newer UnicodeMathML Versions
@@ -1557,6 +1600,18 @@ still `1,2` and `,3`, and `MathMLtoUnicodeMath` still loses an integral's
     reloads only on a change, so each thread's own MathCAT gets them too),
     and Settings > Braille signs… (`BrailleSignsDialog`, saved on the
     Settings dialog's OK).
+  - `src/braille.rs`, `Rules/Braille/LaTeX/` (patch 0009): the LaTeX code
+    as plain LaTeX that TeX2UnicodeMath builds again (Mathessible writes a
+    LaTeX document's equations with it, "LaTeX Documents"): the
+    "ct:"/"tc:" markers (U+F8FE/F8FF) removed in `LaTeX_cleanup` as
+    speech removes them; math italic Greek as `\alpha` (`\mathmit` is no
+    command); `\lim_{x \to 0}` for a function name's limits (was
+    `\underset{...}{\lim}`); the converter's combining accents as
+    `\vec{v}`, `\tilde{z}` (was `\overset{\vec}{v}`); cases as
+    `\begin{cases}` (a `{` and a table, an empty closing fence); text as
+    `\text{...}`, its spaces spaces (restored after the cleanup's space
+    removal, which would drop `\text{if }`'s). After changing the rules:
+    `uv sync --reinstall-package mathessible-mathcat`.
 - **Startup patch check** ([patch_check.py](../src/mathessible/patch_check.py)):
   `git apply --reverse --check` per patch file, on a worker thread from
   the first `MainFrame`; a warning dialog lists the missing ones (a

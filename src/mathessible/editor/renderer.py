@@ -9,6 +9,7 @@ from collections.abc import Callable
 from mathessible.documents.mathml_sanitize import MathMLModelError, sanitize_mathml
 from mathessible.editing.build_repair import literal_repair, literal_text, repair_for_build
 from mathessible.i18n import _
+from mathessible.mathcat.latex import equation_latex
 from mathessible.ui.macos_webview import guard_webview_key_equivalents
 from mathessible.unicodemath import (
     ConversionResult,
@@ -18,12 +19,10 @@ from mathessible.unicodemath import (
     conversion_script,
     decode_conversion,
     decode_from_mathml,
-    decode_to_latex,
     from_mathml_script,
     highlight_script,
     render_script,
     renderer_page,
-    to_latex_script,
     zoom_script,
 )
 
@@ -205,8 +204,11 @@ class EquationRendererMixin:
         return conversion.mathml
 
     def latex_from_mathml(self, mathml: str) -> str:
-        """An equation's MathML as LaTeX (Sargent's MathMLtoTeX); raises `UnicodeMathError`."""
-        return self._run_converter(lambda token: to_latex_script(mathml, token), decode_to_latex)
+        """An equation's MathML as LaTeX, written by MathCAT (`mathcat.latex`); raises `UnicodeMathError`."""
+        latex = equation_latex([mathml], self.settings.decimal_separator)[0]
+        if latex is None:
+            raise UnicodeMathError(_("the equation could not be written in LaTeX"))
+        return latex
 
     def unicode_math_from_mathml(self, mathml: str) -> str:
         """Pasted MathML as UnicodeMath, by the converter's own lineariser; raises `UnicodeMathError`."""

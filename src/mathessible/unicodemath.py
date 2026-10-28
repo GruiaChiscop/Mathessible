@@ -196,14 +196,6 @@ def renderer_page() -> tuple[str, str]:
         parseFound: parseError && !latex ? parseError.found : null
       };
     };
-    // An equation's MathML as LaTeX (Sargent's MathMLtoTeX), for a document changed to LaTeX.
-    window.mathessibleToLaTeX = function(mathml) {
-      try {
-        return {latex: MathMLtoTeX(mathml)};
-      } catch (error) {
-        return {error: String(error)};
-      }
-    };
     // Pasted MathML (a web page's, Word's) back to UnicodeMath, by the converter's own lineariser.
     window.mathessibleFromMathML = function(mathml) {
       try {
@@ -352,20 +344,6 @@ def conversion_script(source: str, token: int | None = None, decimal_comma: bool
 def from_mathml_script(mathml: str, token: int) -> str:
     """The script turning pasted MathML into UnicodeMath (`mathessibleFromMathML`)."""
     return f"JSON.stringify(Object.assign(window.mathessibleFromMathML({json.dumps(mathml)}), {{token: {int(token)}}}))"
-
-
-def to_latex_script(mathml: str, token: int) -> str:
-    """The script turning an equation's MathML into LaTeX (`mathessibleToLaTeX`)."""
-    return f"JSON.stringify(Object.assign(window.mathessibleToLaTeX({json.dumps(mathml)}), {{token: {int(token)}}}))"
-
-
-def decode_to_latex(value: str, token: int) -> str:
-    """The LaTeX `mathessibleToLaTeX` gave; its failure raises `UnicodeMathError`."""
-    decoded = _decoded(value, token)
-    latex = decoded.get("latex")
-    if not isinstance(latex, str):
-        raise UnicodeMathError(str(decoded.get("error") or "the equation could not be written as LaTeX"))
-    return latex
 
 
 def _decoded(value: str, token: int | None) -> dict:
