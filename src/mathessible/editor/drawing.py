@@ -54,6 +54,12 @@ class EditorDrawingMixin:
     # How far the source line is scrolled left, in pixels, so the caret stays in view.
     _source_scroll = 0
 
+    @property
+    def _shown_source(self) -> str:
+        """The source as the one-line field draws it: a line break (a .tex align's rows) shown as ↵, one
+        character for one, so the caret's position is the same."""
+        return self.document.source.replace("\n", "↵")
+
     def _source_origin_x(self, dc: wx.DC, update: bool = False) -> int:
         """Where the source text starts, scrolled as a one-line text field is so the caret shows.
 
@@ -64,8 +70,8 @@ class EditorDrawingMixin:
         if update:
             visible = max(1, content.width - 2 * self._SOURCE_PADDING)
             margin = min(40, visible // 4)
-            caret_x = dc.GetTextExtent(self.document.source[: self.caret]).width
-            text_width = dc.GetTextExtent(self.document.source).width
+            caret_x = dc.GetTextExtent(self._shown_source[: self.caret]).width
+            text_width = dc.GetTextExtent(self._shown_source).width
             scroll = self._source_scroll
             if caret_x - scroll > visible - margin:
                 scroll = caret_x - (visible - margin)
@@ -76,7 +82,7 @@ class EditorDrawingMixin:
         return content.x + self._SOURCE_PADDING - self._source_scroll
 
     def _caret_from_x(self, dc: wx.DC, x: int, origin_x: int) -> int:
-        source = self.document.source
+        source = self._shown_source
         if not source:
             return 0
         relative_x = x - origin_x
@@ -217,18 +223,19 @@ class EditorDrawingMixin:
         y = content.y + max(4, (content.height - line_height) // 2)
         selection = self._selection_range()
         if selection is not None:
-            start_x = x + dc.GetTextExtent(self.document.source[: selection[0]]).width
-            end_x = x + dc.GetTextExtent(self.document.source[: selection[1]]).width
+            start_x = x + dc.GetTextExtent(self._shown_source[: selection[0]]).width
+            end_x = x + dc.GetTextExtent(self._shown_source[: selection[1]]).width
             dc.SetBrush(wx.Brush(self._colour(colors.selection)))
             dc.SetPen(wx.TRANSPARENT_PEN)
             dc.DrawRectangle(int(start_x), y - 2, int(end_x - start_x), line_height + 4)
         if self.document.source:
             dc.SetTextForeground(self._colour(colors.text))
-            dc.DrawText(self.document.source, x, y)
+            dc.DrawText(self._shown_source, x, y)
         else:
             dc.SetTextForeground(self._colour(colors.subtle_text))
-            dc.DrawText(_("Type UnicodeMath here, e.g. (a+b)/2"), x, y)
-        prefix_width = dc.GetTextExtent(self.document.source[: self.caret]).width
+            hint = _("Type LaTeX here, e.g. \\frac{a+b}{2}") if self.latex else _("Type UnicodeMath here, e.g. (a+b)/2")
+            dc.DrawText(hint, x, y)
+        prefix_width = dc.GetTextExtent(self._shown_source[: self.caret]).width
         dc.SetPen(wx.Pen(self._colour(colors.focus), 2))
         dc.DrawLine(x + prefix_width, y - 2, x + prefix_width, y + line_height + 2)
         dc.DestroyClippingRegion()

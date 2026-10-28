@@ -134,6 +134,24 @@ sums and integrals, `\begin{pmatrix}`, `\begin{cases}`, `\left( \right)`,
 `\pmatrix{...}` and Word's `\matrix{...}`, `\mathbb{R}` and
 `\mathbf{...}`, `\text{}`).
 
+### LaTeX files
+
+File → Open also opens a LaTeX document (`.tex`), and Save keeps it a
+`.tex` file, exactly as it was written but for the equations you edit.
+Its equations are found by LaTeX's own marks: `$...$`, `\(...\)`,
+`$$...$$`, `\[...\]` and the `equation`, `align`, `gather`, `multline`,
+`eqnarray` and `math` environments (comments, `\verb` and `verbatim` are
+skipped). `Control+=` on an equation opens it in the equation editor, as
+in a LaTeX Markdown document; an edited equation goes back between its
+own marks, and a new one is written `$...$` (inline) or `\[...\]`
+(display). An `align` environment's rows are edited as one equation,
+its line breaks shown as ↵ (Up and Down go from line to line and read it; in the professional view they go from row to row); `\label`, `\tag` and `\nonumber` stay in
+the text but are not read as math.
+
+For now a `.tex` document has no preview, export, print, footnotes or
+header and footer: those read Markdown. They are planned, and so is a
+PDF compiled by your own LaTeX installation, with the packages you use.
+
 ### Header and footer
 
 Insert → Header and Footer… sets the document's header and footer: a

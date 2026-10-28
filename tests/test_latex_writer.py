@@ -2,7 +2,7 @@ import re
 import unittest
 
 from converter_harness import convert_all, has_error, needs_node
-from mathessible.editing.latex_insert import insert_latex
+from mathessible.editing.latex_insert import insert_latex, within_environment
 from mathessible.mathcat.latex import equation_latex, tidy_latex
 
 needs_mathcat = unittest.skipUnless(
@@ -16,6 +16,7 @@ class TidyLatexTests(unittest.TestCase):
             tidy_latex("x =\\frac{ -b \\pm \\sqrt{b^2 -4ac}}{2a}"), "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"
         )
         self.assertEqual(tidy_latex("e^{i\\pi} +1 =0"), "e^{i\\pi} + 1 = 0")
+        self.assertEqual(tidy_latex("a & =b \\\\ c & -d"), "a & = b \\\\ c & -d")
 
     def test_a_sign_is_not_a_binary_operator(self) -> None:
         self.assertEqual(tidy_latex("x =-1"), "x = -1")
@@ -42,6 +43,16 @@ class InsertLatexTests(unittest.TestCase):
         self.assertEqual(insert_latex("x", 0, "\\alpha"), ("\\alpha x", 7))
 
 
+class WithinEnvironmentTests(unittest.TestCase):
+    def test_an_align_environments_rows_lose_the_aligned_written_around_them(self) -> None:
+        written = "\\begin{aligned} a & = b \\\\ c & = d \\end{aligned}"
+        typed = "\n  a &= b \\\\\n  c &= d\n"
+        self.assertEqual(within_environment(written, "aligned", typed), "\n  a & = b \\\\ c & = d\n")
+
+    def test_outside_an_environment_nothing_changes(self) -> None:
+        self.assertEqual(within_environment("x = 1", "", " x=1 "), "x = 1")
+
+
 # Each equation: built from LaTeX, written in LaTeX again by MathCAT, built again.
 ROUND_TRIP = [
     "\\frac{a}{b}",
@@ -59,6 +70,8 @@ ROUND_TRIP = [
     "e^{i\\pi}+1=0",
     "\\binom{n}{k}",
     "\\frac{}{}",
+    "\\begin{aligned}a&=b+1\\\\c&=d\\end{aligned}",
+    "\\begin{matrix}a&b\\\\c&d\\end{matrix}",
 ]
 
 
@@ -76,6 +89,14 @@ class LatexWriterTests(unittest.TestCase):
                 self.assertEqual(after, before)
                 # LaTeX's own letters and commands: no math alphanumerics, quotes or hidden markers.
                 self.assertIsNone(re.search(r"[\U0001d400-\U0001d7ff\"-]", latex))
+
+    def test_an_align_environment_is_written_back_as_its_rows(self) -> None:
+        rows = "a &= b+1 \\\\ c &= d"
+        (built,) = convert_all([f"\\begin{{aligned}}{rows}\\end{{aligned}}"], latex=True)
+        written = within_environment(equation_latex([built["mathml"]])[0], "aligned", rows)
+        self.assertEqual(written, "a & = b + 1 \\\\ c & = d")
+        (rebuilt,) = convert_all([f"\\begin{{aligned}}{written}\\end{{aligned}}"], latex=True)
+        self.assertEqual(rebuilt["mathml"], built["mathml"])
 
     def test_what_mathcat_writes(self) -> None:
         sources = ["\\frac{a}{b}", "\\alpha_1", "\\lim_{x\\to 0} f", "\\frac{}{}", "\\text{if } x"]

@@ -17,15 +17,18 @@ playground's TeX.js. Two passes now run before its first one:
   findClosingBrace, which returns a number at a row's \\). They become the
   environments it reads, \begin{pmatrix}...\end{pmatrix}, rows ended by
   \\ or \cr.
+- TeXDocumentCommands: a .tex document's \label{...}, \tag{...},
+  \nonumber and \notag, which are not math, are left out of the built
+  equation (they came out as text).
 
 Only playground/assets/TeX.js, which Mathessible loads after dist/.
 Applied by scripts/bootstrap.sh after 0001 to 0003.
 
 diff --git a/playground/assets/TeX.js b/playground/assets/TeX.js
-index 9142e69..2c6be16 100644
+index 9142e69..319735e 100644
 --- a/playground/assets/TeX.js
 +++ b/playground/assets/TeX.js
-@@ -834,7 +834,115 @@ function TeX2UMath(tex) {
+@@ -834,7 +834,121 @@ function TeX2UMath(tex) {
      }
      return uniTeX
  }
@@ -136,8 +139,14 @@ index 9142e69..2c6be16 100644
 +    return ret
 +}
 +
++// A document's numbering and cross-reference commands, which are not math: \label{...},
++// \tag{...} and \nonumber or \notag (in an equation or align environment) are left out.
++function TeXDocumentCommands(tex) {
++    return tex.replace(/\\(?:label|tag\*?)\s*\{[^{}]*\}|\\(?:nonumber|notag)(?![A-Za-z])/g, '')
++}
++
  function TeX2UnicodeMath(tex) {
-+    tex = TeXMathAlphabets(TeXMatrixCommands(tex))
++    tex = TeXMathAlphabets(TeXMatrixCommands(TeXDocumentCommands(tex)))
      // Pass 1: Convert control words in tex to Unicode symbols or strings
      let cwPrev = ''
      let macrosEnabled = ummlConfig && ummlConfig.texMacros

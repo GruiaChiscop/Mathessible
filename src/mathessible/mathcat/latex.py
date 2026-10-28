@@ -22,6 +22,8 @@ from mathessible.mathcat.prepare import prepare_for_mathcat
 
 # The ASCII operators MathCAT writes with a space before and none after (`x =0`).
 _OPERATOR = re.compile(r"(?<=[\w}\])'!|]) ([=+\-<>])(?=[^\s}\])&,;^_])")
+# A relation after an alignment point (`a & =b`).
+_ALIGNED_RELATION = re.compile(r"(?<=&) ([=<>])(?=[^\s}\])&,;^_])")
 _AFTER_OPENING = re.compile(r"(?<=[{(\[]) +")
 _TEXT = re.compile(r"\\text\{[^{}]*\}")
 # MathCAT's empty slot (⬚); `{}` is LaTeX's, built as an empty slot again.
@@ -34,7 +36,7 @@ def tidy_latex(latex: str) -> str:
     texts = _TEXT.findall(latex)
     # Each text stands in as `\\text{}` while the math around it is spaced.
     latex = _AFTER_OPENING.sub("", _TEXT.sub(lambda _text: "\\text{}", latex))
-    latex = _OPERATOR.sub(r" \1 ", latex)
+    latex = _ALIGNED_RELATION.sub(r" \1 ", _OPERATOR.sub(r" \1 ", latex))
     pieces = latex.split("\\text{}")
     return pieces[0] + "".join(text + piece for text, piece in zip(texts, pieces[1:], strict=True))
 

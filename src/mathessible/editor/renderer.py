@@ -185,7 +185,10 @@ class EquationRendererMixin:
         return self._renderer_ready and self._webview is not None
 
     def convert_unicode_math(self, source: str) -> str:
-        """The equation being edited (or one like it) as MathML: in its document's language (`self.latex`)."""
+        """The equation being edited (or one like it) as MathML: in its document's language (`self.latex`), a
+        .tex environment's rows built as its `latex_environment` (align's as `aligned`)."""
+        if self.latex and self.latex_environment:
+            source = f"\\begin{{{self.latex_environment}}}{source}\\end{{{self.latex_environment}}}"
         return self.convert_equation(source, self.latex)
 
     def convert_equation(self, source: str, latex: bool = False) -> str:

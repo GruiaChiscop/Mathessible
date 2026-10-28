@@ -272,38 +272,38 @@ msgstr "ei virheitä"
 msgid "{message}, selected {span}"
 msgstr "{message}, valittu {span}"
 
-#: src/mathessible/editor/built.py:119 src/mathessible/editor/equation_editor.py:1093
+#: src/mathessible/editor/built.py:119 src/mathessible/editor/equation_editor.py:1095
 msgid "could not cut"
 msgstr "leikkaaminen ei onnistunut"
 
-#: src/mathessible/editor/built.py:432 src/mathessible/editor/equation_editor.py:1058
+#: src/mathessible/editor/built.py:432 src/mathessible/editor/equation_editor.py:1060
 msgid "nothing to select"
 msgstr "ei mitään valittavaa"
 
-#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:1020
+#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:1022
 msgid "nothing to undo"
 msgstr "ei mitään kumottavaa"
 
-#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:1020
+#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:1022
 msgid "nothing to redo"
 msgstr "ei mitään tehtävää uudelleen"
 
-#: src/mathessible/editor/drawing.py:98
+#: src/mathessible/editor/drawing.py:104
 msgid "UnicodeMath source — empty equation"
 msgstr "UnicodeMath-lähde — tyhjä yhtälö"
 
-#: src/mathessible/editor/drawing.py:99
+#: src/mathessible/editor/drawing.py:105
 #, python-brace-format
 msgid "UnicodeMath source — character {position} of {length}"
 msgstr "UnicodeMath-lähde — merkki {position}/{length}"
 
-#: src/mathessible/editor/drawing.py:103
+#: src/mathessible/editor/drawing.py:109
 msgid "Professional mode — writing mode: Space types; Up/Down read rows; F10 explores; F2 source"
 msgstr ""
 "Ammattilaistila — kirjoitustila: välilyönti kirjoittaa; Ylös/Alas lukevat rivejä; F10 tutkii; F2 "
 "lähde"
 
-#: src/mathessible/editor/drawing.py:106
+#: src/mathessible/editor/drawing.py:112
 msgid ""
 "Professional mode — exploration mode, linear navigation (F10 writes); Space reads; Shift+Space "
 "context; Alt+Space zone; F2 source"
@@ -311,7 +311,7 @@ msgstr ""
 "Ammattilaistila — tutkimustila, lineaarinen siirtyminen (F10 kirjoittaa); välilyönti lukee; "
 "Vaihto+välilyönti konteksti; Alt+välilyönti alue; F2 lähde"
 
-#: src/mathessible/editor/drawing.py:110
+#: src/mathessible/editor/drawing.py:116
 msgid ""
 "Professional mode — exploration mode, structural navigation (F10 writes); Space reads; "
 "Shift+Space context; Alt+Space zone; F2 source"
@@ -319,32 +319,37 @@ msgstr ""
 "Ammattilaistila — tutkimustila, rakenteellinen siirtyminen (F10 kirjoittaa); välilyönti lukee; "
 "Vaihto+välilyönti konteksti; Alt+välilyönti alue; F2 lähde"
 
-#: src/mathessible/editor/drawing.py:125
+#: src/mathessible/editor/drawing.py:131
 #, python-brace-format
 msgid "{position} of {count}; Tab completes"
 msgstr "{position}/{count}; Sarkain täydentää"
 
-#: src/mathessible/editor/drawing.py:141
+#: src/mathessible/editor/drawing.py:147
 msgid "Linear (UnicodeMath source)"
 msgstr "Lineaarinen (UnicodeMath-lähde)"
 
-#: src/mathessible/editor/drawing.py:141
+#: src/mathessible/editor/drawing.py:147
 msgid "Professional (built equation)"
 msgstr "Ammattilainen (rakennettu yhtälö)"
 
-#: src/mathessible/editor/drawing.py:145
+#: src/mathessible/editor/drawing.py:151
 msgid "F2 switches view"
 msgstr "F2 vaihtaa näkymää"
 
-#: src/mathessible/editor/drawing.py:201
+#: src/mathessible/editor/drawing.py:207
 msgid "Loading the math renderer…"
 msgstr "Matematiikan piirtäjää ladataan…"
 
-#: src/mathessible/editor/drawing.py:209
+#: src/mathessible/editor/drawing.py:215
 msgid "The math renderer is not available"
 msgstr "Matematiikan piirtäjä ei ole käytettävissä"
 
-#: src/mathessible/editor/drawing.py:230
+#: src/mathessible/editor/drawing.py:236
+#, python-brace-format
+msgid "Type LaTeX here, e.g. \\frac{a+b}{2}"
+msgstr "Kirjoita LaTeXia tähän, esim. \\frac{a+b}{2}"
+
+#: src/mathessible/editor/drawing.py:236
 msgid "Type UnicodeMath here, e.g. (a+b)/2"
 msgstr "Kirjoita UnicodeMathia tähän, esim. (a+b)/2"
 
@@ -352,167 +357,167 @@ msgstr "Kirjoita UnicodeMathia tähän, esim. (a+b)/2"
 msgid "Equation editor"
 msgstr "Yhtälöeditori"
 
-#: src/mathessible/editor/equation_editor.py:227 src/mathessible/ui/braille_signs_dialog.py:61
+#: src/mathessible/editor/equation_editor.py:229 src/mathessible/ui/braille_signs_dialog.py:61
 #: src/mathessible/ui/settings_dialog.py:74
 msgid "Braille"
 msgstr "Pistekirjoitus"
 
-#: src/mathessible/editor/equation_editor.py:230
+#: src/mathessible/editor/equation_editor.py:232
 msgid "Equation braille"
 msgstr "Yhtälön pistekirjoitus"
 
-#: src/mathessible/editor/equation_editor.py:286
+#: src/mathessible/editor/equation_editor.py:288
 msgid "equation ready"
 msgstr "yhtälö valmis"
 
-#: src/mathessible/editor/equation_editor.py:461
+#: src/mathessible/editor/equation_editor.py:463
 msgid "Equation editor, professional mode"
 msgstr "Yhtälöeditori, ammattilaistila"
 
-#: src/mathessible/editor/equation_editor.py:463
+#: src/mathessible/editor/equation_editor.py:465
 msgid "Equation editor, linear mode"
 msgstr "Yhtälöeditori, lineaarinen tila"
 
-#: src/mathessible/editor/equation_editor.py:535
+#: src/mathessible/editor/equation_editor.py:537
 #, python-brace-format
 msgid "zoom {percent} percent"
 msgstr "zoomaus {percent} prosenttia"
 
-#: src/mathessible/editor/equation_editor.py:592
+#: src/mathessible/editor/equation_editor.py:594
 msgid "The equation could not be built"
 msgstr "Yhtälöä ei voitu rakentaa"
 
-#: src/mathessible/editor/equation_editor.py:604
+#: src/mathessible/editor/equation_editor.py:606
 #, python-brace-format
 msgid "The equation could not be read. {error}"
 msgstr "Yhtälöä ei voitu lukea. {error}"
 
-#: src/mathessible/editor/equation_editor.py:628
+#: src/mathessible/editor/equation_editor.py:630
 msgid "empty equation"
 msgstr "tyhjä yhtälö"
 
-#: src/mathessible/editor/equation_editor.py:637
+#: src/mathessible/editor/equation_editor.py:639
 #, python-brace-format
 msgid "Professional mode could not be built. {error}"
 msgstr "Ammattilaistilaa ei voitu rakentaa. {error}"
 
-#: src/mathessible/editor/equation_editor.py:643 src/mathessible/editor/equation_editor.py:701
+#: src/mathessible/editor/equation_editor.py:645 src/mathessible/editor/equation_editor.py:703
 #, python-brace-format
 msgid "cannot be built, {errors}"
 msgstr "ei voi rakentaa, {errors}"
 
-#: src/mathessible/editor/equation_editor.py:646
+#: src/mathessible/editor/equation_editor.py:648
 msgid "Professional mode could not be built"
 msgstr "Ammattilaistilaa ei voitu rakentaa"
 
-#: src/mathessible/editor/equation_editor.py:678
+#: src/mathessible/editor/equation_editor.py:680
 #, python-brace-format
 msgid "professional mode, {speech}"
 msgstr "ammattilaistila, {speech}"
 
-#: src/mathessible/editor/equation_editor.py:698
+#: src/mathessible/editor/equation_editor.py:700
 msgid "the LaTeX has errors"
 msgstr "LaTeXissa on virheitä"
 
-#: src/mathessible/editor/equation_editor.py:734
+#: src/mathessible/editor/equation_editor.py:736
 msgid "the equation has errors"
 msgstr "kaavassa on virheitä"
 
-#: src/mathessible/editor/equation_editor.py:737
+#: src/mathessible/editor/equation_editor.py:739
 #, python-brace-format
 msgid "cannot be written in LaTeX, {error}"
 msgstr "ei voi kirjoittaa LaTeXina, {error}"
 
-#: src/mathessible/editor/equation_editor.py:857
+#: src/mathessible/editor/equation_editor.py:859
 msgid "writing mode"
 msgstr "kirjoitustila"
 
-#: src/mathessible/editor/equation_editor.py:857
+#: src/mathessible/editor/equation_editor.py:859
 msgid "exploration mode"
 msgstr "tutkimustila"
 
-#: src/mathessible/editor/equation_editor.py:860
+#: src/mathessible/editor/equation_editor.py:862
 msgid "exploration mode, F10 to write"
 msgstr "tutkimustila, F10 kirjoittaaksesi"
 
-#: src/mathessible/editor/equation_editor.py:925 src/mathessible/editor/structures.py:466
+#: src/mathessible/editor/equation_editor.py:927 src/mathessible/editor/structures.py:466
 msgid "not available here"
 msgstr "ei käytettävissä tässä"
 
-#: src/mathessible/editor/equation_editor.py:1053
+#: src/mathessible/editor/equation_editor.py:1055
 #, python-brace-format
 msgid "{count} character selected"
 msgid_plural "{count} characters selected"
 msgstr[0] "{count} merkki valittu"
 msgstr[1] "{count} merkkiä valittu"
 
-#: src/mathessible/editor/equation_editor.py:1072
+#: src/mathessible/editor/equation_editor.py:1074
 #, python-brace-format
 msgid "copied {item}"
 msgstr "kopioitu: {item}"
 
-#: src/mathessible/editor/equation_editor.py:1074 src/mathessible/editor/equation_editor.py:1082
+#: src/mathessible/editor/equation_editor.py:1076 src/mathessible/editor/equation_editor.py:1084
 msgid "could not copy"
 msgstr "kopiointi ei onnistunut"
 
-#: src/mathessible/editor/equation_editor.py:1079
+#: src/mathessible/editor/equation_editor.py:1081
 msgid "nothing to copy"
 msgstr "ei mitään kopioitavaa"
 
-#: src/mathessible/editor/equation_editor.py:1084
+#: src/mathessible/editor/equation_editor.py:1086
 msgid "selection copied"
 msgstr "valinta kopioitu"
 
-#: src/mathessible/editor/equation_editor.py:1084
+#: src/mathessible/editor/equation_editor.py:1086
 msgid "equation copied"
 msgstr "yhtälö kopioitu"
 
-#: src/mathessible/editor/equation_editor.py:1090
+#: src/mathessible/editor/equation_editor.py:1092
 msgid "nothing to cut"
 msgstr "ei mitään leikattavaa"
 
-#: src/mathessible/editor/equation_editor.py:1097
+#: src/mathessible/editor/equation_editor.py:1099
 msgid "selection cut"
 msgstr "valinta leikattu"
 
-#: src/mathessible/editor/equation_editor.py:1100
+#: src/mathessible/editor/equation_editor.py:1102
 msgid "equation cut"
 msgstr "yhtälö leikattu"
 
-#: src/mathessible/editor/equation_editor.py:1121
+#: src/mathessible/editor/equation_editor.py:1123
 msgid "the pasted MathML could not be converted"
 msgstr "liitettyä MathML:ää ei voitu muuntaa"
 
-#: src/mathessible/editor/equation_editor.py:1124 src/mathessible/editor/equation_editor.py:1130
+#: src/mathessible/editor/equation_editor.py:1126 src/mathessible/editor/equation_editor.py:1132
 msgid "clipboard is empty"
 msgstr "leikepöytä on tyhjä"
 
-#: src/mathessible/editor/equation_editor.py:1137
+#: src/mathessible/editor/equation_editor.py:1139
 msgid "equation pasted"
 msgstr "yhtälö liitetty"
 
-#: src/mathessible/editor/equation_editor.py:1179
+#: src/mathessible/editor/equation_editor.py:1181
 msgid "still preparing the equation, please wait"
 msgstr "yhtälöä valmistellaan vielä, odota"
 
-#: src/mathessible/editor/equation_editor.py:1359 src/mathessible/editor/equation_editor.py:1370
+#: src/mathessible/editor/equation_editor.py:1361 src/mathessible/editor/equation_editor.py:1372
 msgid "selection deleted"
 msgstr "valinta poistettu"
 
-#: src/mathessible/editor/equation_editor.py:1556
+#: src/mathessible/editor/equation_editor.py:1558
 msgid "cannot move there"
 msgstr "sinne ei voi siirtyä"
 
-#: src/mathessible/editor/equation_editor.py:1560
+#: src/mathessible/editor/equation_editor.py:1562
 #, python-brace-format
 msgid "MathCAT could not read the equation, linear mode. {error}"
 msgstr "MathCAT ei pystynyt lukemaan yhtälöä, lineaarinen tila. {error}"
 
-#: src/mathessible/editor/equation_editor.py:1630 src/mathessible/editor/equation_editor.py:1636
+#: src/mathessible/editor/equation_editor.py:1632 src/mathessible/editor/equation_editor.py:1638
 msgid "start"
 msgstr "alku"
 
-#: src/mathessible/editor/equation_editor.py:1638
+#: src/mathessible/editor/equation_editor.py:1640
 msgid "end"
 msgstr "loppu"
 
@@ -520,19 +525,19 @@ msgstr "loppu"
 msgid "the UnicodeMathML engine did not initialize"
 msgstr "UnicodeMathML-moottori ei käynnistynyt"
 
-#: src/mathessible/editor/renderer.py:210
+#: src/mathessible/editor/renderer.py:213
 msgid "the equation could not be written in LaTeX"
 msgstr "kaavaa ei voitu kirjoittaa LaTeXina"
 
-#: src/mathessible/editor/renderer.py:220
+#: src/mathessible/editor/renderer.py:223
 msgid "the UnicodeMathML converter is still loading"
 msgstr "UnicodeMathML-muunninta ladataan vielä"
 
-#: src/mathessible/editor/renderer.py:227
+#: src/mathessible/editor/renderer.py:230
 msgid "the UnicodeMathML converter is busy"
 msgstr "UnicodeMathML-muunnin on varattu"
 
-#: src/mathessible/editor/renderer.py:257
+#: src/mathessible/editor/renderer.py:260
 msgid "the UnicodeMathML converter could not run"
 msgstr "UnicodeMathML-muunninta ei voitu suorittaa"
 
@@ -544,27 +549,27 @@ msgstr "Vaihda ammattilaisnäkymään"
 msgid "Switch to Linear View"
 msgstr "Vaihda lineaariseen näkymään"
 
-#: src/mathessible/editor/structures.py:160 src/mathessible/ui/document_editor.py:122
+#: src/mathessible/editor/structures.py:160 src/mathessible/ui/document_editor.py:129
 #: src/mathessible/ui/main_frame.py:233
 msgid "Cu&t"
 msgstr "&Leikkaa"
 
-#: src/mathessible/editor/structures.py:161 src/mathessible/ui/document_editor.py:123
+#: src/mathessible/editor/structures.py:161 src/mathessible/ui/document_editor.py:130
 #: src/mathessible/ui/main_frame.py:234
 msgid "&Copy"
 msgstr "K&opioi"
 
-#: src/mathessible/editor/structures.py:162 src/mathessible/ui/document_editor.py:124
+#: src/mathessible/editor/structures.py:162 src/mathessible/ui/document_editor.py:131
 #: src/mathessible/ui/main_frame.py:235
 msgid "&Paste"
 msgstr "L&iitä"
 
-#: src/mathessible/editor/structures.py:164 src/mathessible/ui/document_editor.py:126
+#: src/mathessible/editor/structures.py:164 src/mathessible/ui/document_editor.py:133
 #: src/mathessible/ui/main_frame.py:238
 msgid "Select &All"
 msgstr "&Valitse kaikki"
 
-#: src/mathessible/editor/structures.py:169 src/mathessible/ui/document_editor.py:145
+#: src/mathessible/editor/structures.py:169 src/mathessible/ui/document_editor.py:152
 #: src/mathessible/ui/main_frame.py:264
 msgid "&Insert"
 msgstr "&Lisää"
@@ -956,7 +961,7 @@ msgstr "välilyönnin jälkeen"
 msgid "angle bracket"
 msgstr "kulmasulje"
 
-#: src/mathessible/editor/equation_editor.py:1311 src/mathessible/spoken.py:24
+#: src/mathessible/editor/equation_editor.py:1313 src/mathessible/spoken.py:24
 msgid "argument"
 msgstr "argumentti"
 
@@ -976,7 +981,7 @@ msgstr "kanta"
 msgid "binomial"
 msgstr "binomikerroin"
 
-#: src/mathessible/editor/equation_editor.py:1349 src/mathessible/spoken.py:29
+#: src/mathessible/editor/equation_editor.py:1351 src/mathessible/spoken.py:29
 msgid "blank"
 msgstr "tyhjä kohta"
 
@@ -999,8 +1004,8 @@ msgstr "aaltosulje"
 msgid "bracket"
 msgstr "hakasulje"
 
-#: src/mathessible/editor/assist.py:90 src/mathessible/editor/equation_editor.py:1316
-#: src/mathessible/editor/equation_editor.py:1494 src/mathessible/spoken.py:34
+#: src/mathessible/editor/assist.py:90 src/mathessible/editor/equation_editor.py:1318
+#: src/mathessible/editor/equation_editor.py:1496 src/mathessible/spoken.py:34
 msgid "built"
 msgstr "rakennettu"
 
@@ -1118,7 +1123,7 @@ msgstr "rajat"
 msgid "linear"
 msgstr "lineaarinen"
 
-#: src/mathessible/editor/assist.py:243 src/mathessible/editor/equation_editor.py:656
+#: src/mathessible/editor/assist.py:243 src/mathessible/editor/equation_editor.py:658
 #: src/mathessible/editor/structures.py:482 src/mathessible/spoken.py:63
 msgid "linear mode"
 msgstr "lineaarinen tila"
@@ -1135,7 +1140,7 @@ msgstr "alaraja"
 msgid "matrix"
 msgstr "matriisi"
 
-#: src/mathessible/editor/built.py:828 src/mathessible/editor/equation_editor.py:1275
+#: src/mathessible/editor/built.py:828 src/mathessible/editor/equation_editor.py:1277
 #: src/mathessible/spoken.py:67
 msgid "no slot"
 msgstr "ei paikkaa"
@@ -1217,7 +1222,7 @@ msgstr "indeksit"
 msgid "selected"
 msgstr "valittu"
 
-#: src/mathessible/editor/equation_editor.py:1049 src/mathessible/spoken.py:87
+#: src/mathessible/editor/equation_editor.py:1051 src/mathessible/spoken.py:87
 msgid "selection cleared"
 msgstr "valinta tyhjennetty"
 
@@ -2412,7 +2417,7 @@ msgstr "Matematiikan automaattinen korjaus -valintaikkuna"
 msgid "&Replace"
 msgstr "&Korvaa"
 
-#: src/mathessible/ui/autocorrect_dialog.py:42 src/mathessible/ui/main_frame.py:514
+#: src/mathessible/ui/autocorrect_dialog.py:42 src/mathessible/ui/main_frame.py:528
 msgid "Replace"
 msgstr "Korvaa"
 
@@ -2489,151 +2494,151 @@ msgstr "Pistekirjoitusmerkit"
 msgid "{symbol}  {name}: {cells} (dots {dots})"
 msgstr "{symbol}  {name}: {cells} (pisteet {dots})"
 
-#: src/mathessible/ui/document_editor.py:71
+#: src/mathessible/ui/document_editor.py:78
 msgid "Equation Editor"
 msgstr "Yhtälöeditori"
 
-#: src/mathessible/ui/document_editor.py:76
+#: src/mathessible/ui/document_editor.py:83
 msgid "Equation Editor window"
 msgstr "Yhtälöeditori-ikkuna"
 
-#: src/mathessible/ui/document_editor.py:83
+#: src/mathessible/ui/document_editor.py:90
 #, python-brace-format
 msgid "Enter or {shortcut} saves. Escape cancels."
 msgstr "Enter tai {shortcut} tallentaa. Esc peruuttaa."
 
-#: src/mathessible/ui/document_editor.py:98
+#: src/mathessible/ui/document_editor.py:105
 msgid "&Save Equation (Enter)"
 msgstr "&Tallenna yhtälö (Enter)"
 
-#: src/mathessible/ui/document_editor.py:99
+#: src/mathessible/ui/document_editor.py:106
 msgid "&Cancel (Escape)"
 msgstr "&Peruuta (Esc)"
 
-#: src/mathessible/ui/document_editor.py:103
+#: src/mathessible/ui/document_editor.py:110
 msgid "&Errors…"
 msgstr "&Virheet…"
 
-#: src/mathessible/ui/document_editor.py:105
+#: src/mathessible/ui/document_editor.py:112
 msgid "Save as &New Equation…"
 msgstr "Tallenna &uutena yhtälönä…"
 
-#: src/mathessible/ui/document_editor.py:107 src/mathessible/ui/document_editor.py:112
+#: src/mathessible/ui/document_editor.py:114 src/mathessible/ui/document_editor.py:119
 msgid "Change to &Display"
 msgstr "Muuta &erilliseksi"
 
-#: src/mathessible/ui/document_editor.py:112
+#: src/mathessible/ui/document_editor.py:119
 msgid "Change to &Inline"
 msgstr "Muuta teksti&nsisäiseksi"
 
-#: src/mathessible/ui/document_editor.py:116
+#: src/mathessible/ui/document_editor.py:123
 msgid "E&quation"
 msgstr "&Yhtälö"
 
-#: src/mathessible/ui/document_editor.py:119 src/mathessible/ui/main_frame.py:230
+#: src/mathessible/ui/document_editor.py:126 src/mathessible/ui/main_frame.py:230
 msgid "&Undo"
 msgstr "&Kumoa"
 
-#: src/mathessible/ui/document_editor.py:120 src/mathessible/ui/main_frame.py:231
+#: src/mathessible/ui/document_editor.py:127 src/mathessible/ui/main_frame.py:231
 msgid "&Redo"
 msgstr "&Tee uudelleen"
 
-#: src/mathessible/ui/document_editor.py:140 src/mathessible/ui/main_frame.py:255
+#: src/mathessible/ui/document_editor.py:147 src/mathessible/ui/main_frame.py:255
 msgid "&Edit"
 msgstr "&Muokkaa"
 
-#: src/mathessible/ui/document_editor.py:147
+#: src/mathessible/ui/document_editor.py:154
 msgid "&Professional View"
 msgstr "&Ammattilaisnäkymä"
 
-#: src/mathessible/ui/document_editor.py:148
+#: src/mathessible/ui/document_editor.py:155
 msgid "&Writing Mode"
 msgstr "&Kirjoitustila"
 
-#: src/mathessible/ui/document_editor.py:150
+#: src/mathessible/ui/document_editor.py:157
 msgid "Zoom &In"
 msgstr "&Lähennä"
 
-#: src/mathessible/ui/document_editor.py:151
+#: src/mathessible/ui/document_editor.py:158
 msgid "Zoom &Out"
 msgstr "L&oitonna"
 
-#: src/mathessible/ui/document_editor.py:152
+#: src/mathessible/ui/document_editor.py:159
 msgid "&Actual Size"
 msgstr "&Todellinen koko"
 
-#: src/mathessible/ui/document_editor.py:164 src/mathessible/ui/main_frame.py:268
+#: src/mathessible/ui/document_editor.py:171 src/mathessible/ui/main_frame.py:268
 msgid "&View"
 msgstr "&Näytä"
 
-#: src/mathessible/ui/document_editor.py:190 src/mathessible/ui/document_editor.py:393
+#: src/mathessible/ui/document_editor.py:198 src/mathessible/ui/document_editor.py:421
 msgid "display equation"
 msgstr "erillinen yhtälö"
 
-#: src/mathessible/ui/document_editor.py:190 src/mathessible/ui/document_editor.py:393
+#: src/mathessible/ui/document_editor.py:198 src/mathessible/ui/document_editor.py:421
 msgid "inline equation"
 msgstr "tekstinsisäinen yhtälö"
 
-#: src/mathessible/ui/document_editor.py:198
+#: src/mathessible/ui/document_editor.py:206
 #, python-brace-format
 msgid "Edit display equation in LaTeX — Enter or {shortcut} saves. Escape cancels."
 msgstr "Muokkaa erillistä kaavaa LaTeXina — Enter tai {shortcut} tallentaa. Escape peruuttaa."
 
-#: src/mathessible/ui/document_editor.py:200
+#: src/mathessible/ui/document_editor.py:208
 #, python-brace-format
 msgid "Edit inline equation in LaTeX — Enter or {shortcut} saves. Escape cancels."
 msgstr "Muokkaa tekstin kaavaa LaTeXina — Enter tai {shortcut} tallentaa. Escape peruuttaa."
 
-#: src/mathessible/ui/document_editor.py:202
+#: src/mathessible/ui/document_editor.py:210
 #, python-brace-format
 msgid "Edit display equation — Enter or {shortcut} saves. Escape cancels."
 msgstr "Muokkaa erillistä yhtälöä — Enter tai {shortcut} tallentaa. Esc peruuttaa."
 
-#: src/mathessible/ui/document_editor.py:204
+#: src/mathessible/ui/document_editor.py:212
 #, python-brace-format
 msgid "Edit inline equation — Enter or {shortcut} saves. Escape cancels."
 msgstr "Muokkaa tekstinsisäistä yhtälöä — Enter tai {shortcut} tallentaa. Esc peruuttaa."
 
-#: src/mathessible/ui/document_editor.py:284
+#: src/mathessible/ui/document_editor.py:295
 msgid "Markdown editor"
 msgstr "Markdown-editori"
 
-#: src/mathessible/ui/document_editor.py:385
+#: src/mathessible/ui/document_editor.py:413
 msgid "this equation cannot be inline"
 msgstr "tämä yhtälö ei voi olla tekstinsisäinen"
 
-#: src/mathessible/ui/document_editor.py:403
+#: src/mathessible/ui/document_editor.py:431
 msgid "a footnote cannot go inside an equation"
 msgstr "alaviite ei voi olla kaavan sisällä"
 
-#: src/mathessible/ui/document_editor.py:410
+#: src/mathessible/ui/document_editor.py:438
 #, python-brace-format
 msgid "footnote {label}, type the note"
 msgstr "alaviite {label}, kirjoita viite"
 
-#: src/mathessible/ui/document_editor.py:417
+#: src/mathessible/ui/document_editor.py:445
 msgid "not in a footnote or its reference"
 msgstr "ei alaviitteessä eikä sen viittauksessa"
 
-#: src/mathessible/ui/document_editor.py:423
+#: src/mathessible/ui/document_editor.py:451
 #, python-brace-format
 msgid "note {label}"
 msgstr "alaviite {label}"
 
-#: src/mathessible/ui/document_editor.py:423
+#: src/mathessible/ui/document_editor.py:451
 #, python-brace-format
 msgid "reference {label}"
 msgstr "viittaus {label}"
 
-#: src/mathessible/ui/document_editor.py:537
+#: src/mathessible/ui/document_editor.py:565
 msgid "equation saved, new line"
 msgstr "yhtälö tallennettu, uusi rivi"
 
-#: src/mathessible/ui/document_editor.py:537
+#: src/mathessible/ui/document_editor.py:565
 msgid "equation saved"
 msgstr "yhtälö tallennettu"
 
-#: src/mathessible/ui/document_editor.py:540
+#: src/mathessible/ui/document_editor.py:568
 msgid "equation editing canceled"
 msgstr "yhtälön muokkaus peruttu"
 
@@ -2922,11 +2927,11 @@ msgstr "{title} -valintaikkuna"
 msgid "These options are now the defaults."
 msgstr "Nämä asetukset ovat nyt oletuksia."
 
-#: src/mathessible/ui/export_dialogs.py:103 src/mathessible/ui/main_frame.py:1134
+#: src/mathessible/ui/export_dialogs.py:103 src/mathessible/ui/main_frame.py:1165
 msgid "Export as BRF"
 msgstr "Vie BRF-muodossa"
 
-#: src/mathessible/ui/export_dialogs.py:123 src/mathessible/ui/main_frame.py:1127
+#: src/mathessible/ui/export_dialogs.py:123 src/mathessible/ui/main_frame.py:1158
 msgid "Export as HTML"
 msgstr "Vie HTML-muodossa"
 
@@ -2968,7 +2973,7 @@ msgstr "&Kieli (esimerkiksi ro, en)"
 msgid "Language"
 msgstr "Kieli"
 
-#: src/mathessible/ui/export_dialogs.py:156 src/mathessible/ui/main_frame.py:1131
+#: src/mathessible/ui/export_dialogs.py:156 src/mathessible/ui/main_frame.py:1162
 msgid "Export as Word Document"
 msgstr "Vie Word-asiakirjana"
 
@@ -3229,7 +3234,7 @@ msgstr "Etsi e&dellinen"
 msgid "R&eplace…"
 msgstr "Ko&rvaa…"
 
-#: src/mathessible/ui/main_frame.py:250 src/mathessible/ui/main_frame.py:650
+#: src/mathessible/ui/main_frame.py:250 src/mathessible/ui/main_frame.py:671
 msgid "Change Equation to &Display"
 msgstr "Muut&a yhtälö erilliseksi"
 
@@ -3321,56 +3326,56 @@ msgstr "Tuo &kaikki eteen"
 msgid "&Window"
 msgstr "&Ikkuna"
 
-#: src/mathessible/ui/main_frame.py:426
+#: src/mathessible/ui/main_frame.py:438
 msgid "show the document preview"
 msgstr "näytä asiakirjan esikatselu"
 
-#: src/mathessible/ui/main_frame.py:428
+#: src/mathessible/ui/main_frame.py:440
 msgid "Document preview"
 msgstr "Asiakirjan esikatselu"
 
-#: src/mathessible/ui/main_frame.py:514 src/mathessible/ui/main_frame.py:537
+#: src/mathessible/ui/main_frame.py:528 src/mathessible/ui/main_frame.py:551
 msgid "Find"
 msgstr "Etsi"
 
-#: src/mathessible/ui/main_frame.py:536
+#: src/mathessible/ui/main_frame.py:550
 #, python-brace-format
 msgid "“{text}” was not found."
 msgstr "Tekstiä ”{text}” ei löytynyt."
 
-#: src/mathessible/ui/main_frame.py:570
+#: src/mathessible/ui/main_frame.py:584
 #, python-brace-format
 msgid "{count} replacement made."
 msgid_plural "{count} replacements made."
 msgstr[0] "{count} korvaus tehty."
 msgstr[1] "{count} korvausta tehty."
 
-#: src/mathessible/ui/main_frame.py:571
+#: src/mathessible/ui/main_frame.py:585
 msgid "Replace All"
 msgstr "Korvaa kaikki"
 
-#: src/mathessible/ui/main_frame.py:596
+#: src/mathessible/ui/main_frame.py:610
 msgid "change the equations"
 msgstr "muuttaa kaavoja"
 
-#: src/mathessible/ui/main_frame.py:597 src/mathessible/ui/main_frame.py:1036
-#: src/mathessible/ui/main_frame.py:1144
+#: src/mathessible/ui/main_frame.py:611 src/mathessible/ui/main_frame.py:1063
+#: src/mathessible/ui/main_frame.py:1175
 msgid "The UnicodeMath converter is not ready yet. Please try again."
 msgstr "UnicodeMath-muunnin ei ole vielä valmis. Yritä uudelleen."
 
-#: src/mathessible/ui/main_frame.py:602
+#: src/mathessible/ui/main_frame.py:616
 msgid "Write this document's equations in LaTeX?"
 msgstr "Kirjoitetaanko tämän asiakirjan kaavat LaTeXina?"
 
-#: src/mathessible/ui/main_frame.py:604
+#: src/mathessible/ui/main_frame.py:618
 msgid "Write this document's equations in UnicodeMath?"
 msgstr "Kirjoitetaanko tämän asiakirjan kaavat UnicodeMathina?"
 
-#: src/mathessible/ui/main_frame.py:605 src/mathessible/ui/main_frame.py:865
+#: src/mathessible/ui/main_frame.py:619 src/mathessible/ui/main_frame.py:892
 msgid "Equations in LaTeX"
 msgstr "Kaavat LaTeX-muodossa"
 
-#: src/mathessible/ui/main_frame.py:610
+#: src/mathessible/ui/main_frame.py:624
 msgid ""
 "Each equation is written again from what it builds, so its spacing and some details can change. "
 "Equations that do not build are kept as they are. Undo restores them."
@@ -3379,113 +3384,117 @@ msgstr ""
 "yksityiskohdat voivat muuttua. Kaavat, jotka eivät muodostu, säilyvät ennallaan. Kumoa palauttaa "
 "ne."
 
-#: src/mathessible/ui/main_frame.py:614
+#: src/mathessible/ui/main_frame.py:628
 msgid "&Write Again"
 msgstr "&Kirjoita uudelleen"
 
-#: src/mathessible/ui/main_frame.py:614 src/mathessible/ui/main_frame.py:973
+#: src/mathessible/ui/main_frame.py:628 src/mathessible/ui/main_frame.py:1000
 msgid "&Cancel"
 msgstr "&Peruuta"
 
-#: src/mathessible/ui/main_frame.py:638
+#: src/mathessible/ui/main_frame.py:652
 msgid "equations in LaTeX"
 msgstr "kaavat LaTeX-muodossa"
 
-#: src/mathessible/ui/main_frame.py:638
+#: src/mathessible/ui/main_frame.py:652
 msgid "equations in UnicodeMath"
 msgstr "kaavat UnicodeMath-muodossa"
 
-#: src/mathessible/ui/main_frame.py:641
+#: src/mathessible/ui/main_frame.py:655
 #, python-brace-format
 msgid "{count} that does not build kept as it was"
 msgid_plural "{count} that do not build kept as they were"
 msgstr[0] "{count}, joka ei muodostu, säilyi ennallaan"
 msgstr[1] "{count}, jotka eivät muodostu, säilyivät ennallaan"
 
-#: src/mathessible/ui/main_frame.py:650
+#: src/mathessible/ui/main_frame.py:671
 msgid "Change Equation to &Inline"
 msgstr "Muut&a yhtälö tekstinsisäiseksi"
 
-#: src/mathessible/ui/main_frame.py:671
+#: src/mathessible/ui/main_frame.py:692
 msgid "Untitled"
 msgstr "Nimetön"
 
-#: src/mathessible/ui/main_frame.py:673
+#: src/mathessible/ui/main_frame.py:694
 #, python-brace-format
 msgid "Mathessible — {name} — modified"
 msgstr "Mathessible — {name} — muokattu"
 
-#: src/mathessible/ui/main_frame.py:675
+#: src/mathessible/ui/main_frame.py:696
 #, python-brace-format
 msgid "Mathessible — {name}"
 msgstr "Mathessible — {name}"
 
-#: src/mathessible/ui/main_frame.py:686
+#: src/mathessible/ui/main_frame.py:707
 #, python-brace-format
 msgid "{notebook} — Page {page} of {pages}"
 msgstr "{notebook} — Sivu {page}/{pages}"
 
-#: src/mathessible/ui/main_frame.py:690
+#: src/mathessible/ui/main_frame.py:711
 msgid "Untitled Markdown document"
 msgstr "Nimetön Markdown-asiakirja"
 
-#: src/mathessible/ui/main_frame.py:692
+#: src/mathessible/ui/main_frame.py:713
 #, python-brace-format
 msgid "Line {line}, Column {column}"
 msgstr "Rivi {line}, sarake {column}"
 
-#: src/mathessible/ui/main_frame.py:698
+#: src/mathessible/ui/main_frame.py:719
 #, python-brace-format
 msgid "Could not {action}."
 msgstr "Toiminto epäonnistui: {action}."
 
-#: src/mathessible/ui/main_frame.py:711
+#: src/mathessible/ui/main_frame.py:732
 msgid "The document has unsaved changes. Do you want to save them?"
 msgstr "Asiakirjassa on tallentamattomia muutoksia. Haluatko tallentaa ne?"
 
-#: src/mathessible/ui/main_frame.py:712
+#: src/mathessible/ui/main_frame.py:733
 msgid "Unsaved Changes"
 msgstr "Tallentamattomia muutoksia"
 
-#: src/mathessible/ui/main_frame.py:732
+#: src/mathessible/ui/main_frame.py:753
 msgid "save settings"
 msgstr "asetusten tallennus"
 
-#: src/mathessible/ui/main_frame.py:783
+#: src/mathessible/ui/main_frame.py:804
 msgid "Open"
 msgstr "Avaa"
 
-#: src/mathessible/ui/main_frame.py:785
+#: src/mathessible/ui/main_frame.py:806
 msgid "Documents and notebooks"
 msgstr "Asiakirjat ja muistikirjat"
 
-#: src/mathessible/ui/main_frame.py:787
+#: src/mathessible/ui/main_frame.py:808
 msgid "Markdown documents"
 msgstr "Markdown-asiakirjat"
 
-#: src/mathessible/ui/main_frame.py:789
+#: src/mathessible/ui/main_frame.py:810
+msgid "LaTeX documents"
+msgstr "LaTeX-asiakirjat"
+
+#: src/mathessible/ui/main_frame.py:812
 msgid "Notebooks"
 msgstr "Muistikirjat"
 
-#: src/mathessible/ui/main_frame.py:791
+#: src/mathessible/ui/main_frame.py:814
 msgid "PDFs exported by Mathessible"
 msgstr "Mathessiblen viemät PDF:t"
 
-#: src/mathessible/ui/main_frame.py:793 src/mathessible/ui/main_frame.py:1066
+#: src/mathessible/ui/main_frame.py:816 src/mathessible/ui/main_frame.py:1097
 #: src/mathessible/ui/settings_dialog.py:477
 msgid "All files"
 msgstr "Kaikki tiedostot"
 
-#: src/mathessible/ui/main_frame.py:843
+#: src/mathessible/ui/main_frame.py:870
 #, python-brace-format
 msgid "open {name}"
 msgstr "tiedoston {name} avaaminen"
 
-#: src/mathessible/ui/main_frame.py:864
+#: src/mathessible/ui/main_frame.py:891
 msgid "This document's equations look like LaTeX. Mark it as a LaTeX document?"
 msgstr "Tämän asiakirjan kaavat näyttävät LaTeXilta. Merkitäänkö se LaTeX-asiakirjaksi?"
 
-#: src/mathessible/ui/main_frame.py:870
+#: src/mathessible/ui/main_frame.py:897
 msgid ""
 "Its equations are then built as LaTeX and kept as they are, and the line math: latex is added at "
 "its top. Without it, Mathessible reads them as UnicodeMath."
@@ -3493,109 +3502,117 @@ msgstr ""
 "Sen kaavat muodostetaan silloin LaTeXina ja säilyvät ennallaan, ja sen alkuun lisätään rivi math:"
 " latex. Ilman sitä Mathessible lukee ne UnicodeMathina."
 
-#: src/mathessible/ui/main_frame.py:874
+#: src/mathessible/ui/main_frame.py:901
 msgid "&Mark as LaTeX"
 msgstr "&Merkitse LaTeXiksi"
 
-#: src/mathessible/ui/main_frame.py:874
+#: src/mathessible/ui/main_frame.py:901
 msgid "&Leave as It Is"
 msgstr "&Jätä ennalleen"
 
-#: src/mathessible/ui/main_frame.py:943
+#: src/mathessible/ui/main_frame.py:970
 msgid "&Clear Menu"
 msgstr "&Tyhjennä luettelo"
 
-#: src/mathessible/ui/main_frame.py:969
+#: src/mathessible/ui/main_frame.py:996
 msgid "Revert to the saved version? The changes since it was saved will be lost."
 msgstr "Palautetaanko tallennettu versio? Tallennuksen jälkeiset muutokset menetetään."
 
-#: src/mathessible/ui/main_frame.py:970
+#: src/mathessible/ui/main_frame.py:997
 msgid "Revert to Saved"
 msgstr "Palauta tallennettu"
 
-#: src/mathessible/ui/main_frame.py:973
+#: src/mathessible/ui/main_frame.py:1000
 msgid "&Revert"
 msgstr "&Palauta"
 
-#: src/mathessible/ui/main_frame.py:985
+#: src/mathessible/ui/main_frame.py:1012
 msgid "read the saved document"
 msgstr "tallennetun asiakirjan lukeminen"
 
-#: src/mathessible/ui/main_frame.py:1013
+#: src/mathessible/ui/main_frame.py:1040
 msgid "read the notebook"
 msgstr "muistikirjan lukeminen"
 
-#: src/mathessible/ui/main_frame.py:1022
+#: src/mathessible/ui/main_frame.py:1049
 msgid "Mathessible document"
 msgstr "Mathessible-asiakirja"
 
-#: src/mathessible/ui/main_frame.py:1042
+#: src/mathessible/ui/main_frame.py:1069
 msgid "print"
 msgstr "tulostus"
 
-#: src/mathessible/ui/main_frame.py:1063
+#: src/mathessible/ui/main_frame.py:1088
+msgid "Save LaTeX document"
+msgstr "Tallenna LaTeX-asiakirja"
+
+#: src/mathessible/ui/main_frame.py:1088
+msgid "LaTeX document"
+msgstr "LaTeX-asiakirja"
+
+#: src/mathessible/ui/main_frame.py:1090
 msgid "Save Markdown document"
 msgstr "Tallenna Markdown-asiakirja"
 
-#: src/mathessible/ui/main_frame.py:1066
+#: src/mathessible/ui/main_frame.py:1090
 msgid "Markdown document"
 msgstr "Markdown-asiakirja"
 
-#: src/mathessible/ui/main_frame.py:1093 src/mathessible/ui/main_frame.py:1475
+#: src/mathessible/ui/main_frame.py:1124 src/mathessible/ui/main_frame.py:1507
 msgid "save the page"
 msgstr "sivun tallennus"
 
-#: src/mathessible/ui/main_frame.py:1109
+#: src/mathessible/ui/main_frame.py:1140
 msgid "save the document"
 msgstr "asiakirjan tallennus"
 
-#: src/mathessible/ui/main_frame.py:1127
+#: src/mathessible/ui/main_frame.py:1158
 msgid "export the HTML document"
 msgstr "HTML-asiakirjan vienti"
 
-#: src/mathessible/ui/main_frame.py:1127
+#: src/mathessible/ui/main_frame.py:1158
 msgid "HTML document"
 msgstr "HTML-asiakirja"
 
-#: src/mathessible/ui/main_frame.py:1128
+#: src/mathessible/ui/main_frame.py:1159
 msgid "export the PDF document"
 msgstr "PDF-asiakirjan vienti"
 
-#: src/mathessible/ui/main_frame.py:1128
+#: src/mathessible/ui/main_frame.py:1159
 msgid "PDF document"
 msgstr "PDF-asiakirja"
 
-#: src/mathessible/ui/main_frame.py:1128 src/mathessible/ui/pdf_dialog.py:38
+#: src/mathessible/ui/main_frame.py:1159 src/mathessible/ui/pdf_dialog.py:38
 msgid "Export as PDF"
 msgstr "Vie PDF-muodossa"
 
-#: src/mathessible/ui/main_frame.py:1130
+#: src/mathessible/ui/main_frame.py:1161
 msgid "export the Word document"
 msgstr "Word-asiakirjan vienti"
 
-#: src/mathessible/ui/main_frame.py:1132
+#: src/mathessible/ui/main_frame.py:1163
 msgid "Word document"
 msgstr "Word-asiakirja"
 
-#: src/mathessible/ui/main_frame.py:1134
+#: src/mathessible/ui/main_frame.py:1165
 msgid "export the BRF document"
 msgstr "BRF-asiakirjan vienti"
 
-#: src/mathessible/ui/main_frame.py:1134
+#: src/mathessible/ui/main_frame.py:1165
 msgid "Braille ready file"
 msgstr "Pistekirjoitusvalmis tiedosto (BRF)"
 
-#: src/mathessible/ui/main_frame.py:1200
+#: src/mathessible/ui/main_frame.py:1231
 #, python-brace-format
 msgid "Exported {name}"
 msgstr "Viety: {name}"
 
-#: src/mathessible/ui/main_frame.py:1201
+#: src/mathessible/ui/main_frame.py:1232
 #, python-brace-format
 msgid "exported {name}"
 msgstr "viety: {name}"
 
-#: src/mathessible/ui/main_frame.py:1283
+#: src/mathessible/ui/main_frame.py:1314
 msgid ""
 "PDF/A does not allow passwords or restrictions. Choose Tagged PDF or PDF/UA-1 under Security, or "
 "export without them."
@@ -3603,96 +3620,96 @@ msgstr ""
 "PDF/A ei salli salasanoja tai rajoituksia. Valitse Suojaus-kohdasta Merkitty PDF tai PDF/UA-1, "
 "tai vie ilman niitä."
 
-#: src/mathessible/ui/main_frame.py:1456
+#: src/mathessible/ui/main_frame.py:1488
 msgid "open the page"
 msgstr "sivun avaaminen"
 
-#: src/mathessible/ui/main_frame.py:1495
+#: src/mathessible/ui/main_frame.py:1527
 msgid "Choose or create the new notebook folder"
 msgstr "Valitse tai luo uuden muistikirjan kansio"
 
-#: src/mathessible/ui/main_frame.py:1507
+#: src/mathessible/ui/main_frame.py:1539
 msgid "create the notebook"
 msgstr "muistikirjan luominen"
 
-#: src/mathessible/ui/main_frame.py:1521
+#: src/mathessible/ui/main_frame.py:1553
 msgid "Save portable notebook"
 msgstr "Tallenna siirrettävä muistikirja"
 
-#: src/mathessible/ui/main_frame.py:1523
+#: src/mathessible/ui/main_frame.py:1555
 msgid "Mathessible notebooks"
 msgstr "Mathessible-muistikirjat"
 
-#: src/mathessible/ui/main_frame.py:1543
+#: src/mathessible/ui/main_frame.py:1575
 msgid "create the portable notebook"
 msgstr "siirrettävän muistikirjan luominen"
 
-#: src/mathessible/ui/main_frame.py:1555
+#: src/mathessible/ui/main_frame.py:1587
 msgid "Choose the notebook folder"
 msgstr "Valitse muistikirjan kansio"
 
-#: src/mathessible/ui/main_frame.py:1565
+#: src/mathessible/ui/main_frame.py:1597
 msgid "Page title:"
 msgstr "Sivun otsikko:"
 
-#: src/mathessible/ui/main_frame.py:1577
+#: src/mathessible/ui/main_frame.py:1609
 msgid "Add Page"
 msgstr "Lisää sivu"
 
-#: src/mathessible/ui/main_frame.py:1577
+#: src/mathessible/ui/main_frame.py:1609
 #, python-brace-format
 msgid "Page {number}"
 msgstr "Sivu {number}"
 
-#: src/mathessible/ui/main_frame.py:1583
+#: src/mathessible/ui/main_frame.py:1615
 msgid "add the page"
 msgstr "sivun lisääminen"
 
-#: src/mathessible/ui/main_frame.py:1593
+#: src/mathessible/ui/main_frame.py:1625
 msgid "Rename Page"
 msgstr "Nimeä sivu uudelleen"
 
-#: src/mathessible/ui/main_frame.py:1599
+#: src/mathessible/ui/main_frame.py:1631
 msgid "rename the page"
 msgstr "sivun nimeäminen uudelleen"
 
-#: src/mathessible/ui/main_frame.py:1611
+#: src/mathessible/ui/main_frame.py:1643
 #, python-brace-format
 msgid "Delete the page “{title}”?"
 msgstr "Poistetaanko sivu ”{title}”?"
 
-#: src/mathessible/ui/main_frame.py:1612
+#: src/mathessible/ui/main_frame.py:1644
 msgid "Delete Page"
 msgstr "Poista sivu"
 
-#: src/mathessible/ui/main_frame.py:1621
+#: src/mathessible/ui/main_frame.py:1653
 msgid "delete the page"
 msgstr "sivun poistaminen"
 
-#: src/mathessible/ui/main_frame.py:1637
+#: src/mathessible/ui/main_frame.py:1669
 msgid "move the page"
 msgstr "sivun siirtäminen"
 
-#: src/mathessible/ui/main_frame.py:1653
+#: src/mathessible/ui/main_frame.py:1685
 msgid "update the portable notebook"
 msgstr "siirrettävän muistikirjan päivittäminen"
 
-#: src/mathessible/ui/main_frame.py:1666
+#: src/mathessible/ui/main_frame.py:1698
 #, python-brace-format
 msgid "Mathessible closed without saving {count} document. Recover the unsaved changes?"
 msgid_plural "Mathessible closed without saving {count} documents. Recover the unsaved changes?"
 msgstr[0] "Mathessible suljettiin tallentamatta {count} asiakirjaa. Palautetaanko tallentamattomat muutokset?"
 msgstr[1] "Mathessible suljettiin tallentamatta {count} asiakirjaa. Palautetaanko tallentamattomat muutokset?"
 
-#: src/mathessible/ui/main_frame.py:1670
+#: src/mathessible/ui/main_frame.py:1702
 msgid "Recover Unsaved Changes"
 msgstr "Palauta tallentamattomat muutokset"
 
-#: src/mathessible/ui/main_frame.py:1673
+#: src/mathessible/ui/main_frame.py:1705
 msgid "&Recover"
 msgstr "&Palauta muutokset"
 
-#: src/mathessible/ui/main_frame.py:1673
+#: src/mathessible/ui/main_frame.py:1705
 msgid "&Discard"
 msgstr "&Hylkää"
 

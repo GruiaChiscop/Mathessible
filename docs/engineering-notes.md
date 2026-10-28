@@ -1527,6 +1527,34 @@ the first 20 with a backslash. A document with only `x^{2}`-style LaTeX
 is not noticed (UnicodeMath shows the braces): Edit > Equations in LaTeX
 is not the fix there, as it rewrites, so the user adds the mark.
 
+LaTeX files, stage 3a (2026-10-28): a `.tex` file opens as a document
+whose `DocumentEditor.tex` is set (from the path's suffix: open, recovery;
+Save As keeps the kind, `_choose_save_path`). Its equations are found by
+[documents/tex_math.py](../src/mathessible/documents/tex_math.py)
+(`$`, `\(`, `$$`, `\[`, the display environments and `math`; `%`
+comments, `\verb`, verbatim environments skipped; `$` does not cross a
+blank line), through `DocumentEditor.zone_at`/`zones`, which choose
+Markdown's or LaTeX's finder. A zone keeps its own marks
+(`MathZone.marks`), so an edited equation is written back between them
+and the file is saved as written; a new one is `$...$` or `\[...\]`
+(`toggle_tex_display` in place, no line moved). A multi-line environment's
+content (`align`, `gather`, `multline`, `eqnarray`, `flalign`, `alignat`
+after its column count) is its rows: `MathZone.environment` is
+`aligned`, and the editor builds them as `\begin{aligned}...\end{aligned}`
+(`latex_environment`, in `convert_unicode_math`); an edit in the
+professional view is written back without that wrapper
+(`latex_insert.within_environment`, the typed ends' spacing kept). The
+linear view draws a line break as ↵ (`_shown_source`, one character for
+one), and Up/Down there go line by line, reading the line (`editing/source_lines.py`; a one-line source keeps Up/Down reading it all). Patch 0004 leaves `\label`, `\tag`, `\nonumber`, `\notag` out of
+the build; patch 0009 writes an unfenced table as `\begin{aligned}` or
+`\begin{matrix}` (it was bare rows, which lost Markdown's `aligned` too).
+
+Not yet for `.tex` (disabled, `_enable_unless_tex`): the preview, every
+export, print, footnotes, header and footer, Edit > Equations in LaTeX.
+The user wants packages later: 3b reads the common text commands for the
+preview and the accessible exports; 3c compiles the PDF with the user's
+own LaTeX (packages and `\newcommand` then work as LaTeX's own).
+
 ## Newer UnicodeMathML Versions
 
 Checked 2026-10-26 against upstream `636dc8f` (2026-10-06; the submodule

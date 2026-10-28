@@ -12,10 +12,19 @@ class MathZone:
     content_end: int
     end: int
     display: bool
+    # A LaTeX environment whose content this is (`tex_math`: align's rows build as `aligned`), else "".
+    environment: str = ""
 
     @property
     def delimiter(self) -> str:
         return "$$" if self.display else "$"
+
+    def marks(self, source: str) -> tuple[str, str]:
+        """The zone's own opening and closing marks in `source` (`$`, `\\[`, `\\begin{align}`), Markdown's
+        `$`/`$$` for a new zone that has none yet."""
+        if self.content_start > self.start:
+            return source[self.start : self.content_start], source[self.content_end : self.end]
+        return self.delimiter, self.delimiter
 
     def content(self, source: str) -> str:
         return source[self.content_start : self.content_end]

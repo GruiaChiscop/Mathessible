@@ -15,7 +15,14 @@ from mathessible.documents.front_matter import (
     header_and_footer,
     with_header_and_footer,
 )
-from mathessible.documents.markdown_math import MathZone, math_zone_at, toggle_display
+from mathessible.documents.markdown_math import MathZone, find_math_zones, math_zone_at, toggle_display
+from mathessible.documents.tex_math import (
+    DISPLAY_MARKS,
+    INLINE_MARKS,
+    find_tex_math_zones,
+    tex_math_zone_at,
+    toggle_tex_display,
+)
 from mathessible.editing.autocorrect import AutoCorrectTable, autocorrect_defaults
 from mathessible.editing.space_conversion import convert_in_text, convert_shortcut_on_character
 from mathessible.editor.equation_editor import EquationEditor
@@ -173,8 +180,9 @@ if wx is not None:
             built = self.equation.mathcat is not None
             event.Enable(self.equation.mode == "linear" or built)
 
-        def prepare(self, source: str, display: bool, latex: bool = False) -> None:
+        def prepare(self, source: str, display: bool, latex: bool = False, environment: str = "") -> None:
             self.equation.latex_document = latex
+            self.equation.latex_environment = environment
             self.equation.display = display
             self._show_kind()
             self.equation.set_source(source)
@@ -275,6 +283,9 @@ if wx is not None:
             self.settings = settings or AppSettings()
             self.output = output or create_output()
             self._session: EquationEditSession | None = None
+            # A LaTeX document (a .tex file, `tex_math`), not Markdown: its equations are LaTeX, found by
+            # their LaTeX marks, and put back between them.
+            self.tex = False
 
             self.markdown = wx.TextCtrl(
                 self,
@@ -325,7 +336,24 @@ if wx is not None:
                 return source
             zone = self._session.zone
             equation = self.equation_window.equation.document_source
-            return f"{source[: zone.start]}{zone.delimiter}{equation}{zone.delimiter}{source[zone.end :]}"
+            opening, closing = self._marks(source, zone)
+            return f"{source[: zone.start]}{opening}{equation}{closing}{source[zone.end :]}"
+
+        def _marks(self, source: str, zone: MathZone) -> tuple[str, str]:
+            """The marks an equation is written between: its own, or a new one's (`$`, a .tex display's `\\[ \\]`)."""
+            if self.tex and zone.content_start == zone.start:
+                return DISPLAY_MARKS if zone.display else INLINE_MARKS
+            return zone.marks(source)
+
+        def zone_at(self, source: str, start: int, end: int | None = None) -> MathZone | None:
+            """The equation at `start` (to `end`), by the document's own marks: Markdown's or LaTeX's."""
+            return (tex_math_zone_at if self.tex else math_zone_at)(source, start, end)
+
+        def zones(self, source: str) -> list[MathZone]:
+            return (find_tex_math_zones if self.tex else find_math_zones)(source)
+
+        def _toggle_display(self, source: str, zone: MathZone) -> tuple[str, MathZone] | None:
+            return (toggle_tex_display if self.tex else toggle_display)(source, zone)
 
         def commit_active_equation(self) -> None:
             if self._session is not None:
@@ -349,8 +377,8 @@ if wx is not None:
             """
             start, end = self.markdown.GetSelection()
             equation = self.equation_window.equation
-            if start == end or not equation.converter_ready:
-                return False
+            if start == end or not equation.converter_ready or self.tex:
+                return False  # A .tex selection is copied as its text.
             text = self.markdown.GetValue()[start:end]
             html = document_html(text, self.equation_converter())
             if html is None or not set_clipboard_text(text, html):
@@ -361,8 +389,8 @@ if wx is not None:
 
         @property
         def latex(self) -> bool:
-            """The document's equations are LaTeX (`math: latex` in its front matter)."""
-            return equation_language(self.markdown.GetValue()) == LATEX
+            """The document's equations are LaTeX (a .tex file, or `math: latex` in its front matter)."""
+            return self.tex or equation_language(self.markdown.GetValue()) == LATEX
 
         def equation_converter(self) -> Callable[[str], str]:
             """Equation source to MathML, in this document's equation language."""
@@ -371,7 +399,7 @@ if wx is not None:
 
         def equation_at_caret(self) -> MathZone | None:
             start, end = self.markdown.GetSelection()
-            return math_zone_at(self.markdown.GetValue(), start, end)
+            return self.zone_at(self.markdown.GetValue(), start, end)
 
         def toggle_equation_display(self) -> None:
             """Word's Change to Display / Change to Inline on the equation at the caret."""
@@ -379,7 +407,7 @@ if wx is not None:
             zone = self.equation_at_caret()
             if zone is None or self.editing_equation:
                 return
-            result = toggle_display(source, zone)
+            result = self._toggle_display(source, zone)
             if result is None:
                 session_log.write("command", "document: cannot be inline")
                 self._announce(_("this equation cannot be inline"))
@@ -398,7 +426,7 @@ if wx is not None:
             caret = self.markdown.GetInsertionPoint()
             if self.editing_equation:
                 return
-            zone = math_zone_at(source, caret)
+            zone = self.zone_at(source, caret)
             if zone is not None and zone.start < caret < zone.end:
                 self._announce(_("a footnote cannot go inside an equation"))
                 return
@@ -492,7 +520,7 @@ if wx is not None:
                 return
             source = self.markdown.GetValue()
             selection_start, selection_end = self.markdown.GetSelection()
-            zone = math_zone_at(source, selection_start, selection_end)
+            zone = self.zone_at(source, selection_start, selection_end)
             if zone is None:
                 zone = MathZone(
                     selection_start,
@@ -506,8 +534,7 @@ if wx is not None:
                 content = zone.content(source)
 
             self._session = EquationEditSession(zone, selection_start, selection_end)
-            latex = equation_language(source) == LATEX
-            self.equation_window.prepare(content, zone.display, latex)
+            self.equation_window.prepare(content, zone.display, self.latex, zone.environment)
             wx.CallAfter(self.equation_window.equation.SetFocus)
             if content:
                 wx.CallAfter(self.equation_window.equation.read_expression)
@@ -521,13 +548,14 @@ if wx is not None:
             if saved:
                 content = self.equation_window.equation.source
                 display = self.equation_window.equation.display
-                replacement = f"{session.zone.delimiter}{content}{session.zone.delimiter}"
+                opening, closing = self._marks(self.markdown.GetValue(), session.zone)
+                replacement = f"{opening}{content}{closing}"
                 self.markdown.SetSelection(session.zone.start, session.zone.end)
                 self.markdown.WriteText(replacement)
                 caret = session.zone.start + len(replacement)
                 if display != session.zone.display:
-                    zone = math_zone_at(self.markdown.GetValue(), session.zone.start + 1)
-                    toggled = toggle_display(self.markdown.GetValue(), zone) if zone is not None else None
+                    zone = self.zone_at(self.markdown.GetValue(), session.zone.start + 1)
+                    toggled = self._toggle_display(self.markdown.GetValue(), zone) if zone is not None else None
                     if toggled is not None:
                         self.replace_source(toggled[0])
                         caret = toggled[1].end

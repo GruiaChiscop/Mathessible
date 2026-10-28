@@ -17,10 +17,11 @@ from mathessible.editing.character_speech import (
 from mathessible.editing.completion import Completion
 from mathessible.editing.edit_history import EditHistory, EditState
 from mathessible.editing.equation_source import EquationSource
-from mathessible.editing.latex_insert import insert_latex
+from mathessible.editing.latex_insert import insert_latex, within_environment
 from mathessible.editing.linear_runs import Runs
 from mathessible.editing.normal_text import in_text, toggle_normal_text
 from mathessible.editing.pasted_math import pasted_mathml, plain_letters
+from mathessible.editing.source_lines import line_at, line_step
 from mathessible.editing.source_view import view_of
 from mathessible.editing.space_conversion import (
     convert_before_character,
@@ -137,6 +138,8 @@ if wx is not None:
             # The document's equations are LaTeX (front matter `math: latex`): the linear view is
             # LaTeX text, built through Sargent's converter (`latex` says when the source is LaTeX).
             self.latex_document = False
+            # The LaTeX environment the equation's rows build as (a .tex file's align: "aligned"), else "".
+            self.latex_environment = ""
             # While the professional view edits a LaTeX equation, it edits the UnicodeMath that the
             # LaTeX builds as: the LaTeX is kept as typed unless it is edited there (`_LatexEditing`).
             self._latex_editing: _LatexEditing | None = None
@@ -569,7 +572,7 @@ if wx is not None:
             content = self._source_rect()
             dc = wx.ClientDC(self)
             dc.SetFont(self._source_font())
-            width = dc.GetTextExtent(self.document.source[: self.caret])[0] if self.caret else 0
+            width = dc.GetTextExtent(self._shown_source[: self.caret])[0] if self.caret else 0
             return wx.Point(self._source_origin_x(dc) + width, content.y + content.height // 2)
 
         def read_expression(self) -> None:
@@ -693,7 +696,7 @@ if wx is not None:
             """
             latex = self.document.source
             try:
-                mathml = self.convert_equation(latex, latex=True)
+                mathml = self.convert_unicode_math(latex)
                 if mathml_has_parse_error(mathml):
                     raise UnicodeMathError(spoken("the LaTeX has errors"))
                 unicodemath = plain_letters(self.unicode_math_from_mathml(mathml))
@@ -732,7 +735,7 @@ if wx is not None:
                     mathml = self.convert_equation(source)
                     if mathml_has_parse_error(mathml):
                         raise UnicodeMathError(spoken("the equation has errors"))
-                    latex = self.latex_from_mathml(mathml)
+                    latex = within_environment(self.latex_from_mathml(mathml), self.latex_environment, editing.latex)
                 except (UnicodeMathError, RuntimeError, ValueError) as error:
                     self._announce(spoken("cannot be written in LaTeX, {error}").format(error=error))
                     return False
@@ -1339,6 +1342,14 @@ if wx is not None:
                 self._step_caret(-1, extend=event.ShiftDown())
             elif key == wx.WXK_RIGHT:
                 self._step_caret(1, extend=event.ShiftDown())
+            elif key in (wx.WXK_UP, wx.WXK_DOWN) and "\n" in self.document.source and not event.ShiftDown():
+                # A source on several lines (a .tex align's rows): Up/Down go line by line and read the line.
+                target = line_step(self.document.source, self.caret, -1 if key == wx.WXK_UP else 1)
+                if target is not None:
+                    self._clear_selection()
+                    self.caret = target
+                    self.Refresh()
+                self._announce(line_at(self.document.source, self.caret).strip() or spoken("blank"))
             elif key in (wx.WXK_UP, wx.WXK_DOWN):
                 # The linear source is a single line, like a one-line text
                 # field: Up/Down read it, Shift+Up/Down select to its start/end.

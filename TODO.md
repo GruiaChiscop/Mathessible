@@ -95,8 +95,13 @@ links back, liblouis and BRF need a braille transcriber's convention.
   LaTeX in the linear view.
 - [x] LaTeX: `\pmatrix{...}`, and a math alphabet over a structure
   (`\mathbf{\frac{a}{b}}`), in Sargent's TeX2UnicodeMath.
-- [ ] LaTeX, stage 3: `.tex` files, opened and saved as LaTeX documents
-  (`$`, `\(`, `\[` and `equation` environments).
+- [x] LaTeX, stage 3a: `.tex` files opened and saved as written, their
+  equations (`$`, `\(`, `\[`, `equation`, `align` ...) edited.
+- [ ] LaTeX, stage 3b: a `.tex` file's preview and accessible exports
+  (HTML, Word, BRF), from the common text commands (sections, emphasis,
+  lists, footnotes, title).
+- [ ] LaTeX, stage 3c: the PDF of a `.tex` file compiled by the user's own
+  LaTeX installation, so that packages and `\newcommand` work.
 - [x] Opening Markdown written elsewhere (GitHub, Pandoc) whose equations
   are LaTeX but which has no `math: latex`: asked whether to mark it.
 - [ ] The visual design of the equation editor.

@@ -343,12 +343,24 @@ if wx is not None:
             self.Bind(wx.EVT_FIND_CLOSE, self._on_find_close)
             self.Bind(wx.EVT_UPDATE_UI, self._on_update_display_item, id=self._display_id)
             self.Bind(wx.EVT_MENU, self._switch_equation_language, id=self._latex_id)
-            self.Bind(wx.EVT_UPDATE_UI, lambda event: event.Check(self.editor.latex), id=self._latex_id)
+            self.Bind(wx.EVT_UPDATE_UI, self._on_update_latex_item, id=self._latex_id)
+            # A .tex document has no Markdown: no footnotes, front matter, preview or export yet (stage 3b).
+            for command_id in (
+                self._footnote_id,
+                self._go_to_footnote_id,
+                self._header_footer_id,
+                self._export_html_id,
+                self._export_brf_id,
+                self._export_pdf_id,
+                self._export_docx_id,
+                wx.ID_PRINT,
+            ):
+                self.Bind(wx.EVT_UPDATE_UI, self._enable_unless_tex, id=command_id)
             self.Bind(wx.EVT_MENU, self._open_settings, id=wx.ID_PREFERENCES)
             self.Bind(wx.EVT_MENU, self._toggle_preview, id=self._preview_id)
             self.Bind(
                 wx.EVT_UPDATE_UI,
-                lambda event: event.Check(self.splitter.IsSplit()),
+                lambda event: (event.Check(self.splitter.IsSplit()), event.Enable(not self.editor.tex)),
                 id=self._preview_id,
             )
             self.Bind(wx.EVT_MENU, self._new_notebook, id=self._new_notebook_id)
@@ -453,6 +465,8 @@ if wx is not None:
         def _update_preview(self) -> None:
             if not self or self.preview is None or not self._preview_ready or not self.splitter.IsSplit():
                 return
+            if self.editor.tex:
+                return  # The preview reads Markdown.
             equation_editor = self.editor.equation_window.equation
             if not equation_editor.converter_ready or equation_editor.converter_busy:
                 self._schedule_preview(delay=300)
@@ -585,7 +599,7 @@ if wx is not None:
             Each one goes through the converter (MathML) and back, so its spacing and some details
             can change: asked first. One that does not build is kept as it is. Undo restores it all.
             """
-            if self.editor.editing_equation:
+            if self.editor.editing_equation or self.editor.tex:
                 return
             source = self.editor.source
             to_latex = not self.editor.latex
@@ -642,6 +656,13 @@ if wx is not None:
                 ).format(count=kept)
             self.SetStatusText(message, 0)
             self.editor.announce(message)
+
+        def _on_update_latex_item(self, event: wx.UpdateUIEvent) -> None:
+            event.Check(self.editor.latex)
+            event.Enable(not self.editor.tex)  # A .tex document is LaTeX.
+
+        def _enable_unless_tex(self, event: wx.UpdateUIEvent) -> None:
+            event.Enable(not self.editor.tex)
 
         def _on_update_display_item(self, event: wx.UpdateUIEvent) -> None:
             zone = self.editor.equation_at_caret()
@@ -783,9 +804,11 @@ if wx is not None:
                 message=_("Open"),
                 wildcard=(
                     _("Documents and notebooks")
-                    + " (*.md;*.markdown;*.msnb;*.pdf)|*.md;*.markdown;*.msnb;*.pdf|"
+                    + " (*.md;*.markdown;*.tex;*.msnb;*.pdf)|*.md;*.markdown;*.tex;*.msnb;*.pdf|"
                     + _("Markdown documents")
                     + " (*.md;*.markdown)|*.md;*.markdown|"
+                    + _("LaTeX documents")
+                    + " (*.tex)|*.tex|"
                     + _("Notebooks")
                     + " (*.msnb)|*.msnb|"
                     + _("PDFs exported by Mathessible")
@@ -834,11 +857,15 @@ if wx is not None:
                 else:
                     source = read_markdown(path)
                     frame = frame or self._spawn_window()
+                    frame.editor.tex = path.suffix.lower() == ".tex"
                     frame.editor.set_source(source)
                     frame.document_path = path
                     frame.dirty = False
                     frame._update_title()
-                    wx.CallAfter(frame._offer_latex_mark)
+                    if frame.editor.tex:
+                        frame._set_preview_shown(False)  # The preview reads Markdown (a .tex one: stage 3b).
+                    else:
+                        wx.CallAfter(frame._offer_latex_mark)
             except (OSError, UnicodeError, NotebookError, PdfSourceError) as error:
                 self._show_error(_("open {name}").format(name=path.name), error)
                 return None
@@ -1057,13 +1084,17 @@ if wx is not None:
         def _choose_save_path(self) -> Path | None:
             suggested = self.document_path or self._suggested_path
             default_directory = str(suggested.parent) if suggested else ""
-            default_file = suggested.name if suggested else "notebook.md"
+            if self.editor.tex:
+                message, kind, extension = _("Save LaTeX document"), _("LaTeX document"), "tex"
+            else:
+                message, kind, extension = _("Save Markdown document"), _("Markdown document"), "md"
+            default_file = suggested.name if suggested else f"notebook.{extension}"
             dialog = wx.FileDialog(
                 self,
-                message=_("Save Markdown document"),
+                message=message,
                 defaultDir=default_directory,
                 defaultFile=default_file,
-                wildcard=_("Markdown document") + " (*.md)|*.md|" + _("All files") + "|*.*",
+                wildcard=f"{kind} (*.{extension})|*.{extension}|" + _("All files") + "|*.*",
                 style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,
             )
             try:
@@ -1408,6 +1439,7 @@ if wx is not None:
                 frame = frame or self._spawn_window()
                 if record.path:
                     frame.document_path = Path(record.path)
+                    frame.editor.tex = frame.document_path.suffix.lower() == ".tex"
             frame.editor.set_source(record.source)
             frame.dirty = True
             frame._update_title()
