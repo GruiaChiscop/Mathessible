@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import io
 import re
+import zlib
 from dataclasses import dataclass
 
 from mathessible.i18n import _
@@ -35,20 +36,24 @@ def attached_markdown(data: bytes) -> tuple[str, list[AttachedPage]]:
     """The PDF's title and its attached Markdown pages, in the notebook's order."""
     try:
         from pypdf import PdfReader
-        from pypdf.errors import PdfReadError
+        from pypdf.errors import PyPdfError
     except ImportError as error:  # pragma: no cover - pypdf is a dependency.
         raise PdfSourceError(str(error)) from error
+    # A damaged PDF can fail anywhere in pypdf, not only with its own errors.
+    damaged = (PyPdfError, ValueError, KeyError, IndexError, TypeError, AttributeError, RecursionError, zlib.error)
     try:
         reader = PdfReader(io.BytesIO(data))
         if reader.is_encrypted and not reader.decrypt(""):
             raise PdfSourceError(_("This PDF needs a password to open, so Mathessible cannot read its source."))
         files = [
-            item
+            (item.name, item.description or "", item.content)
             for item in reader.attachment_list
             if item.name.lower().endswith((".md", ".markdown")) or item.subtype == "/text/markdown"
         ]
-        title = (reader.metadata.title if reader.metadata else None) or ""
-    except PdfReadError as error:
+        title = str((reader.metadata.title if reader.metadata else None) or "")
+    except PdfSourceError:
+        raise
+    except damaged as error:
         raise PdfSourceError(_("This file is not a PDF Mathessible can read.")) from error
     if not files:
         raise PdfSourceError(
@@ -58,16 +63,15 @@ def attached_markdown(data: bytes) -> tuple[str, list[AttachedPage]]:
             )
         )
 
-    def order(item: object) -> tuple[int, str]:
-        found = _PAGE_NUMBER.search(item.description or "")
-        return (int(found.group(1)) if found else 0, item.name)
+    def order(file: tuple[str, str, bytes]) -> tuple[int, str]:
+        found = _PAGE_NUMBER.search(file[1])
+        return (int(found.group(1)) if found else 0, file[0])
 
     pages = []
-    for item in sorted(files, key=order):
+    for name, _description, content in sorted(files, key=order):
         try:
-            source = item.content.decode("utf-8")
+            source = content.decode("utf-8")
         except UnicodeDecodeError as error:
             raise PdfSourceError(_("The Markdown attached to this PDF is not UTF-8 text.")) from error
-        name = item.name.rsplit(".", 1)[0]
-        pages.append(AttachedPage(name, source))
+        pages.append(AttachedPage(name.rsplit(".", 1)[0], source))
     return title, pages

@@ -44,6 +44,20 @@ class PdfSourceTests(unittest.TestCase):
         with self.assertRaises(PdfSourceError):
             attached_markdown(b"not a PDF")
 
+    def test_a_damaged_pdf_is_an_error_to_show_not_a_crash(self) -> None:
+        pdf = exported([ExportPage("A", "a $x$")])
+        damaged = {
+            "cut in half": pdf[: len(pdf) // 2],
+            "only its start": pdf[:200],
+            "bytes changed throughout": bytes(
+                byte ^ 0x5A if index % 97 == 0 else byte for index, byte in enumerate(pdf)
+            ),
+            "a header and nothing else": b"%PDF-1.7\n%%EOF",
+        }
+        for name, data in damaged.items():
+            with self.subTest(name), self.assertRaises(PdfSourceError):
+                attached_markdown(data)
+
 
 if __name__ == "__main__":
     unittest.main()
