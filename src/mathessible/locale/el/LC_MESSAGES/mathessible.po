@@ -547,27 +547,27 @@ msgid "Switch to Linear View"
 msgstr "Μετάβαση στη γραμμική προβολή"
 
 #: src/mathessible/editor/structures.py:160 src/mathessible/ui/document_editor.py:122
-#: src/mathessible/ui/main_frame.py:232
+#: src/mathessible/ui/main_frame.py:233
 msgid "Cu&t"
 msgstr "Απο&κοπή"
 
 #: src/mathessible/editor/structures.py:161 src/mathessible/ui/document_editor.py:123
-#: src/mathessible/ui/main_frame.py:233
+#: src/mathessible/ui/main_frame.py:234
 msgid "&Copy"
 msgstr "Αντι&γραφή"
 
 #: src/mathessible/editor/structures.py:162 src/mathessible/ui/document_editor.py:124
-#: src/mathessible/ui/main_frame.py:234
+#: src/mathessible/ui/main_frame.py:235
 msgid "&Paste"
 msgstr "Επικό&λληση"
 
 #: src/mathessible/editor/structures.py:164 src/mathessible/ui/document_editor.py:126
-#: src/mathessible/ui/main_frame.py:237
+#: src/mathessible/ui/main_frame.py:238
 msgid "Select &All"
 msgstr "&Επιλογή όλων"
 
 #: src/mathessible/editor/structures.py:169 src/mathessible/ui/document_editor.py:145
-#: src/mathessible/ui/main_frame.py:263
+#: src/mathessible/ui/main_frame.py:264
 msgid "&Insert"
 msgstr "Εισα&γωγή"
 
@@ -2418,7 +2418,7 @@ msgstr "Παράθυρο διαλόγου Αυτόματη διόρθωση μα
 msgid "&Replace"
 msgstr "&Αντικατάσταση"
 
-#: src/mathessible/ui/autocorrect_dialog.py:42 src/mathessible/ui/main_frame.py:513
+#: src/mathessible/ui/autocorrect_dialog.py:42 src/mathessible/ui/main_frame.py:514
 msgid "Replace"
 msgstr "Αντικατάσταση"
 
@@ -2446,7 +2446,7 @@ msgstr "&Προσθήκη"
 
 #: src/mathessible/ui/autocorrect_dialog.py:55 src/mathessible/ui/braille_signs_dialog.py:71
 #: src/mathessible/ui/functions_dialog.py:49 src/mathessible/ui/gallery_dialog.py:56
-#: src/mathessible/ui/main_frame.py:235
+#: src/mathessible/ui/main_frame.py:236
 msgid "&Delete"
 msgstr "&Διαγραφή"
 
@@ -2536,15 +2536,15 @@ msgstr "Αλλαγή σε &ενσωματωμένη"
 msgid "E&quation"
 msgstr "Ε&ξίσωση"
 
-#: src/mathessible/ui/document_editor.py:119 src/mathessible/ui/main_frame.py:229
+#: src/mathessible/ui/document_editor.py:119 src/mathessible/ui/main_frame.py:230
 msgid "&Undo"
 msgstr "&Αναίρεση"
 
-#: src/mathessible/ui/document_editor.py:120 src/mathessible/ui/main_frame.py:230
+#: src/mathessible/ui/document_editor.py:120 src/mathessible/ui/main_frame.py:231
 msgid "&Redo"
 msgstr "Ε&πανάληψη"
 
-#: src/mathessible/ui/document_editor.py:140 src/mathessible/ui/main_frame.py:254
+#: src/mathessible/ui/document_editor.py:140 src/mathessible/ui/main_frame.py:255
 msgid "&Edit"
 msgstr "&Επεξεργασία"
 
@@ -2568,7 +2568,7 @@ msgstr "Σμί&κρυνση"
 msgid "&Actual Size"
 msgstr "&Πραγματικό μέγεθος"
 
-#: src/mathessible/ui/document_editor.py:164 src/mathessible/ui/main_frame.py:267
+#: src/mathessible/ui/document_editor.py:164 src/mathessible/ui/main_frame.py:268
 msgid "&View"
 msgstr "&Προβολή"
 
@@ -2928,11 +2928,11 @@ msgstr "Παράθυρο διαλόγου {title}"
 msgid "These options are now the defaults."
 msgstr "Αυτές οι επιλογές είναι τώρα οι προεπιλογές."
 
-#: src/mathessible/ui/export_dialogs.py:103 src/mathessible/ui/main_frame.py:1094
+#: src/mathessible/ui/export_dialogs.py:103 src/mathessible/ui/main_frame.py:1134
 msgid "Export as BRF"
 msgstr "Εξαγωγή ως BRF"
 
-#: src/mathessible/ui/export_dialogs.py:123 src/mathessible/ui/main_frame.py:1087
+#: src/mathessible/ui/export_dialogs.py:123 src/mathessible/ui/main_frame.py:1127
 msgid "Export as HTML"
 msgstr "Εξαγωγή ως HTML"
 
@@ -2974,7 +2974,7 @@ msgstr "&Γλώσσα (για παράδειγμα ro, en)"
 msgid "Language"
 msgstr "Γλώσσα"
 
-#: src/mathessible/ui/export_dialogs.py:156 src/mathessible/ui/main_frame.py:1091
+#: src/mathessible/ui/export_dialogs.py:156 src/mathessible/ui/main_frame.py:1131
 msgid "Export as Word Document"
 msgstr "Εξαγωγή ως έγγραφο Word"
 
@@ -3115,15 +3115,15 @@ msgstr "&Βοήθεια"
 msgid "GNU General Public License, version 2 or later"
 msgstr "Άδεια Δημόσιας Χρήσης GNU, έκδοση 2 ή νεότερη"
 
-#: src/mathessible/ui/main_frame.py:106
+#: src/mathessible/ui/main_frame.py:107
 msgid "Pages"
 msgstr "Σελίδες"
 
-#: src/mathessible/ui/main_frame.py:108
+#: src/mathessible/ui/main_frame.py:109
 msgid "Notebook pages"
 msgstr "Σελίδες σημειωματαρίου"
 
-#: src/mathessible/ui/main_frame.py:163
+#: src/mathessible/ui/main_frame.py:164
 #, python-brace-format
 msgid ""
 "MathCAT's native extension could not be loaded, so equations can only be edited as text, not read"
@@ -3133,13 +3133,13 @@ msgstr ""
 "επεξεργαστούν μόνο ως κείμενο, όχι να διαβαστούν ή να πλοηγηθούν ({error}). Εκτελέστε το "
 "scripts/bootstrap.sh."
 
-#: src/mathessible/ui/main_frame.py:170
+#: src/mathessible/ui/main_frame.py:171
 msgid "No web view is available to convert and show equations (on Linux, install WebKitGTK for wxPython)."
 msgstr ""
 "Δεν υπάρχει διαθέσιμη προβολή ιστού για τη μετατροπή και εμφάνιση εξισώσεων (στο Linux, "
 "εγκαταστήστε το WebKitGTK για το wxPython)."
 
-#: src/mathessible/ui/main_frame.py:181
+#: src/mathessible/ui/main_frame.py:182
 #, python-brace-format
 msgid ""
 "Mathessible's fixes to MathCAT and UnicodeMathML are not applied, so some equations will be read "
@@ -3156,228 +3156,228 @@ msgstr ""
 "Διορθώσεις που λείπουν:\n"
 "{patches}"
 
-#: src/mathessible/ui/main_frame.py:194
+#: src/mathessible/ui/main_frame.py:195
 msgid "Mathessible Setup"
 msgstr "Ρύθμιση του Mathessible"
 
-#: src/mathessible/ui/main_frame.py:203
+#: src/mathessible/ui/main_frame.py:204
 msgid "&New"
 msgstr "&Νέο"
 
-#: src/mathessible/ui/main_frame.py:204
+#: src/mathessible/ui/main_frame.py:205
 msgid "&Open…"
 msgstr "&Άνοιγμα…"
 
-#: src/mathessible/ui/main_frame.py:208
+#: src/mathessible/ui/main_frame.py:209
 msgid "Open &Recent"
 msgstr "Άνοιγμα &πρόσφατου"
 
-#: src/mathessible/ui/main_frame.py:210
+#: src/mathessible/ui/main_frame.py:211
 msgid "&Close Window"
 msgstr "&Κλείσιμο παραθύρου"
 
-#: src/mathessible/ui/main_frame.py:211
+#: src/mathessible/ui/main_frame.py:212
 msgid "&Save"
 msgstr "&Αποθήκευση"
 
-#: src/mathessible/ui/main_frame.py:212
+#: src/mathessible/ui/main_frame.py:213
 msgid "Save &As…"
 msgstr "Αποθήκευση &ως…"
 
-#: src/mathessible/ui/main_frame.py:213
+#: src/mathessible/ui/main_frame.py:214
 msgid "Re&vert to Saved"
 msgstr "Επαναφορά στην αποθηκευ&μένη"
 
-#: src/mathessible/ui/main_frame.py:217
+#: src/mathessible/ui/main_frame.py:218
 msgid "&HTML…"
 msgstr "&HTML…"
 
-#: src/mathessible/ui/main_frame.py:218
+#: src/mathessible/ui/main_frame.py:219
 msgid "&PDF…"
 msgstr "&PDF…"
 
-#: src/mathessible/ui/main_frame.py:219
+#: src/mathessible/ui/main_frame.py:220
 msgid "&Word Document…"
 msgstr "Έγγραφο &Word…"
 
-#: src/mathessible/ui/main_frame.py:220
+#: src/mathessible/ui/main_frame.py:221
 msgid "&BRF (Braille)…"
 msgstr "&BRF (braille)…"
 
-#: src/mathessible/ui/main_frame.py:221
+#: src/mathessible/ui/main_frame.py:222
 msgid "&Export"
 msgstr "&Εξαγωγή"
 
-#: src/mathessible/ui/main_frame.py:223
+#: src/mathessible/ui/main_frame.py:224
 msgid "&Print…"
 msgstr "Εκτύπωσ&η…"
 
-#: src/mathessible/ui/main_frame.py:225
+#: src/mathessible/ui/main_frame.py:226
 msgid "&Quit"
 msgstr "Έ&ξοδος"
 
-#: src/mathessible/ui/main_frame.py:227
+#: src/mathessible/ui/main_frame.py:228
 msgid "&File"
 msgstr "&Αρχείο"
 
-#: src/mathessible/ui/main_frame.py:243
+#: src/mathessible/ui/main_frame.py:244
 msgid "&Find…"
 msgstr "Εύ&ρεση…"
 
-#: src/mathessible/ui/main_frame.py:244
+#: src/mathessible/ui/main_frame.py:245
 msgid "Find &Next"
 msgstr "Εύρεση επό&μενου"
 
-#: src/mathessible/ui/main_frame.py:245
+#: src/mathessible/ui/main_frame.py:246
 msgid "Find Pre&vious"
 msgstr "Εύρεση προηγο&ύμενου"
 
-#: src/mathessible/ui/main_frame.py:246
+#: src/mathessible/ui/main_frame.py:247
 msgid "R&eplace…"
 msgstr "Αντικατά&σταση…"
 
-#: src/mathessible/ui/main_frame.py:249 src/mathessible/ui/main_frame.py:649
+#: src/mathessible/ui/main_frame.py:250 src/mathessible/ui/main_frame.py:650
 msgid "Change Equation to &Display"
 msgstr "Αλλαγή εξίσωσης σε αυτό&νομη"
 
-#: src/mathessible/ui/main_frame.py:251
+#: src/mathessible/ui/main_frame.py:252
 msgid "Equations in &LaTeX"
 msgstr "Εξισώσεις σε &LaTeX"
 
-#: src/mathessible/ui/main_frame.py:253
+#: src/mathessible/ui/main_frame.py:254
 msgid "&Settings…"
 msgstr "Ρ&υθμίσεις…"
 
-#: src/mathessible/ui/main_frame.py:259
+#: src/mathessible/ui/main_frame.py:260
 msgid "&Footnote"
 msgstr "&Υποσημείωση"
 
-#: src/mathessible/ui/main_frame.py:260
+#: src/mathessible/ui/main_frame.py:261
 msgid "&Go to Footnote or Reference"
 msgstr "&Μετάβαση σε υποσημείωση ή παραπομπή"
 
-#: src/mathessible/ui/main_frame.py:262
+#: src/mathessible/ui/main_frame.py:263
 msgid "&Header and Footer…"
 msgstr "&Κεφαλίδα και υποσέλιδο…"
 
-#: src/mathessible/ui/main_frame.py:266
+#: src/mathessible/ui/main_frame.py:267
 msgid "Document &Preview"
 msgstr "&Προεπισκόπηση εγγράφου"
 
-#: src/mathessible/ui/main_frame.py:281
+#: src/mathessible/ui/main_frame.py:282
 msgid "&New Notebook…"
 msgstr "&Νέο σημειωματάριο…"
 
-#: src/mathessible/ui/main_frame.py:282
+#: src/mathessible/ui/main_frame.py:283
 msgid "New Notebook &Folder…"
 msgstr "Νέος &φάκελος σημειωματαρίου…"
 
-#: src/mathessible/ui/main_frame.py:283
+#: src/mathessible/ui/main_frame.py:284
 msgid "&Open Notebook Folder…"
 msgstr "&Άνοιγμα φακέλου σημειωματαρίου…"
 
-#: src/mathessible/ui/main_frame.py:284
+#: src/mathessible/ui/main_frame.py:285
 msgid "Save Notebook as &Single File…"
 msgstr "Αποθήκευση σημειωματαρίου ως &ενιαίου αρχείου…"
 
-#: src/mathessible/ui/main_frame.py:286
+#: src/mathessible/ui/main_frame.py:287
 msgid "&Add Page"
 msgstr "Προσ&θήκη σελίδας"
 
-#: src/mathessible/ui/main_frame.py:287
+#: src/mathessible/ui/main_frame.py:288
 msgid "&Rename Page…"
 msgstr "&Μετονομασία σελίδας…"
 
-#: src/mathessible/ui/main_frame.py:288
+#: src/mathessible/ui/main_frame.py:289
 msgid "&Delete Page…"
 msgstr "&Διαγραφή σελίδας…"
 
-#: src/mathessible/ui/main_frame.py:290
+#: src/mathessible/ui/main_frame.py:291
 msgid "Move Page &Up"
 msgstr "Μετακίνηση σελίδας &πάνω"
 
-#: src/mathessible/ui/main_frame.py:291
+#: src/mathessible/ui/main_frame.py:292
 msgid "Move Page Do&wn"
 msgstr "Μετακίνηση σελίδας &κάτω"
 
-#: src/mathessible/ui/main_frame.py:293
+#: src/mathessible/ui/main_frame.py:294
 msgid "&Previous Page"
 msgstr "Προη&γούμενη σελίδα"
 
-#: src/mathessible/ui/main_frame.py:294
+#: src/mathessible/ui/main_frame.py:295
 msgid "Ne&xt Page"
 msgstr "Επόμεν&η σελίδα"
 
-#: src/mathessible/ui/main_frame.py:295
+#: src/mathessible/ui/main_frame.py:296
 msgid "&Notebook"
 msgstr "&Σημειωματάριο"
 
-#: src/mathessible/ui/main_frame.py:300
+#: src/mathessible/ui/main_frame.py:301
 msgid "&Next Window"
 msgstr "&Επόμενο παράθυρο"
 
-#: src/mathessible/ui/main_frame.py:301
+#: src/mathessible/ui/main_frame.py:302
 msgid "&Previous Window"
 msgstr "&Προηγούμενο παράθυρο"
 
-#: src/mathessible/ui/main_frame.py:303
+#: src/mathessible/ui/main_frame.py:304
 msgid "Bring All to &Front"
 msgstr "Μεταφορά όλων σε πρώτο πλά&νο"
 
-#: src/mathessible/ui/main_frame.py:304
+#: src/mathessible/ui/main_frame.py:305
 msgid "&Window"
 msgstr "Παρά&θυρο"
 
-#: src/mathessible/ui/main_frame.py:425
+#: src/mathessible/ui/main_frame.py:426
 msgid "show the document preview"
 msgstr "εμφάνιση της προεπισκόπησης εγγράφου"
 
-#: src/mathessible/ui/main_frame.py:427
+#: src/mathessible/ui/main_frame.py:428
 msgid "Document preview"
 msgstr "Προεπισκόπηση εγγράφου"
 
-#: src/mathessible/ui/main_frame.py:513 src/mathessible/ui/main_frame.py:536
+#: src/mathessible/ui/main_frame.py:514 src/mathessible/ui/main_frame.py:537
 msgid "Find"
 msgstr "Εύρεση"
 
-#: src/mathessible/ui/main_frame.py:535
+#: src/mathessible/ui/main_frame.py:536
 #, python-brace-format
 msgid "“{text}” was not found."
 msgstr "Το «{text}» δεν βρέθηκε."
 
-#: src/mathessible/ui/main_frame.py:569
+#: src/mathessible/ui/main_frame.py:570
 #, python-brace-format
 msgid "{count} replacement made."
 msgid_plural "{count} replacements made."
 msgstr[0] "Έγινε {count} αντικατάσταση."
 msgstr[1] "Έγιναν {count} αντικαταστάσεις."
 
-#: src/mathessible/ui/main_frame.py:570
+#: src/mathessible/ui/main_frame.py:571
 msgid "Replace All"
 msgstr "Αντικατάσταση όλων"
 
-#: src/mathessible/ui/main_frame.py:595
+#: src/mathessible/ui/main_frame.py:596
 msgid "change the equations"
 msgstr "αλλαγή των εξισώσεων"
 
-#: src/mathessible/ui/main_frame.py:596 src/mathessible/ui/main_frame.py:996
-#: src/mathessible/ui/main_frame.py:1104
+#: src/mathessible/ui/main_frame.py:597 src/mathessible/ui/main_frame.py:1036
+#: src/mathessible/ui/main_frame.py:1144
 msgid "The UnicodeMath converter is not ready yet. Please try again."
 msgstr "Ο μετατροπέας UnicodeMath δεν είναι ακόμη έτοιμος. Δοκιμάστε ξανά."
 
-#: src/mathessible/ui/main_frame.py:601
+#: src/mathessible/ui/main_frame.py:602
 msgid "Write this document's equations in LaTeX?"
 msgstr "Να γραφτούν οι εξισώσεις αυτού του εγγράφου σε LaTeX;"
 
-#: src/mathessible/ui/main_frame.py:603
+#: src/mathessible/ui/main_frame.py:604
 msgid "Write this document's equations in UnicodeMath?"
 msgstr "Να γραφτούν οι εξισώσεις αυτού του εγγράφου σε UnicodeMath;"
 
-#: src/mathessible/ui/main_frame.py:604
+#: src/mathessible/ui/main_frame.py:605 src/mathessible/ui/main_frame.py:865
 msgid "Equations in LaTeX"
 msgstr "Εξισώσεις σε LaTeX"
 
-#: src/mathessible/ui/main_frame.py:609
+#: src/mathessible/ui/main_frame.py:610
 msgid ""
 "Each equation is written again from what it builds, so its spacing and some details can change. "
 "Equations that do not build are kept as they are. Undo restores them."
@@ -3385,203 +3385,223 @@ msgstr ""
 "Κάθε εξίσωση γράφεται ξανά από ό,τι δομεί, οπότε τα κενά της και κάποιες λεπτομέρειες μπορεί να "
 "αλλάξουν. Οι εξισώσεις που δεν δομούνται μένουν ως έχουν. Η αναίρεση τις επαναφέρει."
 
-#: src/mathessible/ui/main_frame.py:613
+#: src/mathessible/ui/main_frame.py:614
 msgid "&Write Again"
 msgstr "&Νέα γραφή"
 
-#: src/mathessible/ui/main_frame.py:613 src/mathessible/ui/main_frame.py:933
+#: src/mathessible/ui/main_frame.py:614 src/mathessible/ui/main_frame.py:973
 msgid "&Cancel"
 msgstr "Ά&κυρο"
 
-#: src/mathessible/ui/main_frame.py:637
+#: src/mathessible/ui/main_frame.py:638
 msgid "equations in LaTeX"
 msgstr "εξισώσεις σε LaTeX"
 
-#: src/mathessible/ui/main_frame.py:637
+#: src/mathessible/ui/main_frame.py:638
 msgid "equations in UnicodeMath"
 msgstr "εξισώσεις σε UnicodeMath"
 
-#: src/mathessible/ui/main_frame.py:640
+#: src/mathessible/ui/main_frame.py:641
 #, python-brace-format
 msgid "{count} that does not build kept as it was"
 msgid_plural "{count} that do not build kept as they were"
 msgstr[0] "{count} που δεν δομείται έμεινε ως είχε"
 msgstr[1] "{count} που δεν δομούνται έμειναν ως είχαν"
 
-#: src/mathessible/ui/main_frame.py:649
+#: src/mathessible/ui/main_frame.py:650
 msgid "Change Equation to &Inline"
 msgstr "Αλλαγή εξίσωσης σε ενσωματ&ωμένη"
 
-#: src/mathessible/ui/main_frame.py:670
+#: src/mathessible/ui/main_frame.py:671
 msgid "Untitled"
 msgstr "Χωρίς τίτλο"
 
-#: src/mathessible/ui/main_frame.py:672
+#: src/mathessible/ui/main_frame.py:673
 #, python-brace-format
 msgid "Mathessible — {name} — modified"
 msgstr "Mathessible — {name} — τροποποιημένο"
 
-#: src/mathessible/ui/main_frame.py:674
+#: src/mathessible/ui/main_frame.py:675
 #, python-brace-format
 msgid "Mathessible — {name}"
 msgstr "Mathessible — {name}"
 
-#: src/mathessible/ui/main_frame.py:685
+#: src/mathessible/ui/main_frame.py:686
 #, python-brace-format
 msgid "{notebook} — Page {page} of {pages}"
 msgstr "{notebook} — Σελίδα {page} από {pages}"
 
-#: src/mathessible/ui/main_frame.py:689
+#: src/mathessible/ui/main_frame.py:690
 msgid "Untitled Markdown document"
 msgstr "Έγγραφο Markdown χωρίς τίτλο"
 
-#: src/mathessible/ui/main_frame.py:691
+#: src/mathessible/ui/main_frame.py:692
 #, python-brace-format
 msgid "Line {line}, Column {column}"
 msgstr "Γραμμή {line}, στήλη {column}"
 
-#: src/mathessible/ui/main_frame.py:697
+#: src/mathessible/ui/main_frame.py:698
 #, python-brace-format
 msgid "Could not {action}."
 msgstr "Δεν ήταν δυνατό: {action}."
 
-#: src/mathessible/ui/main_frame.py:710
+#: src/mathessible/ui/main_frame.py:711
 msgid "The document has unsaved changes. Do you want to save them?"
 msgstr "Το έγγραφο έχει μη αποθηκευμένες αλλαγές. Θέλετε να τις αποθηκεύσετε;"
 
-#: src/mathessible/ui/main_frame.py:711
+#: src/mathessible/ui/main_frame.py:712
 msgid "Unsaved Changes"
 msgstr "Μη αποθηκευμένες αλλαγές"
 
-#: src/mathessible/ui/main_frame.py:731
+#: src/mathessible/ui/main_frame.py:732
 msgid "save settings"
 msgstr "αποθήκευση των ρυθμίσεων"
 
-#: src/mathessible/ui/main_frame.py:782
+#: src/mathessible/ui/main_frame.py:783
 msgid "Open"
 msgstr "Άνοιγμα"
 
-#: src/mathessible/ui/main_frame.py:784
+#: src/mathessible/ui/main_frame.py:785
 msgid "Documents and notebooks"
 msgstr "Έγγραφα και σημειωματάρια"
 
-#: src/mathessible/ui/main_frame.py:786
+#: src/mathessible/ui/main_frame.py:787
 msgid "Markdown documents"
 msgstr "Έγγραφα Markdown"
 
-#: src/mathessible/ui/main_frame.py:788
+#: src/mathessible/ui/main_frame.py:789
 msgid "Notebooks"
 msgstr "Σημειωματάρια"
 
-#: src/mathessible/ui/main_frame.py:790
+#: src/mathessible/ui/main_frame.py:791
 msgid "PDFs exported by Mathessible"
 msgstr "PDF που εξήχθησαν από το Mathessible"
 
-#: src/mathessible/ui/main_frame.py:792 src/mathessible/ui/main_frame.py:1026
+#: src/mathessible/ui/main_frame.py:793 src/mathessible/ui/main_frame.py:1066
 #: src/mathessible/ui/settings_dialog.py:477
 msgid "All files"
 msgstr "Όλα τα αρχεία"
 
-#: src/mathessible/ui/main_frame.py:841
+#: src/mathessible/ui/main_frame.py:843
 #, python-brace-format
 msgid "open {name}"
 msgstr "άνοιγμα του {name}"
 
-#: src/mathessible/ui/main_frame.py:903
+#: src/mathessible/ui/main_frame.py:864
+msgid "This document's equations look like LaTeX. Mark it as a LaTeX document?"
+msgstr "Οι εξισώσεις αυτού του εγγράφου μοιάζουν με LaTeX. Να σημειωθεί ως έγγραφο LaTeX;"
+
+#: src/mathessible/ui/main_frame.py:870
+msgid ""
+"Its equations are then built as LaTeX and kept as they are, and the line math: latex is added at "
+"its top. Without it, Mathessible reads them as UnicodeMath."
+msgstr ""
+"Οι εξισώσεις του τότε δομούνται ως LaTeX και μένουν ως έχουν, και η γραμμή math: latex "
+"προστίθεται στην αρχή του. Χωρίς αυτήν, το Mathessible τις διαβάζει ως UnicodeMath."
+
+#: src/mathessible/ui/main_frame.py:874
+msgid "&Mark as LaTeX"
+msgstr "&Σήμανση ως LaTeX"
+
+#: src/mathessible/ui/main_frame.py:874
+msgid "&Leave as It Is"
+msgstr "&Να μείνει ως έχει"
+
+#: src/mathessible/ui/main_frame.py:943
 msgid "&Clear Menu"
 msgstr "&Εκκαθάριση λίστας"
 
-#: src/mathessible/ui/main_frame.py:929
+#: src/mathessible/ui/main_frame.py:969
 msgid "Revert to the saved version? The changes since it was saved will be lost."
 msgstr "Επαναφορά στην αποθηκευμένη έκδοση; Οι αλλαγές από την αποθήκευση και μετά θα χαθούν."
 
-#: src/mathessible/ui/main_frame.py:930
+#: src/mathessible/ui/main_frame.py:970
 msgid "Revert to Saved"
 msgstr "Επαναφορά στην αποθηκευμένη"
 
-#: src/mathessible/ui/main_frame.py:933
+#: src/mathessible/ui/main_frame.py:973
 msgid "&Revert"
 msgstr "&Επαναφορά"
 
-#: src/mathessible/ui/main_frame.py:945
+#: src/mathessible/ui/main_frame.py:985
 msgid "read the saved document"
 msgstr "ανάγνωση του αποθηκευμένου εγγράφου"
 
-#: src/mathessible/ui/main_frame.py:973
+#: src/mathessible/ui/main_frame.py:1013
 msgid "read the notebook"
 msgstr "ανάγνωση του σημειωματαρίου"
 
-#: src/mathessible/ui/main_frame.py:982
+#: src/mathessible/ui/main_frame.py:1022
 msgid "Mathessible document"
 msgstr "Έγγραφο Mathessible"
 
-#: src/mathessible/ui/main_frame.py:1002
+#: src/mathessible/ui/main_frame.py:1042
 msgid "print"
 msgstr "εκτύπωση"
 
-#: src/mathessible/ui/main_frame.py:1023
+#: src/mathessible/ui/main_frame.py:1063
 msgid "Save Markdown document"
 msgstr "Αποθήκευση εγγράφου Markdown"
 
-#: src/mathessible/ui/main_frame.py:1026
+#: src/mathessible/ui/main_frame.py:1066
 msgid "Markdown document"
 msgstr "Έγγραφο Markdown"
 
-#: src/mathessible/ui/main_frame.py:1053 src/mathessible/ui/main_frame.py:1435
+#: src/mathessible/ui/main_frame.py:1093 src/mathessible/ui/main_frame.py:1475
 msgid "save the page"
 msgstr "αποθήκευση της σελίδας"
 
-#: src/mathessible/ui/main_frame.py:1069
+#: src/mathessible/ui/main_frame.py:1109
 msgid "save the document"
 msgstr "αποθήκευση του εγγράφου"
 
-#: src/mathessible/ui/main_frame.py:1087
+#: src/mathessible/ui/main_frame.py:1127
 msgid "export the HTML document"
 msgstr "εξαγωγή του εγγράφου HTML"
 
-#: src/mathessible/ui/main_frame.py:1087
+#: src/mathessible/ui/main_frame.py:1127
 msgid "HTML document"
 msgstr "Έγγραφο HTML"
 
-#: src/mathessible/ui/main_frame.py:1088
+#: src/mathessible/ui/main_frame.py:1128
 msgid "export the PDF document"
 msgstr "εξαγωγή του εγγράφου PDF"
 
-#: src/mathessible/ui/main_frame.py:1088
+#: src/mathessible/ui/main_frame.py:1128
 msgid "PDF document"
 msgstr "Έγγραφο PDF"
 
-#: src/mathessible/ui/main_frame.py:1088 src/mathessible/ui/pdf_dialog.py:38
+#: src/mathessible/ui/main_frame.py:1128 src/mathessible/ui/pdf_dialog.py:38
 msgid "Export as PDF"
 msgstr "Εξαγωγή ως PDF"
 
-#: src/mathessible/ui/main_frame.py:1090
+#: src/mathessible/ui/main_frame.py:1130
 msgid "export the Word document"
 msgstr "εξαγωγή του εγγράφου Word"
 
-#: src/mathessible/ui/main_frame.py:1092
+#: src/mathessible/ui/main_frame.py:1132
 msgid "Word document"
 msgstr "Έγγραφο Word"
 
-#: src/mathessible/ui/main_frame.py:1094
+#: src/mathessible/ui/main_frame.py:1134
 msgid "export the BRF document"
 msgstr "εξαγωγή του εγγράφου BRF"
 
-#: src/mathessible/ui/main_frame.py:1094
+#: src/mathessible/ui/main_frame.py:1134
 msgid "Braille ready file"
 msgstr "Αρχείο έτοιμο για braille (BRF)"
 
-#: src/mathessible/ui/main_frame.py:1160
+#: src/mathessible/ui/main_frame.py:1200
 #, python-brace-format
 msgid "Exported {name}"
 msgstr "Εξήχθη το {name}"
 
-#: src/mathessible/ui/main_frame.py:1161
+#: src/mathessible/ui/main_frame.py:1201
 #, python-brace-format
 msgid "exported {name}"
 msgstr "εξήχθη το {name}"
 
-#: src/mathessible/ui/main_frame.py:1243
+#: src/mathessible/ui/main_frame.py:1283
 msgid ""
 "PDF/A does not allow passwords or restrictions. Choose Tagged PDF or PDF/UA-1 under Security, or "
 "export without them."
@@ -3589,81 +3609,81 @@ msgstr ""
 "Το PDF/A δεν επιτρέπει κωδικούς πρόσβασης ή περιορισμούς. Επιλέξτε PDF με ετικέτες ή PDF/UA-1 "
 "στην Ασφάλεια, ή κάντε εξαγωγή χωρίς αυτούς."
 
-#: src/mathessible/ui/main_frame.py:1416
+#: src/mathessible/ui/main_frame.py:1456
 msgid "open the page"
 msgstr "άνοιγμα της σελίδας"
 
-#: src/mathessible/ui/main_frame.py:1455
+#: src/mathessible/ui/main_frame.py:1495
 msgid "Choose or create the new notebook folder"
 msgstr "Επιλέξτε ή δημιουργήστε τον φάκελο του νέου σημειωματαρίου"
 
-#: src/mathessible/ui/main_frame.py:1467
+#: src/mathessible/ui/main_frame.py:1507
 msgid "create the notebook"
 msgstr "δημιουργία του σημειωματαρίου"
 
-#: src/mathessible/ui/main_frame.py:1481
+#: src/mathessible/ui/main_frame.py:1521
 msgid "Save portable notebook"
 msgstr "Αποθήκευση φορητού σημειωματαρίου"
 
-#: src/mathessible/ui/main_frame.py:1483
+#: src/mathessible/ui/main_frame.py:1523
 msgid "Mathessible notebooks"
 msgstr "Σημειωματάρια Mathessible"
 
-#: src/mathessible/ui/main_frame.py:1503
+#: src/mathessible/ui/main_frame.py:1543
 msgid "create the portable notebook"
 msgstr "δημιουργία του φορητού σημειωματαρίου"
 
-#: src/mathessible/ui/main_frame.py:1515
+#: src/mathessible/ui/main_frame.py:1555
 msgid "Choose the notebook folder"
 msgstr "Επιλέξτε τον φάκελο του σημειωματαρίου"
 
-#: src/mathessible/ui/main_frame.py:1525
+#: src/mathessible/ui/main_frame.py:1565
 msgid "Page title:"
 msgstr "Τίτλος σελίδας:"
 
-#: src/mathessible/ui/main_frame.py:1537
+#: src/mathessible/ui/main_frame.py:1577
 msgid "Add Page"
 msgstr "Προσθήκη σελίδας"
 
-#: src/mathessible/ui/main_frame.py:1537
+#: src/mathessible/ui/main_frame.py:1577
 #, python-brace-format
 msgid "Page {number}"
 msgstr "Σελίδα {number}"
 
-#: src/mathessible/ui/main_frame.py:1543
+#: src/mathessible/ui/main_frame.py:1583
 msgid "add the page"
 msgstr "προσθήκη της σελίδας"
 
-#: src/mathessible/ui/main_frame.py:1553
+#: src/mathessible/ui/main_frame.py:1593
 msgid "Rename Page"
 msgstr "Μετονομασία σελίδας"
 
-#: src/mathessible/ui/main_frame.py:1559
+#: src/mathessible/ui/main_frame.py:1599
 msgid "rename the page"
 msgstr "μετονομασία της σελίδας"
 
-#: src/mathessible/ui/main_frame.py:1571
+#: src/mathessible/ui/main_frame.py:1611
 #, python-brace-format
 msgid "Delete the page “{title}”?"
 msgstr "Διαγραφή της σελίδας «{title}»;"
 
-#: src/mathessible/ui/main_frame.py:1572
+#: src/mathessible/ui/main_frame.py:1612
 msgid "Delete Page"
 msgstr "Διαγραφή σελίδας"
 
-#: src/mathessible/ui/main_frame.py:1581
+#: src/mathessible/ui/main_frame.py:1621
 msgid "delete the page"
 msgstr "διαγραφή της σελίδας"
 
-#: src/mathessible/ui/main_frame.py:1597
+#: src/mathessible/ui/main_frame.py:1637
 msgid "move the page"
 msgstr "μετακίνηση της σελίδας"
 
-#: src/mathessible/ui/main_frame.py:1613
+#: src/mathessible/ui/main_frame.py:1653
 msgid "update the portable notebook"
 msgstr "ενημέρωση του φορητού σημειωματαρίου"
 
-#: src/mathessible/ui/main_frame.py:1626
+#: src/mathessible/ui/main_frame.py:1666
 #, python-brace-format
 msgid "Mathessible closed without saving {count} document. Recover the unsaved changes?"
 msgid_plural "Mathessible closed without saving {count} documents. Recover the unsaved changes?"
@@ -3674,15 +3694,15 @@ msgstr[1] ""
 "Το Mathessible έκλεισε χωρίς να αποθηκεύσει {count} έγγραφα. Να ανακτηθούν οι μη αποθηκευμένες "
 "αλλαγές;"
 
-#: src/mathessible/ui/main_frame.py:1630
+#: src/mathessible/ui/main_frame.py:1670
 msgid "Recover Unsaved Changes"
 msgstr "Ανάκτηση μη αποθηκευμένων αλλαγών"
 
-#: src/mathessible/ui/main_frame.py:1633
+#: src/mathessible/ui/main_frame.py:1673
 msgid "&Recover"
 msgstr "&Ανάκτηση"
 
-#: src/mathessible/ui/main_frame.py:1633
+#: src/mathessible/ui/main_frame.py:1673
 msgid "&Discard"
 msgstr "Α&πόρριψη"
 

@@ -166,6 +166,24 @@ class LaTeXConversionTests(unittest.TestCase):
         for result in results:
             self.assertNotIn("\\math", result["mathml"])
 
+    @needs_node
+    def test_plain_tex_matrices_and_alphabets_over_structures_build(self) -> None:
+        sources = [
+            "\\pmatrix{a&b\\\\c&d}",
+            "\\matrix{a&b\\cr c&d}",
+            "\\mathbf{\\frac{a}{b}}",
+            "\\mathbf{x+\\alpha}",
+            "\\mathrm{d}x",
+        ]
+        results = convert_all(sources, latex=True)
+        self.assertEqual(results[0]["unicodemath"], "⒨(a&b@c&d)")
+        self.assertEqual(results[1]["unicodemath"], "■(a&b@c&d)")
+        self.assertIn("<mfrac><mi>𝐚</mi><mi>𝐛</mi></mfrac>", results[2]["mathml"])
+        self.assertEqual(results[3]["unicodemath"], "𝐱+α")
+        self.assertEqual(results[4]["unicodemath"], '"d"x')
+        for result in results:
+            self.assertFalse(has_error(result["mathml"]), result)
+
 
 if __name__ == "__main__":
     unittest.main()

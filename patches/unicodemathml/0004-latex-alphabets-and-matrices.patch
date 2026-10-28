@@ -1,0 +1,143 @@
+UnicodeMathML: LaTeX's math alphabets (\mathbb{R}) and plain TeX's matrices
+(\pmatrix{...}) in TeX2UnicodeMath
+
+Mathessible stores a LaTeX document's equations as LaTeX and builds them
+through Murray Sargent's own LaTeX converter, TeX2UnicodeMath in the
+playground's TeX.js. Two passes now run before its first one:
+
+- TeXMathAlphabets: \mathbb{R}, \mathbf{v}, \mathcal{L} came out as the
+  text "\mathbb" and a fenced R (upstream added these control words to
+  src/unicodemathml.js only, ddba23c, and dist/, which TeX.js runs with,
+  predates them). Their letters and digits become the Unicode math
+  alphanumerics with dist's getMathAlphanumeric (ℝ, 𝐯, ℒ), \mathrm's
+  quoted upright text, over any argument: \mathbf{\frac{a}{b}} is the
+  fraction of 𝐚 and 𝐛; control words and \text{...} are kept.
+- TeXMatrixCommands: \pmatrix{a&b\\c&d}, Word's \matrix{...} and the
+  other plain TeX matrices threw (TeX2UMath's brace case destructures
+  findClosingBrace, which returns a number at a row's \\). They become the
+  environments it reads, \begin{pmatrix}...\end{pmatrix}, rows ended by
+  \\ or \cr.
+
+Only playground/assets/TeX.js, which Mathessible loads after dist/.
+Applied by scripts/bootstrap.sh after 0001 to 0003.
+
+diff --git a/playground/assets/TeX.js b/playground/assets/TeX.js
+index 9142e69..2c6be16 100644
+--- a/playground/assets/TeX.js
++++ b/playground/assets/TeX.js
+@@ -834,7 +834,115 @@ function TeX2UMath(tex) {
+     }
+     return uniTeX
+ }
++// The math alphabets of LaTeX, as mathStyles names: their letters and digits become
++// the Unicode math alphanumerics (\mathbb{R} is ℝ, \mathbf{\frac{a}{b}} the fraction of
++// 𝐚 and 𝐛), \mathrm letters upright text. Control words and \text{...} are kept.
++const texMathAlphabets = {
++    'mathbb': 'Bbb', 'mathbf': 'mbf', 'mathit': 'mit', 'mathbfit': 'mbfit', 'mathcal': 'mscr',
++    'mathscr': 'mscr', 'mathfrak': 'mfrak', 'mathsf': 'msans', 'mathtt': 'mtt', 'mathrm': 'mup',
++}
++
++function texClosingBrace(tex, i) {
++    // Offset of the '}' closing the '{' before offset i (escaped braces skipped), or -1
++    for (let depth = 1; i < tex.length; i++) {
++        if (tex[i] == '\\')
++            i++
++        else if (tex[i] == '{')
++            depth++
++        else if (tex[i] == '}' && !--depth)
++            return i
++    }
++    return -1
++}
++
++function texStyled(tex, style) {
++    // tex's letters and digits in the math alphabet style; control words and texts kept
++    let ret = ''
++    for (let i = 0; i < tex.length;) {
++        let m = /^\\(?:text|mbox|operatorname)\s*\{/.exec(tex.substring(i))
++        if (m) {
++            let j = texClosingBrace(tex, i + m[0].length)
++            if (j == -1)
++                return ret + tex.substring(i)
++            ret += tex.substring(i, j + 1)
++            i = j + 1
++            continue
++        }
++        m = /^\\(?:[A-Za-z]+|.)/.exec(tex.substring(i))
++        if (m) {
++            ret += m[0]
++            i += m[0].length
++            continue
++        }
++        m = /^[A-Za-z0-9]+/.exec(tex.substring(i))
++        if (m) {
++            ret += style == 'mup' ? '"' + m[0] + '"'
++                : Array.from(m[0], ch => getMathAlphanumeric(ch, style)).join('')
++            i += m[0].length
++            continue
++        }
++        if (tex[i] != ' ' || style != 'mup')
++            ret += tex[i]
++        i++
++    }
++    return ret
++}
++
++function TeXMathAlphabets(tex) {
++    let ret = ''
++    for (let i = 0; i < tex.length;) {
++        let m = /^\\(math(?:bb|bfit|bf|it|cal|scr|frak|sf|tt|rm))(?![A-Za-z])\s*/.exec(tex.substring(i))
++        if (!m) {
++            let cw = /^\\(?:[A-Za-z]+|.)/.exec(tex.substring(i))
++            let n = cw ? cw[0].length : 1
++            ret += tex.substring(i, i + n)
++            i += n
++            continue
++        }
++        const style = texMathAlphabets[m[1]]
++        let j = i + m[0].length
++        if (tex[j] == '{') {
++            let k = texClosingBrace(tex, j + 1)
++            if (k == -1)
++                return ret + tex.substring(i)
++            ret += texStyled(TeXMathAlphabets(tex.substring(j + 1, k)), style)
++            i = k + 1
++        } else if (/[A-Za-z0-9]/.test(tex[j] || '')) {
++            ret += texStyled(tex[j], style)
++            i = j + 1
++        } else {
++            ret += m[0]
++            i = j
++        }
++    }
++    return ret
++}
++
++// Plain TeX's and Word's matrices, \pmatrix{a&b\\c&d} (rows ended by \\ or \cr), as
++// the environments TeX2UMath reads: \begin{pmatrix}a&b\\c&d\end{pmatrix}.
++function TeXMatrixCommands(tex) {
++    let ret = ''
++    for (let i = 0; i < tex.length;) {
++        let m = /^\\([pbvVB]?matrix)\s*\{/.exec(tex.substring(i))
++        if (!m) {
++            let cw = /^\\(?:[A-Za-z]+|.)/.exec(tex.substring(i))
++            let n = cw ? cw[0].length : 1
++            ret += tex.substring(i, i + n)
++            i += n
++            continue
++        }
++        let j = texClosingBrace(tex, i + m[0].length)
++        if (j == -1)
++            return ret + tex.substring(i)
++        let body = TeXMatrixCommands(tex.substring(i + m[0].length, j)).replace(/\\cr(?![A-Za-z])/g, '\\\\')
++        ret += '\\begin{' + m[1] + '}' + body + '\\end{' + m[1] + '}'
++        i = j + 1
++    }
++    return ret
++}
++
+ function TeX2UnicodeMath(tex) {
++    tex = TeXMathAlphabets(TeXMatrixCommands(tex))
+     // Pass 1: Convert control words in tex to Unicode symbols or strings
+     let cwPrev = ''
+     let macrosEnabled = ummlConfig && ummlConfig.texMacros

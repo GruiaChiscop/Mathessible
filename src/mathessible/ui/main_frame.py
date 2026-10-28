@@ -26,6 +26,7 @@ from mathessible.documents.html_export import (
     preview_update_script,
     write_notebook_html,
 )
+from mathessible.documents.latex_detection import has_latex_equations
 from mathessible.documents.markdown_math import find_math_zones, rewrite_equations
 from mathessible.documents.notebook import Notebook, NotebookError
 from mathessible.documents.omml_math import OmmlEquation, omml_math
@@ -837,11 +838,50 @@ if wx is not None:
                     frame.document_path = path
                     frame.dirty = False
                     frame._update_title()
+                    wx.CallAfter(frame._offer_latex_mark)
             except (OSError, UnicodeError, NotebookError, PdfSourceError) as error:
                 self._show_error(_("open {name}").format(name=path.name), error)
                 return None
             self.note_recent(path)
             return frame
+
+        def _offer_latex_mark(self, attempts: int = 40) -> None:
+            """Markdown written elsewhere (GitHub, Pandoc) whose equations are LaTeX, with no `math: latex`:
+            asks whether to mark it (`latex_detection`), so its equations build and stay as they are."""
+            if not self or self.editor.editing_equation:
+                return
+            equation_editor = self.editor.equation_window.equation
+            if not equation_editor.converter_ready or equation_editor.converter_busy:
+                if attempts > 0:  # Opened at startup: the converter is still loading.
+                    wx.CallLater(250, self._offer_latex_mark, attempts - 1)
+                return
+            source = self.editor.source
+            if not has_latex_equations(source, equation_editor.convert_equation):
+                return
+            session_log.write("command", "offer: mark the document LaTeX")
+            dialog = wx.MessageDialog(
+                self,
+                _("This document's equations look like LaTeX. Mark it as a LaTeX document?"),
+                _("Equations in LaTeX"),
+                wx.YES_NO | wx.ICON_QUESTION,
+            )
+            dialog.SetExtendedMessage(
+                _(
+                    "Its equations are then built as LaTeX and kept as they are, and the line math: latex is "
+                    "added at its top. Without it, Mathessible reads them as UnicodeMath."
+                )
+            )
+            dialog.SetYesNoLabels(_("&Mark as LaTeX"), _("&Leave as It Is"))
+            try:
+                if dialog.ShowModal() != wx.ID_YES:
+                    return
+            finally:
+                dialog.Destroy()
+            if self.editor.source == source:
+                caret = self.editor.markdown.GetInsertionPoint()
+                new_source = with_equation_language(source, LATEX)
+                self.editor.replace_source(new_source)
+                self.editor.markdown.SetInsertionPoint(min(caret + len(new_source) - len(source), len(new_source)))
 
         def _open_pdf(self, path: Path, frame: MainFrame | None) -> MainFrame:
             """A PDF exported by Mathessible, from its attached Markdown: unsaved, as a document or a notebook.

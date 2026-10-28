@@ -109,6 +109,12 @@ spacing and some details can change (an equation that does not build is
 kept as it is, and Undo restores them all). `Settings → Typing` can
 start every new document and notebook page in LaTeX.
 
+Markdown written elsewhere, as GitHub and Pandoc write it, has LaTeX
+equations but no `math: latex`. When a document you open has equations
+that build only as LaTeX (`\frac{a}{b}`, `\mathbb{R}`, `\begin{cases}`),
+Mathessible asks whether to mark it as a LaTeX document; Leave as It Is
+keeps reading them as UnicodeMath.
+
 In a LaTeX document the equation editor's linear view is the LaTeX,
 typed as it is written: no Math AutoCorrect or suggestions while you
 type, nothing built until you ask, with the built equation previewed
@@ -125,7 +131,8 @@ again when it goes back to the linear view.
 Speech, braille, the preview, copying and every export work as for
 UnicodeMath. Most LaTeX math is understood (fractions, roots, scripts,
 sums and integrals, `\begin{pmatrix}`, `\begin{cases}`, `\left( \right)`,
-`\mathbb{R}`, `\text{}`), not yet `\pmatrix{...}`.
+`\pmatrix{...}` and Word's `\matrix{...}`, `\mathbb{R}` and
+`\mathbf{...}`, `\text{}`).
 
 ### Header and footer
 

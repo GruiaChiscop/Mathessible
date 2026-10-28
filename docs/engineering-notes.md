@@ -1510,9 +1510,22 @@ LaTeX by MathCAT, then inserted by
 control word and a letter (`\alpha b`, never `\alphab`). The structure
 menus (context menu) stay the professional view's.
 
-Known converter gaps: `\pmatrix{...}` throws (the `\begin{pmatrix}`
-form works), and a math alphabet over a structure
-(`\mathbf{\frac{a}{b}}`) is left as text.
+`\pmatrix{...}` and a math alphabet over a structure
+(`\mathbf{\frac{a}{b}}`) build since patch 0004's second version.
+
+Markdown from elsewhere (GitHub, Pandoc: LaTeX, no `math: latex`):
+opening a `.md` file asks whether to mark it
+([documents/latex_detection.py](../src/mathessible/documents/latex_detection.py),
+`MainFrame._offer_latex_mark`, waiting for the converter when opened at
+startup). The converter decides, never Python: an equation with a
+backslash is converted both ways, and speaks for LaTeX when it builds
+only as LaTeX (UnicodeMath gives a parse error or leaves the control word
+as text: `\frac`, `\mathbb`, `\begin`, `\text`, `\hat`, `\binom`), for
+UnicodeMath the other way; shared words (`\alpha`, `\le`, `\sum`) say
+nothing. Asked when some speak for LaTeX and none for UnicodeMath, from
+the first 20 with a backslash. A document with only `x^{2}`-style LaTeX
+is not noticed (UnicodeMath shows the braces): Edit > Equations in LaTeX
+is not the fix there, as it rewrites, so the user adds the mark.
 
 ## Newer UnicodeMathML Versions
 
@@ -1638,7 +1651,13 @@ still `1,2` and `,3`, and `MathMLtoUnicodeMath` still loses an integral's
   `\mathbf{v}`, `\mathcal{L}`, came out as the text "\mathbb" and a fenced
   R, since upstream added them to `src/` only; `TeX2UnicodeMath` now makes
   them math alphanumerics with dist's `getMathAlphanumeric` first
-  (`\mathrm` text quoted upright), a simple argument only.
+  (`\mathrm` text quoted upright), over any argument
+  (`\mathbf{\frac{a}{b}}`: the letters inside, control words and
+  `\text{}` kept). And `\pmatrix{a&b\\c&d}`, Word's `\matrix{...}` and
+  the other plain TeX matrices threw (TeX2UMath's `{` case destructures
+  `findClosingBrace`, which returns a plain number at a row's `\\`):
+  `TeXMatrixCommands` makes them `\begin{pmatrix}...\end{pmatrix}`
+  first, rows ended by `\\` or `\cr`.
 
 ## Symbol Dictionaries and Licence
 

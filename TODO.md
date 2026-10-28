@@ -93,10 +93,10 @@ links back, liblouis and BRF need a braille transcriber's convention.
   the LaTeX builds as, written again in LaTeX by MathCAT only after an
   edit there; Word rewrites it on every return), the Insert menu writing
   LaTeX in the linear view.
-- [ ] LaTeX: `\pmatrix{...}`, and a math alphabet over a structure
+- [x] LaTeX: `\pmatrix{...}`, and a math alphabet over a structure
   (`\mathbf{\frac{a}{b}}`), in Sargent's TeX2UnicodeMath.
 - [ ] LaTeX, stage 3: `.tex` files, opened and saved as LaTeX documents
   (`$`, `\(`, `\[` and `equation` environments).
-- [ ] Opening Markdown written elsewhere (GitHub, Pandoc) whose equations
-  are LaTeX but which has no `math: latex`.
+- [x] Opening Markdown written elsewhere (GitHub, Pandoc) whose equations
+  are LaTeX but which has no `math: latex`: asked whether to mark it.
 - [ ] The visual design of the equation editor.
