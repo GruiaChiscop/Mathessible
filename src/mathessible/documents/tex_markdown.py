@@ -465,18 +465,14 @@ def _protect(source: str, numbers: TexNumbers | None = None) -> tuple[str, list[
         if number and "\\tag" not in content:
             content = f"{content.rstrip()} \\tag{{{number}}}"
         rows = numbers.rows.get(zone.start) if numbers is not None else None
-        if rows and any(rows):
-            # A numbered align's rows, each an equation with its number: the converter keeps one number
-            # per equation, and a number read with its row matters more than the rows' alignment.
-            equations = [row.replace("&", " ") for row in _top_level_split(content, "\\\\")]
-            for row, row_number in zip(equations, rows + [""] * len(equations), strict=False):
-                if not row.strip():
-                    continue
-                tag = f" \\tag{{{row_number}}}" if row_number and "\\tag" not in row else ""
-                protected.append(f"\n\n$${' '.join(row.split())}{tag}$$\n\n")
-                pieces.append(f"\x00{len(protected) - 1}\x00")
-            position = zone.end
-            continue
+        if rows and any(rows) and zone.environment:
+            # A numbered align's rows keep their alignment, each number in a column of its own after it
+            # (the converter keeps one number per equation); `prepare_for_mathcat` reads it as the row's label.
+            numbered = []
+            for index, row in enumerate(_top_level_split(content, "\\\\")):
+                row_number = rows[index] if index < len(rows) else ""
+                numbered.append(f"{row.rstrip()} &&\\qquad\\text{{({row_number})}}" if row_number else row)
+            content = "\\\\".join(numbered)
         if zone.environment:
             content = f"\\begin{{{zone.environment}}}{content.strip()}\\end{{{zone.environment}}}"
         # An inline equation stays on its line; a display one is a paragraph of its own.

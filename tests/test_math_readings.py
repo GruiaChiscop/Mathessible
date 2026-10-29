@@ -55,6 +55,32 @@ def read(source: str) -> tuple[str, list[str]]:
 
 
 class MathReadingTests(unittest.TestCase):
+    def test_an_h_is_no_planck_constant(self) -> None:
+        # The converter's italic h is ℎ (U+210E), which MathCAT named "planck constant".
+        navigator = MathCatNavigator(language="en", auto_zoom_out=True)
+        navigator.load("<math><mi>𝑓</mi><mo>(</mo><mi>𝑥</mi><mo>+</mo><mi>ℎ</mi><mo>)</mo></math>")
+        self.assertNotIn("planck", navigator.command("ReadCurrent"))
+        self.assertIn("h", navigator.command("ReadCurrent"))
+
+    def test_a_numbered_aligns_rows_read_with_their_numbers(self) -> None:
+        # Converter output for `\\begin{aligned}a&=b &&\\qquad\\text{(1)}\\\\ c&=d\\end{aligned}` (a .tex
+        # file's numbered align, as its preview writes it).
+        cell = "<mtd>{}</mtd>"
+        mathml = (
+            '<math><mtable intent=":equations" columnspacing="0pt"><mtr>'
+            + cell.format("<mi>𝑎</mi>")
+            + cell.format("<mo>=</mo><mi>𝑏</mi>")
+            + cell.format('<mspace width="0" />')
+            + cell.format('<mspace width="1em" /><mspace width="1em" /><mtext>(1)</mtext>')
+            + "</mtr><mtr>"
+            + cell.format("<mi>𝑐</mi>")
+            + cell.format("<mo>=</mo><mi>𝑑</mi>")
+            + "</mtr></mtable></math>"
+        )
+        navigator = MathCatNavigator(language="en", auto_zoom_out=True)
+        navigator.load(mathml)
+        self.assertIn("1 with label 1", navigator.command("ReadCurrent"))
+
     def test_a_log_has_a_base_not_a_subscript(self) -> None:
         # Converter output for "log_2 〖8〗" (user report: "log subscript 2").
         mathml = (

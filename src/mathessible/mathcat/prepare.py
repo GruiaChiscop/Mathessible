@@ -32,15 +32,21 @@ def prepare_for_mathcat(mathml: str) -> str:
     # `[0,1)`, `(a,b]` likewise carry intent="closed-open-interval(0,1)": every
     # stop in them read the whole interval. MathCAT infers the interval itself.
     mathml = _INTERVAL_INTENT.sub("", mathml)
+    # The converter's italic h is ℎ (U+210E: Unicode has no math italic h of its own), which MathCAT
+    # names "planck constant": every h was read so ("x plus planck constant"). It is an h.
+    mathml = _ITALIC_H.sub(r"\1h\2", mathml)
     # `ⅆ` (\dd) carries intent="ⅆ", read "double-struck italic d"; "d" is what is meant.
     mathml = mathml.replace('intent="ⅆ"', 'intent="d"')
     if any(name in mathml for name in _LARGE_FUNCTIONS) or "⏞" in mathml or "⏟" in mathml or "\u00a0" in mathml:
         mathml = _intent_fixups(mathml)
+    if 'intent=":equations"' in mathml and "<mtext>(" in mathml:
+        mathml = _row_labels(mathml)
     return mathml
 
 
 # max/min/sup/inf with a condition under them read like ∑ ("the max over x of f").
 _LARGE_FUNCTIONS = ("max", "min", "sup", "inf", "argmax", "argmin")
+_ITALIC_H = re.compile(r"(<mi\b[^>]*>)\u210e(</mi>)")
 _ABSOLUTE_VALUE_INTENT = re.compile(r'\s+intent="absolute-value\([^"$]*\)"')
 _INTERVAL_INTENT = re.compile(r'\s+intent="(?:open|closed|open-closed|closed-open)-interval\([^"$]*\)"')
 _CASES_INTENTS = re.compile(r'<mrow intent=":fenced">\s*<mo>\{</mo>\s*<mtable intent=":array\([^)]*\)"')
@@ -150,3 +156,47 @@ def _join_unscripted_limit(
 
 def _local(element: ElementTree.Element) -> str:
     return element.tag.rsplit("}", 1)[-1]
+
+
+_ROW_LABEL = re.compile(r"^\(.+\)$")
+
+
+def _row_label(cells: list[ElementTree.Element]) -> str | None:
+    """A row's number, when its last cell holds only it (`&&\\qquad\\text{(1)}`, as a .tex file's numbered
+    align is written for its preview) after an empty cell; else None."""
+    if len(cells) < 3:
+        return None
+    spacer, last = cells[-2], cells[-1]
+    if any(_local(child) != "mspace" or child.get("width", "0") != "0" for child in spacer):
+        return None
+    texts = [child for child in last if _local(child) != "mspace"]
+    if len(texts) != 1 or _local(texts[0]) != "mtext" or not _ROW_LABEL.match(texts[0].text or ""):
+        return None
+    return texts[0].text
+
+
+def _row_labels(mathml: str) -> str:
+    """A numbered align's rows as MathCAT reads labelled rows ("line 1 with label 1"): each number in a first
+    cell of its own, with the converter's `:equation-label` intent (its #(1)), as it is for one equation."""
+    try:
+        root = ElementTree.fromstring(mathml)
+    except ElementTree.ParseError:
+        return mathml
+    changed = False
+    for table in root.iter():
+        if _local(table) != "mtable" or "equations" not in table.get("intent", ""):
+            continue
+        rows = [row for row in table if _local(row) == "mtr"]
+        labels = [_row_label(list(row)) for row in rows]
+        if not any(labels):
+            continue
+        changed = True
+        for row, label in zip(rows, labels, strict=True):
+            cell = ElementTree.Element("mtd")
+            if label is not None:
+                for spare in list(row)[-2:]:
+                    row.remove(spare)
+                cell.set("intent", ":equation-label")
+                ElementTree.SubElement(cell, "mtext").text = label
+            row.insert(0, cell)
+    return ElementTree.tostring(root, encoding="unicode") if changed else mathml

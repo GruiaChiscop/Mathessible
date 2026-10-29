@@ -204,8 +204,8 @@ command, so nothing is lost; the file itself is not changed. Sections,
 equations, figures and tables are numbered as LaTeX numbers them, so
 `\ref{...}` and `\eqref{...}` read their numbers (`??` for a label that is
 not there, as in LaTeX), and an `equation`'s number is shown and read
-beside it; a numbered `align`'s rows are shown as equations of their own,
-each with its number. `\cite{...}` reads the numbers of the `thebibliography`
+beside it; a numbered `align` keeps its alignment, each row's number shown
+after it and read as the row's label ("equation 1 with label 1"). `\cite{...}` reads the numbers of the `thebibliography`
 entries, or of a BibTeX file's (`\bibliography{refs}` or `\addbibresource`,
 beside the `.tex` file): the entries cited are listed under References,
 numbered in the order they are cited (`unsrt`) or by author (`plain` and
