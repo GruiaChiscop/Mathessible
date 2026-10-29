@@ -44,12 +44,14 @@ from mathessible.documents.tex_compile import (
     ENGINES,
     CompileResult,
     DownloadProgress,
-    compile_tex,
+    compile_accessible_tex,
+    document_language,
     find_installation,
     install_tinytex,
     megabytes,
     tinytex_directory,
 )
+from mathessible.documents.tex_macros import expand_markdown_macros
 from mathessible.documents.tex_markdown import tex_to_markdown
 from mathessible.documents.typst_math import TypstEquation, typst_math
 from mathessible.editing.pasted_math import plain_letters
@@ -670,7 +672,8 @@ if wx is not None:
 
         def _compile_tex(self, _event: wx.CommandEvent | None = None) -> None:
             """File > Compile PDF with LaTeX: the .tex file (saved first) compiled by the user's own LaTeX, the
-            missing packages installed on the way (`tex_compile`); TinyTeX offered when there is none."""
+            missing packages installed on the way (`tex_compile`); TinyTeX offered when there is none. The PDF
+            is tagged, its equations as MathML, in the document's language (`compile_accessible_tex`)."""
             if not self.editor.tex or self._tex_busy:
                 return
             self.editor.commit_active_equation()
@@ -688,9 +691,12 @@ if wx is not None:
             def progress(step: str) -> None:
                 wx.CallAfter(self._tex_progress, step)
 
+            languages = preferred_languages()
+            language = document_language(self.editor.source, languages[0].split("-")[0] if languages else "en")
+
             def work() -> None:
                 try:
-                    result = compile_tex(path, installation, progress=progress)
+                    result = compile_accessible_tex(path, installation, language, progress=progress)
                 except (OSError, subprocess.SubprocessError) as error:
                     result = CompileResult(None, str(error))
                 wx.CallAfter(self._tex_compiled, result)
@@ -726,12 +732,25 @@ if wx is not None:
                 self.editor.markdown.SetFocus()
                 return
             self._say(_("PDF compiled: {name}").format(name=result.pdf.name))
+            if result.tagged:
+                question = _("The tagged PDF is ready: {name}. Open it?")
+            else:
+                question = _("The PDF is ready, but it is not tagged: {name}. Open it?")
             dialog = wx.MessageDialog(
                 self,
-                _("The PDF is ready: {name}. Open it?").format(name=result.pdf.name),
+                question.format(name=result.pdf.name),
                 _("Compile PDF with LaTeX"),
-                wx.YES_NO | wx.ICON_INFORMATION,
+                wx.YES_NO | (wx.ICON_INFORMATION if result.tagged else wx.ICON_WARNING),
             )
+            if result.tagging_error:
+                dialog.SetExtendedMessage(
+                    _(
+                        "LaTeX could not tag it ({error}), so it was compiled without tags: a screen reader cannot "
+                        "read its structure or its equations."
+                    ).format(error=result.tagging_error)
+                )
+            elif not result.tagged:
+                dialog.SetExtendedMessage(_("Tagging needs LuaLaTeX, which this LaTeX distribution does not have."))
             dialog.SetYesNoLabels(_("&Open PDF"), _("&Close"))
             try:
                 if dialog.ShowModal() == wx.ID_YES:
@@ -1216,8 +1235,11 @@ if wx is not None:
 
         def _readable_source(self) -> str:
             """The document as the preview, Print and the exports read it: Markdown, a .tex file's read as
-            Markdown with LaTeX equations (`tex_markdown`; the file itself is never changed)."""
-            return tex_to_markdown(self.editor.source) if self.editor.tex else self.editor.source
+            Markdown with LaTeX equations (`tex_markdown`; the file itself is never changed). A LaTeX
+            document's own commands (`\\newcommand`) are expanded in its equations (`tex_macros`)."""
+            if self.editor.tex:
+                return tex_to_markdown(self.editor.source)
+            return expand_markdown_macros(self.editor.source) if self.editor.latex else self.editor.source
 
         def _print(self, _event: wx.CommandEvent | None = None) -> None:
             """File > Print: the document as the preview shows it, through the system's print panel."""

@@ -7,6 +7,7 @@ import time
 from collections.abc import Callable
 
 from mathessible.documents.mathml_sanitize import MathMLModelError, sanitize_mathml
+from mathessible.documents.tex_macros import expand_macros
 from mathessible.editing.build_repair import literal_repair, literal_text, repair_for_build
 from mathessible.i18n import _
 from mathessible.mathcat.latex import equation_latex
@@ -186,7 +187,10 @@ class EquationRendererMixin:
 
     def convert_unicode_math(self, source: str) -> str:
         """The equation being edited (or one like it) as MathML: in its document's language (`self.latex`), a
-        .tex environment's rows built as its `latex_environment` (align's as `aligned`)."""
+        .tex environment's rows built as its `latex_environment` (align's as `aligned`), the document's own
+        commands (`latex_macros`) expanded."""
+        if self.latex:
+            source = expand_macros(source, self.latex_macros)
         if self.latex and self.latex_environment:
             source = f"\\begin{{{self.latex_environment}}}{source}\\end{{{self.latex_environment}}}"
         return self.convert_equation(source, self.latex)

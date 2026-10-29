@@ -7,7 +7,9 @@ from pathlib import Path
 from mathessible.documents.tex_compile import (
     DownloadProgress,
     TexInstallation,
+    compile_accessible_tex,
     compile_tex,
+    document_language,
     download_progress,
     engine_for,
     find_installation,
@@ -16,6 +18,7 @@ from mathessible.documents.tex_compile import (
     megabytes,
     missing_file,
     package_holding,
+    tagging_metadata,
     tinytex_install_command,
 )
 
@@ -139,6 +142,60 @@ class CompileTests(unittest.TestCase):
         result = compile_tex(self.tex, self.installation, self.runner([(1, log)]))
         self.assertIsNone(result.pdf)
         self.assertIn("nowhere.sty", result.error)
+
+    def test_a_tagged_pdf_is_compiled_by_lualatex_with_its_metadata_on_the_command_line(self) -> None:
+        executable(self.bin / "lualatex")
+        installation = TexInstallation("TinyTeX", self.bin, ("pdflatex", "lualatex"))
+        result = compile_accessible_tex(self.tex, installation, "ro", self.runner([(0, "done")]))
+        self.assertTrue(result.tagged)
+        command = self.calls[0]
+        self.assertEqual(Path(command[0]).name, "lualatex")
+        self.assertIn("-jobname=paper", command)
+        self.assertEqual(command[-1], tagging_metadata("ro") + "\\input{paper.tex}")
+        self.assertIn("lang=ro", command[-1])
+        self.assertIn("math/setup=mathml-SE", command[-1])
+
+    def test_a_document_with_its_own_metadata_is_compiled_as_it_says(self) -> None:
+        executable(self.bin / "lualatex")
+        self.tex.write_text("\\DocumentMetadata{lang=de}\\documentclass{article}")
+        installation = TexInstallation("TinyTeX", self.bin, ("pdflatex", "lualatex"))
+        compile_accessible_tex(self.tex, installation, "ro", self.runner([(0, "done")]))
+        self.assertEqual(self.calls[0][-1], "paper.tex")
+
+    def test_when_tagging_fails_the_pdf_is_compiled_untagged(self) -> None:
+        executable(self.bin / "lualatex")
+        installation = TexInstallation("TinyTeX", self.bin, ("pdflatex", "lualatex"))
+        result = compile_accessible_tex(self.tex, installation, "en", self.runner([(1, ERROR_LOG), (0, "done")]))
+        self.assertEqual(result.pdf, self.tex.with_suffix(".pdf"))
+        self.assertFalse(result.tagged)
+        self.assertEqual(result.tagging_error, "Undefined control sequence.")
+        self.assertEqual(Path(self.calls[-1][0]).name, "pdflatex")
+
+    def test_the_tagging_support_is_installed_and_an_old_tlmgr_updated_first(self) -> None:
+        executable(self.bin / "lualatex")
+        installation = TexInstallation("TinyTeX", self.bin, ("pdflatex", "lualatex"))
+        installs = iter([1, 0])
+        logs = [(1, "! LaTeX Error: No support files for \\DocumentMetadata found."), (0, "done")]
+        latex = self.runner(logs)
+
+        def run(command: list[str], **options: object) -> subprocess.CompletedProcess:
+            if Path(command[0]).name == "tlmgr" and command[1] == "install":
+                self.calls.append(command)
+                code = next(installs)
+                return subprocess.CompletedProcess(
+                    command, code, "tlmgr itself needs to be updated." if code else "", ""
+                )
+            return latex(command, **options)
+
+        result = compile_accessible_tex(self.tex, installation, "en", run)
+        self.assertEqual(result.installed, ("latex-lab",))
+        self.assertIn([os.fspath(self.bin / "tlmgr"), "update", "--self"], self.calls)
+        self.assertTrue(result.tagged)
+
+    def test_the_documents_language(self) -> None:
+        self.assertEqual(document_language("\\usepackage[english,romanian]{babel}", "en"), "ro")
+        self.assertEqual(document_language("\\setmainlanguage[variant=british]{english}", "fr"), "en")
+        self.assertEqual(document_language("% \\usepackage[french]{babel}", "de"), "de")
 
 
 METER = (

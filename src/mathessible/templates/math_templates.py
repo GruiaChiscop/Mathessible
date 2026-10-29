@@ -476,6 +476,19 @@ def move_to_slot(
     return TemplateEdit(source, current.exit, f"end {current.template}")
 
 
+def fill_empty_slots(source: str, functions: tuple[str, ...] = DEFAULT_RECOGNIZED_FUNCTIONS) -> str:
+    """A template with an empty-slot box (⬚) in each empty slot, so that it builds as it reads: `√(&)`,
+    `(¦)` and `‖‖` do not build empty. A script's base is the box alone (`⬚_(⬚)`), not `(⬚)` in parentheses."""
+    for start, end in sorted({(slot.start, slot.end) for slot in _slots(source, functions)}, reverse=True):
+        if start != end:
+            continue
+        if source[start - 1 : start + 1] == "()" and source[start + 1 : start + 2] in ("_", "^"):
+            source = source[: start - 1] + "\u2b1a" + source[start + 1 :]
+        else:
+            source = source[:start] + "\u2b1a" + source[start:]
+    return source
+
+
 def _enter_slot(source: str, slot: _Slot) -> TemplateEdit:
     content = source[slot.start : slot.end]
     announcement = f"{slot.role}, {content}" if content else f"empty {slot.role}"

@@ -121,7 +121,8 @@ but suggestions as you type a command (`\fr` offers `\frac`, Up and Down
 browse them, Tab takes one; after `\begin{` the environments, `pmatrix`
 written with its `\end{pmatrix}`), with the built equation previewed
 under it. The Insert menu and its shortcuts insert LaTeX there
-(`\frac{}{}`, the caret in the first empty slot); Tab and Shift+Tab go
+(`\frac{}{}`, the caret in the first empty slot; an equation number is
+`\tag{}`); Tab and Shift+Tab go
 from one brace group to the next, and Tab from a command's last one
 leaves it. F2 builds it in the
 professional view, edited there as any equation, with templates and
@@ -164,14 +165,30 @@ stops at an error, Mathessible says which and puts the caret on its line.
 A document that loads `fontspec` or `unicode-math` is compiled with
 LuaLaTeX (or XeLaTeX).
 
+The compiled PDF is tagged, so a screen reader reads its structure and
+its equations (as MathML): Mathessible compiles it with LuaLaTeX and
+LaTeX's own tagging (PDF/UA-2), in the document's language (babel's or
+polyglossia's, else your system's), without changing the file. A
+document with its own `\DocumentMetadata` is compiled as it says. When a
+package does not support tagging yet, Mathessible compiles the PDF
+without tags and says so.
+
+A document's own commands (`\newcommand`, `\renewcommand`, `\def`,
+`\DeclareMathOperator`) are understood in its equations: `\R` defined as
+`\mathbb{R}` is built, read and brailled as ℝ, and is suggested as you
+type. The equation keeps `\R` as you wrote it, unless you edit it in
+the professional view, which writes it again in plain LaTeX. In a
+Markdown document with LaTeX equations, a definition may stand in an
+equation of its own (`$\newcommand{\R}{\mathbb{R}}$`), as MathJax allows.
+
 The preview, Print and every export (HTML, the accessible PDF, Word,
 BRF) read a `.tex` document too: Mathessible reads its title
 (`\maketitle`), sections, `\emph`, `\textbf`, lists, quotations,
 `verbatim`, footnotes and links, and keeps the text of any other
 command, so nothing is lost; the file itself is not changed. For the
 PDF your LaTeX would make, with every package, use Compile PDF with
-LaTeX; the exported PDF is the accessible one, its equations spoken
-and tagged. Insert → Footnote and Header and Footer are Markdown's:
+LaTeX; both are tagged, and the exported one also carries every
+equation's spoken form. Insert → Footnote and Header and Footer are Markdown's:
 in a `.tex` file write `\footnote{...}` itself.
 
 ### Header and footer

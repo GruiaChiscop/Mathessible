@@ -105,7 +105,7 @@ links back, liblouis and BRF need a braille transcriber's convention.
 - [x] LaTeX, stage 3c: the PDF of a `.tex` file compiled by the user's own
   LaTeX installation (TinyTeX offered and installed when there is none,
   missing packages installed with tlmgr), so that packages work.
-- [ ] LaTeX: a tagged, accessible PDF from a `.tex` file (LuaLaTeX's
+- [x] LaTeX: a tagged, accessible PDF from a `.tex` file (LuaLaTeX's
   `\DocumentMetadata` tagging), and `\newcommand` macros understood in
   the equation editor.
 - [x] Opening Markdown written elsewhere (GitHub, Pandoc) whose equations

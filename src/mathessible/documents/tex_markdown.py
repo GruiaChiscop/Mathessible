@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import re
 
+from mathessible.documents.tex_macros import document_macros, expand_macros
 from mathessible.documents.tex_math import find_tex_math_zones
 
 _HEADINGS = {
@@ -272,13 +273,15 @@ class _Reader:
 
 
 def _protect(source: str) -> tuple[str, list[str]]:
-    """The source with its equations and verbatim text behind \x00N\x00 marks, and their Markdown."""
+    """The source with its equations and verbatim text behind \x00N\x00 marks, and their Markdown: an
+    equation with the document's own commands expanded (`tex_macros`), as the exporters build it."""
     protected: list[str] = []
     pieces: list[str] = []
     position = 0
+    macros = document_macros(source, tex=True)
     for zone in find_tex_math_zones(source):
         pieces.append(_verbatim(source[position : zone.start], protected))
-        content = zone.content(source)
+        content = expand_macros(zone.content(source), macros)
         if zone.environment:
             content = f"\\begin{{{zone.environment}}}{content.strip()}\\end{{{zone.environment}}}"
         # An inline equation stays on its line; a display one is a paragraph of its own.

@@ -21,7 +21,7 @@ import re
 import subprocess
 import sys
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 ENGINES = ("pdflatex", "lualatex", "xelatex")
@@ -33,6 +33,44 @@ _ERROR_LINE = re.compile(r"^l\.(\d+)", re.MULTILINE)
 _RERUN = re.compile(r"Rerun to get|Label\(s\) may have changed|Please rerun", re.IGNORECASE)
 _UNICODE_FONTS = re.compile(r"\\usepackage\s*(?:\[[^\]]*\])?\s*\{[^}]*\b(?:fontspec|unicode-math)\b")
 _PACKAGE_LINE = re.compile(r"^([A-Za-z0-9_.\-]+):\s*$")
+_POLYGLOSSIA = re.compile(r"\\set(?:default|main)language\s*(?:\[[^\]]*\])?\s*\{([A-Za-z]+)\}")
+_BABEL = re.compile(r"\\usepackage\s*\[([^\]]*)\]\s*\{babel\}")
+# Babel's and polyglossia's language names, as BCP 47 tags (for the tagged PDF's /Lang).
+_BABEL_LANGUAGES = {
+    "english": "en",
+    "american": "en-US",
+    "british": "en-GB",
+    "romanian": "ro",
+    "french": "fr",
+    "german": "de",
+    "ngerman": "de",
+    "spanish": "es",
+    "italian": "it",
+    "portuguese": "pt",
+    "brazilian": "pt-BR",
+    "dutch": "nl",
+    "polish": "pl",
+    "czech": "cs",
+    "slovak": "sk",
+    "hungarian": "hu",
+    "finnish": "fi",
+    "swedish": "sv",
+    "danish": "da",
+    "norsk": "nb",
+    "russian": "ru",
+    "ukrainian": "uk",
+    "greek": "el",
+    "turkish": "tr",
+    "catalan": "ca",
+    "croatian": "hr",
+    "slovene": "sl",
+    "bulgarian": "bg",
+    "vietnamese": "vi",
+}
+_TLMGR_OUTDATED = "tlmgr itself needs to be updated"
+_NO_METADATA_SUPPORT = re.compile(r"No support files for \\DocumentMetadata")
+_METADATA = re.compile(r"\\DocumentMetadata(?![A-Za-z])")
+_COMMENT = re.compile(r"(?<!\\)%.*$", re.MULTILINE)
 _RUNS = 4
 # A line of curl's progress meter: percent, total, percent received, received ("  48 64.0M   48 30.9M ...").
 _CURL_METER = re.compile(r"^\s*(\d{1,3})\s+([\d.]+[kMG]?)\s+\d{1,3}\s+([\d.]+[kMG]?)\s")
@@ -57,6 +95,8 @@ class CompileResult:
     error: str = ""  # LaTeX's first error, with its line ("l.12"), when there is no PDF.
     line: int | None = None
     installed: tuple[str, ...] = field(default_factory=tuple)  # Packages tlmgr installed on the way.
+    tagged: bool = False  # Compiled with `tagging_metadata`: a tagged, accessible PDF.
+    tagging_error: str = ""  # Why the tagged compile failed, when the PDF was compiled untagged instead.
 
 
 def _executable(directory: Path, name: str) -> bool:
@@ -238,17 +278,39 @@ def package_holding(search_output: str, filename: str) -> str | None:
     return None
 
 
+def tagging_metadata(language: str) -> str:
+    """The `\\DocumentMetadata` of a tagged, accessible PDF (the LaTeX Tagging Project's usage instructions):
+    PDF/UA-2, its equations tagged as MathML structure elements, which LuaLaTeX writes (luamml)."""
+    return (
+        f"\\DocumentMetadata{{lang={language}, tagging=on, tagging-setup={{math/setup=mathml-SE}}, pdfstandard=ua-2}}"
+    )
+
+
 def compile_tex(
     path: Path,
     installation: TexInstallation,
     run: Runner = subprocess.run,
     install_missing: bool = True,
     progress: Callable[[str], None] = lambda _message: None,
+    tagged_language: str | None = None,
 ) -> CompileResult:
-    """Compile `path` beside itself (its PDF and log next to it), installing missing packages with tlmgr."""
+    """Compile `path` beside itself (its PDF and log next to it), installing missing packages with tlmgr.
+
+    With `tagged_language`, the PDF is tagged (`tagging_metadata`) by LuaLaTeX: the metadata is given on
+    its command line before the file is read, so the file is not changed. A file with its own
+    `\\DocumentMetadata` is compiled as it says."""
     source = path.read_text(encoding="utf-8", errors="replace")
     engine = engine_for(source, installation)
-    command = [str(installation.program(engine)), "-interaction=nonstopmode", "-halt-on-error", path.name]
+    document = path.name
+    command = [str(installation.program(engine)), "-interaction=nonstopmode", "-halt-on-error"]
+    if tagged_language and "lualatex" in installation.engines:
+        engine = "lualatex"
+        command[0] = str(installation.program(engine))
+        if not _METADATA.search(_COMMENT.sub("", source)):
+            command.append(f"-jobname={path.stem}")
+            document = f"{tagging_metadata(tagged_language)}\\input{{{path.name}}}"
+    command.append(document)
+    tagged = tagged_language is not None and engine == "lualatex"
     installed: list[str] = []
     tried: set[str] = set()
     log_path = path.with_suffix(".log")
@@ -265,6 +327,12 @@ def compile_tex(
                 and missing
                 and missing not in tried
                 and (package := _install(installation, missing, run))
+            ) or (
+                # \\DocumentMetadata's support files (tagging) are a package of their own, named by no file.
+                install_missing
+                and (missing := _NO_METADATA_SUPPORT.search(log) and "latex-lab")
+                and missing not in tried
+                and (package := _install_package(installation, missing, run))
             ):
                 tried.add(missing)
                 installed.append(package)
@@ -272,13 +340,47 @@ def compile_tex(
                 runs -= 1  # A run that only found a missing package does not count.
                 continue
             error = first_error(log) or (completed.stderr.strip() or f"{engine} failed", None)
-            return CompileResult(None, error[0], error[1], tuple(installed))
+            return CompileResult(None, error[0], error[1], tuple(installed), tagged)
         if not _RERUN.search(log):
             break
     pdf = path.with_suffix(".pdf")
     return CompileResult(
-        pdf if pdf.is_file() else None, "" if pdf.is_file() else f"{engine} wrote no PDF", None, tuple(installed)
+        pdf if pdf.is_file() else None,
+        "" if pdf.is_file() else f"{engine} wrote no PDF",
+        None,
+        tuple(installed),
+        tagged,
     )
+
+
+def compile_accessible_tex(
+    path: Path,
+    installation: TexInstallation,
+    language: str,
+    run: Runner = subprocess.run,
+    progress: Callable[[str], None] = lambda _message: None,
+) -> CompileResult:
+    """A tagged PDF when LuaLaTeX can make one; else, when tagging fails (a package that does not support
+    it yet), the PDF as the document compiles without it, and why (`tagging_error`)."""
+    result = compile_tex(path, installation, run, progress=progress, tagged_language=language)
+    if result.pdf is not None or not result.tagged:
+        return result
+    untagged = compile_tex(path, installation, run, progress=progress)
+    if untagged.pdf is None:
+        return untagged
+    return replace(untagged, installed=result.installed + untagged.installed, tagging_error=result.error)
+
+
+def document_language(source: str, fallback: str) -> str:
+    """The language a .tex file is written in, from babel's or polyglossia's main language (`romanian` is
+    `ro`), else `fallback`."""
+    text = _COMMENT.sub("", source)
+    found = _POLYGLOSSIA.search(text)
+    name = found.group(1) if found else None
+    if name is None and (found := _BABEL.search(text)):
+        options = [option.strip() for option in found.group(1).split(",") if "=" not in option]
+        name = options[-1] if options else None  # Babel's main language is its last option.
+    return _BABEL_LANGUAGES.get((name or "").lower(), fallback)
 
 
 def _install(installation: TexInstallation, filename: str, run: Runner) -> str | None:
@@ -291,9 +393,22 @@ def _install(installation: TexInstallation, filename: str, run: Runner) -> str |
             [tlmgr, "search", "--global", "--file", "/" + filename], capture_output=True, text=True, timeout=300
         )
         package = package_holding(search.stdout, filename)
-        if package is None:
-            return None
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return None if package is None else _install_package(installation, package, run)
+
+
+def _install_package(installation: TexInstallation, package: str, run: Runner) -> str | None:
+    """Install `package` with tlmgr; its name, or None when it cannot."""
+    if not _executable(installation.bin_directory, "tlmgr"):
+        return None
+    tlmgr = str(installation.program("tlmgr"))
+    try:
         done = run([tlmgr, "install", package], capture_output=True, text=True, timeout=900)
+        if done.returncode != 0 and _TLMGR_OUTDATED in done.stdout + done.stderr:
+            # A TinyTeX older than its repository: tlmgr updates itself first, as it asks.
+            run([tlmgr, "update", "--self"], capture_output=True, text=True, timeout=900)
+            done = run([tlmgr, "install", package], capture_output=True, text=True, timeout=900)
     except (OSError, subprocess.SubprocessError):
         return None
     return package if done.returncode == 0 else None

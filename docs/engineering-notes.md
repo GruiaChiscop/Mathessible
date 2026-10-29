@@ -1602,8 +1602,47 @@ package named before that path is installed, and the run does not count.
 pdflatex (LuaLaTeX, else XeLaTeX, when fontspec or unicode-math is
 loaded), `-interaction=nonstopmode -halt-on-error`, again while the log
 says Rerun, at most four runs. An error: its `! ...` line and `l.N`, the
-caret put on that line. Not yet: a tagged (accessible) PDF; LuaLaTeX's
-`\DocumentMetadata` tagging is the way when it is stable.
+caret put on that line.
+
+Tagged PDF from a .tex file (2026-10-29, `compile_accessible_tex`): the
+LaTeX Tagging Project's usage instructions
+(tagging-project.latex-project.org/documentation/usage-instructions):
+`\DocumentMetadata{lang=.., tagging=on, tagging-setup={math/setup=mathml-SE},
+pdfstandard=ua-2}` with LuaLaTeX, which writes the equations as MathML
+structure elements (luamml, loaded by itself). The file is not changed:
+the metadata goes on LuaLaTeX's command line before `\input{file}`, with
+`-jobname` the file's stem; a file with its own `\DocumentMetadata` is
+compiled as it is. Tried with TinyTeX (TeX Live 2026) on the sample
+document: StructTreeRoot, pdfuaid, Formula and `mfrac`/`msqrt` elements
+in the PDF. Two traps on the way: `\DocumentMetadata`'s support files
+are the `latex-lab` package, which TinyTeX lacks and LaTeX names by no
+file ("No support files for \DocumentMetadata found", installed by
+name); and a TinyTeX older than its repository refuses every install
+("tlmgr itself needs to be updated"), so `tlmgr update --self` runs and
+the install is tried again. A tagged compile that fails (a package that
+does not support tagging) is compiled again untagged, and the dialog
+says it is not tagged and why. The language: babel's last option or
+polyglossia's `\setmainlanguage`, mapped to BCP 47, else the system's.
+
+`\newcommand` macros (2026-10-29,
+[documents/tex_macros.py](../src/mathessible/documents/tex_macros.py)):
+the converter's own (`ummlConfig.texMacros`, within one equation) was
+tried first and left: definitions built empty, `\newcommand\R` (no
+braces) as "undefined", `\renewcommand` not at all, and `\mathbf{#1}`
+bodies as lone surrogates. Mathessible expands them as TeX does, as text,
+before an equation is built: in the editor (`latex_macros`, set by
+`prepare` from the whole document; `convert_unicode_math` expands), in
+a .tex file's preview and exports (`tex_markdown._protect`) and in a
+Markdown document's (`expand_markdown_macros` in `_readable_source`).
+`\DeclareMathOperator{\tr}{tr}` is `\mathrm{tr}` (the converter has no
+`\operatorname`). Leaving the professional view after an edit writes the
+equation from MathCAT, so the macros come back expanded there.
+
+Insert in LaTeX, all entries (2026-10-29): `√(&)`, `(¦)` and `‖‖` do not
+build empty, so `fill_empty_slots` puts ⬚ in every empty slot before the
+template is built (a script's base as ⬚ alone: `()_()` would keep its
+parentheses, `({})_{}`); an equation number is `\tag{}`, which MathCAT
+cannot write from the label's table.
 
 ## Newer UnicodeMathML Versions
 

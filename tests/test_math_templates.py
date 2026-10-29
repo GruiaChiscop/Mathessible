@@ -1,6 +1,7 @@
 import unittest
 
 from mathessible.templates.math_templates import (
+    fill_empty_slots,
     group_function_argument,
     insert_absolute_value_template,
     insert_binomial_template,
@@ -27,6 +28,12 @@ from mathessible.templates.math_templates import (
 
 
 class MathTemplateTests(unittest.TestCase):
+    def test_empty_slots_filled_with_a_box(self) -> None:
+        self.assertEqual(fill_empty_slots("()/(a)"), "(\u2b1a)/(a)")
+        self.assertEqual(fill_empty_slots("√(&)"), "√(\u2b1a&\u2b1a)")
+        self.assertEqual(fill_empty_slots("(¦)"), "(\u2b1a¦\u2b1a)")
+        self.assertEqual(fill_empty_slots("()_()"), "\u2b1a_(\u2b1a)")
+
     def test_fraction_template_places_caret_in_numerator(self) -> None:
         edit = insert_fraction_template("x+", 2)
         self.assertEqual(edit.source, "x+()/()")

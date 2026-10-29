@@ -16,6 +16,7 @@ from mathessible.documents.front_matter import (
     with_header_and_footer,
 )
 from mathessible.documents.markdown_math import MathZone, find_math_zones, math_zone_at, toggle_display
+from mathessible.documents.tex_macros import LatexMacro, document_macros
 from mathessible.documents.tex_math import (
     DISPLAY_MARKS,
     INLINE_MARKS,
@@ -180,9 +181,17 @@ if wx is not None:
             built = self.equation.mathcat is not None
             event.Enable(self.equation.mode == "linear" or built)
 
-        def prepare(self, source: str, display: bool, latex: bool = False, environment: str = "") -> None:
+        def prepare(
+            self,
+            source: str,
+            display: bool,
+            latex: bool = False,
+            environment: str = "",
+            macros: dict[str, LatexMacro] | None = None,
+        ) -> None:
             self.equation.latex_document = latex
             self.equation.latex_environment = environment
+            self.equation.latex_macros = macros or {}
             self.equation.display = display
             self._show_kind()
             self.equation.set_source(source)
@@ -534,7 +543,8 @@ if wx is not None:
                 content = zone.content(source)
 
             self._session = EquationEditSession(zone, selection_start, selection_end)
-            self.equation_window.prepare(content, zone.display, self.latex, zone.environment)
+            macros = document_macros(source, self.tex) if self.latex else None
+            self.equation_window.prepare(content, zone.display, self.latex, zone.environment, macros)
             wx.CallAfter(self.equation_window.equation.SetFocus)
             if content:
                 wx.CallAfter(self.equation_window.equation.read_expression)

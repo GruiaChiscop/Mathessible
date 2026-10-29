@@ -35,8 +35,10 @@ class EditorAssistMixin:
         if not self.settings.complete_control_words or self._selection_range() is not None:
             return announcement
         if self.latex:
-            # LaTeX's words, as the converter reads them, and after \begin{ its environments.
-            completion = latex_completion_at(self.document.source, self.caret, latex_words(), latex_environments())
+            # LaTeX's words, as the converter reads them, the document's own commands, and after \begin{ its
+            # environments.
+            words = {**latex_words(), **{name: "" for name in self.latex_macros if name.isalpha()}}
+            completion = latex_completion_at(self.document.source, self.caret, words, latex_environments())
         else:
             table = self._control_words() or FALLBACK_CONTROL_WORDS
             completion = completion_at(self.document.source, self.caret, table)

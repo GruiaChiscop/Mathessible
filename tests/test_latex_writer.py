@@ -4,6 +4,7 @@ import unittest
 from converter_harness import convert_all, has_error, needs_node
 from mathessible.editing.latex_insert import insert_latex, move_to_latex_slot, within_environment
 from mathessible.mathcat.latex import equation_latex, tidy_latex
+from mathessible.templates.math_templates import fill_empty_slots
 
 needs_mathcat = unittest.skipUnless(
     __import__("importlib").util.find_spec("mathessible_mathcat"), "needs the native MathCAT"
@@ -127,6 +128,12 @@ class LatexWriterTests(unittest.TestCase):
         sources = ["()/()", "√〖〗", "x^()", "lim_() 〖〗"]
         written = equation_latex([result["mathml"] for result in convert_all(sources)])
         self.assertEqual(written, ["\\frac{}{}", "\\sqrt{}", "x^{}", "\\lim_{} {}"])
+
+    def test_templates_that_build_only_filled(self) -> None:
+        templates = ["√(&)", "(¦)", "‖‖", "()_()", "()^()"]
+        filled = [fill_empty_slots(template) for template in templates]
+        written = equation_latex([result["mathml"] for result in convert_all(filled)])
+        self.assertEqual(written, ["\\sqrt[{}]{}", "\\binom{}{}", "\\Vert {} \\Vert", "{}_{}", "{}^{}"])
 
     def test_the_editors_mathcat_is_not_touched(self) -> None:
         import mathessible_mathcat

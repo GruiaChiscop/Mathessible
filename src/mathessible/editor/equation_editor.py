@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 from mathessible import session_log
 from mathessible.documents.clipboard_html import equation_html
+from mathessible.documents.tex_macros import LatexMacro
 from mathessible.editing.autocorrect import AutoCorrectTable, autocorrect_defaults
 from mathessible.editing.build_repair import BuildRepair
 from mathessible.editing.character_speech import (
@@ -56,7 +57,12 @@ from mathessible.spoken import translate as translate_speech
 from mathessible.symbols.braille_signs import load_signs, signs_yaml
 from mathessible.symbols.dictionary import load_dictionary
 from mathessible.templates.insert_catalog import InsertItem, item_for_key
-from mathessible.templates.math_templates import group_function_argument, move_to_slot, script_on_function
+from mathessible.templates.math_templates import (
+    fill_empty_slots,
+    group_function_argument,
+    move_to_slot,
+    script_on_function,
+)
 from mathessible.ui.clipboard import get_clipboard_html, get_clipboard_text, set_clipboard_text
 from mathessible.ui.speech import AssistiveOutput, create_output
 from mathessible.ui.theme import Palette, palette
@@ -140,6 +146,8 @@ if wx is not None:
             self.latex_document = False
             # The LaTeX environment the equation's rows build as (a .tex file's align: "aligned"), else "".
             self.latex_environment = ""
+            # The commands the LaTeX document defines (`\\newcommand`), expanded before an equation is built.
+            self.latex_macros: dict[str, LatexMacro] = {}
             # While the professional view edits a LaTeX equation, it edits the UnicodeMath that the
             # LaTeX builds as: the LaTeX is kept as typed unless it is edited there (`_LatexEditing`).
             self._latex_editing: _LatexEditing | None = None
@@ -923,7 +931,9 @@ if wx is not None:
             if not template:
                 return  # Its dialog was cancelled.
             try:
-                latex = self.latex_from_mathml(self.convert_equation(template))
+                mathml = self.convert_equation(fill_empty_slots(template, self.settings.recognized_functions))
+                # An equation number is LaTeX's `\tag{}` (amsmath), which MathCAT does not write.
+                latex = "\\tag{}" if ":equation-label" in mathml else self.latex_from_mathml(mathml)
             except (UnicodeMathError, RuntimeError, ValueError):
                 self._announce(spoken("not available here"))
                 return
