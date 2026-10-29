@@ -4,6 +4,7 @@ from mathessible.editing.completion import (
     Suggestion,
     accept_completion,
     completion_at,
+    latex_completion_at,
     search_symbols,
     symbol_insertion,
 )
@@ -88,6 +89,43 @@ class SymbolSearchTests(unittest.TestCase):
         self.assertEqual((edit.source, edit.caret), ("x+\\alpha ", 9))
         self.assertEqual(symbol_insertion("x+y", 2, alpha, control_words=True).source, "x+\\alpha y")
         self.assertEqual(symbol_insertion("x+)", 2, alpha, control_words=True).source, "x+\\alpha)")
+
+
+class LatexCompletionTests(unittest.TestCase):
+    """LaTeX's words and environments, as the converter reads them (read from its JS)."""
+
+    def setUp(self) -> None:
+        from mathessible.unicodemath import latex_environments, latex_words
+
+        self.words, self.environments = latex_words(), latex_environments()
+
+    def test_latex_words_include_structures_functions_and_alphabets(self) -> None:
+        for word in ("frac", "sqrt", "begin", "lim", "sin", "mathbb", "alpha"):
+            self.assertIn(word, self.words)
+        self.assertIn("pmatrix", self.environments)
+
+    def test_a_word_is_completed_as_a_word(self) -> None:
+        completion = latex_completion_at("x=\\fr", 5, self.words, self.environments)
+        self.assertEqual(completion.current.word, "frac")
+        edit = accept_completion("x=\\fr", completion, convert=False)  # The editor never converts LaTeX.
+        self.assertEqual((edit.source, edit.caret), ("x=\\frac", 7))
+
+    def test_an_environment_after_begin_gets_its_end(self) -> None:
+        source = "A=\\begin{pm"
+        completion = latex_completion_at(source, len(source), self.words, self.environments)
+        self.assertEqual([suggestion.word for suggestion in completion.suggestions], ["pmatrix"])
+        edit = accept_completion(source, completion, convert=False)
+        self.assertEqual(edit.source, "A=\\begin{pmatrix}\\end{pmatrix}")
+        self.assertEqual(edit.source[: edit.caret], "A=\\begin{pmatrix}")
+
+    def test_an_environments_closing_brace_already_typed_is_kept(self) -> None:
+        source = "\\end{ca}"
+        completion = latex_completion_at(source, 7, self.words, self.environments)
+        edit = accept_completion(source, completion, convert=False)
+        self.assertEqual((edit.source, edit.caret), ("\\end{cases}", 11))
+
+    def test_a_full_name_offers_nothing(self) -> None:
+        self.assertIsNone(latex_completion_at("\\begin{cases", 12, self.words, self.environments))
 
 
 if __name__ == "__main__":

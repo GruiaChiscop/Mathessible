@@ -17,7 +17,7 @@ from mathessible.editing.character_speech import (
 from mathessible.editing.completion import Completion
 from mathessible.editing.edit_history import EditHistory, EditState
 from mathessible.editing.equation_source import EquationSource
-from mathessible.editing.latex_insert import insert_latex, within_environment
+from mathessible.editing.latex_insert import insert_latex, move_to_latex_slot, within_environment
 from mathessible.editing.linear_runs import Runs
 from mathessible.editing.normal_text import in_text, toggle_normal_text
 from mathessible.editing.pasted_math import pasted_mathml, plain_letters
@@ -1268,12 +1268,17 @@ if wx is not None:
                 self._recover_navigation()
 
         def _linear_tab(self, reverse: bool) -> None:
-            """Tab/Shift+Tab in the linear view: a typed control word converted, then the next slot."""
+            """Tab/Shift+Tab in the linear view: a typed control word converted, then the next slot. LaTeX's
+            words stay as typed, and its slots are its brace groups."""
             self._clear_selection()
-            converted = self._convert_word_before_caret()
-            edit = self._edit(
-                lambda source, caret: move_to_slot(source, caret, reverse, self.settings.recognized_functions)
-            )
+            if self.latex:
+                converted = ""
+                edit = self._edit(lambda source, caret: move_to_latex_slot(source, caret, reverse))
+            else:
+                converted = self._convert_word_before_caret()
+                edit = self._edit(
+                    lambda source, caret: move_to_slot(source, caret, reverse, self.settings.recognized_functions)
+                )
             if edit is None:
                 self._announce(f"{converted}, {spoken('no slot')}" if converted else spoken("no slot"))
                 self.Refresh()
@@ -1396,13 +1401,15 @@ if wx is not None:
                 # (`a^b^c`, `a/b^2`), so it ends no operand (UTN #28 sec. 2.3).
                 builds = not value.isspace() and not (value.isascii() and value.isalnum()) and value not in "^_"
                 if self._typing_text():
-                    # Normal text is text: no AutoCorrect, completion or building while typing it.
+                    # Normal text is text: no AutoCorrect, completion or building while typing it. LaTeX is
+                    # typed as it is written too, but its control words are offered (`\\fr`: \\frac).
                     if not self._replace_selection(value):
                         self._replace_linear(
                             self.document.source[: self.caret] + value + self.document.source[self.caret :],
                             self.caret + len(value),
                         )
-                    self._announce(inserted_character(value, self.symbols))
+                    said = inserted_character(value, self.symbols)
+                    self._announce(self._offer_completion(said) if self.latex else said)
                     return
                 if self._selection_range() is None:
                     edit = convert_before_character(

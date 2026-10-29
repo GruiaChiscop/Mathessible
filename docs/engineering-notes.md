@@ -1501,6 +1501,14 @@ tests/test_latex_writer.py's equations. `latex_from_mathml` (paste, the
 document switch, leaving the professional view) uses it, and needs the
 native MathCAT. Gaps: `\mathrm{d}` comes back `d`, and `\!` as `!`.
 
+Completion in the linear LaTeX view (`_offer_completion`, the user's
+wish): the words are what TeX2UnicodeMath reads, never a list of ours
+(`unicodemath.latex_words`: UnicodeMath's control-word table, which
+`resolveCW` gives LaTeX too, plus `isFunctionName`'s names and TeX.js's
+`texMathAlphabets`), taken as words (no conversion); after `\begin{` or
+`\end{`, TeX.js's `environments` (`completion.latex_completion_at`),
+`\begin{` writing the `\end{...}` too, the caret between.
+
 Insert in the linear LaTeX view (`_insert_latex_item`): the entry is run
 on an empty UnicodeMath equation (its dialogs, gallery and symbol
 included, so nothing is duplicated), that template built and written in
@@ -1509,6 +1517,16 @@ LaTeX by MathCAT, then inserted by
 `insert_latex`: the caret in the first `{}`, and a space between a
 control word and a letter (`\alpha b`, never `\alphab`). The structure
 menus (context menu) stay the professional view's.
+
+Empty slots in LaTeX written from a UnicodeMath template: the converter
+builds an empty slot (`()/()`) as `<mspace width="0"/>`, which MathCAT
+writes `\text{ }`; `mathcat/latex.py` gives it to MathCAT as `<mi>⬚</mi>`,
+written `\dottedsquare` and so `{}`. Tab and Shift+Tab in the linear
+LaTeX view (`latex_insert.move_to_latex_slot`) go through the brace
+groups, filled or empty, named by their command (`\frac`: numerator,
+denominator; `^`: superscript), never an environment's name or `\{`; Tab
+from a command's last group leaves the command. No control word is
+converted there.
 
 `\pmatrix{...}` and a math alphabet over a structure
 (`\mathbf{\frac{a}{b}}`) build since patch 0004's second version.

@@ -28,6 +28,9 @@ _AFTER_OPENING = re.compile(r"(?<=[{(\[]) +")
 _TEXT = re.compile(r"\\text\{[^{}]*\}")
 # MathCAT's empty slot (⬚); `{}` is LaTeX's, built as an empty slot again.
 _SLOT = re.compile(r"\{\\dottedsquare\}|\\dottedsquare(?![A-Za-z])")
+# The converter's empty slot (`()/()` is `<mfrac><mspace width="0"/>…`), which MathCAT writes `\text{ }`:
+# given to MathCAT as its own empty slot, it is written `\dottedsquare`, and so `{}`.
+_EMPTY = re.compile(r'<mspace width="0"\s*(?:/>|></mspace>)')
 
 
 def tidy_latex(latex: str) -> str:
@@ -56,7 +59,7 @@ def equation_latex(mathml: Sequence[str], decimal_separator: str = ",") -> list[
             return
         for index, equation in enumerate(mathml):
             try:
-                native.set_expression(prepare_for_mathcat(equation))
+                native.set_expression(prepare_for_mathcat(_EMPTY.sub("<mi>\u2b1a</mi>", equation)))
                 written[index] = tidy_latex(_SLOT.sub("{}", native.braille("").strip()))
             except (OSError, RuntimeError, ValueError):
                 written[index] = None

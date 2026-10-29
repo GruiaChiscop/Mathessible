@@ -107,6 +107,37 @@ def control_words() -> dict[str, str]:
     return words
 
 
+_QUOTED_KEY = re.compile(r"'([A-Za-z]+\*?)'\s*:")
+_QUOTED_NAME = re.compile(r'"([A-Za-z]+)"')
+
+
+def _object_keys(script: str, declaration: str) -> list[str]:
+    start = script.index(declaration)
+    return _QUOTED_KEY.findall(script[start : script.index("}", start)])
+
+
+@cache
+def latex_words() -> dict[str, str]:
+    """The control words LaTeX is typed with, as the converter reads them (TeX2UnicodeMath resolves its
+    words with UnicodeMath's table): that table, its function names (`\\lim`, `\\sin`) and TeX.js's math
+    alphabets (`\\mathbb`). A word's symbol is what it builds as, "" for those that build no symbol."""
+    words = dict(control_words())
+    script = (distribution_directory() / "unicodemathml.js").read_text(encoding="utf-8")
+    start = script.index("function isFunctionName")
+    functions = script[script.index("return [", start) : script.index("].includes", start)]
+    for name in _QUOTED_NAME.findall(functions):
+        words.setdefault(name, "")
+    for name in _object_keys(latex_converter_path().read_text(encoding="utf-8"), "const texMathAlphabets = {"):
+        words.setdefault(name, "")
+    return words
+
+
+@cache
+def latex_environments() -> tuple[str, ...]:
+    """The environments TeX2UnicodeMath builds (`\\begin{pmatrix}`), from TeX.js's own table."""
+    return tuple(_object_keys(latex_converter_path().read_text(encoding="utf-8"), "const environments = {"))
+
+
 def latex_converter_path() -> Path:
     """Murray Sargent's LaTeX converter (LaTeX to UnicodeMath, MathML to LaTeX), from UnicodeMathML's playground.
 

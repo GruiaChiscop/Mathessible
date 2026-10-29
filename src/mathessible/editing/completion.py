@@ -5,11 +5,17 @@ the list is spoken (the first suggestion and how many there are) and
 browsed with Up/Down, Tab takes the current one. Both work on the
 converter's own control-word table (`unicodemath.control_words`), like
 autocorrect; names spoken for symbols come from the symbol dictionary.
+
+In LaTeX (`latex_completion_at`) the words are the ones the converter's
+LaTeX reader knows (`unicodemath.latex_words`), always kept as words, and
+after `\\begin{` the environments it builds: taking one writes its
+`\\end{...}` too, the caret between the two.
 """
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
+import re
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 
 from mathessible.templates.template_source import TemplateEdit
@@ -44,6 +50,8 @@ class Completion:
     end: int
     suggestions: tuple[Suggestion, ...]
     index: int = 0
+    # "begin" or "end" for an environment's name after `\\begin{` or `\\end{` (`start` is the name's), else "".
+    environment: str = ""
 
     @property
     def current(self) -> Suggestion:
@@ -52,7 +60,7 @@ class Completion:
     def moved(self, step: int) -> Completion:
         """The next (step 1) or previous (-1) suggestion, wrapping around."""
         count = len(self.suggestions)
-        return Completion(self.start, self.end, self.suggestions, (self.index + step) % count)
+        return Completion(self.start, self.end, self.suggestions, (self.index + step) % count, self.environment)
 
     def speech(self, name: SymbolNamer | None = None) -> str:
         return f"{self.current.speech(name)}, {self.index + 1} of {len(self.suggestions)}"
@@ -82,9 +90,44 @@ def completion_at(source: str, caret: int, table: Mapping[str, str]) -> Completi
     return Completion(start - 1, caret, tuple(Suggestion(word, table[word]) for word in words))
 
 
+_ENVIRONMENT_NAME = re.compile(r"\\(begin|end)\s*\{([A-Za-z]*)$")
+
+
+def latex_completion_at(
+    source: str, caret: int, words: Mapping[str, str], environments: Sequence[str]
+) -> Completion | None:
+    """In LaTeX: an environment's name begun after `\\begin{`/`\\end{` (`\\begin{pm` offers pmatrix), else a
+    control word (`completion_at`)."""
+    caret = max(0, min(caret, len(source)))
+    found = _ENVIRONMENT_NAME.search(source, 0, caret)
+    if found is not None and found.end() == caret:
+        prefix = found.group(2)
+        names = sorted(name for name in environments if name.startswith(prefix) and name != prefix)
+        if not names:
+            return None
+        start = caret - len(prefix)
+        return Completion(start, caret, tuple(Suggestion(name, "") for name in names), 0, found.group(1))
+    return completion_at(source, caret, words)
+
+
 def accept_completion(source: str, completion: Completion, convert: bool) -> TemplateEdit:
-    """Replace the begun word with the chosen one: its symbol (`convert`, as Space would), or the word."""
+    """Replace the begun word with the chosen one: its symbol (`convert`, as Space would), or the word.
+
+    An environment's name is closed (`pmatrix}`); after `\\begin{` its `\\end{pmatrix}` follows, the caret
+    between them, where the environment's rows go.
+    """
     suggestion = completion.current
+    if completion.environment:
+        rest = source[completion.end :]
+        closing = "" if rest.startswith("}") else "}"
+        after = completion.end + (1 if not closing else 0)
+        name = suggestion.word
+        text = source[: completion.start] + name + closing
+        caret = len(text) if closing else completion.start + len(name) + 1
+        if completion.environment == "begin":
+            ending = f"\\end{{{name}}}"
+            return TemplateEdit(text + source[completion.end : after] + ending + source[after:], caret, name)
+        return TemplateEdit(text + source[completion.end :], caret, name)
     replacement = suggestion.symbol if convert else f"\\{suggestion.word}"
     updated = source[: completion.start] + replacement + source[completion.end :]
     caret = completion.start + len(replacement)

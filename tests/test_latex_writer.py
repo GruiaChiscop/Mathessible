@@ -2,7 +2,7 @@ import re
 import unittest
 
 from converter_harness import convert_all, has_error, needs_node
-from mathessible.editing.latex_insert import insert_latex, within_environment
+from mathessible.editing.latex_insert import insert_latex, move_to_latex_slot, within_environment
 from mathessible.mathcat.latex import equation_latex, tidy_latex
 
 needs_mathcat = unittest.skipUnless(
@@ -54,6 +54,25 @@ class WithinEnvironmentTests(unittest.TestCase):
 
 
 # Each equation: built from LaTeX, written in LaTeX again by MathCAT, built again.
+class LatexSlotTests(unittest.TestCase):
+    def slot(self, source: str, caret: int, reverse: bool = False) -> tuple[int, str] | None:
+        edit = move_to_latex_slot(source, caret, reverse)
+        return None if edit is None else (edit.caret, edit.announcement)
+
+    def test_tab_goes_from_brace_group_to_brace_group(self) -> None:
+        self.assertEqual(self.slot("\\frac{}{}", 6), (8, "empty denominator"))
+        self.assertEqual(self.slot("\\frac{a}{b}", 10, reverse=True), (7, "numerator, a"))
+        self.assertEqual(self.slot("x^{2} + \\sqrt[{}]{}", 0), (4, "superscript, 2"))
+        self.assertEqual(self.slot("\\sqrt[{}]{}", 7), (10, "empty radicand"))
+
+    def test_tab_from_the_last_argument_leaves_the_command(self) -> None:
+        self.assertEqual(self.slot("\\frac{a}{b}+1", 10), (11, "end fraction"))
+
+    def test_an_environments_name_and_escaped_braces_are_not_slots(self) -> None:
+        self.assertEqual(self.slot("\\begin{cases} {} & {} \\end{cases}", 0), (15, "empty group"))
+        self.assertIsNone(self.slot("\\left\\{ x \\right\\}", 0))
+
+
 ROUND_TRIP = [
     "\\frac{a}{b}",
     "\\sum_{i=1}^n i^2",
@@ -102,6 +121,12 @@ class LatexWriterTests(unittest.TestCase):
         sources = ["\\frac{a}{b}", "\\alpha_1", "\\lim_{x\\to 0} f", "\\frac{}{}", "\\text{if } x"]
         written = equation_latex([result["mathml"] for result in convert_all(sources, latex=True)])
         self.assertEqual(written, ["\\frac{a}{b}", "\\alpha_1", "\\lim_{x \\to 0} f", "\\frac{}{}", "\\text{if }x"])
+
+    def test_a_unicode_math_templates_empty_slots_are_empty_braces(self) -> None:
+        # Insert in a LaTeX equation writes its UnicodeMath template, whose empty slots are `<mspace width="0"/>`.
+        sources = ["()/()", "√〖〗", "x^()", "lim_() 〖〗"]
+        written = equation_latex([result["mathml"] for result in convert_all(sources)])
+        self.assertEqual(written, ["\\frac{}{}", "\\sqrt{}", "x^{}", "\\lim_{} {}"])
 
     def test_the_editors_mathcat_is_not_touched(self) -> None:
         import mathessible_mathcat

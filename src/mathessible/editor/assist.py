@@ -6,13 +6,19 @@ from __future__ import annotations
 
 from mathessible import session_log
 from mathessible.editing.character_speech import character_name
-from mathessible.editing.completion import Completion, accept_completion, completion_at, symbol_insertion
+from mathessible.editing.completion import (
+    Completion,
+    accept_completion,
+    completion_at,
+    latex_completion_at,
+    symbol_insertion,
+)
 from mathessible.editing.equation_errors import EquationError, find_errors
 from mathessible.editing.space_conversion import FALLBACK_CONTROL_WORDS
 from mathessible.i18n import _, spoken, spoken_n
 from mathessible.templates.insert_catalog import InsertItem
 from mathessible.templates.saved_equations import find_equation, load_equations, save_equations, with_equation
-from mathessible.unicodemath import UnicodeMathError, code_point_index
+from mathessible.unicodemath import UnicodeMathError, code_point_index, latex_environments, latex_words
 
 try:
     import wx
@@ -28,8 +34,12 @@ class EditorAssistMixin:
         self._completion = None
         if not self.settings.complete_control_words or self._selection_range() is not None:
             return announcement
-        table = self._control_words() or FALLBACK_CONTROL_WORDS
-        completion = completion_at(self.document.source, self.caret, table)
+        if self.latex:
+            # LaTeX's words, as the converter reads them, and after \begin{ its environments.
+            completion = latex_completion_at(self.document.source, self.caret, latex_words(), latex_environments())
+        else:
+            table = self._control_words() or FALLBACK_CONTROL_WORDS
+            completion = completion_at(self.document.source, self.caret, table)
         if completion is None:
             return announcement
         self._completion = (completion, self.document.source)
@@ -73,7 +83,7 @@ class EditorAssistMixin:
 
     def _accept_completion(self, completion: Completion) -> None:
         """Tab on a suggestion: the word becomes it (its symbol, when control words convert)."""
-        convert = self.settings.convert_on_space
+        convert = self.settings.convert_on_space and not self.latex  # LaTeX keeps its words.
         said = completion.current.speech(self.symbols.name)
 
         def apply() -> str:

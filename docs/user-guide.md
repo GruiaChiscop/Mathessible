@@ -116,10 +116,14 @@ Mathessible asks whether to mark it as a LaTeX document; Leave as It Is
 keeps reading them as UnicodeMath.
 
 In a LaTeX document the equation editor's linear view is the LaTeX,
-typed as it is written: no Math AutoCorrect or suggestions while you
-type, nothing built until you ask, with the built equation previewed
+typed as it is written: no Math AutoCorrect, nothing built until you ask,
+but suggestions as you type a command (`\fr` offers `\frac`, Up and Down
+browse them, Tab takes one; after `\begin{` the environments, `pmatrix`
+written with its `\end{pmatrix}`), with the built equation previewed
 under it. The Insert menu and its shortcuts insert LaTeX there
-(`\frac{}{}`, the caret in the first empty slot). F2 builds it in the
+(`\frac{}{}`, the caret in the first empty slot); Tab and Shift+Tab go
+from one brace group to the next, and Tab from a command's last one
+leaves it. F2 builds it in the
 professional view, edited there as any equation, with templates and
 Math AutoCorrect. Leaving the professional view (F2, or saving the
 equation) keeps your LaTeX exactly as you typed it if you only read it
