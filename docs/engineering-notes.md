@@ -1654,6 +1654,21 @@ optional argument equal to its default left out; an operator's
 never folded. The folded LaTeX is kept only if it builds as MathCAT's
 did (both expanded and converted); else MathCAT's LaTeX is.
 
+Symbols in LaTeX (2026-10-29): every symbol MathCAT's tables write was
+checked against LaTeX itself (TinyTeX, amsmath and amssymb, each command
+alone in math mode, `\ifdefined`) and built back by the converter, until
+MathCAT's LaTeX of a symbol is a fixed point (written, built, written the
+same, spaces not counted). Found: 220 unicode-math names LaTeX lacks
+(written as the character since: patch 0009), text-only commands
+(`\text{¢}`), 70 amssymb and LaTeX commands the converter lacked or read
+as Word does (`\implies`, `\succeq`, `\Re`; patch 0004 `TeXSymbols`),
+`\overset`/`\underset` unread, `\not` after a letter made a fraction, and
+`/` built as a fraction (UnicodeMath's), where LaTeX's is a slash. A
+character MathCAT has no entry for is spelt as NVDA does (`'\x002011'`,
+then LaTeX-escaped): `latex.py` writes it as itself. What is left is
+equivalent forms (`\dot\cup`, `\dot{\cup}`), lone brackets (fine in
+pairs), and rare structure characters (⎴, ⏜ alone).
+
 Spaces written back (`mathcat/latex.py`): MathCAT merges spaces into
 their neighbours (`data-previous-space-width`) and writes none, so each
 `<mspace>` goes to MathCAT as a text `mathessiblespaceN` (its width in
@@ -1827,7 +1842,12 @@ still `1,2` and `,3`, and `MathMLtoUnicodeMath` still loses an integral's
   Greek, bold upright digits and capital Greek, as LaTeX's; of
   `\mathcal`, `\mathfrak`, `\mathsf` bold script, fraktur, sans), and a
   Greek control word in any alphabet (`\mathbf{\Gamma}`, `\mathbf \Gamma`)
-  as its math alphanumeric.
+  as its math alphanumeric. `TeXSymbols`, `TeXStackCommands` (`\overset`
+  as `(b)┴(a)`: `{}` would be UnicodeMath's invisible 〖〗, which cannot be
+  a base), `TeXClassesAndNegations` (`\mathbin{x}` is x; `\not\lesssim` is
+  ≴ by NFC), `TeXScriptCommands` (`x^\text{a}`), `TeXQuotedOperators`
+  (characters UnicodeMath builds structures with, `/ ⊘ ■ ▭ ⟌ ┴ ⏞`..., are
+  quoted `\/`, so they are symbols; a `\text{}` is left as it is).
 
 ## Symbol Dictionaries and Licence
 

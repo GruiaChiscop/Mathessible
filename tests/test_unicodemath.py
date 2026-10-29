@@ -167,6 +167,30 @@ class LaTeXConversionTests(unittest.TestCase):
             self.assertNotIn("\\math", result["mathml"])
 
     @needs_node
+    def test_latex_symbols_stacks_classes_and_a_slash(self) -> None:
+        sources = [
+            "a/b",
+            "x\\overset{\\text{def}}{=}y",
+            "x\\not\\lesssim y",
+            "x\\mathbin{\\star}y",
+            "x_\\mathrm{max}",
+            "x\\leqslant y",
+            "\\varnothing",
+            "x\\implies y",
+            "\\Re z",
+        ]
+        built = [result["mathml"] for result in convert_all(sources, latex=True)]
+        self.assertNotIn("mfrac", built[0])  # LaTeX's / is a slash; \\frac is its fraction
+        self.assertIn("<mover><mo>=</mo><mtext>def</mtext></mover>", built[1])
+        self.assertIn("<mo>≴</mo>", built[2])
+        self.assertIn("<mo>⋆</mo>", built[3])
+        self.assertIn("<msub><mi>𝑥</mi><mtext>max</mtext></msub>", built[4])
+        for mathml, symbol in zip(built[5:], "⩽∅⟹ℜ", strict=True):
+            self.assertIn(symbol, mathml)
+        for mathml in built:
+            self.assertNotIn("\\", mathml)
+
+    @needs_node
     def test_plain_tex_matrices_and_alphabets_over_structures_build(self) -> None:
         sources = [
             "\\pmatrix{a&b\\\\c&d}",

@@ -208,6 +208,22 @@ class LatexWriterTests(unittest.TestCase):
         self.assertEqual(unknown - greek, set())
         self.assertEqual(greek & {"\\Alpha", "\\Beta", "\\Omicron", "\\omicron", "\\Rho", "\\Chi"}, set())
 
+    def test_symbols_are_written_in_latex_and_build_back(self) -> None:
+        # amssymb's symbols the converter lacked, a symbol LaTeX has no command for (written as itself),
+        # the degree sign, a text symbol and a character MathCAT's tables lack.
+        symbols = "⩽⩾∅∴□■≜⟹⪰≔◇⤇∛°¢‑≴⊘∣"
+        mathml = [f"<math><mi>x</mi><mo>{symbol}</mo><mi>y</mi></math>" for symbol in symbols]
+        written = equation_latex(mathml)
+        rebuilt = [result["mathml"] for result in convert_all(written, latex=True)]
+        again = equation_latex(rebuilt)
+        for symbol, latex, built, second in zip(symbols, written, rebuilt, again, strict=True):
+            with self.subTest(symbol=symbol, latex=latex):
+                self.assertFalse(has_error(built))
+                self.assertIsNone(re.search(r"<mtext>[^<]*\\", built))  # no command left as text
+                self.assertEqual(re.sub(r"\s", "", second), re.sub(r"\s", "", latex))
+        self.assertEqual(written[11], "x ⤇y")
+        self.assertEqual(written[13], "x^{\\circ}y")
+
     def test_the_editors_mathcat_is_not_touched(self) -> None:
         import mathessible_mathcat
 

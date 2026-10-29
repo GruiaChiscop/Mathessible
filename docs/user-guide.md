@@ -186,7 +186,11 @@ the professional view, which writes the commands back. A
 `\tr A` is "trace of A". Norms are read as norms: `\|x\|`,
 `\left\| x \right\|`, `\lVert x \rVert`. LaTeX's spaces (`\,`, `\;`,
 `\quad`, `~`) and `\boldsymbol` are understood, and an equation written
-again keeps them. In a
+again keeps them, as do amssymb's symbols (`\leqslant`, `\varnothing`,
+`\therefore`), `\overset`, `\underset` and `\not`. As in LaTeX, `a/b` is a
+slash and `\frac{a}{b}` a fraction. A symbol LaTeX itself has no command
+for is written as the character, as LuaLaTeX with `unicode-math` reads
+it. In a
 Markdown document with LaTeX equations, a definition may stand in an
 equation of its own (`$\newcommand{\R}{\mathbb{R}}$`), as MathJax allows.
 

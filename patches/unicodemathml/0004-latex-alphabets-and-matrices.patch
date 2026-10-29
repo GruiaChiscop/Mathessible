@@ -33,15 +33,31 @@ playground's TeX.js. Two passes now run before its first one:
   \boldsymbol{\mathfrak{g}}, \boldsymbol{\mathsf{A}} bold script, fraktur
   and sans), and a Greek letter's control word in any math alphabet
   (\mathbf{\Gamma}, \mathbf \Gamma), which kept its plain letter.
+- TeXSymbols: amssymb's and LaTeX's symbols the control-word table lacks
+  (\leqslant, \varnothing, \therefore, \square, \triangleq, \lneq, ...:
+  they came out as text), and those it reads with Word's meaning
+  (\implies an arrow, \succeq ≽, \Re and \Im functions).
+- TeXStackCommands: amsmath's \overset, \underset and \stackrel (text)
+  as UnicodeMath's (b)┴(a) and (b)┬(a).
+- TeXClassesAndNegations: \mathbin{x}, \mathrel{x} and the other math
+  classes keep their argument; \not\lesssim, \not= are ≴, ≠ themselves
+  (x/≲ was a fraction).
+- TeXScriptCommands: x^\text{a}, x_\mathrm{max} (a command and its group as
+  the script) did not build.
+- TeXQuotedOperators: characters UnicodeMath builds structures with (/,
+  ⊘, ■, ▭, ⟌, ┴, ⏞, ...) are quoted, so that in LaTeX they are the
+  symbols they are: a/b is a slash, as in LaTeX, not a fraction.
+- A control word ending a styled group keeps a space before the next
+  letter (\mathrm{\mu}y was \muy).
 
 Only playground/assets/TeX.js, which Mathessible loads after dist/.
 Applied by scripts/bootstrap.sh after 0001 to 0003.
 
 diff --git a/playground/assets/TeX.js b/playground/assets/TeX.js
-index 9142e69..37b3579 100644
+index 9142e69..546ecf3 100644
 --- a/playground/assets/TeX.js
 +++ b/playground/assets/TeX.js
-@@ -834,7 +834,168 @@ function TeX2UMath(tex) {
+@@ -834,7 +834,307 @@ function TeX2UMath(tex) {
      }
      return uniTeX
  }
@@ -136,6 +152,8 @@ index 9142e69..37b3579 100644
 +                argument = argument.substring(inner[0].length, argument.trimEnd().length - 1)
 +            }
 +            ret += texStyled(TeXMathAlphabets(argument), style)
++            if (/\\[A-Za-z]+$/.test(ret) && /[A-Za-z]/.test(tex[k + 1] || ''))
++                ret += ' '                  // \mathrm{\mu}y: the control word ends before the y
 +            i = k + 1
 +        } else if (/[A-Za-z0-9]/.test(tex[j] || '')) {
 +            ret += texStyled(tex[j], style)
@@ -199,6 +217,143 @@ index 9142e69..37b3579 100644
 +    return tex.replace(/\\(?:[A-Za-z]+|.)|~/g, cw => texSpaces[cw] ?? cw)
 +}
 +
++// amssymb's and LaTeX's symbols that the control-word table (Word's) lacks, or has with another
++// meaning (\implies an arrow, \succeq Word's ≽, \Re and \Im functions): \leqslant came out as text.
++const texSymbols = {
++    'backprime': '‵', 'barwedge': '⊼', 'bigstar': '★', 'bigtriangledown': '▽', 'blacksquare': '■',
++    'blacktriangle': '▴', 'blacktriangledown': '▾', 'blacktriangleleft': '◀', 'blacktriangleright': '▶',
++    'cdotp': '·', 'circledR': '®', 'copyright': '©', 'doublebarwedge': '⩞', 'eqsim': '≂', 'eqslantgtr': '⪖',
++    'eqslantless': '⪕', 'Finv': 'Ⅎ', 'flat': '♭', 'Game': '⅁', 'geqslant': '⩾', 'gnapprox': '⪊', 'gneq': '⪈',
++    'gtrapprox': '⪆', 'gtreqqless': '⪌', 'hslash': 'ℏ', 'iff': '⟺', 'Im': 'ℑ', 'impliedby': '⟸', 'implies': '⟹',
++    'leftrightsquigarrow': '↭', 'lgroup': '⟮', 'lmoustache': '⎰', 'leqslant': '⩽', 'lessapprox': '⪅', 'lesseqqgtr': '⪋', 'llcorner': '⌞',
++    'lnapprox': '⪉', 'lneq': '⪇', 'lrcorner': '⌟', 'measuredangle': '∡', 'mho': '℧', 'mid': '∣',
++    'natural': '♮', 'ngtr': '≯', 'oslash': '⊘', 'P': '¶', 'pounds': '£', 'precapprox': '⪷', 'preceq': '⪯',
++    'precnapprox': '⪹', 'precneqq': '⪵', 'Re': 'ℜ', 'rgroup': '⟯', 'rightsquigarrow': '⇝', 'rmoustache': '⎱', 'S': '§', 'sharp': '♯',
++    'sphericalangle': '∢', 'square': '□', 'subseteqq': '⫅', 'subsetneqq': '⫋', 'succapprox': '⪸',
++    'succeq': '⪰', 'succnapprox': '⪺', 'succneqq': '⪶', 'supseteqq': '⫆', 'supsetneqq': '⫌',
++    'therefore': '∴', 'triangledown': '▿', 'triangleq': '≜', 'ulcorner': '⌜', 'urcorner': '⌝',
++    'varnothing': '∅', 'vartriangle': '▵', 'veebar': '⊻', 'yen': '¥',
++}
++
++// \mathbin{x}, \mathrel{x} and the other math classes only change LaTeX's spacing: their argument
++// is kept (they came out as text). \not\lesssim and \not= are the negated symbols themselves (≴, ≠),
++// since TeX2UMath's / for \not made x/≲ a fraction.
++function TeXClassesAndNegations(tex) {
++    let ret = ''
++    for (let i = 0; i < tex.length;) {
++        let m = /^\\math(?:bin|rel|ord|op|punct|open|close|inner)\s*\{/.exec(tex.substring(i))
++        let k = m ? texClosingBrace(tex, i + m[0].length) : -1
++        if (k != -1) {
++            ret += TeXClassesAndNegations(tex.substring(i + m[0].length, k)) + ' '
++            i = k + 1
++            continue
++        }
++        m = /^\\not(?![A-Za-z])\s*(\\[A-Za-z]+|[^\s\\{}])/.exec(tex.substring(i))
++        if (m) {
++            let ch = m[1][0] == '\\' ? texSymbols[m[1].substring(1)] ?? resolveCW(m[1]) : m[1]
++            let negated = ch && [...ch].length == 1 ? (ch + '\u0338').normalize('NFC') : ''
++            if (negated && [...negated].length == 1) {
++                ret += negated + ' '
++                i += m[0].length
++                continue
++            }
++        }
++        let cw = /^\\(?:[A-Za-z]+|.)/.exec(tex.substring(i))
++        let n = cw ? cw[0].length : 1
++        ret += tex.substring(i, i + n)
++        i += n
++    }
++    return ret
++}
++
++function TeXSymbols(tex) {
++    return tex.replace(/\\[A-Za-z]+/g, cw => texSymbols[cw.substring(1)] ?? cw)
++}
++
++// Characters UnicodeMath builds structures with (/ and ⊘ a fraction, ■ a matrix, ▭ a box, ┴ an
++// overscript, ⟌ a long division, ⏞ a brace above...), typed or from \oslash, \blacksquare, \square,
++// \mid, are quoted (\⊘): in LaTeX they
++// are symbols, a/b a slash (\frac is LaTeX's fraction). A \text{...} is left as it is.
++const texQuoted = '/⊘∣□■▭█¦▒┴┬⟌⍁⟡⇳▢◯○☁⫷⫸⎴⎵⏜⏝⏞⏟⏠⏡⟮⟯⎰⎱'
++
++function TeXQuotedOperators(tex) {
++    let ret = ''
++    for (let i = 0; i < tex.length;) {
++        let m = /^\\(?:text|mbox|operatorname)\s*\{/.exec(tex.substring(i))
++        if (m) {
++            let k = texClosingBrace(tex, i + m[0].length)
++            let end = k == -1 ? tex.length : k + 1
++            ret += tex.substring(i, end)
++            i = end
++            continue
++        }
++        m = /^\\(?:[A-Za-z]+|.)/.exec(tex.substring(i))
++        if (m) {
++            ret += m[0]
++            i += m[0].length
++            continue
++        }
++        ret += texQuoted.includes(tex[i]) ? '\\' + tex[i] : tex[i]
++        i++
++    }
++    return ret
++}
++
++// A script whose argument is a command with a group of its own (x^\text{a}, x_\mathrm{max}): the
++// command and its group are the script, as in LaTeX (TeX2UMath took the command alone).
++function TeXScriptCommands(tex) {
++    let ret = ''
++    for (let i = 0; i < tex.length;) {
++        let m = /^([_^])\s*(\\[A-Za-z]+\s*\{)/.exec(tex.substring(i))
++        let k = m ? texClosingBrace(tex, i + m[0].length) : -1
++        if (k != -1) {
++            ret += m[1] + '{' + TeXScriptCommands(tex.substring(i + m[1].length, k + 1)) + '}'
++            i = k + 1
++            continue
++        }
++        let cw = /^\\(?:[A-Za-z]+|.)/.exec(tex.substring(i))
++        let n = cw ? cw[0].length : 1
++        ret += tex.substring(i, i + n)
++        i += n
++    }
++    return ret
++}
++
++// amsmath's \overset{a}{b}, \underset{a}{b} and \stackrel{a}{b} as UnicodeMath's b┴a and b┬a (they
++// came out as text): Mathessible's MathCAT writes ≝, ≟ and the Insert menu's arrows with them.
++function texArgument(tex, i) {
++    // The argument at offset i (spaces skipped): a group's text or one token, and where it ends
++    while (tex[i] == ' ')
++        i++
++    if (tex[i] == '{') {
++        let k = texClosingBrace(tex, i + 1)
++        return k == -1 ? null : [tex.substring(i + 1, k), k + 1]
++    }
++    let m = /^\\(?:[A-Za-z]+|.)|^[^\s{}]/.exec(tex.substring(i))
++    return m ? [m[0], i + m[0].length] : null
++}
++
++function TeXStackCommands(tex) {
++    let ret = ''
++    for (let i = 0; i < tex.length;) {
++        let m = /^\\(overset|underset|stackrel)(?![A-Za-z])/.exec(tex.substring(i))
++        let above = m && texArgument(tex, i + m[0].length)
++        let base = above && texArgument(tex, above[1])
++        if (!base) {
++            let cw = /^\\(?:[A-Za-z]+|.)/.exec(tex.substring(i))
++            let n = cw ? cw[0].length : 1
++            ret += tex.substring(i, i + n)
++            i += n
++            continue
++        }
++        let script = TeXStackCommands(above[0])
++        // Parentheses group both (UnicodeMath's invisible 〖〗, which {} would be, cannot be a base)
++        ret += '(' + TeXStackCommands(base[0]) + ')' + (m[1] == 'underset' ? '┬' : '┴') + '(' + script + ') '
++        i = base[1]
++    }
++    return ret
++}
++
 +// A document's numbering and cross-reference commands, which are not math: \label{...},
 +// \tag{...} and \nonumber or \notag (in an equation or align environment) are left out.
 +function TeXDocumentCommands(tex) {
@@ -206,7 +361,7 @@ index 9142e69..37b3579 100644
 +}
 +
  function TeX2UnicodeMath(tex) {
-+    tex = TeXMathAlphabets(TeXMatrixCommands(TeXDocumentCommands(TeXSpaces(TeXNormDelimiters(tex)))))
++    tex = TeXMathAlphabets(TeXMatrixCommands(TeXDocumentCommands(TeXStackCommands(TeXQuotedOperators(TeXSymbols(TeXClassesAndNegations(TeXSpaces(TeXScriptCommands(TeXNormDelimiters(tex))))))))))
      // Pass 1: Convert control words in tex to Unicode symbols or strings
      let cwPrev = ''
      let macrosEnabled = ummlConfig && ummlConfig.texMacros

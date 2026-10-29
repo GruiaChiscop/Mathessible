@@ -26,8 +26,9 @@ _OPERATOR = re.compile(r"(?<=[\w}\])'!|]) ([=+\-<>])(?=[^\s}\])&,;^_])")
 _ALIGNED_RELATION = re.compile(r"(?<=&) ([=<>])(?=[^\s}\])&,;^_])")
 _AFTER_OPENING = re.compile(r"(?<=[{(\[]) +")
 _TEXT = re.compile(r"\\text\{[^{}]*\}")
-# MathCAT's empty slot (⬚); `{}` is LaTeX's, built as an empty slot again.
-_SLOT = re.compile(r"\{\\dottedsquare\}|\\dottedsquare(?![A-Za-z])")
+# MathCAT's empty slot (⬚, itself or as unicode-math's \\dottedsquare); `{}` is LaTeX's, built as an empty
+# slot again.
+_SLOT = re.compile(r"\{\\dottedsquare\}|\\dottedsquare(?![A-Za-z])|\{\u2b1a\}|\u2b1a")
 # The converter's empty slot (`()/()` is `<mfrac><mspace width="0"/>…`), which MathCAT writes `\text{ }`:
 # given to MathCAT as its own empty slot, it is written `\dottedsquare`, and so `{}`.
 _EMPTY = re.compile(r'<mspace width="0"\s*(?:/>|></mspace>)')
@@ -70,6 +71,19 @@ def _spaces_to_texts(mathml: str) -> str:
     return _SPACE.sub(lambda found: f"<mtext>{_SPACE_TEXT}{_space_width(found.group(1))}</mtext>", mathml)
 
 
+# A character MathCAT's LaTeX tables lack is written as NVDA spells one ('\\x002011', its quotes and
+# backslash then written as LaTeX): it is written as itself, as LuaLaTeX and the converter read it.
+_UNKNOWN_CHARACTER = re.compile(
+    r"(?:\\text\{'\}|\\textquotesingle ?)\\backslash ([xy])([0-9a-f]{6})(?:\\text\{'\}|\\textquotesingle)"
+)
+# A text symbol (`\\text{¡}`) inside a text MathCAT writes is `\\text{\\text{¡}}`.
+_TEXT_IN_TEXT = re.compile(r"\\text\{\\text\{([^{}]*)\}\}")
+
+
+def _characters_as_themselves(latex: str) -> str:
+    return _TEXT_IN_TEXT.sub(r"\\text{\1}", _UNKNOWN_CHARACTER.sub(lambda found: chr(int(found.group(2), 16)), latex))
+
+
 def _texts_to_spaces(latex: str) -> str:
     def space(found: re.Match[str]) -> str:
         command = _space_command(int(found.group(1)))
@@ -107,7 +121,8 @@ def equation_latex(mathml: Sequence[str], decimal_separator: str = ",") -> list[
             try:
                 equation = _spaces_to_texts(_EMPTY.sub("<mi>\u2b1a</mi>", equation))
                 native.set_expression(prepare_for_mathcat(equation))
-                written[index] = _texts_to_spaces(tidy_latex(_SLOT.sub("{}", native.braille("").strip())))
+                latex = _characters_as_themselves(native.braille("").strip())
+                written[index] = _texts_to_spaces(tidy_latex(_SLOT.sub("{}", latex)))
             except (OSError, RuntimeError, ValueError):
                 written[index] = None
 
