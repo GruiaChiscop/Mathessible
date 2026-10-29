@@ -30,6 +30,22 @@ back, or was no LaTeX:
   builds \epsilon, and its bold, sans and bold italic forms) was written
   \in, the element-of sign; bold and sans bold were \varepsilon. They
   are \epsilon.
+- The math alphabets were written with commands LaTeX lacks (unicode-math
+  and older names): \mathbit, \mathsfbf, \mathsfbfsl, \mathsfsl,
+  \mathbcal, \mathbfrak, \mscrH, \mfrakH, \Planckconst for the italic h
+  every h is built as, and Greek capitals \Alpha, \Beta, \Rho, \M, \N,
+  \O (which is Ø) and lowercase \o (ø) for omicron. They are amsmath's
+  and amssymb's: \boldsymbol{x}, \boldsymbol{\mathcal{L}},
+  \boldsymbol{\mathsf{A}}, \mathcal H, h, A, B, P, M, N, O, o. Sans
+  italic is \mathsf (LaTeX has no sans italic math).
+- Table faults: double-struck letters were \mathbb only with short names
+  (else a bare letter); the capital theta symbols were missing from the
+  translate lists (the bold one held a reserved code), so the letters
+  after them were shifted (Θ written \Sigma); 𝝰 fell in the range before
+  its own and had no letter; the double-struck zero's list held a plain
+  0; the four "tc: W" wrote a letter W for the space marker; italic
+  capital Greek ran \mathit into the letter (\mathitA); dotless i and j
+  and the bold digammas had no entry.
 
 Applied by scripts/bootstrap.sh on top of upstream 85c89a37. Each is a bug
 in the LaTeX code itself, for braille readers too; worth proposing upstream.
@@ -125,10 +141,248 @@ index b808a7b6..2695e560 100644
  
  - UnderAccents: {
 diff --git a/Rules/Braille/LaTeX/unicode-full.yaml b/Rules/Braille/LaTeX/unicode-full.yaml
-index c6846f69..3c795cd3 100644
+index c6846f69..4c36fe50 100644
 --- a/Rules/Braille/LaTeX/unicode-full.yaml
 +++ b/Rules/Braille/LaTeX/unicode-full.yaml
-@@ -2662,14 +2662,14 @@
+@@ -741,11 +741,11 @@
+          else: [t: "\\mathbb𝐖C𝐖"]
+ # - "ℂ": [t: "\\Complex𝐖"]               # 0x2102
+  - "ℇ": [t: "\\Eulerconst𝐖"]             # 0x2107
+- - "ℊ": [t: "\\mscrg𝐖"]                  # 0x210a
++ - "ℊ": [t: "\\mathscr𝐖g𝐖"]                  # 0x210a
+ # - "ℊ": [t: "\\mathscr𝐖g𝐖"]             # 0x210a
+- - "ℋ": [t: "\\mscrH𝐖"]                  # 0x210b
++ - "ℋ": [t: "\\mathcal𝐖H𝐖"]                  # 0x210b
+ # - "ℋ": [t: "\\mathscr𝐖H𝐖"]             # 0x210b
+- - "ℌ": [t: "\\mfrakH𝐖"]                 # 0x210c
++ - "ℌ": [t: "\\mathfrak𝐖H𝐖"]                 # 0x210c
+ # - "ℌ": [t: "\\mathfrak𝐖H𝐖"]            # 0x210c
+  - "ℍ":                                  # 0x210d
+      - test:
+@@ -753,7 +753,7 @@
+          then: [t: "\\H"]
+          else: [t: "\\mathbb𝐖H𝐖"]
+  - "ℏ": [t: "\\hslash𝐖"]                 # 0x210f
+- - "ℐ": [t: "\\mscrI𝐖"]                  # 0x2110
++ - "ℐ": [t: "\\mathcal𝐖I𝐖"]                  # 0x2110
+ # - "ℐ": [t: "\\mathscr𝐖I𝐖"]             # 0x2110
+  - "ℑ": [t: "\\Im𝐖"]                     # 0x2111
+  - "ℒ": [t: "\\mathcal𝐖L𝐖"]              # 0x2112
+@@ -778,7 +778,7 @@
+          then: [t: "\\Q"]
+          else: [t: "\\mathbb𝐖Q𝐖"]
+ # - "ℚ": [t: "\\Q"]                      # 0x211a
+- - "ℛ": [t: "\\mscrR𝐖"]                  # 0x211b
++ - "ℛ": [t: "\\mathcal𝐖R𝐖"]                  # 0x211b
+ # - "ℛ": [t: "\\mathscr𝐖R𝐖"]             # 0x211b
+  - "ℝ":                                  # 0x211d
+      - test:
+@@ -796,24 +796,24 @@
+          else: [t: "\\mathbb𝐖Z𝐖"]
+ # - "ℤ": [t: "\\Z"]                      # 0x2124
+  - "℧": [t: "\\mho𝐖"]                    # 0x2127
+- - "ℨ": [t: "\\mfrakZ𝐖"]                 # 0x2128
++ - "ℨ": [t: "\\mathfrak𝐖Z𝐖"]                 # 0x2128
+ # - "ℨ": [t: "\\mathfrak𝐖Z𝐖"]            # 0x2128
+  - "℩": [t: "\\turnediota𝐖"]             # 0x2129
+ # - "℩": [t: "\\ElsevierGlyph{2129}"]    # 0x2129
+- - "ℬ": [t: "\\mscrB𝐖"]                  # 0x212c
++ - "ℬ": [t: "\\mathcal𝐖B𝐖"]                  # 0x212c
+ # - "ℬ": [t: "\\mathscr𝐖B𝐖"]             # 0x212c
+- - "ℭ": [t: "\\mfrakC𝐖"]                 # 0x212d
++ - "ℭ": [t: "\\mathfrak𝐖C𝐖"]                 # 0x212d
+ # - "ℭ": [t: "\\mathfrak𝐖C𝐖"]            # 0x212d
+- - "ℯ": [t: "\\mscre𝐖"]                  # 0x212f
++ - "ℯ": [t: "\\mathscr𝐖e𝐖"]                  # 0x212f
+ # - "ℯ": [t: "\\mathscr𝐖e𝐖"]             # 0x212f
+- - "ℰ": [t: "\\mscrE𝐖"]                  # 0x2130
++ - "ℰ": [t: "\\mathcal𝐖E𝐖"]                  # 0x2130
+ # - "ℰ": [t: "\\mathscr𝐖E𝐖"]             # 0x2130
+- - "ℱ": [t: "\\mscrF𝐖"]                  # 0x2131
++ - "ℱ": [t: "\\mathcal𝐖F𝐖"]                  # 0x2131
+ # - "ℱ": [t: "\\mathscr𝐖F𝐖"]             # 0x2131
+  - "Ⅎ": [t: "\\Finv𝐖"]                   # 0x2132
+- - "ℳ": [t: "\\mscrM𝐖"]                  # 0x2133
++ - "ℳ": [t: "\\mathcal𝐖M𝐖"]                  # 0x2133
+ # - "ℳ": [t: "\\mathscr𝐖M𝐖"]             # 0x2133
+- - "ℴ": [t: "\\mscro𝐖"]                  # 0x2134
++ - "ℴ": [t: "\\mathscr𝐖o𝐖"]                  # 0x2134
+ # - "ℴ": [t: "\\mathscr𝐖o𝐖"]             # 0x2134
+  - "ℵ": [t: "\\aleph𝐖"]                  # 0x2135
+  - "ℶ": [t: "\\beth𝐖"]                   # 0x2136
+@@ -2511,24 +2511,24 @@
+ 
+ 
+  - "𝑨-𝒁":    # 0x1d468 - 0x1d481
+-     - tc: "\\mathbit𝐖"
++     - tc: "\\boldsymbol{"
+      - spell: "translate('.', '𝑨𝑩𝑪𝑫𝑬𝑭𝑮𝑯𝑰𝑱𝑲𝑳𝑴𝑵𝑶𝑷𝑸𝑹𝑺𝑻𝑼𝑽𝑾𝑿𝒀𝒁', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')"
+-     - tc: "W"
++     - t: "}𝐖"
+ 
+  - "𝒂-𝒛":    # 0x1d482 - 0x1d49b
+-     - tc: "\\mathbit𝐖"
++     - tc: "\\boldsymbol{"
+      - spell: "translate('.', '𝒂𝒃𝒄𝒅𝒆𝒇𝒈𝒉𝒊𝒋𝒌𝒍𝒎𝒏𝒐𝒑𝒒𝒓𝒔𝒕𝒖𝒗𝒘𝒙𝒚𝒛', 'abcdefghijklmnopqrstuvwxyz')"
+-     - tc: "W"
++     - t: "}𝐖"
+ 
+  - "𝒜-𝒩":    # 0x1d49c - 0x1d4b5
+      - tc: "\\mathscr𝐖"
+      - spell: "translate('.', '𝒜ℬ𝒞𝒟ℰℱ𝒢ℋℐ𝒥𝒦ℒℳ𝒩', 'ABCDEFGHIJKLMN')"
+-     - tc: "W"
++     - tc: "𝐖"
+ 
+  - "𝒬-𝒵":    # 0x1d49c - 0x1d4b5
+      - tc: "\\mathscr𝐖"
+      - spell: "translate('.', '𝒬ℛ𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵', 'QRSTUVWXYZ')"
+-     - tc: "W"
++     - tc: "𝐖"
+ 
+  - "𝒪": [t: "\\mathcal𝐖O𝐖"]              # 0x1d4aa
+  - "𝒫": [t: "\\mathcal𝐖P𝐖"]              # 0x1d4ab
+@@ -2538,13 +2538,13 @@
+      - spell: "translate('.', '𝒶𝒷𝒸𝒹ℯ𝒻ℊ𝒽𝒾𝒿𝓀𝓁𝓂𝓃ℴ𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏', 'abcdefghijklmnopqrstuvwxyz')"
+      - tc: "𝐖"
+  - "𝓐-𝓩":    # 0x1d4d0 - 0x1d4e9
+-     - tc: "\\mathbcal𝐖"
++     - tc: "\\boldsymbol{\\mathcal{"
+      - spell: "translate('.', '𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')"
+-     - tc: "𝐖"
++     - t: "}}𝐖"
+  - "𝓪-𝔃":    # 0x1d4ea - 0x1d503
+-     - tc: "\\mathbcal𝐖"
++     - tc: "\\boldsymbol{\\mathcal{"
+      - spell: "translate('.', '𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃', 'abcdefghijklmnopqrstuvwxyz')"
+-     - tc: "𝐖"
++     - t: "}}𝐖"
+ 
+  - "𝔄-𝔜":    # 0x1d504 - 0x1d51c
+      - tc: "\\mathfrak𝐖"
+@@ -2555,49 +2555,34 @@
+      - spell: "translate('.', '𝔞𝔟𝔠𝔡𝔢𝔣𝔤𝔥𝔦𝔧𝔨𝔩𝔪𝔫𝔬𝔭𝔮𝔯𝔰𝔱𝔲𝔳𝔴𝔵𝔶𝔷', 'abcdefghijklmnopqrstuvwxyz')"
+      - tc: "𝐖"
+  - "𝔸-𝔹":    # 0x1d538 - 0x1d539 (A B)
+-     - test:
+-         if: "$LaTeX_UseShortName"
+-         then: [tc: "\\mathbb𝐖"]
++     - tc: "\\mathbb𝐖"
+      - spell: "translate('.', '𝔸𝔹', 'AB')"
+      - tc: "𝐖"
+  - "𝔻-𝔾":    # 0x1d53b - 0x1d53e (D E F G)
+-     - test:
+-         if: "$LaTeX_UseShortName"
+-         then: [tc: "\\mathbb𝐖"]
++     - tc: "\\mathbb𝐖"
+      - spell: "translate('.', '𝔻𝔼𝔽𝔾', 'DEFG')"
+      - tc: "𝐖"
+  - "𝕀-𝕄":    # 0x1d540 - 0x1d544 (I J K L M)
+-     - test:
+-         if: "$LaTeX_UseShortName"
+-         then: [tc: "\\mathbb𝐖"]
++     - tc: "\\mathbb𝐖"
+      - spell: "translate('.', '𝕀𝕁𝕂𝕃𝕄', 'IJKLM')"
+      - tc: "𝐖"
+- - "𝕆":                                  # 0x1d546 (O)
+-     - test:
+-         if: "$LaTeX_UseShortName"
+-         then: [tc: "\\mathbb𝐖"]
+-     - spell: "translate('.', '𝕆', 'O')"
+-     - tc: "𝐖"
++ - "𝕆": [t: "\\mathbb𝐖O𝐖"]               # 0x1d546
+  - "𝕊-𝕐":    # 0x1d54a - 0x1d550 (S T U V W X Y)
+-     - test:
+-         if: "$LaTeX_UseShortName"
+-         then: [tc: "\\mathbb𝐖"]
++     - tc: "\\mathbb𝐖"
+      - spell: "translate('.', '𝕊𝕋𝕌𝕍𝕎𝕏𝕐', 'STUVWXY')"
+      - tc: "𝐖"
+  - "𝕒-𝕫":    # 0x1d552 - 0x1d56b (a-z)
+-     - test:
+-         if: "$LaTeX_UseShortName"
+-         then: [tc: "\\mathbb𝐖"]
++     - tc: "\\mathbb𝐖"
+      - spell: "translate('.', '𝕒𝕓𝕔𝕕𝕖𝕗𝕘𝕙𝕚𝕛𝕜𝕝𝕞𝕟𝕠𝕡𝕢𝕣𝕤𝕥𝕦𝕧𝕨𝕩𝕪𝕫', 'abcdefghijklmnopqrstuvwxyz')"
+      - tc: "𝐖"
+  - "𝕬-𝖅":    # 0x1d56c - 0x1d585
+-     - tc: "\\mathbfrak𝐖"
++     - tc: "\\boldsymbol{\\mathfrak{"
+      - spell: "translate('.', '𝕬𝕭𝕮𝕯𝕰𝕱𝕲𝕳𝕴𝕵𝕶𝕷𝕸𝕹𝕺𝕻𝕼𝕽𝕾𝕿𝖀𝖁𝖂𝖃𝖄𝖅', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')"
+-     - tc: "𝐖"
++     - t: "}}𝐖"
+  - "𝖆-𝖟":    # 0x1d586 - 0x1d59f
+-     - tc: "\\mathbfrak𝐖"
++     - tc: "\\boldsymbol{\\mathfrak{"
+      - spell: "translate('.', '𝖆𝖇𝖈𝖉𝖊𝖋𝖌𝖍𝖎𝖏𝖐𝖑𝖒𝖓𝖔𝖕𝖖𝖗𝖘𝖙𝖚𝖛𝖜𝖝𝖞𝖟', 'abcdefghijklmnopqrstuvwxyz')"
+-     - tc: "𝐖"
++     - t: "}}𝐖"
+  - "𝖠-𝖹":    # 0x1d5a0 - 0x1d5b9
+      - tc: "\\mathsf𝐖"
+      - spell: "translate('.', '𝖠𝖡𝖢𝖣𝖤𝖥𝖦𝖧𝖨𝖩𝖪𝖫𝖬𝖭𝖮𝖯𝖰𝖱𝖲𝖳𝖴𝖵𝖶𝖷𝖸𝖹', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')"
+@@ -2607,25 +2592,25 @@
+      - spell: "translate('.', '𝖺𝖻𝖼𝖽𝖾𝖿𝗀𝗁𝗂𝗃𝗄𝗅𝗆𝗇𝗈𝗉𝗊𝗋𝗌𝗍𝗎𝗏𝗐𝗑𝗒𝗓', 'abcdefghijklmnopqrstuvwxyz')"
+      - tc: "𝐖"
+  - "𝗔-𝗭":    # 0x1d5d4 - 0x1d5ed
+-     - tc: "\\mathsfbf𝐖"
++     - tc: "\\boldsymbol{\\mathsf{"
+      - spell: "translate('.', '𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')"
+-     - tc: "𝐖"
++     - t: "}}𝐖"
+  - "𝗮-𝘇":    # 0x1d5ee - 0x1d607
+-     - tc: "\\mathsfbf𝐖"
++     - tc: "\\boldsymbol{\\mathsf{"
+      - spell: "translate('.', '𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇', 'abcdefghijklmnopqrstuvwxyz')"
+-     - tc: "𝐖"
++     - t: "}}𝐖"
+  - "𝘈-𝘡":    # 0x1d608 - 0x1d621
+-     - tc: "\\mathsfsl𝐖"
++     - tc: "\\mathsf{"
+      - spell: "translate('.', '𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')"
+-     - tc: "𝐖"
++     - t: "}𝐖"
+  - "𝘢-𝘻":    # 0x1d622 - 0x1d63b
+-     - tc: "\\mathsfsl𝐖"
++     - tc: "\\mathsf{"
+      - spell: "translate('.', '𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻', 'abcdefghijklmnopqrstuvwxyz')"
+-     - tc: "𝐖"
++     - t: "}𝐖"
+  - "𝘼-𝙯":    # 0x1d63c - 0x1d66f
+-     - tc: "\\mathsfbfsl𝐖"
++     - tc: "\\boldsymbol{\\mathsf{"
+      - spell: "translate('.', '𝘼𝘽𝘾𝘿𝙀𝙁𝙂𝙃𝙄𝙅𝙆𝙇𝙈𝙉𝙊𝙋𝙌𝙍𝙎𝙏𝙐𝙑𝙒𝙓𝙔𝙕𝙖𝙗𝙘𝙙𝙚𝙛𝙜𝙝𝙞𝙟𝙠𝙡𝙢𝙣𝙤𝙥𝙦𝙧𝙨𝙩𝙪𝙫𝙬𝙭𝙮𝙯', 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')"
+-     - tc: "𝐖"
++     - t: "}}𝐖"
+  - "𝙰-𝚉":    # 0x1d670 - 0x1d689
+      - tc: "\\mathtt𝐖"
+      - spell: "translate('.', '𝙰𝙱𝙲𝙳𝙴𝙵𝙶𝙷𝙸𝙹𝙺𝙻𝙼𝙽𝙾𝙿𝚀𝚁𝚂𝚃𝚄𝚅𝚆𝚇𝚈𝚉', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')"
+@@ -2634,21 +2619,23 @@
+      - tc: "\\mathtt𝐖"
+      - spell: "translate('.', '𝚊𝚋𝚌𝚍𝚎𝚏𝚐𝚑𝚒𝚓𝚔𝚕𝚖𝚗𝚘𝚙𝚚𝚛𝚜𝚝𝚞𝚟𝚠𝚡𝚢𝚣', 'abcdefghijklmnopqrstuvwxyz')"
+      - tc: "𝐖"
++ - "𝚤": [t: "\\imath𝐖"]                 # 0x1d6a4
++ - "𝚥": [t: "\\jmath𝐖"]                 # 0x1d6a5
+  - "𝚨-𝚲":    # 0x1d6a8 - 0x1d6b2
+     - tc: "\\mathbf𝐖"
+     - spell: "translate('.', '𝚨𝚩𝚪𝚫𝚬𝚭𝚮𝚯𝚰𝚱𝚲', 'ΑΒΓΔΕΖΗΘΙΚΛΜΝΞ')"
+     - tc: "𝐖"
+  - "𝚳": [t: "\\mathbf𝐖M𝐖"]               # 0x1d6b3
+- - "𝚴": [t: "\\N"]                       # 0x1d6b4
++ - "𝚴": [t: "\\mathbf𝐖N𝐖"]               # 0x1d6b4
+  - "𝚵": [t: "\\mathbf{\\Xi}"]            # 0x1d6b5
+  - "𝚶":                                  # 0x1d6b6
+      - test:
+          if: "$LaTeX_UseShortName"
+          then: [t: "~O"]
+-         else: [t: "\\O"]
++         else: [t: "\\mathbf𝐖O𝐖"]
+  - "𝚷-𝚿":    # 0x1d6b7 - 0x1d6bf
+     - tc: "\\mathbf𝐖"
+-    - spell: "translate('.', '𝚷𝚸𝚹𝚺𝚻𝚼𝚽𝚾𝚿', 'ΠΡ΢ΣΤΥΦΧΨ')"
++    - spell: "translate('.', '𝚷𝚸𝚹𝚺𝚻𝚼𝚽𝚾𝚿', 'ΠΡΘΣΤΥΦΧΨ')"
+     - tc: "𝐖"
+  - "𝛀": [t: "\\mathbf{\\Omega}"]         # 0x1d6c0
+  - "𝛁": [t: "\\mathbf{\\nabla}"]         # 0x1d6c1
+@@ -2662,132 +2649,146 @@
      - spell: "translate('.', '𝛑𝛒𝛓𝛔𝛕𝛖𝛗𝛘𝛙𝛚', 'πρςστυφχψω')"
      - tc: "𝐖"
   - "𝛛": [t: "\\partial𝐖"]                # 0x1d6db
@@ -141,18 +395,22 @@ index c6846f69..3c795cd3 100644
   - "𝛡": [t: "\\mathbf{\\varpi}"]         # 0x1d6e1
   - "𝛢-𝛯":    # 0x1d6e2 - 0x1d6ef (Alpha - Xi)
 -    - tc: "\\mathmit"
-+    - tc: "\\mathit"
++    - tc: "\\mathit{"
      - spell: "translate('.', '𝛢𝛣𝛤𝛥𝛦𝛧𝛨𝛩𝛪𝛫𝛬𝛭𝛮𝛯', 'ΑΒΓΔΕΖΗΘΙΚΛΜΝΞ')"
++    - t: "}"
   - "𝛰":                                  # 0x1d6f0
       - test:
-@@ -2677,19 +2677,18 @@
+          if: "$LaTeX_UseShortName"
           then: [t: "~O"]
-          else: [t: "\\O"]
+-         else: [t: "\\O"]
++         else: [t: "O"]
   - "𝛱-𝛺":    # 0x1d6f1 - 0x1d6fa (Pi - Omega)
 -    - tc: "\\mathmit"
-+    - tc: "\\mathit"
-     - spell: "translate('.', '𝛱𝛲𝛳𝛴𝛵𝛶𝛷𝛸𝛹𝛺', 'ΠΡΣΤΥΦΧΨΩ')"
+-    - spell: "translate('.', '𝛱𝛲𝛳𝛴𝛵𝛶𝛷𝛸𝛹𝛺', 'ΠΡΣΤΥΦΧΨΩ')"
 - - "𝛻": [t: "\\mathmit{\\nabla}"]        # 0x1d6fb
++    - tc: "\\mathit{"
++    - spell: "translate('.', '𝛱𝛲𝛳𝛴𝛵𝛶𝛷𝛸𝛹𝛺', 'ΠΡΘΣΤΥΦΧΨΩ')"
++    - t: "}"
 + - "𝛻": [t: "\\nabla𝐖"]        # 0x1d6fb
   - "𝛼-𝜔":    # 0x1d6fc - 0x1d714 (alpha - omega)
 -    - tc: "\\mathmit"
@@ -171,35 +429,290 @@ index c6846f69..3c795cd3 100644
 + - "𝜚": [t: "\\varrho𝐖"]       # 0x1d71a
 + - "𝜛": [t: "\\varpi𝐖"]        # 0x1d71b
   - "𝜜-𝜩":    # 0x1d71c - 0x1d729 (Alpha - Xi)
-     - tc: "\\mathbit"
+-    - tc: "\\mathbit"
++    - tc: "\\boldsymbol{"
      - spell: "translate('.', '𝜜𝜝𝜞𝜟𝜠𝜡𝜢𝜣𝜤𝜥𝜦𝜧𝜨𝜩', 'ΑΒΓΔΕΖΗΘΙΚΛΜΝΞ')"
-@@ -2706,7 +2705,7 @@
-     - tc: "\\mathbit"
++    - t: "}"
+  - "𝜪":                                  # 0x1d72a
+      - test:
+          if: "$LaTeX_UseShortName"
+          then: [t: "~O"]
+-         else: [t: "\\O"]
++         else: [t: "\\boldsymbol{O}"]
+  - "𝜫-𝜴":    # 0x1d72b - 0x1d734 (Pi - Omega)
+-    - tc: "\\mathbit"
+-    - spell: "translate('.', '𝜫𝜬𝜭𝜮𝜯𝜰𝜱𝜲𝜳𝜴', 'ΠΡΣΤΥΦΧΨΩ')"
+- - "𝜵": [t: "\\mathbit{\\nabla}"]        # 0x1d735
++    - tc: "\\boldsymbol{"
++    - spell: "translate('.', '𝜫𝜬𝜭𝜮𝜯𝜰𝜱𝜲𝜳𝜴', 'ΠΡΘΣΤΥΦΧΨΩ')"
++    - t: "}"
++ - "𝜵": [t: "\\boldsymbol{\\nabla}"]        # 0x1d735
+  - "𝜶-𝝎":    # 0x1d736 - 0x1d74e
+-    - tc: "\\mathbit"
++    - tc: "\\boldsymbol{"
      - spell: "translate('.', '𝜶𝜷𝜸𝜹𝜺𝜻𝜼𝜽𝜾𝜿𝝀𝝁𝝂𝝃𝝄𝝅𝝆𝝇𝝈𝝉𝝊𝝋𝝌𝝍𝝎', 'αβγδεζηθικλμνξοπρςστυφχψω')"
++    - t: "}"
   - "𝝏": [t: "\\partial𝐖"]                # 0x1d74f
 - - "𝝐": [t: "\\in𝐖"]                     # 0x1d750
-+ - "𝝐": [t: "\\mathbit{\\epsilon}"]     # 0x1d750
-  - "𝝑": [t: "\\mathbit{\\vartheta}"]     # 0x1d751
-  - "𝝒": [t: "\\mathbit{\\varkappa}"]     # 0x1d752
-  - "𝝓": [t: "\\mathbit{\\phi}"]          # 0x1d753
-@@ -2735,7 +2734,7 @@
+- - "𝝑": [t: "\\mathbit{\\vartheta}"]     # 0x1d751
+- - "𝝒": [t: "\\mathbit{\\varkappa}"]     # 0x1d752
+- - "𝝓": [t: "\\mathbit{\\phi}"]          # 0x1d753
+- - "𝝔": [t: "\\mathbit{\\varrho}"]       # 0x1d754
+- - "𝝕": [t: "\\mathbit{\\varpi}"]        # 0x1d755
++ - "𝝐": [t: "\\boldsymbol{\\epsilon}"]     # 0x1d750
++ - "𝝑": [t: "\\boldsymbol{\\vartheta}"]     # 0x1d751
++ - "𝝒": [t: "\\boldsymbol{\\varkappa}"]     # 0x1d752
++ - "𝝓": [t: "\\boldsymbol{\\phi}"]          # 0x1d753
++ - "𝝔": [t: "\\boldsymbol{\\varrho}"]       # 0x1d754
++ - "𝝕": [t: "\\boldsymbol{\\varpi}"]        # 0x1d755
+  - "𝝖-𝝠":    # 0x1d756 - 0x1d760 (Alpha - Lambda)
+-    - tc: "\\mathsfbf"
++    - tc: "\\boldsymbol{"
+     - spell: "translate('.', '𝝖𝝗𝝘𝝙𝝚𝝛𝝜𝝝𝝞𝝟𝝠', 'ΑΒΓΔΕΖΗΘΙΚΛ')"
+- - "𝝡": [t: "\\mathsfbf𝐖M𝐖"]             # 0x1d761
+- - "𝝢": [t: "\\mathsfbf𝐖N𝐖"]             # 0x1d762
+- - "𝝣": [t: "\\mathsfbf{\\Xi}"]          # 0x1d763
++    - t: "}"
++ - "𝝡": [t: "\\boldsymbol{\\mathsf{M}}"]             # 0x1d761
++ - "𝝢": [t: "\\boldsymbol{\\mathsf{N}}"]             # 0x1d762
++ - "𝝣": [t: "\\boldsymbol{\\Xi}"]          # 0x1d763
+  - "𝝤":                                  # 0x1d764
+      - test:
+          if: "$LaTeX_UseShortName"
+          then: [t: "~O"]
+-         else: [t: "\\O"]
+- - "𝝥-𝝰":    # 0x1d765 - 0x1d76f
+-    - tc: "\\mathsfbf"
+-    - spell: "translate('.', '𝝥𝝦𝝧𝝨𝝩𝝪𝝫𝝬𝝭𝝮𝝯', 'ΠΡΣΤΥΦΧΨΩ∇')"
+- - "𝝱-𝝽":    # 0x1d770 - 0x1d77d
+-    - tc: "\\mathsfbf"
++         else: [t: "\\boldsymbol{\\mathsf{O}}"]
++ - "𝝥-𝝯":    # 0x1d765 - 0x1d76f
++    - tc: "\\boldsymbol{"
++    - spell: "translate('.', '𝝥𝝦𝝧𝝨𝝩𝝪𝝫𝝬𝝭𝝮𝝯', 'ΠΡΘΣΤΥΦΧΨΩ∇')"
++    - t: "}"
++ - "𝝰-𝝽":    # 0x1d770 - 0x1d77d
++    - tc: "\\boldsymbol{"
+     - spell: "translate('.', '𝝰𝝱𝝲𝝳𝝴𝝵𝝶𝝷𝝸𝝹𝝺𝝻𝝼𝝽', 'αβγδεζηθικλμνξ')"
+- - "𝝾": [t: "\\mathsfbf𝐖o𝐖"]             # 0x1d77e
++    - t: "}"
++ - "𝝾": [t: "\\boldsymbol{\\mathsf{o}}"]             # 0x1d77e
+  - "𝝿-𝞇":    # 0x1d77f - 0x1d787 (pi - psi)
+-    - tc: "\\mathsfbf"
++    - tc: "\\boldsymbol{"
      - spell: "translate('.', '𝝿𝞀𝞁𝞂𝞃𝞄𝞅𝞆𝞇', 'πρςστυφχψ')"
-  - "𝞈": [t: "\\mathsfbf{\\omega}"]       # 0x1d788
+- - "𝞈": [t: "\\mathsfbf{\\omega}"]       # 0x1d788
++    - t: "}"
++ - "𝞈": [t: "\\boldsymbol{\\omega}"]       # 0x1d788
   - "𝞉": [t: "\\partial𝐖"]                # 0x1d789
 - - "𝞊": [t: "\\mathsfbf{\\varepsilon}"]  # 0x1d78a
-+ - "𝞊": [t: "\\mathsfbf{\\epsilon}"]     # 0x1d78a
-  - "𝞋": [t: "\\mathsfbf{\\vartheta}"]    # 0x1d78b
-  - "𝞌": [t: "\\mathsfbf{\\varkappa}"]    # 0x1d78c
-  - "𝞍": [t: "\\mathsfbf{\\phi}"]         # 0x1d78d
-@@ -2766,7 +2765,7 @@
-  - "𝟁": [t: "\\mathsfbfsl{\\psi}"]       # 0x1d7c1
-  - "𝟂": [t: "\\mathsfbfsl{\\omega}"]     # 0x1d7c2
+- - "𝞋": [t: "\\mathsfbf{\\vartheta}"]    # 0x1d78b
+- - "𝞌": [t: "\\mathsfbf{\\varkappa}"]    # 0x1d78c
+- - "𝞍": [t: "\\mathsfbf{\\phi}"]         # 0x1d78d
+- - "𝞎": [t: "\\mathsfbf{\\varrho}"]      # 0x1d78e
+- - "𝞏": [t: "\\mathsfbf{\\varpi}"]       # 0x1d78f
++ - "𝞊": [t: "\\boldsymbol{\\epsilon}"]     # 0x1d78a
++ - "𝞋": [t: "\\boldsymbol{\\vartheta}"]    # 0x1d78b
++ - "𝞌": [t: "\\boldsymbol{\\varkappa}"]    # 0x1d78c
++ - "𝞍": [t: "\\boldsymbol{\\phi}"]         # 0x1d78d
++ - "𝞎": [t: "\\boldsymbol{\\varrho}"]      # 0x1d78e
++ - "𝞏": [t: "\\boldsymbol{\\varpi}"]       # 0x1d78f
+  - "𝞐-𝞚":    # 0x1d790 - 0x1d79a (Alpha - Lambda)
+-    - tc: "\\mathsfbfsl"
++    - tc: "\\boldsymbol{"
+     - spell: "translate('.', '𝞐𝞑𝞒𝞓𝞔𝞕𝞖𝞗𝞘𝞙𝞚', 'ΑΒΓΔΕΖΗΘΙΚΛ')"
+- - "𝞛": [t: "\\mathsfbfsl𝐖M𝐖"]           # 0x1d79b
+- - "𝞜": [t: "\\mathsfbfsl𝐖N𝐖"]           # 0x1d79c
+- - "𝞝": [t: "\\mathsfbfsl{\\Xi}"]        # 0x1d79d
++    - t: "}"
++ - "𝞛": [t: "\\boldsymbol{\\mathsf{M}}"]           # 0x1d79b
++ - "𝞜": [t: "\\boldsymbol{\\mathsf{N}}"]           # 0x1d79c
++ - "𝞝": [t: "\\boldsymbol{\\Xi}"]        # 0x1d79d
+  - "𝞞":                                  # 0x1d79e
+      - test:
+          if: "$LaTeX_UseShortName"
+          then: [t: "~O"]
+-         else: [t: "\\O"]
++         else: [t: "\\boldsymbol{\\mathsf{O}}"]
+  - "𝞟-𝞨":    # 0x1d79f - 0x1d7a8 (Pi - Omega)
+-    - tc: "\\mathsfbfsl"
+-    - spell: "translate('.', '𝞟𝞠𝞡𝞢𝞣𝞤𝞥𝞦𝞧𝞨', 'ΠΡΣΤΥΦΧΨΩ')"
+- - "𝞩": [t: "\\mathsfbfsl{\\nabla}"]     # 0x1d7a9
++    - tc: "\\boldsymbol{"
++    - spell: "translate('.', '𝞟𝞠𝞡𝞢𝞣𝞤𝞥𝞦𝞧𝞨', 'ΠΡΘΣΤΥΦΧΨΩ')"
++    - t: "}"
++ - "𝞩": [t: "\\boldsymbol{\\nabla}"]     # 0x1d7a9
+  - "𝞪-𝞷":    # 0x1d7aa - 0x1d7b7 (alpha - xi)
+-    - tc: "\\mathsfbfsl"
++    - tc: "\\boldsymbol{"
+     - spell: "translate('.', '𝞪𝞫𝞬𝞭𝞮𝞯𝞰𝞱𝞲𝞳𝞴𝞵𝞶𝞷', 'αβγδεζηθικλμνξ')"
+- - "𝞸": [t: "\\mathsfbfsl𝐖o𝐖"]           # 0x1d7b8
++    - t: "}"
++ - "𝞸": [t: "\\boldsymbol{\\mathsf{o}}"]           # 0x1d7b8
+  - "𝞹-𝟀":    # 0x1d7b9 - 0x1d7c0 (pi - chi)
+-    - tc: "\\mathsfbfsl"
++    - tc: "\\boldsymbol{"
+     - spell: "translate('.', '𝞹𝞺𝞻𝞼𝞽𝞾𝞿𝟀', 'πρςστυφχ')"
+- - "𝟁": [t: "\\mathsfbfsl{\\psi}"]       # 0x1d7c1
+- - "𝟂": [t: "\\mathsfbfsl{\\omega}"]     # 0x1d7c2
++    - t: "}"
++ - "𝟁": [t: "\\boldsymbol{\\psi}"]       # 0x1d7c1
++ - "𝟂": [t: "\\boldsymbol{\\omega}"]     # 0x1d7c2
   - "𝟃": [t: "\\partial𝐖"]                # 0x1d7c3
 - - "𝟄": [t: "\\in𝐖"]                     # 0x1d7c4
-+ - "𝟄": [t: "\\mathsfbfsl{\\epsilon}"]   # 0x1d7c4
-  - "𝟅": [t: "\\mathsfbfsl{\\vartheta}"]  # 0x1d7c5
-  - "𝟆": [t: "\\mathsfbfsl{\\varkappa}"]  # 0x1d7c6
-  - "𝟇": [t: "\\mathsfbfsl{\\phi}"]       # 0x1d7c7
+- - "𝟅": [t: "\\mathsfbfsl{\\vartheta}"]  # 0x1d7c5
+- - "𝟆": [t: "\\mathsfbfsl{\\varkappa}"]  # 0x1d7c6
+- - "𝟇": [t: "\\mathsfbfsl{\\phi}"]       # 0x1d7c7
+- - "𝟈": [t: "\\mathsfbfsl{\\varrho}"]    # 0x1d7c8
+- - "𝟉": [t: "\\mathsfbfsl{\\varpi}"]     # 0x1d7c9
++ - "𝟄": [t: "\\boldsymbol{\\epsilon}"]   # 0x1d7c4
++ - "𝟅": [t: "\\boldsymbol{\\vartheta}"]  # 0x1d7c5
++ - "𝟆": [t: "\\boldsymbol{\\varkappa}"]  # 0x1d7c6
++ - "𝟇": [t: "\\boldsymbol{\\phi}"]       # 0x1d7c7
++ - "𝟈": [t: "\\boldsymbol{\\varrho}"]    # 0x1d7c8
++ - "𝟉": [t: "\\boldsymbol{\\varpi}"]     # 0x1d7c9
++ - "𝟊": [t: "\\mathbf𝐖\\Digamma𝐖"]      # 0x1d7ca
++ - "𝟋": [t: "\\mathbf𝐖\\digamma𝐖"]      # 0x1d7cb
+  - "𝟎-𝟗":    # 0x1d7ce - 0x1d7d7 (bold digits 0-9)
+     - tc: "\\mathbf𝐖"
+     - spell: "translate('.', '𝟎𝟏𝟐𝟑𝟒𝟓𝟔𝟕𝟖𝟗', '0123456789')"
+     - tc: "𝐖"
+  - "𝟘-𝟡":    # 0x1d7d9 - 0x1d7e1
+      - tc: "\\mathbb𝐖"
+-     - spell: "translate('.', '0𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡', '0123456789')"
++     - spell: "translate('.', '𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡', '0123456789')"
+      - tc: "𝐖"
+  - "𝟢-𝟫":    # 0x1d7e2 - 0x1d7eb
+      - tc: "\\mathsf𝐖"
+      - spell: "translate('.', '𝟢𝟣𝟤𝟥𝟦𝟧𝟨𝟩𝟪𝟫', '0123456789')"
+      - tc: "𝐖"
+  - "𝟬-𝟵":    # 0x1d7ec - 0x1d7f5
+-     - tc: "\\mathsfbf𝐖"
++     - tc: "\\boldsymbol{\\mathsf{"
+      - spell: "translate('.', '𝟬𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵', '0123456789')"
+-     - tc: "𝐖"
++     - t: "}}𝐖"
+  - "𝟶-𝟿":    # 0x1d7f6 - 0x1d7ff
+      - tc: "\\mathtt𝐖"
+      - spell: "translate('.', '𝟶𝟷𝟸𝟹𝟺𝟻𝟼𝟽𝟾𝟿', '0123456789')"
+diff --git a/Rules/Braille/LaTeX/unicode.yaml b/Rules/Braille/LaTeX/unicode.yaml
+index 4f9e12a1..9bd341f4 100644
+--- a/Rules/Braille/LaTeX/unicode.yaml
++++ b/Rules/Braille/LaTeX/unicode.yaml
+@@ -78,12 +78,12 @@
+      - test:
+          if: "$LaTeX_UseShortName"
+          then: [t: "~A"]
+-         else: [t: "\\Alpha𝐖"]
++         else: [t: "A"]
+  - "Β":                                  # 0x392
+      - test:
+          if: "$LaTeX_UseShortName"
+          then: [t: "~B"]
+-         else: [t: "\\Beta𝐖"]
++         else: [t: "B"]
+  - "Γ":                                  # 0x393
+      - test:
+          if: "$LaTeX_UseShortName"
+@@ -98,17 +98,17 @@
+      - test:
+          if: "$LaTeX_UseShortName"
+          then: [t: "~E"]
+-         else: [t: "\\Epsilon𝐖"]
++         else: [t: "E"]
+  - "Ζ":                                  # 0x396
+      - test:
+          if: "$LaTeX_UseShortName"
+          then: [t: "~Z"]
+-         else: [t: "\\Zeta𝐖"]
++         else: [t: "Z"]
+  - "Η":                                  # 0x397
+      - test:
+          if: "$LaTeX_UseShortName"
+          then: [t: "~J"]
+-         else: [t: "\\Eta𝐖"]
++         else: [t: "H"]
+  - "Θ":                                  # 0x398
+      - test:
+          if: "$LaTeX_UseShortName"
+@@ -118,19 +118,19 @@
+      - test:
+          if: "$LaTeX_UseShortName"
+          then: [t: "~I"]
+-         else: [t: "\\Iota𝐖"]
++         else: [t: "I"]
+  - "Κ":                                  # 0x39a
+      - test:
+          if: "$LaTeX_UseShortName"
+          then: [t: "~K"]
+-         else: [t: "\\Kappa𝐖"]
++         else: [t: "K"]
+  - "Λ":                                  # 0x39b
+      - test:
+          if: "$LaTeX_UseShortName"
+          then: [t: "~L"]
+          else: [t: "\\Lambda𝐖"]
+- - "Μ": [t: "\\M"]                       # 0x39c
+- - "Ν": [t: "\\N"]                       # 0x39d
++ - "Μ": [t: "M"]                        # 0x39c
++ - "Ν": [t: "N"]                        # 0x39d
+  - "Ξ":                                  # 0x39e
+      - test:
+          if: "$LaTeX_UseShortName"
+@@ -140,7 +140,7 @@
+      - test:
+          if: "$LaTeX_UseShortName"
+          then: [t: "~O"]
+-         else: [t: "\\O"]
++         else: [t: "O"]
+  - "Π":                                  # 0x3a0
+      - test:
+          if: "$LaTeX_UseShortName"
+@@ -150,7 +150,7 @@
+      - test:
+          if: "$LaTeX_UseShortName"
+          then: [t: "~R"]
+-         else: [t: "\\Rho𝐖"]
++         else: [t: "P"]
+  - "Σ":                                  # 0x3a3
+      - test:
+          if: "$LaTeX_UseShortName"
+@@ -160,7 +160,7 @@
+      - test:
+          if: "$LaTeX_UseShortName"
+          then: [t: "~T"]
+-         else: [t: "\\Tau𝐖"]
++         else: [t: "T"]
+  - "Υ":                                  # 0x3a5
+      - test:
+          if: "$LaTeX_UseShortName"
+@@ -175,7 +175,7 @@
+      - test:
+          if: "$LaTeX_UseShortName"
+          then: [t: "~C"]
+-         else: [t: "\\Chi𝐖"]
++         else: [t: "X"]
+  - "Ψ":                                  # 0x3a8
+      - test:
+          if: "$LaTeX_UseShortName"
+@@ -263,7 +263,7 @@
+      - test:
+          if: "$LaTeX_UseShortName"
+          then: [t: "~o"]
+-         else: [t: "\\o"]
++         else: [t: "o"]
+  - "π":                                  # 0x3c0
+      - test:
+          if: "$LaTeX_UseShortName"
+@@ -359,7 +359,7 @@
+  - "′": [t: "'"]                         # 0x2032
+  - "″": [t: "''"]                        # 0x2033
+  - "‴": [t: "'''"]                       # 0x2034
+- - "ℎ": [t: "\\Planckconst𝐖"]            # 0x210e
++ - "ℎ": [t: "h"]                         # 0x210e (math italic h, as every h is built)
+  - "ℜ": [t: "\\Re𝐖"]                     # 0x211c
+  - "Ω":                                  # 0x2126
+      - test:
 diff --git a/src/braille.rs b/src/braille.rs
 index 4f0ac0ec..5faef8f3 100644
 --- a/src/braille.rs

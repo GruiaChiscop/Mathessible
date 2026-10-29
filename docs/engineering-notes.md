@@ -1654,6 +1654,12 @@ optional argument equal to its default left out; an operator's
 never folded. The folded LaTeX is kept only if it builds as MathCAT's
 did (both expanded and converted); else MathCAT's LaTeX is.
 
+Spaces written back (`mathcat/latex.py`): MathCAT merges spaces into
+their neighbours (`data-previous-space-width`) and writes none, so each
+`<mspace>` goes to MathCAT as a text `mathessiblespaceN` (its width in
+18ths) and comes back as `\,`, `\:`, `\;`, `\ `, `\enspace`, `\quad` or
+`\qquad`, as the empty slots come back `{}`.
+
 Two faults the round trip showed, fixed where they were: MathCAT wrote
 the converter's `\epsilon` (U+1D716, math italic epsilon symbol) as `\in`
 (patch 0009), and the converter built `\|` as a bar, did not build
@@ -1766,7 +1772,17 @@ still `1,2` and `,3`, and `MathMLtoUnicodeMath` still loses an integral's
     applied as a function (U+2061 after it, a declared operator) as
     `\operatorname{tr}` (was `trA`); the math alphabets' epsilon symbol
     (U+1D716 and its bold and sans forms) as `\epsilon` (was `\in`, or
-    `\varepsilon`). After changing the rules:
+    `\varepsilon`); the math alphabets in amsmath's and amssymb's commands
+    (`\boldsymbol{x}`, `\boldsymbol{\mathcal{L}}`, `\boldsymbol{\mathsf{A}}`,
+    `\mathcal H`; was `\mathbit`, `\mathsfbf`, `\mathbcal`, `\mscrH`, which
+    LaTeX lacks), the italic h every `h` is built as as `h` (was
+    `\Planckconst`), Greek capitals LaTeX has no command for as their
+    letters (`\Alpha`, `\Rho`, `\O`, which is Ø, were written), and the
+    table's own faults (`\mathbb` only with short names, the theta
+    symbols missing from the translate lists so that Θ was `\Sigma`, 𝝰 in
+    the wrong range, "tc: W" for the space marker). tests/test_latex_writer
+    checks that every math alphanumeric is written with LaTeX's own
+    commands. After changing the rules:
     `uv sync --reinstall-package mathessible-mathcat`.
 - **Startup patch check** ([patch_check.py](../src/mathessible/patch_check.py)):
   `git apply --reverse --check` per patch file, on a worker thread from
@@ -1803,7 +1819,15 @@ still `1,2` and `,3`, and `MathMLtoUnicodeMath` still loses an integral's
   first, rows ended by `\\` or `\cr`. `TeXNormDelimiters`: `\|` built
   as a single bar, `\left\|` did not build, and `\lVert`/`\rVert` were
   unknown; they are `\Vert` (U+2016), `\lvert`/`\rvert` a bar, read
-  token by token so that `\\` stays a line break.
+  token by token so that `\\` stays a line break. `TeXSpaces`: `\;`,
+  `\:`, `\>` were punctuation, `\ ` and `\qquad` errors, `~` `\sim`, `\!`
+  a factorial; they are UnicodeMath's spaces of their widths (`uniSpaces`,
+  in 18ths of an em), `\!` and the negative spaces left out (UnicodeMath
+  has none). `\boldsymbol` and `\bm` (bold italic letters and lowercase
+  Greek, bold upright digits and capital Greek, as LaTeX's; of
+  `\mathcal`, `\mathfrak`, `\mathsf` bold script, fraktur, sans), and a
+  Greek control word in any alphabet (`\mathbf{\Gamma}`, `\mathbf \Gamma`)
+  as its math alphanumeric.
 
 ## Symbol Dictionaries and Licence
 

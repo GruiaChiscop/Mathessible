@@ -6,6 +6,31 @@ from mathessible.editing.latex_insert import insert_latex, move_to_latex_slot, w
 from mathessible.mathcat.latex import equation_latex, tidy_latex
 from mathessible.templates.math_templates import fill_empty_slots
 
+GREEK = {
+    "alpha",
+    "beta",
+    "gamma",
+    "delta",
+    "epsilon",
+    "zeta",
+    "eta",
+    "theta",
+    "iota",
+    "kappa",
+    "lambda",
+    "mu",
+    "nu",
+    "xi",
+    "pi",
+    "rho",
+    "sigma",
+    "tau",
+    "upsilon",
+    "phi",
+    "chi",
+    "psi",
+    "omega",
+}
 needs_mathcat = unittest.skipUnless(
     __import__("importlib").util.find_spec("mathessible_mathcat"), "needs the native MathCAT"
 )
@@ -139,6 +164,49 @@ class LatexWriterTests(unittest.TestCase):
         sources = ["\\epsilon", "\\|x\\|", "\\left\\lVert x \\right\\rVert", "\\mathrm{tr}\u2061 A"]
         written = equation_latex([result["mathml"] for result in convert_all(sources, latex=True)])
         self.assertEqual(written, ["\\epsilon", "\\Vert x \\Vert", "\\Vert x \\Vert", "\\operatorname{tr}A"])
+
+    def test_spaces_are_written_back_and_a_negative_space_is_no_factorial(self) -> None:
+        sources = ["a\\,b", "a\\:b", "a\\;b", "a\\ b", "a~b", "a\\quad b", "a\\!b", "n!"]
+        built = [result["mathml"] for result in convert_all(sources, latex=True)]
+        self.assertNotIn("!", built[6])
+        written = equation_latex(built)
+        self.assertEqual(written, ["a\\,b", "a\\:b", "a\\;b", "a\\ b", "a\\ b", "a\\quad b", "ab", "n!"])
+
+    def test_math_alphabets_are_written_in_latex_and_build_back(self) -> None:
+        letters = "𝐀𝑥ℎ𝒙𝒜𝓛𝔄𝔸𝕒𝖠𝗮𝚊𝟏𝟙𝜶𝚪𝛂ℝℋ𝓵𝖌𝚤"
+        written = equation_latex([f"<math><mi>{letter}</mi></math>" for letter in letters])
+        rebuilt = [result["mathml"] for result in convert_all(written, latex=True)]
+        for letter, latex, mathml in zip(letters, written, rebuilt, strict=True):
+            with self.subTest(letter=letter, latex=latex):
+                self.assertIn(f">{letter}<", mathml)
+
+    def test_no_command_latex_lacks(self) -> None:
+        import unicodedata
+
+        letters = [chr(code) for code in range(0x1D400, 0x1D800) if unicodedata.name(chr(code), "")]
+        written = equation_latex([f"<math><mi>{letter}</mi></math>" for letter in letters])
+        commands = {command for latex in written for command in re.findall(r"\\[A-Za-z]+", latex or "")}
+        unknown = commands - {
+            "\\mathbf",
+            "\\mathit",
+            "\\boldsymbol",
+            "\\mathcal",
+            "\\mathscr",
+            "\\mathfrak",
+            "\\mathbb",
+            "\\mathsf",
+            "\\mathtt",
+            "\\imath",
+            "\\jmath",
+            "\\partial",
+            "\\nabla",
+            "\\Digamma",
+            "\\digamma",
+        }
+        greek = {command for command in unknown if command[1:].lower().replace("var", "") in GREEK}
+        self.assertNotIn(None, written)
+        self.assertEqual(unknown - greek, set())
+        self.assertEqual(greek & {"\\Alpha", "\\Beta", "\\Omicron", "\\omicron", "\\Rho", "\\Chi"}, set())
 
     def test_the_editors_mathcat_is_not_touched(self) -> None:
         import mathessible_mathcat

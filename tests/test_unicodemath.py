@@ -179,7 +179,8 @@ class LaTeXConversionTests(unittest.TestCase):
         self.assertEqual(results[0]["unicodemath"], "⒨(a&b@c&d)")
         self.assertEqual(results[1]["unicodemath"], "■(a&b@c&d)")
         self.assertIn("<mfrac><mi>𝐚</mi><mi>𝐛</mi></mfrac>", results[2]["mathml"])
-        self.assertEqual(results[3]["unicodemath"], "𝐱+α")
+        # A Greek letter's control word takes the alphabet too (MathCAT writes bold α as `\\mathbf \\alpha`).
+        self.assertEqual(results[3]["unicodemath"], "𝐱+𝛂")
         self.assertEqual(results[4]["unicodemath"], '"d"x')
         for result in results:
             self.assertFalse(has_error(result["mathml"]), result)

@@ -156,7 +156,11 @@ the text but are not read as math.
 File → Compile PDF with LaTeX (`Command+Shift+B`, `Ctrl+Shift+B`
 elsewhere) saves the `.tex` file and compiles it with your own LaTeX
 distribution, so every package you load works; the PDF is written beside
-the file, and Mathessible offers to open it. It finds MacTeX, TinyTeX,
+the file, and Mathessible offers to open it. It is only for `.tex`
+files, and is dimmed for any other document: a Markdown document whose
+equations are LaTeX is still Markdown (its headings, lists and
+footnotes), so it becomes a PDF with File → Export → PDF, or after it is
+saved as a `.tex` file. It finds MacTeX, TinyTeX,
 TeX Live and MiKTeX by itself. With none installed, it offers to install
 TinyTeX: a small distribution (about 65 MB) put in your home folder,
 with no administrator password; a progress window shows how much of it is downloaded, and Cancel stops it. When a document loads a package that is
@@ -180,7 +184,9 @@ type. The equation keeps `\R` as you wrote it, even after an edit in
 the professional view, which writes the commands back. A
 `\DeclareMathOperator` (and `\operatorname`) is read as a function:
 `\tr A` is "trace of A". Norms are read as norms: `\|x\|`,
-`\left\| x \right\|`, `\lVert x \rVert`. In a
+`\left\| x \right\|`, `\lVert x \rVert`. LaTeX's spaces (`\,`, `\;`,
+`\quad`, `~`) and `\boldsymbol` are understood, and an equation written
+again keeps them. In a
 Markdown document with LaTeX equations, a definition may stand in an
 equation of its own (`$\newcommand{\R}{\mathbb{R}}$`), as MathJax allows.
 

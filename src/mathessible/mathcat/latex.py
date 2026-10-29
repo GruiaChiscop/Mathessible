@@ -31,6 +31,52 @@ _SLOT = re.compile(r"\{\\dottedsquare\}|\\dottedsquare(?![A-Za-z])")
 # The converter's empty slot (`()/()` is `<mfrac><mspace width="0"/>…`), which MathCAT writes `\text{ }`:
 # given to MathCAT as its own empty slot, it is written `\dottedsquare`, and so `{}`.
 _EMPTY = re.compile(r'<mspace width="0"\s*(?:/>|></mspace>)')
+# A space (`\\,`, `\\quad`): MathCAT merges spaces into their neighbours and writes none, so each goes to
+# MathCAT as a text of its own, written back as LaTeX's space of that width (in 18ths of an em).
+_SPACE = re.compile(r'<mspace width="([^"]*)"\s*(?:/>|></mspace>)')
+_SPACE_TEXT = "mathessiblespace"
+_WRITTEN_SPACE = re.compile(r"\\text\{" + _SPACE_TEXT + r"(\d+)\}")
+_NAMED_WIDTHS = {
+    "veryverythinmathspace": 1,
+    "verythinmathspace": 2,
+    "thinmathspace": 3,
+    "mediummathspace": 4,
+    "thickmathspace": 5,
+    "verythickmathspace": 6,
+    "veryverythickmathspace": 7,
+}
+_EM = re.compile(r"^\s*([\d.]+)\s*em\s*$")
+
+
+def _space_width(width: str) -> int:
+    """A space's width in 18ths of an em (MathML's named spaces, or ems), 0 when it cannot be read."""
+    if width in _NAMED_WIDTHS:
+        return _NAMED_WIDTHS[width]
+    found = _EM.match(width)
+    return round(float(found.group(1)) * 18) if found else 0
+
+
+def _space_command(eighteenths: int) -> str:
+    """LaTeX's space nearest that width: \\, \\: \\; \\  \\enspace \\quad \\qquad."""
+    if eighteenths <= 0:
+        return ""
+    for limit, command in ((3, "\\,"), (4, "\\:"), (5, "\\;"), (8, "\\ "), (12, "\\enspace"), (27, "\\quad")):
+        if eighteenths <= limit:
+            return command
+    return "\\qquad"
+
+
+def _spaces_to_texts(mathml: str) -> str:
+    return _SPACE.sub(lambda found: f"<mtext>{_SPACE_TEXT}{_space_width(found.group(1))}</mtext>", mathml)
+
+
+def _texts_to_spaces(latex: str) -> str:
+    def space(found: re.Match[str]) -> str:
+        command = _space_command(int(found.group(1)))
+        following = found.string[found.end() : found.end() + 1]
+        return command + " " if command[-1:].isalpha() and following.isalpha() else command
+
+    return _WRITTEN_SPACE.sub(space, latex)
 
 
 def tidy_latex(latex: str) -> str:
@@ -59,8 +105,9 @@ def equation_latex(mathml: Sequence[str], decimal_separator: str = ",") -> list[
             return
         for index, equation in enumerate(mathml):
             try:
-                native.set_expression(prepare_for_mathcat(_EMPTY.sub("<mi>\u2b1a</mi>", equation)))
-                written[index] = tidy_latex(_SLOT.sub("{}", native.braille("").strip()))
+                equation = _spaces_to_texts(_EMPTY.sub("<mi>\u2b1a</mi>", equation))
+                native.set_expression(prepare_for_mathcat(equation))
+                written[index] = _texts_to_spaces(tidy_latex(_SLOT.sub("{}", native.braille("").strip())))
             except (OSError, RuntimeError, ValueError):
                 written[index] = None
 

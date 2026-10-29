@@ -23,15 +23,25 @@ playground's TeX.js. Two passes now run before its first one:
 - TeXNormDelimiters: \| built as a single bar, \left\| did not build,
   and amsmath's \lVert and \rVert were unknown; they become \Vert
   (U+2016), and \lvert, \rvert a bar.
+- TeXSpaces: \;, \: and \> came out as punctuation, \ (a control
+  space) and \qquad as errors, ~ as \sim and \! as a factorial. They
+  become UnicodeMath's spaces of their widths (\, thin, \: medium, \;
+  thick, \ and ~ a third of an em, \enspace, \qquad two quads); \! and
+  the negative spaces are left out, UnicodeMath having none.
+- amsmath's \boldsymbol and bm's \bm (bold italic letters and lowercase
+  Greek, bold upright digits and capital Greek; \boldsymbol{\mathcal{L}},
+  \boldsymbol{\mathfrak{g}}, \boldsymbol{\mathsf{A}} bold script, fraktur
+  and sans), and a Greek letter's control word in any math alphabet
+  (\mathbf{\Gamma}, \mathbf \Gamma), which kept its plain letter.
 
 Only playground/assets/TeX.js, which Mathessible loads after dist/.
 Applied by scripts/bootstrap.sh after 0001 to 0003.
 
 diff --git a/playground/assets/TeX.js b/playground/assets/TeX.js
-index 9142e69..ffb3c32 100644
+index 9142e69..37b3579 100644
 --- a/playground/assets/TeX.js
 +++ b/playground/assets/TeX.js
-@@ -834,7 +834,129 @@ function TeX2UMath(tex) {
+@@ -834,7 +834,168 @@ function TeX2UMath(tex) {
      }
      return uniTeX
  }
@@ -41,6 +51,17 @@ index 9142e69..ffb3c32 100644
 +const texMathAlphabets = {
 +    'mathbb': 'Bbb', 'mathbf': 'mbf', 'mathit': 'mit', 'mathbfit': 'mbfit', 'mathcal': 'mscr',
 +    'mathscr': 'mscr', 'mathfrak': 'mfrak', 'mathsf': 'msans', 'mathtt': 'mtt', 'mathrm': 'mup',
++    'boldsymbol': 'boldsymbol', 'bm': 'boldsymbol',
++}
++// amsmath's \boldsymbol (and bm's \bm) of an alphabet: \boldsymbol{\mathcal{X}} is bold script.
++const texBoldAlphabets = {'mscr': 'mbfscr', 'mfrak': 'mbffrak', 'msans': 'mbfsans', 'mit': 'mbfit'}
++
++function texStyledChar(ch, style) {
++    // \boldsymbol is LaTeX's bold of what is there: letters, lowercase Greek, \partial and \nabla
++    // bold italic, digits and uppercase Greek bold upright
++    if (style == 'boldsymbol')
++        style = /[0-9\u0391-\u03A9]/.test(ch) ? 'mbf' : 'mbfit'
++    return getMathAlphanumeric(ch, style)
 +}
 +
 +function texClosingBrace(tex, i) {
@@ -71,14 +92,16 @@ index 9142e69..ffb3c32 100644
 +        }
 +        m = /^\\(?:[A-Za-z]+|.)/.exec(tex.substring(i))
 +        if (m) {
-+            ret += m[0]
++            // A Greek letter's control word (\mathbf{\Gamma}, \boldsymbol{\alpha}) is its math alphanumeric
++            let symbol = style != 'mup' && /^\\[A-Za-z]+$/.test(m[0]) ? resolveCW(m[0]) : ''
++            ret += /^[\u0391-\u03F5\u2202\u2207]$/.test(symbol) ? texStyledChar(symbol, style) : m[0]
 +            i += m[0].length
 +            continue
 +        }
 +        m = /^[A-Za-z0-9]+/.exec(tex.substring(i))
 +        if (m) {
 +            ret += style == 'mup' ? '"' + m[0] + '"'
-+                : Array.from(m[0], ch => getMathAlphanumeric(ch, style)).join('')
++                : Array.from(m[0], ch => texStyledChar(ch, style)).join('')
 +            i += m[0].length
 +            continue
 +        }
@@ -92,7 +115,7 @@ index 9142e69..ffb3c32 100644
 +function TeXMathAlphabets(tex) {
 +    let ret = ''
 +    for (let i = 0; i < tex.length;) {
-+        let m = /^\\(math(?:bb|bfit|bf|it|cal|scr|frak|sf|tt|rm))(?![A-Za-z])\s*/.exec(tex.substring(i))
++        let m = /^\\(math(?:bb|bfit|bf|it|cal|scr|frak|sf|tt|rm)|boldsymbol|bm)(?![A-Za-z])\s*/.exec(tex.substring(i))
 +        if (!m) {
 +            let cw = /^\\(?:[A-Za-z]+|.)/.exec(tex.substring(i))
 +            let n = cw ? cw[0].length : 1
@@ -100,17 +123,28 @@ index 9142e69..ffb3c32 100644
 +            i += n
 +            continue
 +        }
-+        const style = texMathAlphabets[m[1]]
++        let style = texMathAlphabets[m[1]]
 +        let j = i + m[0].length
 +        if (tex[j] == '{') {
 +            let k = texClosingBrace(tex, j + 1)
 +            if (k == -1)
 +                return ret + tex.substring(i)
-+            ret += texStyled(TeXMathAlphabets(tex.substring(j + 1, k)), style)
++            let argument = tex.substring(j + 1, k)
++            let inner = /^\s*\\(math(?:cal|scr|frak|sf|it))\s*\{/.exec(argument)
++            if (style == 'boldsymbol' && inner && texClosingBrace(argument, inner[0].length) == argument.trimEnd().length - 1) {
++                style = texBoldAlphabets[texMathAlphabets[inner[1]]]
++                argument = argument.substring(inner[0].length, argument.trimEnd().length - 1)
++            }
++            ret += texStyled(TeXMathAlphabets(argument), style)
 +            i = k + 1
 +        } else if (/[A-Za-z0-9]/.test(tex[j] || '')) {
 +            ret += texStyled(tex[j], style)
 +            i = j + 1
++        } else if (tex[j] == '\\' && /^\\[A-Za-z]+/.test(tex.substring(j))) {
++            // A control word as the argument: \mathbf \Gamma, as MathCAT writes bold Greek
++            let cw = /^\\[A-Za-z]+/.exec(tex.substring(j))[0]
++            ret += texStyled(cw, style)
++            i = j + cw.length
 +        } else {
 +            ret += m[0]
 +            i = j
@@ -150,6 +184,21 @@ index 9142e69..ffb3c32 100644
 +    return tex.replace(/\\(?:[A-Za-z]+|.)/g, cw => texNormDelimiters[cw] ?? cw)
 +}
 +
++// LaTeX's spaces as UnicodeMath's (uniSpaces, in 18ths of an em): \, thin (3), \: and \> medium (4),
++// \; thick (5), \ and ~ an interword space (6), \enspace (9), \qquad two quads. \;, \: and \>
++// came out as punctuation, \ and \qquad as errors, ~ as \sim, and \! as a factorial: UnicodeMath has
++// no negative space, so \! and the negative spaces are left out.
++const texSpaces = {
++    '\\!': '', '\\negthinspace': '', '\\negmedspace': '', '\\negthickspace': '',
++    '\\,': '\u2009 ', '\\thinspace': '\u2009 ', '\\:': '\u205F ', '\\>': '\u205F ', '\\medspace': '\u205F ',
++    '\\;': '\u2005 ', '\\thickspace': '\u2005 ', '\\ ': '\u2004 ', '~': '\u2004 ', '\\enspace': '\u2002 ',
++    '\\qquad': '\u2003\u2003 ',
++}
++
++function TeXSpaces(tex) {
++    return tex.replace(/\\(?:[A-Za-z]+|.)|~/g, cw => texSpaces[cw] ?? cw)
++}
++
 +// A document's numbering and cross-reference commands, which are not math: \label{...},
 +// \tag{...} and \nonumber or \notag (in an equation or align environment) are left out.
 +function TeXDocumentCommands(tex) {
@@ -157,7 +206,7 @@ index 9142e69..ffb3c32 100644
 +}
 +
  function TeX2UnicodeMath(tex) {
-+    tex = TeXMathAlphabets(TeXMatrixCommands(TeXDocumentCommands(TeXNormDelimiters(tex))))
++    tex = TeXMathAlphabets(TeXMatrixCommands(TeXDocumentCommands(TeXSpaces(TeXNormDelimiters(tex)))))
      // Pass 1: Convert control words in tex to Unicode symbols or strings
      let cwPrev = ''
      let macrosEnabled = ummlConfig && ummlConfig.texMacros
