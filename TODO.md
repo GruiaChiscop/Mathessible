@@ -65,10 +65,10 @@ links back, liblouis and BRF need a braille transcriber's convention.
   would still be spoken in another language.
 - [x] The equations' spoken form in the PDF in the document's language,
   when MathCAT has it (English otherwise: it has no Romanian).
-- [ ] Check with VoiceOver what is only tested without a screen: the Find
-  dialog (wx's generic one), Undo after the commands that change the
-  document (Change to Display, Replace All, AutoCorrect in the text) and
-  File > Print.
+- [x] Check the Find dialog (wx's generic one) with VoiceOver.
+- [ ] Check with VoiceOver what is only tested without a screen: Undo
+  after the commands that change the document (Change to Display, Replace
+  All, AutoCorrect in the text) and File > Print.
 - [ ] Settings' height (720 px with the PDF tab): fine on a laptop, but
   still tall.
 - [ ] Distribution: a macOS application (`.app`) with an icon, `.md` and
@@ -101,8 +101,8 @@ links back, liblouis and BRF need a braille transcriber's convention.
   (HTML, PDF, Word, BRF, Print), from the common text commands (sections,
   emphasis, lists, footnotes, title); other commands keep their text.
 - [x] LaTeX: tables (`tabular`), figures and `\ref`/`\cite` numbers in a
-  `.tex` file's preview and exports (not yet: an `align` row's number
-  shown, a `.bib` file read).
+  `.tex` file's preview and exports, an `align`'s rows' numbers and a
+  `.bib` bibliography included.
 - [x] LaTeX, stage 3c: the PDF of a `.tex` file compiled by the user's own
   LaTeX installation (TinyTeX offered and installed when there is none,
   missing packages installed with tlmgr), so that packages work.

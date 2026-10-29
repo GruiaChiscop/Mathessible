@@ -1679,8 +1679,16 @@ the number before it; `tex_markdown` writes headings with their numbers,
 `thebibliography`), a numbered `equation`'s `\tag{n}` (built as its label),
 `tabular` as a pipe table (rules left out, `\multicolumn` spanned by empty
 cells), a figure as its image (`\includegraphics{plot}` found as plot.png
-beside the file) and caption. An `align` row's number is not shown: the
-converter keeps one tag per equation.
+beside the file) and caption. A numbered `align` is written as one equation
+per row, each with its `\tag`: the converter keeps one number per equation
+(UnicodeMath's `#()` has no row labels; `█(a&=b#(1)@...)` does not build), and
+a row read with its number matters more than the alignment. A `.bib`
+bibliography ([documents/bibtex.py](../src/mathessible/documents/bibtex.py)):
+the files `\bibliography`/`\addbibresource` name, beside the .tex file;
+@string expanded; the entries cited (all after `\nocite{*}`), numbered in
+citation order for `unsrt`-like styles and biblatex's `sorting=none`, else
+by first author's family name, year and title; written as authors, title,
+venue, year.
 
 Texts and labels written back (`mathcat/latex.py`, `latex_insert`): MathCAT
 writes a text's characters through its math tables (`:` as `\colon`, `%`

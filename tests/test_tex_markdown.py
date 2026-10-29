@@ -44,7 +44,8 @@ class TexToMarkdownTests(unittest.TestCase):
         self.assertEqual(equation_language(self.markdown), LATEX)
         equations = [zone.content(self.body) for zone in find_math_zones(self.body)]
         self.assertEqual(equations[0], "x_1")
-        self.assertEqual(equations[1], "\\begin{aligned}f(x) &= (x+1)^2 \\\\\n       &= x^2+2x+1\\end{aligned}")
+        # A numbered align's rows are equations of their own, each with its number.
+        self.assertEqual(equations[1:], ["f(x) = (x+1)^2 \\tag{1}", "= x^2+2x+1 \\tag{2}"])
 
     def test_title_sections_and_styles(self) -> None:
         self.assertIn("# Notes on *limits*\n\nA. Student", self.body)
@@ -113,6 +114,11 @@ class NumberedTexTests(unittest.TestCase):
 
     def test_an_equations_number_is_its_tag(self) -> None:
         self.assertIn("\\tag{1}$$", self.body)
+
+    def test_a_numbered_aligns_rows_are_numbered_equations(self) -> None:
+        markdown = body(tex_to_markdown("\\begin{align} a&=b \\\\ c&=d \\nonumber \\\\ e&=f \\end{align}"))
+        self.assertIn("$$a =b \\tag{1}$$\n\n$$c =d \\nonumber$$\n\n$$e =f \\tag{2}$$", markdown)
+        self.assertIn("\\begin{aligned}", body(tex_to_markdown("\\begin{align*} a&=b \\\\ c&=d \\end{align*}")))
 
     def test_a_figure_and_a_table(self) -> None:
         self.assertIn("![A plot of f](plot.png)\n\nFigure 1: A plot of $f$", self.body)

@@ -36,12 +36,14 @@ _TOKEN = re.compile(
 @dataclass
 class TexNumbers:
     """Each label's number, the numbered headings' and captions' numbers in order, each numbered
-    `equation`'s number by where it begins, and each bibliography entry's number by its key."""
+    `equation`'s number by where it begins, each `align`'s rows' numbers ("" for an unnumbered row) by
+    where it begins, and each bibliography entry's number by its key."""
 
     labels: dict[str, str] = field(default_factory=dict)
     headings: list[str] = field(default_factory=list)
     captions: list[str] = field(default_factory=list)
     equations: dict[int, str] = field(default_factory=dict)
+    rows: dict[int, list[str]] = field(default_factory=dict)
     citations: dict[str, int] = field(default_factory=dict)
 
 
@@ -78,6 +80,8 @@ def tex_numbers(source: str) -> TexNumbers:
             number = ""
         if number and environments and environments[-1].rstrip("*") in _ONE_NUMBER:
             numbers.equations[row_start] = number
+        elif environments and environments[-1].rstrip("*") in _ROW_NUMBERS:
+            numbers.rows.setdefault(row_start, []).append(number)
         for label in row.labels:
             numbers.labels[label] = number
         last = number or last

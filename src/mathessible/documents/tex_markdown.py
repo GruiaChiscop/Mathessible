@@ -22,6 +22,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from mathessible.documents.bibtex import Bibliography, document_bibliography, entry_text
 from mathessible.documents.tex_macros import document_macros, expand_macros
 from mathessible.documents.tex_math import find_tex_math_zones
 from mathessible.documents.tex_numbers import TexNumbers, tex_numbers
@@ -173,6 +174,7 @@ class _Reader:
         self.headings = 0  # The numbered headings read so far.
         self.captions = 0  # The figures' and tables' captions read so far.
         self.folder = folder  # The .tex file's folder, where its images are.
+        self.bibliography: Bibliography | None = None  # Its .bib entries, for \\bibliography.
         self.notes: list[str] = []
         self.lists: list[list[str | int]] = []  # Each open list: its marker ("-", "1.") and its items so far.
         self.title: dict[str, str] = {}
@@ -255,6 +257,17 @@ class _Reader:
             out.append(f"\n\n[{number}] ")
             while position < len(source) and source[position] in " \t\n":
                 position += 1
+            return position
+        if name in ("bibliography", "printbibliography"):
+            _options, position = _optional(source, position)
+            if name == "bibliography":
+                _files, position = _argument(source, position)
+            if self.bibliography is not None and self.bibliography.entries:
+                entries = "\n\n".join(
+                    f"[{number}] {self.text(entry_text(entry)).strip()}"
+                    for number, entry in enumerate(self.bibliography.entries, 1)
+                )
+                out.append(f"\n\n## References\n\n{entries}\n\n")
             return position
         if name == "caption":
             _short, position = _optional(source, position)
@@ -451,6 +464,19 @@ def _protect(source: str, numbers: TexNumbers | None = None) -> tuple[str, list[
         number = numbers.equations.get(zone.start) if numbers is not None else None
         if number and "\\tag" not in content:
             content = f"{content.rstrip()} \\tag{{{number}}}"
+        rows = numbers.rows.get(zone.start) if numbers is not None else None
+        if rows and any(rows):
+            # A numbered align's rows, each an equation with its number: the converter keeps one number
+            # per equation, and a number read with its row matters more than the rows' alignment.
+            equations = [row.replace("&", " ") for row in _top_level_split(content, "\\\\")]
+            for row, row_number in zip(equations, rows + [""] * len(equations), strict=False):
+                if not row.strip():
+                    continue
+                tag = f" \\tag{{{row_number}}}" if row_number and "\\tag" not in row else ""
+                protected.append(f"\n\n$${' '.join(row.split())}{tag}$$\n\n")
+                pieces.append(f"\x00{len(protected) - 1}\x00")
+            position = zone.end
+            continue
         if zone.environment:
             content = f"\\begin{{{zone.environment}}}{content.strip()}\\end{{{zone.environment}}}"
         # An inline equation stays on its line; a display one is a paragraph of its own.
@@ -483,8 +509,13 @@ def tex_to_markdown(source: str, folder: Path | None = None) -> str:
     """The LaTeX document as Markdown with LaTeX equations (`math: latex`), for its preview and exports;
     `folder` is the file's own, where its images are found."""
     numbers = tex_numbers(source)
+    # A .bib bibliography numbers the citations when there is no thebibliography (`bibtex`).
+    bibliography = document_bibliography(source, folder) if folder is not None and not numbers.citations else None
+    if bibliography is not None:
+        numbers.citations = bibliography.numbers
     text, protected = _protect(source, numbers)
     reader = _Reader(protected, numbers, folder)
+    reader.bibliography = bibliography
     begin = text.find("\\begin{document}")
     if begin >= 0:
         reader.text(text[:begin])  # The preamble: only its \title, \author and \date are kept.
