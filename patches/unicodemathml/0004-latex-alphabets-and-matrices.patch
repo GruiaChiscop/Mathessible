@@ -20,15 +20,18 @@ playground's TeX.js. Two passes now run before its first one:
 - TeXDocumentCommands: a .tex document's \label{...}, \tag{...},
   \nonumber and \notag, which are not math, are left out of the built
   equation (they came out as text).
+- TeXNormDelimiters: \| built as a single bar, \left\| did not build,
+  and amsmath's \lVert and \rVert were unknown; they become \Vert
+  (U+2016), and \lvert, \rvert a bar.
 
 Only playground/assets/TeX.js, which Mathessible loads after dist/.
 Applied by scripts/bootstrap.sh after 0001 to 0003.
 
 diff --git a/playground/assets/TeX.js b/playground/assets/TeX.js
-index 9142e69..319735e 100644
+index 9142e69..ffb3c32 100644
 --- a/playground/assets/TeX.js
 +++ b/playground/assets/TeX.js
-@@ -834,7 +834,121 @@ function TeX2UMath(tex) {
+@@ -834,7 +834,129 @@ function TeX2UMath(tex) {
      }
      return uniTeX
  }
@@ -139,6 +142,14 @@ index 9142e69..319735e 100644
 +    return ret
 +}
 +
++// The norm bars: \| and amsmath's \lVert, \rVert are \Vert (U+2016), whose name the control-word
++// table has; \lvert and \rvert are |. Read token by token, so that \\ (a line break) is left.
++const texNormDelimiters = {'\\|': '\\Vert ', '\\lVert': '\\Vert ', '\\rVert': '\\Vert ', '\\lvert': '| ', '\\rvert': '| '}
++
++function TeXNormDelimiters(tex) {
++    return tex.replace(/\\(?:[A-Za-z]+|.)/g, cw => texNormDelimiters[cw] ?? cw)
++}
++
 +// A document's numbering and cross-reference commands, which are not math: \label{...},
 +// \tag{...} and \nonumber or \notag (in an equation or align environment) are left out.
 +function TeXDocumentCommands(tex) {
@@ -146,7 +157,7 @@ index 9142e69..319735e 100644
 +}
 +
  function TeX2UnicodeMath(tex) {
-+    tex = TeXMathAlphabets(TeXMatrixCommands(TeXDocumentCommands(tex)))
++    tex = TeXMathAlphabets(TeXMatrixCommands(TeXDocumentCommands(TeXNormDelimiters(tex))))
      // Pass 1: Convert control words in tex to Unicode symbols or strings
      let cwPrev = ''
      let macrosEnabled = ummlConfig && ummlConfig.texMacros

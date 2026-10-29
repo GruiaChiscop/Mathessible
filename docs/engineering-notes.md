@@ -1634,9 +1634,31 @@ before an equation is built: in the editor (`latex_macros`, set by
 `prepare` from the whole document; `convert_unicode_math` expands), in
 a .tex file's preview and exports (`tex_markdown._protect`) and in a
 Markdown document's (`expand_markdown_macros` in `_readable_source`).
-`\DeclareMathOperator{\tr}{tr}` is `\mathrm{tr}` (the converter has no
-`\operatorname`). Leaving the professional view after an edit writes the
-equation from MathCAT, so the macros come back expanded there.
+`\DeclareMathOperator{\tr}{tr}` and `\operatorname{tr}` (unknown to the
+converter, and its function names are a fixed list) are `\mathrm{tr}`, the
+operator's scripts, then U+2061: the converter builds `<mtext>tr</mtext>
+<mo>⁡</mo>`, which MathCAT reads "trace of A", and MathCAT patch 0009
+writes it `\operatorname{tr}`. A space in the name (`arg\,max`) splits it
+in the converter, so it is built without one.
+
+Leaving the professional view after an edit writes the equation from
+MathCAT (`end_latex_editing`), which would expand the commands; they are
+folded back (`fold_macros`, `_with_macros`): each command's body,
+expanded with placeholder letters for its arguments (`macro_sample`,
+`\vect{Q}`), is written by MathCAT once per set of macros
+(`_macro_bodies`: `\mathbf Q`), and that text, spaces not counted, with
+holes for the arguments (a braced group or balanced text), becomes the
+command again (`\mathbf v` is `\vect{v}`), the longest body first, an
+optional argument equal to its default left out; an operator's
+`\operatorname{tr}` is `\tr`. A body written with no command (`x`) is
+never folded. The folded LaTeX is kept only if it builds as MathCAT's
+did (both expanded and converted); else MathCAT's LaTeX is.
+
+Two faults the round trip showed, fixed where they were: MathCAT wrote
+the converter's `\epsilon` (U+1D716, math italic epsilon symbol) as `\in`
+(patch 0009), and the converter built `\|` as a bar, did not build
+`\left\|`, and knew no `\lVert`/`\rVert` (UnicodeMathML patch 0004,
+`TeXNormDelimiters`).
 
 Insert in LaTeX, all entries (2026-10-29): `√(&)`, `(¦)` and `‖‖` do not
 build empty, so `fill_empty_slots` puts ⬚ in every empty slot before the
@@ -1740,7 +1762,11 @@ still `1,2` and `,3`, and `MathMLtoUnicodeMath` still loses an integral's
     `\vec{v}`, `\tilde{z}` (was `\overset{\vec}{v}`); cases as
     `\begin{cases}` (a `{` and a table, an empty closing fence); text as
     `\text{...}`, its spaces spaces (restored after the cleanup's space
-    removal, which would drop `\text{if }`'s). After changing the rules:
+    removal, which would drop `\text{if }`'s); a name of several letters
+    applied as a function (U+2061 after it, a declared operator) as
+    `\operatorname{tr}` (was `trA`); the math alphabets' epsilon symbol
+    (U+1D716 and its bold and sans forms) as `\epsilon` (was `\in`, or
+    `\varepsilon`). After changing the rules:
     `uv sync --reinstall-package mathessible-mathcat`.
 - **Startup patch check** ([patch_check.py](../src/mathessible/patch_check.py)):
   `git apply --reverse --check` per patch file, on a worker thread from
@@ -1774,7 +1800,10 @@ still `1,2` and `,3`, and `MathMLtoUnicodeMath` still loses an integral's
   the other plain TeX matrices threw (TeX2UMath's `{` case destructures
   `findClosingBrace`, which returns a plain number at a row's `\\`):
   `TeXMatrixCommands` makes them `\begin{pmatrix}...\end{pmatrix}`
-  first, rows ended by `\\` or `\cr`.
+  first, rows ended by `\\` or `\cr`. `TeXNormDelimiters`: `\|` built
+  as a single bar, `\left\|` did not build, and `\lVert`/`\rVert` were
+  unknown; they are `\Vert` (U+2016), `\lvert`/`\rvert` a bar, read
+  token by token so that `\\` stays a line break.
 
 ## Symbol Dictionaries and Licence
 

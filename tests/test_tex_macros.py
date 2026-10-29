@@ -7,8 +7,15 @@ from mathessible.documents.tex_macros import (
     expand_macros,
     expand_markdown_macros,
     find_macros,
+    fold_macros,
+    macro_sample,
 )
 from mathessible.documents.tex_markdown import tex_to_markdown
+from mathessible.mathcat.latex import equation_latex
+
+needs_mathcat = unittest.skipUnless(
+    __import__("importlib").util.find_spec("mathessible_mathcat"), "needs the native MathCAT"
+)
 
 PREAMBLE = r"""\documentclass{article}
 \newcommand{\R}{\mathbb{R}}
@@ -32,7 +39,7 @@ class FindMacrosTests(unittest.TestCase):
         self.assertEqual(macros["pd"].parameters, 3)
         self.assertEqual(macros["pd"].default, "")
         self.assertEqual(macros["inner"], LatexMacro(2, None, "\\langle #1, #2\\rangle"))
-        self.assertEqual(macros["tr"], LatexMacro(0, None, "\\mathrm{tr}"))
+        self.assertEqual(macros["tr"], LatexMacro(0, None, "tr", operator=True))
 
     def test_a_later_definition_wins(self) -> None:
         self.assertEqual(find_macros("\\def\\a{1}\\renewcommand{\\a}{2}")["a"].body, "2")
@@ -61,8 +68,39 @@ class ExpandMacrosTests(unittest.TestCase):
     def test_an_equations_own_definition(self) -> None:
         self.assertEqual(expand_macros("\\newcommand{\\h}{h} \\h+1", {}), " h+1")
 
+    def test_an_operator_is_applied_as_a_function_after_its_scripts(self) -> None:
+        self.assertEqual(self.expand("\\tr A"), "\\mathrm{tr}\u2061 A")
+        macros = find_macros("\\DeclareMathOperator*{\\argmax}{arg\\,max}")
+        self.assertEqual(expand_macros("\\argmax\\limits_{x} f", macros), "\\mathrm{argmax}_{x}\u2061 f")
+        self.assertEqual(expand_macros("\\operatorname{rank} M", {}), "\\mathrm{rank}\u2061 M")
+
     def test_other_commands_are_left(self) -> None:
         self.assertEqual(self.expand("\\frac{a}{b} \\{x\\}"), "\\frac{a}{b} \\{x\\}")
+
+
+class FoldMacrosTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.macros = document_macros(PREAMBLE, tex=True)
+        # As MathCAT writes the samples' expansions.
+        self.written = {"R": "\\mathbb R", "vec": "\\mathbf Q", "e": "\\epsilon", "inner": "\\langle Q, W \\rangle"}
+
+    def test_samples(self) -> None:
+        self.assertEqual(macro_sample("vec", self.macros["vec"]), "\\vec{Q}")
+        self.assertEqual(macro_sample("pd", self.macros["pd"]), "\\pd[Q]{W}{K}")
+        self.assertIsNone(macro_sample("tr", self.macros["tr"]))
+
+    def test_bodies_become_their_commands_again(self) -> None:
+        folded = fold_macros("\\mathbf v \\in \\mathbb R^n", self.macros, self.written)
+        self.assertEqual(folded, "\\vec{v} \\in \\R^n")
+        self.assertEqual(
+            fold_macros("\\langle u, \\mathbf{xy} \\rangle", self.macros, self.written), "\\inner{u}{\\vec{xy}}"
+        )
+
+    def test_an_operator_and_a_command_before_a_letter(self) -> None:
+        self.assertEqual(fold_macros("\\operatorname{tr}A = \\epsilon x", self.macros, self.written), "\\tr A = \\e x")
+
+    def test_a_control_word_is_not_folded_inside_a_longer_one(self) -> None:
+        self.assertEqual(fold_macros("\\epsilonx", self.macros, self.written), "\\epsilonx")
 
 
 class DocumentTests(unittest.TestCase):
@@ -83,6 +121,25 @@ class ConverterTests(unittest.TestCase):
         for result in convert_all([expand_macros(equation, macros) for equation in equations], latex=True):
             self.assertFalse(has_error(result["mathml"]))
             self.assertNotIn("\\", result["mathml"])
+
+
+@needs_node
+@needs_mathcat
+class RoundTripTests(unittest.TestCase):
+    def test_an_equation_written_again_by_mathcat_keeps_the_documents_commands(self) -> None:
+        macros = document_macros(PREAMBLE + "\\newcommand{\\norm}[1]{\\left\\| #1 \\right\\|}", tex=True)
+        samples = {name: macro_sample(name, macro) for name, macro in macros.items()}
+        samples = {name: sample for name, sample in samples.items() if sample is not None and name != "again"}
+        built = convert_all([expand_macros(sample, macros) for sample in samples.values()], latex=True)
+        written = dict(zip(samples, equation_latex([result["mathml"] for result in built]), strict=True))
+        equations = ["\\vec{v} \\in \\R^n", "\\pd{f}{x} + \\tr A = 0", "\\inner{u}{\\vec{v}} = \\e x", "\\norm{x}"]
+        mathml = [result["mathml"] for result in convert_all([expand_macros(e, macros) for e in equations], latex=True)]
+        folded = [fold_macros(latex, macros, written) for latex in equation_latex(mathml)]
+        self.assertEqual(
+            folded, ["\\vec{v} \\in \\R^n", "\\pd{f}{x} + \\tr A = 0", "\\inner{u}{\\vec{v}} = \\e x", "\\norm{x}"]
+        )
+        rebuilt = convert_all([expand_macros(latex, macros) for latex in folded], latex=True)
+        self.assertEqual([result["mathml"] for result in rebuilt], mathml)
 
 
 if __name__ == "__main__":

@@ -176,8 +176,11 @@ without tags and says so.
 A document's own commands (`\newcommand`, `\renewcommand`, `\def`,
 `\DeclareMathOperator`) are understood in its equations: `\R` defined as
 `\mathbb{R}` is built, read and brailled as ℝ, and is suggested as you
-type. The equation keeps `\R` as you wrote it, unless you edit it in
-the professional view, which writes it again in plain LaTeX. In a
+type. The equation keeps `\R` as you wrote it, even after an edit in
+the professional view, which writes the commands back. A
+`\DeclareMathOperator` (and `\operatorname`) is read as a function:
+`\tr A` is "trace of A". Norms are read as norms: `\|x\|`,
+`\left\| x \right\|`, `\lVert x \rVert`. In a
 Markdown document with LaTeX equations, a definition may stand in an
 equation of its own (`$\newcommand{\R}{\mathbb{R}}$`), as MathJax allows.
 

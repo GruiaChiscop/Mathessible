@@ -23,12 +23,19 @@ back, or was no LaTeX:
 - A table with no fence before it was bare rows: aligned equations
   (intent :equations) are \begin{aligned} ... \end{aligned}, others
   \begin{matrix} ... \end{matrix}.
+- A name of several letters applied as a function (U+2061 after it, as
+  Mathessible builds \DeclareMathOperator{\tr}{tr}) lost its name: trA.
+  It is \operatorname{tr}A, its scripts after it.
+- The math alphabets' epsilon symbol (italic U+1D716, as the converter
+  builds \epsilon, and its bold, sans and bold italic forms) was written
+  \in, the element-of sign; bold and sans bold were \varepsilon. They
+  are \epsilon.
 
 Applied by scripts/bootstrap.sh on top of upstream 85c89a37. Each is a bug
 in the LaTeX code itself, for braille readers too; worth proposing upstream.
 
 diff --git a/Rules/Braille/LaTeX/LaTeX_Rules.yaml b/Rules/Braille/LaTeX/LaTeX_Rules.yaml
-index b9237dee..718141c8 100644
+index b9237dee..820b4a1b 100644
 --- a/Rules/Braille/LaTeX/LaTeX_Rules.yaml
 +++ b/Rules/Braille/LaTeX/LaTeX_Rules.yaml
 @@ -102,6 +102,31 @@
@@ -63,10 +70,24 @@ index b9237dee..718141c8 100644
  -
    name: default-mtable
    tag: mtable
-@@ -213,6 +238,15 @@
+@@ -213,6 +238,29 @@
    - x: "text()"
    - t: "𝐖"
      
++-
++  # A name of several letters applied as a function (`\DeclareMathOperator`): `\operatorname{tr}`.
++  name: operator-name
++  tag: [mi, mtext]
++  match:
++  - "string-length(.) > 1 and"
++  - "( following-sibling::*[1][self::m:mo and .='⁡'] or"
++  - "  (parent::m:msub or parent::m:msup or parent::m:msubsup) and not(preceding-sibling::*) and"
++  - "    ../following-sibling::*[1][self::m:mo and .='⁡'] )"
++  replace:
++  - t: "\\operatorname{"
++  - x: "text()"
++  - t: "}"
++
 +-
 +  name: text
 +  tag: mtext
@@ -79,7 +100,7 @@ index b9237dee..718141c8 100644
  -
    # FIX: need to deal with all caps
    name: default
-@@ -336,7 +370,8 @@
+@@ -336,7 +384,8 @@
  -
    name: "movable-limits"
    tag: [munder, mover, munderover]
@@ -104,10 +125,18 @@ index b808a7b6..2695e560 100644
  
  - UnderAccents: {
 diff --git a/Rules/Braille/LaTeX/unicode-full.yaml b/Rules/Braille/LaTeX/unicode-full.yaml
-index c6846f69..8ebb1f47 100644
+index c6846f69..3c795cd3 100644
 --- a/Rules/Braille/LaTeX/unicode-full.yaml
 +++ b/Rules/Braille/LaTeX/unicode-full.yaml
-@@ -2669,7 +2669,7 @@
+@@ -2662,14 +2662,14 @@
+     - spell: "translate('.', '𝛑𝛒𝛓𝛔𝛕𝛖𝛗𝛘𝛙𝛚', 'πρςστυφχψω')"
+     - tc: "𝐖"
+  - "𝛛": [t: "\\partial𝐖"]                # 0x1d6db
+- - "𝛜": [t: "\\mathbf{\\varepsilon}"]    # 0x1d6dc
++ - "𝛜": [t: "\\mathbf{\\epsilon}"]       # 0x1d6dc
+  - "𝛝": [t: "\\mathbf{\\vartheta}"]      # 0x1d6dd
+  - "𝛞": [t: "\\mathbf{\\varkappa}"]      # 0x1d6de
+  - "𝛟": [t: "\\mathbf{\\phi}"]           # 0x1d6df
   - "𝛠": [t: "\\mathbf{\\varrho}"]        # 0x1d6e0
   - "𝛡": [t: "\\mathbf{\\varpi}"]         # 0x1d6e1
   - "𝛢-𝛯":    # 0x1d6e2 - 0x1d6ef (Alpha - Xi)
@@ -129,12 +158,13 @@ index c6846f69..8ebb1f47 100644
 -    - tc: "\\mathmit"
      - spell: "translate('.', '𝛼𝛽𝛾𝛿𝜀𝜁𝜂𝜃𝜄𝜅𝜆𝜇𝜈𝜉𝜊𝜋𝜌𝜍𝜎𝜏𝜐𝜑𝜒𝜓𝜔', 'αβγδεζηθικλμνξοπρςστυφχψω')"
   - "𝜕": [t: "\\partial𝐖"]                # 0x1d715
-  - "𝜖": [t: "\\in𝐖"]                     # 0x1d716
+- - "𝜖": [t: "\\in𝐖"]                     # 0x1d716
 - - "𝜗": [t: "\\mathmit{\\vartheta}"]     # 0x1d717
 - - "𝜘": [t: "\\mathmit{\\varkappa}"]     # 0x1d718
 - - "𝜙": [t: "\\mathmit{\\phi}"]          # 0x1d719
 - - "𝜚": [t: "\\mathmit{\\varrho}"]       # 0x1d71a
 - - "𝜛": [t: "\\mathmit{\\varpi}"]        # 0x1d71b
++ - "𝜖": [t: "\\epsilon𝐖"]                # 0x1d716
 + - "𝜗": [t: "\\vartheta𝐖"]     # 0x1d717
 + - "𝜘": [t: "\\varkappa𝐖"]     # 0x1d718
 + - "𝜙": [t: "\\phi𝐖"]          # 0x1d719
@@ -143,6 +173,33 @@ index c6846f69..8ebb1f47 100644
   - "𝜜-𝜩":    # 0x1d71c - 0x1d729 (Alpha - Xi)
      - tc: "\\mathbit"
      - spell: "translate('.', '𝜜𝜝𝜞𝜟𝜠𝜡𝜢𝜣𝜤𝜥𝜦𝜧𝜨𝜩', 'ΑΒΓΔΕΖΗΘΙΚΛΜΝΞ')"
+@@ -2706,7 +2705,7 @@
+     - tc: "\\mathbit"
+     - spell: "translate('.', '𝜶𝜷𝜸𝜹𝜺𝜻𝜼𝜽𝜾𝜿𝝀𝝁𝝂𝝃𝝄𝝅𝝆𝝇𝝈𝝉𝝊𝝋𝝌𝝍𝝎', 'αβγδεζηθικλμνξοπρςστυφχψω')"
+  - "𝝏": [t: "\\partial𝐖"]                # 0x1d74f
+- - "𝝐": [t: "\\in𝐖"]                     # 0x1d750
++ - "𝝐": [t: "\\mathbit{\\epsilon}"]     # 0x1d750
+  - "𝝑": [t: "\\mathbit{\\vartheta}"]     # 0x1d751
+  - "𝝒": [t: "\\mathbit{\\varkappa}"]     # 0x1d752
+  - "𝝓": [t: "\\mathbit{\\phi}"]          # 0x1d753
+@@ -2735,7 +2734,7 @@
+     - spell: "translate('.', '𝝿𝞀𝞁𝞂𝞃𝞄𝞅𝞆𝞇', 'πρςστυφχψ')"
+  - "𝞈": [t: "\\mathsfbf{\\omega}"]       # 0x1d788
+  - "𝞉": [t: "\\partial𝐖"]                # 0x1d789
+- - "𝞊": [t: "\\mathsfbf{\\varepsilon}"]  # 0x1d78a
++ - "𝞊": [t: "\\mathsfbf{\\epsilon}"]     # 0x1d78a
+  - "𝞋": [t: "\\mathsfbf{\\vartheta}"]    # 0x1d78b
+  - "𝞌": [t: "\\mathsfbf{\\varkappa}"]    # 0x1d78c
+  - "𝞍": [t: "\\mathsfbf{\\phi}"]         # 0x1d78d
+@@ -2766,7 +2765,7 @@
+  - "𝟁": [t: "\\mathsfbfsl{\\psi}"]       # 0x1d7c1
+  - "𝟂": [t: "\\mathsfbfsl{\\omega}"]     # 0x1d7c2
+  - "𝟃": [t: "\\partial𝐖"]                # 0x1d7c3
+- - "𝟄": [t: "\\in𝐖"]                     # 0x1d7c4
++ - "𝟄": [t: "\\mathsfbfsl{\\epsilon}"]   # 0x1d7c4
+  - "𝟅": [t: "\\mathsfbfsl{\\vartheta}"]  # 0x1d7c5
+  - "𝟆": [t: "\\mathsfbfsl{\\varkappa}"]  # 0x1d7c6
+  - "𝟇": [t: "\\mathsfbfsl{\\phi}"]       # 0x1d7c7
 diff --git a/src/braille.rs b/src/braille.rs
 index 4f0ac0ec..5faef8f3 100644
 --- a/src/braille.rs

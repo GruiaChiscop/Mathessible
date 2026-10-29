@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 from mathessible import session_log
 from mathessible.documents.clipboard_html import equation_html
-from mathessible.documents.tex_macros import LatexMacro
+from mathessible.documents.tex_macros import LatexMacro, expand_macros, fold_macros, macro_sample
 from mathessible.editing.autocorrect import AutoCorrectTable, autocorrect_defaults
 from mathessible.editing.build_repair import BuildRepair
 from mathessible.editing.character_speech import (
@@ -148,6 +148,9 @@ if wx is not None:
             self.latex_environment = ""
             # The commands the LaTeX document defines (`\\newcommand`), expanded before an equation is built.
             self.latex_macros: dict[str, LatexMacro] = {}
+            # Each of those commands' bodies as MathCAT writes them, for `fold_macros`, with the macros
+            # they were written for.
+            self._written_macros: tuple[dict[str, LatexMacro], dict[str, str]] | None = None
             # While the professional view edits a LaTeX equation, it edits the UnicodeMath that the
             # LaTeX builds as: the LaTeX is kept as typed unless it is edited there (`_LatexEditing`).
             self._latex_editing: _LatexEditing | None = None
@@ -743,7 +746,8 @@ if wx is not None:
                     mathml = self.convert_equation(source)
                     if mathml_has_parse_error(mathml):
                         raise UnicodeMathError(spoken("the equation has errors"))
-                    latex = within_environment(self.latex_from_mathml(mathml), self.latex_environment, editing.latex)
+                    written = self._with_macros(self.latex_from_mathml(mathml))
+                    latex = within_environment(written, self.latex_environment, editing.latex)
                 except (UnicodeMathError, RuntimeError, ValueError) as error:
                     self._announce(spoken("cannot be written in LaTeX, {error}").format(error=error))
                     return False
@@ -756,6 +760,40 @@ if wx is not None:
             self.document = EquationSource(latex)
             self.caret = caret
             return True
+
+        def _with_macros(self, latex: str) -> str:
+            """LaTeX MathCAT wrote for an edited equation, with the document's own commands put back
+            (`\\mathbb R` is `\\R` again, `fold_macros`) when it builds the same; else as MathCAT wrote it."""
+            if not self.latex_macros:
+                return latex
+            try:
+                folded = fold_macros(latex, self.latex_macros, self._macro_bodies())
+                if folded == latex:
+                    return latex
+                same = self.convert_equation(expand_macros(folded, self.latex_macros), True) == self.convert_equation(
+                    expand_macros(latex, {}), True
+                )
+            except (UnicodeMathError, RuntimeError, ValueError):
+                return latex
+            return folded if same else latex
+
+        def _macro_bodies(self) -> dict[str, str]:
+            """Each command's body with placeholder arguments, as MathCAT writes it (`macro_sample`)."""
+            if self._written_macros is not None and self._written_macros[0] == self.latex_macros:
+                return self._written_macros[1]
+            written: dict[str, str] = {}
+            for name, macro in self.latex_macros.items():
+                sample = macro_sample(name, macro)
+                if sample is None:
+                    continue
+                try:
+                    mathml = self.convert_equation(expand_macros(sample, self.latex_macros), True)
+                    if not mathml_has_parse_error(mathml):
+                        written[name] = self.latex_from_mathml(mathml)
+                except (UnicodeMathError, RuntimeError, ValueError):
+                    continue
+            self._written_macros = (dict(self.latex_macros), written)
+            return written
 
         def _on_key_down(self, event: wx.KeyEvent) -> None:
             if session_log.enabled():

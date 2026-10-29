@@ -135,6 +135,11 @@ class LatexWriterTests(unittest.TestCase):
         written = equation_latex([result["mathml"] for result in convert_all(filled)])
         self.assertEqual(written, ["\\sqrt[{}]{}", "\\binom{}{}", "\\Vert {} \\Vert", "{}_{}", "{}^{}"])
 
+    def test_epsilon_norms_and_operator_names(self) -> None:
+        sources = ["\\epsilon", "\\|x\\|", "\\left\\lVert x \\right\\rVert", "\\mathrm{tr}\u2061 A"]
+        written = equation_latex([result["mathml"] for result in convert_all(sources, latex=True)])
+        self.assertEqual(written, ["\\epsilon", "\\Vert x \\Vert", "\\Vert x \\Vert", "\\operatorname{tr}A"])
+
     def test_the_editors_mathcat_is_not_touched(self) -> None:
         import mathessible_mathcat
 
