@@ -18,7 +18,12 @@ from mathessible.editing.character_speech import (
 from mathessible.editing.completion import Completion
 from mathessible.editing.edit_history import EditHistory, EditState
 from mathessible.editing.equation_source import EquationSource
-from mathessible.editing.latex_insert import insert_latex, move_to_latex_slot, within_environment
+from mathessible.editing.latex_insert import (
+    insert_latex,
+    keep_document_commands,
+    move_to_latex_slot,
+    within_environment,
+)
 from mathessible.editing.linear_runs import Runs
 from mathessible.editing.normal_text import in_text, toggle_normal_text
 from mathessible.editing.pasted_math import pasted_mathml, plain_letters
@@ -747,7 +752,9 @@ if wx is not None:
                     if mathml_has_parse_error(mathml):
                         raise UnicodeMathError(spoken("the equation has errors"))
                     written = self._with_macros(self.latex_from_mathml(mathml))
-                    latex = within_environment(written, self.latex_environment, editing.latex)
+                    latex = keep_document_commands(
+                        within_environment(written, self.latex_environment, editing.latex), editing.latex
+                    )
                 except (UnicodeMathError, RuntimeError, ValueError) as error:
                     self._announce(spoken("cannot be written in LaTeX, {error}").format(error=error))
                     return False
@@ -1165,7 +1172,8 @@ if wx is not None:
                 # A web page's or Word's MathML: its UnicodeMath (or LaTeX), in the letters typed.
                 try:
                     if self.latex:
-                        text = self.latex_from_mathml(mathml)
+                        # In the document's own commands where they build the same (`\\mathbb R` is `\\R`).
+                        text = self._with_macros(self.latex_from_mathml(mathml))
                     else:
                         text = plain_letters(self.unicode_math_from_mathml(mathml))
                 except (UnicodeMathError, RuntimeError):

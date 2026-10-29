@@ -55,7 +55,7 @@ links back, liblouis and BRF need a braille transcriber's convention.
 - [x] File > Export > Word Document (.docx): text, headings, lists,
   tables, links, and every equation as a native Word equation (OMML),
   with its own dialog and Settings defaults, as the other exports.
-- [ ] Open the exported document in Word and check it by hand: the
+- [x] Open the exported document in Word and check it by hand: the
   equations, the numbered equation, the table of contents.
 
 ## A professional application
@@ -100,8 +100,9 @@ links back, liblouis and BRF need a braille transcriber's convention.
 - [x] LaTeX, stage 3b: a `.tex` file's preview and accessible exports
   (HTML, PDF, Word, BRF, Print), from the common text commands (sections,
   emphasis, lists, footnotes, title); other commands keep their text.
-- [ ] LaTeX: tables (`tabular`), figures and `\ref`/`\cite` numbers in a
-  `.tex` file's preview and exports.
+- [x] LaTeX: tables (`tabular`), figures and `\ref`/`\cite` numbers in a
+  `.tex` file's preview and exports (not yet: an `align` row's number
+  shown, a `.bib` file read).
 - [x] LaTeX, stage 3c: the PDF of a `.tex` file compiled by the user's own
   LaTeX installation (TinyTeX offered and installed when there is none,
   missing packages installed with tlmgr), so that packages work.

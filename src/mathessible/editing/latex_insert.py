@@ -52,6 +52,24 @@ def insert_latex(source: str, caret: int, latex: str) -> tuple[str, int]:
     return before + latex + after, new_caret
 
 
+_DOCUMENT_COMMAND = re.compile(r"\\label\s*\{[^{}]*\}|\\(?:nonumber|notag)(?![A-Za-z])")
+
+
+def keep_document_commands(latex: str, typed: str) -> str:
+    """LaTeX written again for an edited equation, with the typed one's `\\label{...}`, `\\nonumber` and
+    `\\notag`, which are not math and so are not in what MathCAT wrote: a `\\ref` to the equation still finds
+    it. Each goes at the end of its own row while the rows are as many as they were, else at the end."""
+    typed_rows, rows = typed.split("\\\\"), latex.split("\\\\")
+    if len(typed_rows) != len(rows):
+        typed_rows, rows = [typed], [latex]
+    kept_rows = []
+    for typed_row, row in zip(typed_rows, rows, strict=True):
+        kept = [command for command in _DOCUMENT_COMMAND.findall(typed_row) if command not in row]
+        trailing = row[len(row.rstrip()) :]
+        kept_rows.append(f"{row.rstrip()} {' '.join(kept)}{trailing}" if kept else row)
+    return "\\\\".join(kept_rows)
+
+
 def within_environment(latex: str, environment: str, typed: str) -> str:
     """LaTeX written for an equation whose rows a .tex environment holds (`align`: `environment` "aligned"),
     without that environment's own `\\begin`/`\\end`, spaced at its ends as the LaTeX typed was."""

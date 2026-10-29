@@ -1,8 +1,11 @@
+import tempfile
 import unittest
+from pathlib import Path
 
 from mathessible.documents.front_matter import LATEX, body, equation_language
 from mathessible.documents.markdown_math import find_math_zones
 from mathessible.documents.tex_markdown import tex_to_markdown
+from mathessible.documents.tex_numbers import tex_numbers
 
 DOCUMENT = r"""\documentclass{article}
 \usepackage{amsmath} % a comment with $math$
@@ -45,8 +48,8 @@ class TexToMarkdownTests(unittest.TestCase):
 
     def test_title_sections_and_styles(self) -> None:
         self.assertIn("# Notes on *limits*\n\nA. Student", self.body)
-        self.assertIn("## Intro", self.body)
-        self.assertIn("Some **bold** and *italic* text, 50% off – see k.[^1]", self.body)
+        self.assertIn("## 1 Intro", self.body)
+        self.assertIn("Some **bold** and *italic* text, 50% off – see [k].[^1]", self.body)
 
     def test_footnotes_go_at_the_end(self) -> None:
         self.assertTrue(self.body.rstrip().endswith("[^1]: A note costing \\$5."))
@@ -66,6 +69,57 @@ class TexToMarkdownTests(unittest.TestCase):
 
     def test_a_file_without_a_document_environment(self) -> None:
         self.assertEqual(body(tex_to_markdown("Just $x$ here.")), "Just $x$ here.\n")
+
+
+NUMBERED = r"""\begin{document}
+\section{Intro}\label{s:intro}
+\subsection{More}\label{s:more}
+\section*{Unnumbered}
+See \ref{s:two}, \eqref{eq:e}, \ref{eq:c}, Figure \ref{fig:a}, Table \ref{tab:a}, \cite{knuth,lamport},
+\cite[p.~5]{knuth} and \ref{nowhere}.
+\begin{equation} E=mc^2 \label{eq:e} \end{equation}
+\begin{align} a&=b \\ c&=d \nonumber \\ e&=f \label{eq:c} \end{align}
+\begin{figure}[h]\centering\includegraphics[width=5cm]{plot}\caption{A plot of $f$}\label{fig:a}\end{figure}
+\begin{table}\caption{Results}\label{tab:a}
+\begin{tabular}[t]{l|cr} \hline Name & $x$ & Score \\ \hline Ann & 1 & 9\% \\ \multicolumn{2}{c}{Both} & 10 \\ \hline
+\end{tabular}\end{table}
+\section{Two}\label{s:two}
+\begin{thebibliography}{9}\bibitem{knuth} D. Knuth. \bibitem{lamport} L. Lamport.\end{thebibliography}
+\end{document}
+"""
+
+
+class NumberedTexTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.folder = tempfile.TemporaryDirectory()
+        self.addCleanup(self.folder.cleanup)
+        Path(self.folder.name, "plot.png").write_bytes(b"")
+        self.body = body(tex_to_markdown(NUMBERED, Path(self.folder.name)))
+
+    def test_numbers_as_latex_gives_them(self) -> None:
+        numbers = tex_numbers(NUMBERED)
+        self.assertEqual(
+            numbers.labels,
+            {"s:intro": "1", "s:more": "1.1", "eq:e": "1", "eq:c": "3", "fig:a": "1", "tab:a": "1", "s:two": "2"},
+        )
+        self.assertEqual(numbers.citations, {"knuth": 1, "lamport": 2})
+
+    def test_references_citations_and_headings(self) -> None:
+        self.assertIn("See 2, (1), 3, Figure 1, Table 1, [1, 2],\n[1, p.\u00a05] and ??.", self.body)
+        self.assertIn("## 1 Intro", self.body)
+        self.assertIn("### 1.1 More", self.body)
+        self.assertIn("## Unnumbered", self.body)
+        self.assertIn("## References\n\n[1] D. Knuth.", self.body)
+
+    def test_an_equations_number_is_its_tag(self) -> None:
+        self.assertIn("\\tag{1}$$", self.body)
+
+    def test_a_figure_and_a_table(self) -> None:
+        self.assertIn("![A plot of f](plot.png)\n\nFigure 1: A plot of $f$", self.body)
+        self.assertIn(
+            "Table 1: Results\n\n| Name | $x$ | Score |\n| --- | --- | --- |\n| Ann | 1 | 9% |\n| Both |  | 10 |",
+            self.body,
+        )
 
 
 if __name__ == "__main__":

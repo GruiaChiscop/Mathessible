@@ -2,7 +2,12 @@ import re
 import unittest
 
 from converter_harness import convert_all, has_error, needs_node
-from mathessible.editing.latex_insert import insert_latex, move_to_latex_slot, within_environment
+from mathessible.editing.latex_insert import (
+    insert_latex,
+    keep_document_commands,
+    move_to_latex_slot,
+    within_environment,
+)
 from mathessible.mathcat.latex import equation_latex, tidy_latex
 from mathessible.templates.math_templates import fill_empty_slots
 
@@ -74,6 +79,13 @@ class WithinEnvironmentTests(unittest.TestCase):
         written = "\\begin{aligned} a & = b \\\\ c & = d \\end{aligned}"
         typed = "\n  a &= b \\\\\n  c &= d\n"
         self.assertEqual(within_environment(written, "aligned", typed), "\n  a & = b \\\\ c & = d\n")
+
+    def test_a_written_equation_keeps_its_labels_on_their_rows(self) -> None:
+        self.assertEqual(keep_document_commands("E = mc^2 + 1", "E=mc^2 \\label{e}"), "E = mc^2 + 1 \\label{e}")
+        typed = "a&=b \\label{x}\\\\ c&=d \\nonumber"
+        self.assertEqual(
+            keep_document_commands("a & = b \\\\ c & = d", typed), "a & = b \\label{x} \\\\ c & = d \\nonumber"
+        )
 
     def test_outside_an_environment_nothing_changes(self) -> None:
         self.assertEqual(within_environment("x = 1", "", " x=1 "), "x = 1")
@@ -223,6 +235,11 @@ class LatexWriterTests(unittest.TestCase):
                 self.assertEqual(re.sub(r"\s", "", second), re.sub(r"\s", "", latex))
         self.assertEqual(written[11], "x ⤇y")
         self.assertEqual(written[13], "x^{\\circ}y")
+
+    def test_numbers_upright_letters_and_texts(self) -> None:
+        sources = ["E=mc^2 \\tag{1}", "\\int f\\,\\mathrm{d}x", "\\text{50\\% off \\& a (b): c}", "\\text{if }x < 0"]
+        written = equation_latex([result["mathml"] for result in convert_all(sources, latex=True)])
+        self.assertEqual(written, ["E = mc^2 \\tag{1}", "\\int f\\,\\mathrm{d}x", sources[2], sources[3]])
 
     def test_the_editors_mathcat_is_not_touched(self) -> None:
         import mathessible_mathcat

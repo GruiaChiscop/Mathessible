@@ -1669,6 +1669,29 @@ then LaTeX-escaped): `latex.py` writes it as itself. What is left is
 equivalent forms (`\dot\cup`, `\dot{\cup}`), lone brackets (fine in
 pairs), and rare structure characters (⎴, ⏜ alone).
 
+Numbers in a .tex file's preview and exports (2026-10-29,
+[documents/tex_numbers.py](../src/mathessible/documents/tex_numbers.py)):
+one pass numbers what LaTeX numbers (unstarred sections, `equation` and
+`multline` once, `align`-like rows each unless `\nonumber`, a row's own
+`\tag`, captions of figures and tables, `\bibitem`s), each `\label` naming
+the number before it; `tex_markdown` writes headings with their numbers,
+`\ref`/`\eqref` (`??` when missing), `\cite` (`[1, p. 5]`; keys without a
+`thebibliography`), a numbered `equation`'s `\tag{n}` (built as its label),
+`tabular` as a pipe table (rules left out, `\multicolumn` spanned by empty
+cells), a figure as its image (`\includegraphics{plot}` found as plot.png
+beside the file) and caption. An `align` row's number is not shown: the
+converter keeps one tag per equation.
+
+Texts and labels written back (`mathcat/latex.py`, `latex_insert`): MathCAT
+writes a text's characters through its math tables (`:` as `\colon`, `%`
+bare, a comment), so each mtext goes to it as a stand-in and comes back
+escaped as LaTeX text (`\%`, `\&`, `\_`); one inside a command of MathCAT's
+own (`\operatorname{arg\,max}`) is bare, its spaces `\,`. The converter
+reads `\text{...}` as UnicodeMath's quoted text (patch 0004 `TeXTexts`).
+`keep_document_commands` puts the typed equation's `\label`, `\nonumber`
+back on their rows. A numbered equation is written `... \tag{1}` (patch
+0009), and an upright letter `\mathrm{d}`.
+
 Spaces written back (`mathcat/latex.py`): MathCAT merges spaces into
 their neighbours (`data-previous-space-width`) and writes none, so each
 `<mspace>` goes to MathCAT as a text `mathessiblespaceN` (its width in

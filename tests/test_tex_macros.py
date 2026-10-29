@@ -69,10 +69,10 @@ class ExpandMacrosTests(unittest.TestCase):
         self.assertEqual(expand_macros("\\newcommand{\\h}{h} \\h+1", {}), " h+1")
 
     def test_an_operator_is_applied_as_a_function_after_its_scripts(self) -> None:
-        self.assertEqual(self.expand("\\tr A"), "\\mathrm{tr}\u2061 A")
+        self.assertEqual(self.expand("\\tr A"), "\\text{tr}\u2061 A")
         macros = find_macros("\\DeclareMathOperator*{\\argmax}{arg\\,max}")
-        self.assertEqual(expand_macros("\\argmax\\limits_{x} f", macros), "\\mathrm{argmax}_{x}\u2061 f")
-        self.assertEqual(expand_macros("\\operatorname{rank} M", {}), "\\mathrm{rank}\u2061 M")
+        self.assertEqual(expand_macros("\\argmax\\limits_{x} f", macros), "\\text{arg max}_{x}\u2061 f")
+        self.assertEqual(expand_macros("\\operatorname{rank} M", {}), "\\text{rank}\u2061 M")
 
     def test_other_commands_are_left(self) -> None:
         self.assertEqual(self.expand("\\frac{a}{b} \\{x\\}"), "\\frac{a}{b} \\{x\\}")
@@ -95,6 +95,10 @@ class FoldMacrosTests(unittest.TestCase):
         self.assertEqual(
             fold_macros("\\langle u, \\mathbf{xy} \\rangle", self.macros, self.written), "\\inner{u}{\\vec{xy}}"
         )
+
+    def test_an_operators_name_with_a_space(self) -> None:
+        macros = find_macros("\\DeclareMathOperator*{\\argmax}{arg\\,max}")
+        self.assertEqual(fold_macros("\\operatorname{arg\\,max}_x f", macros, {}), "\\argmax_x f")
 
     def test_an_operator_and_a_command_before_a_letter(self) -> None:
         self.assertEqual(fold_macros("\\operatorname{tr}A = \\epsilon x", self.macros, self.written), "\\tr A = \\e x")

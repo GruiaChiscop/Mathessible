@@ -27,6 +27,7 @@ _ENDS_IN_CONTROL_WORD = re.compile(r"(?<!\\)\\[A-Za-z]+$")
 _PARAMETER = re.compile(r"#([1-9#])")
 _NAME_SPACE = re.compile(r"\\[,;:! ]|[~\s]")
 _COMMENT = re.compile(r"(?<!\\)%.*$", re.MULTILINE)
+_OPERATORNAME = re.compile(r"\\operatorname\*?\{([^{}]*)\}")
 # Expansions per equation: more means a command that expands into itself (`\def\a{\a}`).
 _EXPANSION_LIMIT = 500
 
@@ -179,7 +180,7 @@ def _substitute(body: str, arguments: list[str]) -> str:
 
 
 def _operator(latex: str, end: int, name: str) -> tuple[str, int]:
-    """A declared operator's name at `end` (its scripts after it): upright, then its scripts, then the
+    """A declared operator's name at `end` (its scripts after it): a text, then its scripts, then the
     function application (U+2061), so that it builds, reads and brailles as a function (`tr` of A) and
     MathCAT writes it back as `\\operatorname{tr}`."""
     scripts = ""
@@ -197,9 +198,9 @@ def _operator(latex: str, end: int, name: str) -> tuple[str, int]:
             end = argument[1]
             continue
         break
-    # A space in the name (`arg\\,max`) splits it in the converter: the name is built without it.
-    name = _NAME_SPACE.sub("", name)
-    return f"\\mathrm{{{name}}}{scripts}\u2061", end
+    # A text, so that a space in the name (`arg\\,max`) is kept: \\mathrm would split it in the converter.
+    name = " ".join(_NAME_SPACE.sub(" ", name).split())
+    return f"\\text{{{name}}}{scripts}\u2061", end
 
 
 def expand_macros(latex: str, macros: Mapping[str, LatexMacro]) -> str:
@@ -383,13 +384,15 @@ def fold_macros(latex: str, macros: Mapping[str, LatexMacro], written: Mapping[s
     for name, macro in macros.items():
         if not macro.operator or not name.isalpha():
             continue
-        operator = re.compile(r"\\operatorname\*?\{" + re.escape(_NAME_SPACE.sub("", macro.body)) + r"\}")
-        latex = operator.sub(
-            lambda found, name=name: (
-                f"\\{name}" + (" " if found.string[found.end() : found.end() + 1].isalpha() else "")
-            ),
-            latex,
-        )
+        # MathCAT writes the name's spaces as \, (\operatorname{arg\,max}): names are compared without them.
+        bare = _NAME_SPACE.sub("", macro.body)
+
+        def fold(found: re.Match[str], name: str = name, bare: str = bare) -> str:
+            if _NAME_SPACE.sub("", found.group(1)) != bare:
+                return found.group(0)
+            return f"\\{name}" + (" " if found.string[found.end() : found.end() + 1].isalpha() else "")
+
+        latex = _OPERATORNAME.sub(fold, latex)
     patterns = []
     for name, text in written.items():
         macro = macros.get(name)

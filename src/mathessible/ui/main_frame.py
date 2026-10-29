@@ -154,6 +154,9 @@ if wx is not None:
             self.Bind(wx.EVT_CLOSE, self._on_close)
             self.Bind(wx.EVT_TIMER, lambda _event: self._autosave(), self._recovery_timer)
             self._recovery_timer.Start(RECOVERY_INTERVAL_MS)
+            # Bound last, so run first: the session log names each command and the control focused.
+            self.Bind(wx.EVT_MENU, self._log_menu_command)
+            self.Bind(wx.EVT_CHILD_FOCUS, self._log_focus)
             if self.settings.show_preview:
                 self._set_preview_shown(True)
             if self.settings.latex_new_documents:
@@ -1238,7 +1241,8 @@ if wx is not None:
             Markdown with LaTeX equations (`tex_markdown`; the file itself is never changed). A LaTeX
             document's own commands (`\\newcommand`) are expanded in its equations (`tex_macros`)."""
             if self.editor.tex:
-                return tex_to_markdown(self.editor.source)
+                folder = self.document_path.parent if self.document_path is not None else None
+                return tex_to_markdown(self.editor.source, folder)
             return expand_markdown_macros(self.editor.source) if self.editor.latex else self.editor.source
 
         def _print(self, _event: wx.CommandEvent | None = None) -> None:
@@ -1592,6 +1596,19 @@ if wx is not None:
             path = destination if destination.suffix.lower() == ".brf" else destination.with_suffix(".brf")
             path.write_bytes(brf.encode("ascii", errors="replace"))
             return path
+
+        def _log_menu_command(self, event: wx.CommandEvent) -> None:
+            menu_bar = self.GetMenuBar()
+            item = menu_bar.FindItemById(event.GetId()) if menu_bar is not None else None
+            if item is not None:
+                session_log.write("menu", item.GetItemLabelText())
+            event.Skip()
+
+        def _log_focus(self, event: wx.ChildFocusEvent) -> None:
+            window = event.GetWindow()
+            if window is not None:
+                session_log.write("focus", f"{type(window).__name__} {window.GetName()!r}")
+            event.Skip()
 
         def _autosave(self) -> None:
             """Write the unsaved text for recovery, or remove what was written once it is saved."""

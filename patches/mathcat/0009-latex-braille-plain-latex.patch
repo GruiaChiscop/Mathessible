@@ -59,15 +59,20 @@ back, or was no LaTeX:
   \operatorname: /, -, ., ",", \text{—}, \bullet, \hbar, \overset{\text{def}}{=}.
   A text ending in a control word with no space marker ran into the
   next letter (\S, \P): it ends with one.
+- A numbered equation (a one-row table, its first cell the label, as the
+  converter builds UnicodeMath's #(1) and LaTeX's \tag{1}) was
+  \begin{matrix} (1) & E = mc^2 \end{matrix}: it is E = mc^2 \tag{1}.
+- An upright letter (\mathrm{d}, the differential's d, mathvariant normal)
+  was a bare, italic d: it is \mathrm{d}.
 
 Applied by scripts/bootstrap.sh on top of upstream 85c89a37. Each is a bug
 in the LaTeX code itself, for braille readers too; worth proposing upstream.
 
 diff --git a/Rules/Braille/LaTeX/LaTeX_Rules.yaml b/Rules/Braille/LaTeX/LaTeX_Rules.yaml
-index b9237dee..820b4a1b 100644
+index b9237dee..3d1b1d44 100644
 --- a/Rules/Braille/LaTeX/LaTeX_Rules.yaml
 +++ b/Rules/Braille/LaTeX/LaTeX_Rules.yaml
-@@ -102,6 +102,31 @@
+@@ -102,6 +102,46 @@
    - x: "string($MatrixType)"     # need to get $MatrixType eval'd so that it is converted to braille (doesn't work if I do it in 'variables') 
    - t: "}𝐖"
  
@@ -79,6 +84,21 @@ index b9237dee..820b4a1b 100644
 +  - t: "𝐖\\begin{cases}𝐖"
 +  - x: "*[2]"
 +  - t: "𝐖\\end{cases}𝐖"
++
++-
++  # A numbered equation (UnicodeMath's E=mc^2#(1)): a one-row table whose first cell is its label.
++  # It is the equation then \tag{1}, the label without the parentheses it is shown in.
++  name: numbered-equation
++  tag: mtable
++  match: "count(*)=1 and count(*[1]/*)=2 and *[1]/*[1][contains(@intent, 'equation-label')]"
++  replace:
++  - x: "*[1]/*[2]/*"
++  - t: "𝐖\\tag{"
++  - test:
++      if: "*[1]/*[1]/*[1][self::m:mrow and *[1][.='('] and *[last()][.=')']]"
++      then: [x: "*[1]/*[1]/*[1]/*[position()>1 and position()<last()]"]
++      else: [x: "*[1]/*[1]/*"]
++  - t: "}"
 +
 +-
 +  # a table with no fence before it (cases and matrices have theirs): aligned equations or a matrix
@@ -99,7 +119,7 @@ index b9237dee..820b4a1b 100644
  -
    name: default-mtable
    tag: mtable
-@@ -213,6 +238,29 @@
+@@ -213,6 +253,39 @@
    - x: "text()"
    - t: "𝐖"
      
@@ -118,6 +138,16 @@ index b9237dee..820b4a1b 100644
 +  - t: "}"
 +
 +-
++  # An upright letter (\mathrm{d}, the differential's d) is \mathrm{d}: a bare d would be italic.
++  name: upright-letter
++  tag: mi
++  match: "@mathvariant='normal' and string-length(.)=1 and translate(., 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', '')=''"
++  replace:
++  - t: "\\mathrm{"
++  - x: "text()"
++  - t: "}"
++
++-
 +  name: text
 +  tag: mtext
 +  match: "."
@@ -129,7 +159,7 @@ index b9237dee..820b4a1b 100644
  -
    # FIX: need to deal with all caps
    name: default
-@@ -336,7 +384,8 @@
+@@ -336,7 +409,8 @@
  -
    name: "movable-limits"
    tag: [munder, mover, munderover]

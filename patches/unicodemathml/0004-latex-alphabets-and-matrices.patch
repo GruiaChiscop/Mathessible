@@ -17,9 +17,13 @@ playground's TeX.js. Two passes now run before its first one:
   findClosingBrace, which returns a number at a row's \\). They become the
   environments it reads, \begin{pmatrix}...\end{pmatrix}, rows ended by
   \\ or \cr.
-- TeXDocumentCommands: a .tex document's \label{...}, \tag{...},
-  \nonumber and \notag, which are not math, are left out of the built
-  equation (they came out as text).
+- TeXDocumentCommands: a .tex document's \label{...}, \nonumber and
+  \notag, which are not math, are left out of the built equation (they
+  came out as text). An equation's one \tag{1} is UnicodeMath's equation
+  number, #(1), shown and read; an environment's rows' tags are left out.
+- TeXTexts: \text{...} and \mbox{...} as UnicodeMath's quoted text: the
+  ⓣ(...) form did not build with parentheses inside (\text{a (b)}), and
+  kept LaTeX's escapes (\&, \_, \%) as text.
 - TeXNormDelimiters: \| built as a single bar, \left\| did not build,
   and amsmath's \lVert and \rVert were unknown; they become \Vert
   (U+2016), and \lvert, \rvert a bar.
@@ -54,10 +58,10 @@ Only playground/assets/TeX.js, which Mathessible loads after dist/.
 Applied by scripts/bootstrap.sh after 0001 to 0003.
 
 diff --git a/playground/assets/TeX.js b/playground/assets/TeX.js
-index 9142e69..546ecf3 100644
+index 9142e69..5c37bc0 100644
 --- a/playground/assets/TeX.js
 +++ b/playground/assets/TeX.js
-@@ -834,7 +834,307 @@ function TeX2UMath(tex) {
+@@ -834,7 +834,347 @@ function TeX2UMath(tex) {
      }
      return uniTeX
  }
@@ -354,14 +358,54 @@ index 9142e69..546ecf3 100644
 +    return ret
 +}
 +
++// \text{...} and \mbox{...} as UnicodeMath's quoted text, "...": TeX2UMath's ⓣ(...) did not build with
++// parentheses inside (\text{a (f)}), kept LaTeX's escapes (\&, \_) and made a lone letter (\text{a})
++// an upright variable. Text's escapes are its characters again.
++const texTextEscapes = {
++    '\\%': '%', '\\&': '&', '\\#': '#', '\\$': '$', '\\_': '_', '\\{': '{', '\\}': '}', '\\ ': ' ', '~': '\u00A0',
++    '\\textasciitilde{}': '~', '\\textasciicircum{}': '^',
++}
++
++function TeXTexts(tex) {
++    let ret = ''
++    for (let i = 0; i < tex.length;) {
++        let m = /^\\(?:text|mbox|textrm)\s*\{/.exec(tex.substring(i))
++        let k = m ? texClosingBrace(tex, i + m[0].length) : -1
++        if (k == -1) {
++            let cw = /^\\(?:[A-Za-z]+|.)/.exec(tex.substring(i))
++            let n = cw ? cw[0].length : 1
++            ret += tex.substring(i, i + n)
++            i += n
++            continue
++        }
++        let raw = tex.substring(i + m[0].length, k)
++        if (/(?<!\\)\$|\\(?!text(?:asciitilde|asciicircum)\{\}|[%&#$_{} ])/.test(raw)) {
++            ret += tex.substring(i, k + 1)  // Math or commands inside: left to TeX2UMath
++        } else {
++            // % and $ quoted again for TeX2UMath (a comment, math), " for UnicodeMath
++            let text = raw.replace(/\\text(?:asciitilde|asciicircum)\{\}|\\[%&#$_{} ]|~/g, e => texTextEscapes[e])
++            ret += '"' + text.replace(/[%$"]/g, c => '\\' + c) + '"'
++        }
++        i = k + 1
++    }
++    return ret
++}
++
 +// A document's numbering and cross-reference commands, which are not math: \label{...},
-+// \tag{...} and \nonumber or \notag (in an equation or align environment) are left out.
++// \nonumber and \notag (in an equation or align environment) are left out. An equation's own number,
++// \tag{1}, is UnicodeMath's equation number, #(1), shown and read with it; in an environment's rows
++// (several \tag), it is left out too.
 +function TeXDocumentCommands(tex) {
-+    return tex.replace(/\\(?:label|tag\*?)\s*\{[^{}]*\}|\\(?:nonumber|notag)(?![A-Za-z])/g, '')
++    let tags = []
++    tex = tex.replace(/\\tag\*?\s*\{([^{}]*)\}/g, (all, label) => { tags.push(label); return '' })
++    tex = tex.replace(/\\label\s*\{[^{}]*\}|\\(?:nonumber|notag)(?![A-Za-z])/g, '')
++    if (tags.length == 1 && !/\\\\|\\begin/.test(tex))
++        tex = tex.trimEnd() + '#(' + tags[0].trim() + ')'
++    return tex
 +}
 +
  function TeX2UnicodeMath(tex) {
-+    tex = TeXMathAlphabets(TeXMatrixCommands(TeXDocumentCommands(TeXStackCommands(TeXQuotedOperators(TeXSymbols(TeXClassesAndNegations(TeXSpaces(TeXScriptCommands(TeXNormDelimiters(tex))))))))))
++    tex = TeXMathAlphabets(TeXMatrixCommands(TeXTexts(TeXDocumentCommands(TeXStackCommands(TeXQuotedOperators(TeXSymbols(TeXClassesAndNegations(TeXSpaces(TeXScriptCommands(TeXNormDelimiters(tex)))))))))))
      // Pass 1: Convert control words in tex to Unicode symbols or strings
      let cwPrev = ''
      let macrosEnabled = ummlConfig && ummlConfig.texMacros

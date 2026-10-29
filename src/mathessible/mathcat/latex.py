@@ -14,6 +14,7 @@ editor's equation, position and braille code are never touched.
 
 from __future__ import annotations
 
+import html
 import re
 import threading
 from collections.abc import Sequence
@@ -80,6 +81,51 @@ _UNKNOWN_CHARACTER = re.compile(
 _TEXT_IN_TEXT = re.compile(r"\\text\{\\text\{([^{}]*)\}\}")
 
 
+# A text (mtext): MathCAT writes its characters as math (`:` as \\colon, `%` bare, which begins a LaTeX
+# comment), so each goes to MathCAT as a stand-in and comes back as itself, escaped as LaTeX text is.
+_MTEXT = re.compile(r"<mtext([^>]*)>([^<]*)</mtext>")
+_TEXT_STAND_IN = "mathessibletext"
+_WRITTEN_TEXT = re.compile(r"\\text\{" + _TEXT_STAND_IN + r"(\d+)\}|" + _TEXT_STAND_IN + r"(\d+)")
+_TEXT_ESCAPES = {
+    "\\": "\\textbackslash{}",
+    "{": "\\{",
+    "}": "\\}",
+    "%": "\\%",
+    "$": "\\$",
+    "&": "\\&",
+    "#": "\\#",
+    "_": "\\_",
+    "~": "\\textasciitilde{}",
+    "^": "\\textasciicircum{}",
+    "\u00a0": " ",  # The converter's quoted text has no-break spaces for its spaces.
+}
+# A numbered equation's label is written \\tag{(eq:1)} as a text: LaTeX writes the parentheses itself.
+_TAG_TEXT = re.compile(r"\\tag\{\\text\{\((.*?)\)\}\}")
+
+
+def _texts_to_stand_ins(mathml: str, texts: list[str]) -> str:
+    def stand_in(found: re.Match[str]) -> str:
+        text = html.unescape(found.group(2))
+        if not text.strip() or text.startswith(_SPACE_TEXT):
+            return found.group(0)
+        texts.append(text)
+        return f"<mtext{found.group(1)}>{_TEXT_STAND_IN}{len(texts) - 1}</mtext>"
+
+    return _MTEXT.sub(stand_in, mathml)
+
+
+def _stand_ins_to_texts(latex: str, texts: list[str]) -> str:
+    def text(found: re.Match[str]) -> str:
+        number = found.group(1) or found.group(2)
+        escaped = "".join(_TEXT_ESCAPES.get(character, character) for character in texts[int(number)])
+        if found.group(1):
+            return f"\\text{{{escaped}}}"
+        # Inside a command of MathCAT's own, in math (\\operatorname{arg\\,max}), where a space is no space.
+        return re.sub(r"[ \u2009]", r"\\,", escaped)
+
+    return _TAG_TEXT.sub(r"\\tag{\1}", _WRITTEN_TEXT.sub(text, latex))
+
+
 def _characters_as_themselves(latex: str) -> str:
     return _TEXT_IN_TEXT.sub(r"\\text{\1}", _UNKNOWN_CHARACTER.sub(lambda found: chr(int(found.group(2), 16)), latex))
 
@@ -119,9 +165,10 @@ def equation_latex(mathml: Sequence[str], decimal_separator: str = ",") -> list[
             return
         for index, equation in enumerate(mathml):
             try:
-                equation = _spaces_to_texts(_EMPTY.sub("<mi>\u2b1a</mi>", equation))
+                texts: list[str] = []
+                equation = _spaces_to_texts(_texts_to_stand_ins(_EMPTY.sub("<mi>\u2b1a</mi>", equation), texts))
                 native.set_expression(prepare_for_mathcat(equation))
-                latex = _characters_as_themselves(native.braille("").strip())
+                latex = _stand_ins_to_texts(_characters_as_themselves(native.braille("").strip()), texts)
                 written[index] = _texts_to_spaces(tidy_latex(_SLOT.sub("{}", latex)))
             except (OSError, RuntimeError, ValueError):
                 written[index] = None

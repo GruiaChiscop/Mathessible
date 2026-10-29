@@ -187,7 +187,9 @@ the professional view, which writes the commands back. A
 `\left\| x \right\|`, `\lVert x \rVert`. LaTeX's spaces (`\,`, `\;`,
 `\quad`, `~`) and `\boldsymbol` are understood, and an equation written
 again keeps them, as do amssymb's symbols (`\leqslant`, `\varnothing`,
-`\therefore`), `\overset`, `\underset` and `\not`. As in LaTeX, `a/b` is a
+`\therefore`), `\overset`, `\underset` and `\not`. An equation's `\tag{1}` is
+its number, shown and read with it, and its `\label` stays when the
+equation is written again. As in LaTeX, `a/b` is a
 slash and `\frac{a}{b}` a fraction. A symbol LaTeX itself has no command
 for is written as the character, as LuaLaTeX with `unicode-math` reads
 it. In a
@@ -198,7 +200,14 @@ The preview, Print and every export (HTML, the accessible PDF, Word,
 BRF) read a `.tex` document too: Mathessible reads its title
 (`\maketitle`), sections, `\emph`, `\textbf`, lists, quotations,
 `verbatim`, footnotes and links, and keeps the text of any other
-command, so nothing is lost; the file itself is not changed. For the
+command, so nothing is lost; the file itself is not changed. Sections,
+equations, figures and tables are numbered as LaTeX numbers them, so
+`\ref{...}` and `\eqref{...}` read their numbers (`??` for a label that is
+not there, as in LaTeX), and an `equation`'s number is shown and read
+beside it. `\cite{...}` reads the numbers of the `thebibliography` entries
+(the keys themselves without one: Mathessible does not read `.bib` files).
+A `tabular` is a table, and a figure its image (found beside the file, as
+LaTeX finds it) with its caption. For the
 PDF your LaTeX would make, with every package, use Compile PDF with
 LaTeX; both are tagged, and the exported one also carries every
 equation's spoken form. Insert → Footnote and Header and Footer are Markdown's:
