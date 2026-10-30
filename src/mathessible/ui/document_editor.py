@@ -3,8 +3,10 @@ from __future__ import annotations
 import sys
 from collections.abc import Callable
 from dataclasses import dataclass
+from pathlib import Path
 
 from mathessible import session_log
+from mathessible.documents.bibtex import document_bibliography
 from mathessible.documents.clipboard_html import document_html
 from mathessible.documents.footnotes import counterpart, insert_footnote
 from mathessible.documents.front_matter import (
@@ -24,15 +26,20 @@ from mathessible.documents.tex_math import (
     tex_math_zone_at,
     toggle_tex_display,
 )
+from mathessible.documents.tex_numbers import tex_numbers
 from mathessible.editing.autocorrect import AutoCorrectTable, autocorrect_defaults
+from mathessible.editing.completion import Completion, accept_completion
+from mathessible.editing.document_completion import document_completion_at
 from mathessible.editing.space_conversion import convert_in_text, convert_shortcut_on_character
 from mathessible.editor.equation_editor import EquationEditor
 from mathessible.editor.structures import append_insert_items
 from mathessible.i18n import _
 from mathessible.settings import AppSettings
 from mathessible.ui.clipboard import set_clipboard_text
+from mathessible.ui.completion_popup import CompletionPopup
 from mathessible.ui.help_menu import append_help_menu
 from mathessible.ui.speech import AssistiveOutput, create_output
+from mathessible.unicodemath import latex_environments, latex_words
 
 try:
     import wx
@@ -295,6 +302,11 @@ if wx is not None:
             # A LaTeX document (a .tex file, `tex_math`), not Markdown: its equations are LaTeX, found by
             # their LaTeX marks, and put back between them.
             self.tex = False
+            # The document's folder (its .bib files), set by the window that has the document's path.
+            self.document_folder: Callable[[], Path | None] = lambda: None
+            # A command being completed in the document's text (`document_completion`), and its list.
+            self._completion: Completion | None = None
+            self._completion_popup: CompletionPopup | None = None
 
             self.markdown = wx.TextCtrl(
                 self,
@@ -314,6 +326,9 @@ if wx is not None:
 
             self.Bind(wx.EVT_CHAR_HOOK, self._on_char_hook)
             self.markdown.Bind(wx.EVT_CHAR, self._on_markdown_char)
+            self.markdown.Bind(wx.EVT_KEY_DOWN, self._on_markdown_key)
+            self.markdown.Bind(wx.EVT_KILL_FOCUS, self._on_markdown_focus_lost)
+            self.markdown.Bind(wx.EVT_LEFT_DOWN, self._on_markdown_click)
 
             self._shortcut_id = wx.NewIdRef()
             self.Bind(wx.EVT_MENU, self._on_equation_accelerator, id=self._shortcut_id)
@@ -493,9 +508,17 @@ if wx is not None:
             event.Skip()
 
         def _on_markdown_char(self, event: wx.KeyEvent) -> None:
-            """Math AutoCorrect anywhere in the document, when on: Space, punctuation or Enter converts the entry before it."""
-            if not self.settings.autocorrect_in_document or self.editing_equation or self.latex:
-                event.Skip()  # LaTeX is typed as it is written.
+            """Math AutoCorrect anywhere in the document, when on: Space, punctuation or Enter converts the entry
+            before it; and what is being typed is completed (`_offer_completion`), LaTeX's commands too."""
+            if not self.settings.autocorrect_in_document or self.editing_equation:
+                event.Skip()
+                return
+            key = event.GetKeyCode()
+            typing = key in (wx.WXK_BACK, wx.WXK_DELETE) or chr(event.GetUnicodeKey() or 0).isprintable()
+            if self.settings.complete_in_document and typing and not event.HasModifiers():
+                wx.CallAfter(self._offer_completion)  # Once the character is in the text (or out of it).
+            if self.latex:
+                event.Skip()  # LaTeX is typed as it is written: completed, never converted.
                 return
             key = event.GetKeyCode()
             character = "\n" if key in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER) else chr(event.GetUnicodeKey() or 0)
@@ -519,6 +542,110 @@ if wx is not None:
                 return
             self.replace_source(converted.source)
             self.markdown.SetInsertionPoint(converted.caret)
+
+        # Completion in the document's text
+
+        def _offer_completion(self) -> None:
+            """The suggestions for what is being typed before the caret, spoken and shown; none, the list closed."""
+            if not self or self.editing_equation or self.markdown.GetSelection()[0] != self.markdown.GetSelection()[1]:
+                self._close_completion()
+                return
+            source, caret = self.markdown.GetValue(), self.markdown.GetInsertionPoint()
+            table = AutoCorrectTable(
+                autocorrect_defaults(), self.settings.math_autocorrect, self.settings.math_autocorrect_removed
+            )
+            words, labels, keys = latex_words(), (), ()
+            if self.latex:
+                macros = document_macros(source, self.tex)
+                words = {**words, **{name: "" for name in macros if name.isalpha()}}
+                if "\\" in source[max(0, caret - 200) : caret] and "{" in source[max(0, caret - 200) : caret]:
+                    numbers = tex_numbers(source)
+                    labels, keys = tuple(numbers.labels), tuple(numbers.citations)
+                    folder = self.document_folder()
+                    bibliography = document_bibliography(source, folder) if folder is not None and not keys else None
+                    if bibliography is not None:
+                        keys = tuple(entry.key for entry in bibliography.entries)
+            completion = document_completion_at(
+                source,
+                caret,
+                latex=self.latex,
+                tex=self.tex,
+                control_words=table.control_words(),
+                latex_words=words,
+                environments=latex_environments(),
+                labels=labels,
+                keys=keys,
+            )
+            if completion is None:
+                self._close_completion()
+                return
+            self._completion = completion
+            self._show_completion(announce=True)
+
+        def _show_completion(self, announce: bool) -> None:
+            completion = self._completion
+            if completion is None:
+                return
+            if announce:
+                self._announce(completion.speech())
+            if self._completion_popup is None:
+                self._completion_popup = CompletionPopup(self.markdown)
+            # Under the caret's line; at the editor's top left where wx cannot say where the caret is.
+            point = wx.Point(0, 0)
+            try:
+                point = self.markdown.PositionToCoords(completion.start)
+            except (AttributeError, NotImplementedError):
+                pass
+            line = self.markdown.GetCharHeight()
+            self._completion_popup.show(completion, self.markdown.ClientToScreen(wx.Point(point.x, point.y + line + 2)))
+
+        def _close_completion(self) -> None:
+            self._completion = None
+            if self._completion_popup is not None and self._completion_popup.IsShown():
+                self._completion_popup.Hide()
+
+        def _on_markdown_key(self, event: wx.KeyEvent) -> None:
+            """Up/Down browse the suggestions, Tab takes the current one, Escape closes them; a key that moves
+            the caret elsewhere closes them too."""
+            completion = self._completion
+            if completion is None:
+                event.Skip()
+                return
+            key = event.GetKeyCode()
+            if key in (wx.WXK_UP, wx.WXK_DOWN) and not event.HasAnyModifiers():
+                self._completion = completion.moved(1 if key == wx.WXK_DOWN else -1)
+                self._show_completion(announce=True)
+                return
+            if key == wx.WXK_TAB and not event.HasAnyModifiers():
+                convert = self.settings.convert_on_space and not self.latex
+                edit = accept_completion(self.markdown.GetValue(), completion, convert)
+                self._close_completion()
+                self.replace_source(edit.source)
+                self.markdown.SetInsertionPoint(edit.caret)
+                self._announce(edit.announcement)
+                return
+            if key == wx.WXK_ESCAPE:
+                self._close_completion()
+                return
+            if key in (
+                wx.WXK_LEFT,
+                wx.WXK_RIGHT,
+                wx.WXK_HOME,
+                wx.WXK_END,
+                wx.WXK_PAGEUP,
+                wx.WXK_PAGEDOWN,
+                wx.WXK_RETURN,
+            ):
+                self._close_completion()
+            event.Skip()
+
+        def _on_markdown_focus_lost(self, event: wx.FocusEvent) -> None:
+            self._close_completion()
+            event.Skip()
+
+        def _on_markdown_click(self, event: wx.MouseEvent) -> None:
+            self._close_completion()
+            event.Skip()
 
         def _on_equation_accelerator(self, _event: wx.CommandEvent) -> None:
             if not self.editing_equation:

@@ -157,6 +157,8 @@ if wx is not None:
             # Bound last, so run first: the session log names each command and the control focused.
             self.Bind(wx.EVT_MENU, self._log_menu_command)
             self.Bind(wx.EVT_CHILD_FOCUS, self._log_focus)
+            # The document's folder, for its .bib files when \\cite{ is completed.
+            self.editor.document_folder = lambda: self.document_path.parent if self.document_path is not None else None
             if self.settings.show_preview:
                 self._set_preview_shown(True)
             if self.settings.latex_new_documents:

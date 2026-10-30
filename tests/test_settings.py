@@ -18,6 +18,7 @@ class SettingsTests(unittest.TestCase):
         self.assertTrue(settings.convert_on_space)
         self.assertTrue(settings.convert_shortcuts_immediately)
         self.assertTrue(settings.complete_control_words)
+        self.assertTrue(settings.complete_in_document)
         self.assertEqual(settings.decimal_separator, ",")
         self.assertEqual(settings.braille_code, "Nemeth")
         self.assertTrue(settings.template_control_words)
@@ -36,6 +37,7 @@ class SettingsTests(unittest.TestCase):
                     structure_stops=False,
                     convert_on_space=False,
                     complete_control_words=False,
+                    complete_in_document=False,
                     auto_zoom_out=True,
                     recognized_functions=("sin", "tg"),
                 ),
@@ -46,6 +48,7 @@ class SettingsTests(unittest.TestCase):
         self.assertFalse(settings.structure_stops)
         self.assertFalse(settings.convert_on_space)
         self.assertFalse(settings.complete_control_words)
+        self.assertFalse(settings.complete_in_document)
         self.assertTrue(settings.auto_zoom_out)
         self.assertEqual(settings.recognized_functions, ("sin", "tg"))
 

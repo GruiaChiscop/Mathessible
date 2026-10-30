@@ -85,6 +85,9 @@ class AppSettings:
     # While a control word is typed (\al), suggest the words it may become
     # (\alpha, \aleph): spoken, Up/Down browse them, Tab takes one.
     complete_control_words: bool = True
+    # The same in the document's text (`document_completion`), while Math AutoCorrect works there
+    # (autocorrect_in_document): LaTeX's commands, environments, labels after \ref{ and keys after \cite{.
+    complete_in_document: bool = True
     # The decimal separator, for the converter (patches/unicodemathml/0001)
     # and MathCAT's speech alike: "," (1,5 is a number; a list needs a
     # space, {1, 2, 3}) or "." (3.14; {1,2,3} is a list).
@@ -198,6 +201,7 @@ def load_settings(path: Path | None = None) -> AppSettings:
         invisible_operator_stops=bool(data.get("invisible_operator_stops", False)),
         convert_on_space=bool(data.get("convert_on_space", True)),
         complete_control_words=bool(data.get("complete_control_words", True)),
+        complete_in_document=bool(data.get("complete_in_document", True)),
         decimal_separator="." if data.get("decimal_separator") == "." else ",",
         braille_code=_braille_code(data.get("braille_code")),
         interface_language=_language(data.get("interface_language")),

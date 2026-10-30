@@ -48,8 +48,9 @@ def applies_at_once() -> bool:
 if wx is not None:
 
     class SettingsPanel(wx.Panel):
-        """Every setting, in tabs: Language, Typing, Building, Navigation, Speech, Braille, and the exports'
-        defaults (PDF Layout, PDF Content, HTML, Word).
+        """Every setting, in categories of tabs: General (Language), Equations (Typing, AutoCorrect,
+        Completion, Building), Reading (Navigation, Speech, Braille), Export (PDF Layout, PDF Content, HTML,
+        Word).
 
         `apply()` writes the controls into the settings. With `on_change`,
         every change calls it straight away (the macOS window); a list edited
@@ -64,33 +65,55 @@ if wx is not None:
             # The user's own braille signs, per code, until applied (symbols/braille_signs.py).
             self._braille_signs: dict[str, dict[str, str]] = {}
             self._functions = settings.recognized_functions
+            self._pages: list[wx.Panel] = []  # Every tab with settings, in every category.
 
+            # Categories, each a tab of its own tabs (native tabs, which screen readers read; a tree is not
+            # native on macOS): General, Equations, Reading and Export.
             self.notebook = wx.Notebook(self)
             self.notebook.SetName(_("Settings categories"))
-            self._language_page(self._page(_("Language")), settings)
-            self._typing_page(self._page(_("Typing")), settings)
-            self._building_page(self._page(_("Building")), settings)
-            self._navigation_page(self._page(_("Navigation")), settings)
-            self._speech_page(self._page(_("Speech")), settings)
-            self._braille_page(self._page(_("Braille")), settings)
+            general = self._category(_("General"))
+            self._language_page(self._page(_("Language"), general), settings)
+            equations = self._category(_("Equations"))
+            self._typing_page(self._page(_("Typing"), equations), settings)
+            self._autocorrect_page(self._page(_("AutoCorrect"), equations), settings)
+            self._completion_page(self._page(_("Completion"), equations), settings)
+            self._building_page(self._page(_("Building"), equations), settings)
+            reading = self._category(_("Reading"))
+            self._navigation_page(self._page(_("Navigation"), reading), settings)
+            self._speech_page(self._page(_("Speech"), reading), settings)
+            self._braille_page(self._page(_("Braille"), reading), settings)
+            export = self._category(_("Export"))
             # The PDF's defaults in two tabs, as its export's dialog has them (one made Settings 780 px tall).
-            self._pdf_layout_page(self._page(_("PDF Layout")), settings)
-            self._pdf_content_page(self._page(_("PDF Content")), settings)
-            self._html_page(self._page("HTML"), settings)
-            self._docx_page(self._page(_("Word")), settings)
-            for index in range(self.notebook.GetPageCount()):
-                self.notebook.GetPage(index).GetSizer().AddSpacer(12)  # A margin under the last control.
+            self._pdf_layout_page(self._page(_("PDF Layout"), export), settings)
+            self._pdf_content_page(self._page(_("PDF Content"), export), settings)
+            self._html_page(self._page("HTML", export), settings)
+            self._docx_page(self._page(_("Word"), export), settings)
+            for page in self._pages:
+                page.GetSizer().AddSpacer(12)  # A margin under the last control.
             sizer = wx.BoxSizer(wx.VERTICAL)
             sizer.Add(self.notebook, 1, wx.EXPAND)
             self.SetSizer(sizer)
 
         # Pages
 
-        def _page(self, title: str) -> wx.Panel:
-            page = wx.Panel(self.notebook)
+        def _category(self, title: str) -> wx.Notebook:
+            """A category: a tab holding its own tabs (its subcategories)."""
+            holder = wx.Panel(self.notebook)
+            holder.SetName(title)
+            tabs = wx.Notebook(holder)
+            tabs.SetName(title)
+            sizer = wx.BoxSizer(wx.VERTICAL)
+            sizer.Add(tabs, 1, wx.EXPAND | wx.ALL, 4)
+            holder.SetSizer(sizer)
+            self.notebook.AddPage(holder, title)
+            return tabs
+
+        def _page(self, title: str, category: wx.Notebook) -> wx.Panel:
+            page = wx.Panel(category)
             page.SetName(title)
             page.SetSizer(wx.BoxSizer(wx.VERTICAL))
-            self.notebook.AddPage(page, title)
+            category.AddPage(page, title)
+            self._pages.append(page)
             return page
 
         def _typing_page(self, page: wx.Panel, settings: AppSettings) -> None:
@@ -100,26 +123,30 @@ if wx is not None:
                 _("Write equations in LaTeX"),
                 settings.latex_new_documents,
             )
-            self.convert_on_space = self._checkbox(
+            self.template_control_words = self._checkbox(
                 page,
-                _("Convert control words (for example \\alpha) when Space or punctuation is typed"),
-                _("Convert control words while typing"),
-                settings.convert_on_space,
+                _("Insert templates as control words (for example \\sum and \\sqrt instead of ∑ and √)"),
+                _("Insert templates as control words"),
+                settings.template_control_words,
             )
-            self.complete_control_words = self._checkbox(
-                page,
-                _("Suggest control words while one is typed (Up/Down browse, Tab completes)"),
-                _("Suggest control words while typing"),
-                settings.complete_control_words,
-            )
-            self.convert_shortcuts_immediately = self._checkbox(
+            self.decimal_comma = self._checkbox(
                 page,
                 _(
-                    "Convert symbol shortcuts (for example << or ->) as soon as they are typed, in equations and the document"
+                    "Decimal comma: 1,5 is a number and a set is written {1, 2, 3}; "
+                    "off: decimal point (3.14), and {1,2,3} is a set"
                 ),
-                _("Convert symbol shortcuts immediately"),
-                settings.convert_shortcuts_immediately,
+                _("Decimal comma"),
+                settings.decimal_separator == ",",
             )
+            self.remove_extra_spaces = self._checkbox(
+                page,
+                _("Remove spaces that change nothing when saving the equation or switching to linear view"),
+                _("Remove extra spaces"),
+                settings.remove_extra_spaces,
+            )
+
+        def _autocorrect_page(self, page: wx.Panel, settings: AppSettings) -> None:
+            """Math AutoCorrect, as Word's: its list, what converts while typing, and where it works."""
             self.autocorrect_button = wx.Button(page, label=_("Math &AutoCorrect…"))
             self.autocorrect_button.Bind(wx.EVT_BUTTON, lambda _event: self._edit_autocorrect())
             page.GetSizer().Add(self.autocorrect_button, 0, wx.LEFT | wx.RIGHT | wx.TOP, 12)
@@ -129,6 +156,20 @@ if wx is not None:
                     "Math AutoCorrect is one list, as in Word: the converter's control words, "
                     "Mathessible's shortcuts and your own entries, each one can be changed or deleted."
                 ),
+            )
+            self.convert_on_space = self._checkbox(
+                page,
+                _("Convert control words (for example \\alpha) when Space or punctuation is typed"),
+                _("Convert control words while typing"),
+                settings.convert_on_space,
+            )
+            self.convert_shortcuts_immediately = self._checkbox(
+                page,
+                _(
+                    "Convert symbol shortcuts (for example << or ->) as soon as they are typed, in equations and the document"
+                ),
+                _("Convert symbol shortcuts immediately"),
+                settings.convert_shortcuts_immediately,
             )
             self.removed_words_as_symbols = self._checkbox(
                 page,
@@ -152,27 +193,36 @@ if wx is not None:
                 _("Use Math AutoCorrect in the document"),
                 settings.autocorrect_in_document,
             )
-            self.template_control_words = self._checkbox(
+            self.autocorrect_in_document.Bind(wx.EVT_CHECKBOX, lambda _event: self._autocorrect_in_document_changed())
+
+        def _completion_page(self, page: wx.Panel, settings: AppSettings) -> None:
+            """Suggestions while a command is typed: in the equation editor, and in the document's text while
+            Math AutoCorrect works there (`document_completion`)."""
+            self.complete_control_words = self._checkbox(
                 page,
-                _("Insert templates as control words (for example \\sum and \\sqrt instead of ∑ and √)"),
-                _("Insert templates as control words"),
-                settings.template_control_words,
+                _("Suggest control words while one is typed (Up/Down browse, Tab completes)"),
+                _("Suggest control words while typing"),
+                settings.complete_control_words,
             )
-            self.decimal_comma = self._checkbox(
+            self.complete_in_document = self._checkbox(
+                page,
+                _("Suggest commands while one is typed in the document (with Math AutoCorrect in the document)"),
+                _("Suggest commands in the document"),
+                settings.complete_in_document,
+            )
+            self._help(
                 page,
                 _(
-                    "Decimal comma: 1,5 is a number and a set is written {1, 2, 3}; "
-                    "off: decimal point (3.14), and {1,2,3} is a set"
+                    "In a LaTeX document the suggestions are LaTeX's commands and the document's own, its "
+                    "environments after \\begin{, its labels after \\ref{ and its citation keys after \\cite{."
                 ),
-                _("Decimal comma"),
-                settings.decimal_separator == ",",
             )
-            self.remove_extra_spaces = self._checkbox(
-                page,
-                _("Remove spaces that change nothing when saving the equation or switching to linear view"),
-                _("Remove extra spaces"),
-                settings.remove_extra_spaces,
-            )
+            self.complete_in_document.Enable(settings.autocorrect_in_document)
+
+        def _autocorrect_in_document_changed(self) -> None:
+            """Completion in the document works with Math AutoCorrect there, so it is dimmed without it."""
+            self.complete_in_document.Enable(self.autocorrect_in_document.GetValue())
+            self._changed()
 
         def _building_page(self, page: wx.Panel, settings: AppSettings) -> None:
             self.build_as_you_type = self._checkbox(
@@ -404,6 +454,7 @@ if wx is not None:
             self._settings.convert_on_space = self.convert_on_space.GetValue()
             self._settings.latex_new_documents = self.latex_new_documents.GetValue()
             self._settings.complete_control_words = self.complete_control_words.GetValue()
+            self._settings.complete_in_document = self.complete_in_document.GetValue()
             self._settings.decimal_separator = "," if self.decimal_comma.GetValue() else "."
             self._settings.convert_shortcuts_immediately = self.convert_shortcuts_immediately.GetValue()
             self._settings.open_built = self.open_built.GetValue()

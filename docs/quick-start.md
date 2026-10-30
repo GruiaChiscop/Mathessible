@@ -97,7 +97,7 @@ entries.
 - [Quick start guide to Math AutoCorrect commands and symbols](https://support.microsoft.com/en-us/topic/9cbc8873-c217-4c87-a059-03d539ef8eea)
   (Microsoft Support): every symbol, with its control word and its
   Unicode value.
-- In Mathessible: Settings → Math AutoCorrect… lists every control word and
+- In Mathessible: Settings → Equations → AutoCorrect → Math AutoCorrect… lists every control word and
   shortcut, which you can change, delete or add to. Insert → Symbol…
   (`Command+Shift+S`, `Ctrl+Shift+S`) finds a symbol by its control word
   or name, and typing a control word offers the matching ones.

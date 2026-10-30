@@ -1654,6 +1654,28 @@ optional argument equal to its default left out; an operator's
 never folded. The folded LaTeX is kept only if it builds as MathCAT's
 did (both expanded and converted); else MathCAT's LaTeX is.
 
+Completion in the document (2026-10-30,
+[editing/document_completion.py](../src/mathessible/editing/document_completion.py),
+`DocumentEditor._offer_completion`, [ui/completion_popup.py](../src/mathessible/ui/completion_popup.py)):
+the user's wish, for LaTeX above all; it works only while Math AutoCorrect
+works in the document (`autocorrect_in_document`), as its companion, and
+with `complete_in_document`. After each character typed (wx.CallAfter, once
+it is in the TextCtrl) the completion is worked out again; Up/Down/Tab/Escape
+are taken in EVT_KEY_DOWN while one is open, and a key that moves the caret,
+a click or the focus leaving close it. It is spoken (the editor's
+AssistiveOutput, as an export's end is) and shown in a wx.PopupWindow under
+the caret (`PositionToCoords`), which never takes the focus. LaTeX's
+words are the equation editor's (`latex_words`, the document's
+`\newcommand`s), `\ref{`/`\cite{` names come from `tex_numbers` and the
+`.bib` file (`argument_completion_at`, kind "argument": closed by `}`, none
+in the middle of a list); a .tex file adds `TEX_TEXT_COMMANDS` and
+`TEX_ENVIRONMENTS`, which the converter (math only) does not have.
+
+Settings in categories (2026-10-30): a notebook of categories, each holding
+a notebook of its tabs (General; Equations: Typing, AutoCorrect, Completion,
+Building; Reading; Export), native tabs rather than wx.Treebook, whose
+tree is not native on macOS. 714 × 582 px.
+
 Symbols in LaTeX (2026-10-29): every symbol MathCAT's tables write was
 checked against LaTeX itself (TinyTeX, amsmath and amssymb, each command
 alone in math mode, `\ifdefined`) and built back by the converter, until

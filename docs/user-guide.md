@@ -17,11 +17,18 @@ only be edited as text, and Mathessible says so at startup.
 ## Settings
 
 `Settings…` (`Command+,` on macOS, in the Edit menu elsewhere) groups the
-settings in tabs: Language (see below), Typing (Math AutoCorrect and what
-converts while typing), Building (building as you type, recognised
-functions), Navigation, Speech (symbol dictionaries, unknown symbols),
-Braille (the braille code and your own braille signs), and PDF, HTML and
-Word (the defaults of each export). On macOS it is a window,
+settings in categories, each a tab with tabs of its own:
+
+- **General**: Language (see below).
+- **Equations**: Typing (LaTeX for new documents, templates, the decimal
+  comma, extra spaces), AutoCorrect (Math AutoCorrect, what converts while
+  typing, and where), Completion (the suggestions while a command is typed,
+  in equations and in the document) and Building (building as you type,
+  recognised functions).
+- **Reading**: Navigation, Speech (symbol dictionaries, unknown symbols)
+  and Braille (the braille code and your own braille signs).
+- **Export**: PDF Layout, PDF Content, HTML and Word, the defaults of
+  each export. On macOS it is a window,
 as in Mac apps: every change applies and is saved at once, and Escape or
 `Command+W` closes it. On Windows and Linux it is a dialog with OK,
 Cancel and Apply.
@@ -106,7 +113,7 @@ them (`$\frac{a}{b}$`), as GitHub and Pandoc write Markdown math. Edit →
 Equations in LaTeX makes a document LaTeX, or UnicodeMath again: it
 asks first, then writes every equation again from what it builds, so
 spacing and some details can change (an equation that does not build is
-kept as it is, and Undo restores them all). `Settings → Typing` can
+kept as it is, and Undo restores them all). `Settings → Equations → Typing` can
 start every new document and notebook page in LaTeX.
 
 Markdown written elsewhere, as GitHub and Pandoc write it, has LaTeX
@@ -287,7 +294,7 @@ start or end. A control word is converted when you type Space or a
 punctuation mark after it (`\alpha` becomes α), and while you type one the
 matching words are offered: Up/Down browse them, Tab takes one, Escape
 closes the list. Tab and Shift+Tab move between a template's slots. Math
-AutoCorrect is one list, as in Word (`Settings → Math AutoCorrect…`): the
+AutoCorrect is one list, as in Word (`Settings → Equations → AutoCorrect → Math AutoCorrect…`): the
 control words, Mathessible's shortcuts and your own entries, each of which can
 be changed or deleted. As in Word, `\mathbb{R}` becomes ℝ when its brace
 closes, and `\doubleR`, `\scriptL`, `\frakturg` give the math alphabets.
@@ -375,13 +382,26 @@ in an equation's normal text** (off by default) lets control words and
 shortcuts convert there too.
 
 In the document itself, **Use Math AutoCorrect in the document**
-(Settings → Typing, off by default; Word's rule outside math regions)
+(Settings → Equations → AutoCorrect, off by default; Word's rule outside math regions)
 converts an entry wherever it is typed, in the text or between `$`: a
 control word when a space, a punctuation mark or Enter is typed after it
 (`\alpha` then Space gives "α "), and a symbol shortcut as soon as its
 last character is typed (`->` gives "→"), as in Word, while **Convert
 symbol shortcuts as soon as they are typed** is on (it is by default);
 off, a shortcut waits for Space or Enter.
+
+With it, a command being typed in the document is completed too, as in
+the equation editor (**Suggest commands in the document**, Settings →
+Equations → Completion, on by default): the suggestions are spoken and
+shown under the caret, Up and Down browse them, Tab takes one and Escape
+closes them. In a UnicodeMath document they are the control words, which
+convert as AutoCorrect converts them. In a LaTeX document, LaTeX itself is
+the point: they are LaTeX's commands and the document's own
+(`\newcommand`), kept as words; after `\begin{` its environments (taking
+one writes its `\end{...}`), after `\ref{` or `\eqref{` the document's labels
+and after `\cite{` its citation keys (its `thebibliography` or `.bib` file).
+A `.tex` file adds LaTeX's text commands (`\section`, `\emph`, `\cite`) and
+environments (`itemize`, `figure`, `table`).
 
 ### Unknown symbols
 

@@ -9,7 +9,9 @@ autocorrect; names spoken for symbols come from the symbol dictionary.
 In LaTeX (`latex_completion_at`) the words are the ones the converter's
 LaTeX reader knows (`unicodemath.latex_words`), always kept as words, and
 after `\\begin{` the environments it builds: taking one writes its
-`\\end{...}` too, the caret between the two.
+`\\end{...}` too, the caret between the two. After `\\ref{` or `\\cite{`
+(`argument_completion_at`) the names are the document's labels or its
+bibliography's keys, closed by `}`.
 """
 
 from __future__ import annotations
@@ -50,7 +52,8 @@ class Completion:
     end: int
     suggestions: tuple[Suggestion, ...]
     index: int = 0
-    # "begin" or "end" for an environment's name after `\\begin{` or `\\end{` (`start` is the name's), else "".
+    # "begin" or "end" for an environment's name after `\\begin{` or `\\end{`, "argument" for a label or key
+    # after `\\ref{` or `\\cite{` (`start` is the name's), else "".
     environment: str = ""
 
     @property
@@ -91,6 +94,22 @@ def completion_at(source: str, caret: int, table: Mapping[str, str]) -> Completi
 
 
 _ENVIRONMENT_NAME = re.compile(r"\\(begin|end)\s*\{([A-Za-z]*)$")
+# A command's name argument begun before the caret: `\\ref{eq:`, `\\cite{knuth, la` (the last of a list).
+_ARGUMENT = re.compile(r"\\([A-Za-z]+)\*?\s*(?:\[[^\]]*\]\s*)*\{(?:[^{},]*,\s*)*([^{},\s]*)$")
+
+
+def argument_completion_at(source: str, caret: int, names: Mapping[str, Sequence[str]]) -> Completion | None:
+    """A name begun as a command's argument (`\\ref{eq:` offers `eq:energy`): `names` are each command's
+    (`ref`: the document's labels, `cite`: its bibliography's keys). None when nothing matches."""
+    caret = max(0, min(caret, len(source)))
+    found = _ARGUMENT.search(source, max(0, caret - 200), caret)
+    if found is None or found.end() != caret or found.group(1) not in names:
+        return None
+    prefix = found.group(2)
+    matches = sorted({name for name in names[found.group(1)] if name.startswith(prefix) and name != prefix})
+    if not matches:
+        return None
+    return Completion(caret - len(prefix), caret, tuple(Suggestion(name, "") for name in matches), 0, "argument")
 
 
 def latex_completion_at(
@@ -124,6 +143,11 @@ def accept_completion(source: str, completion: Completion, convert: bool) -> Tem
         name = suggestion.word
         text = source[: completion.start] + name + closing
         caret = len(text) if closing else completion.start + len(name) + 1
+        if completion.environment == "argument":
+            if rest[:1] == ",":  # A name in the middle of a list (\\cite{a, |, b}): no brace of its own.
+                text = source[: completion.start] + name
+                caret = len(text)
+            return TemplateEdit(text + source[completion.end :], caret, name)
         if completion.environment == "begin":
             ending = f"\\end{{{name}}}"
             return TemplateEdit(text + source[completion.end : after] + ending + source[after:], caret, name)
