@@ -35,6 +35,7 @@ from mathessible.editor.equation_editor import EquationEditor
 from mathessible.editor.structures import append_insert_items
 from mathessible.i18n import _
 from mathessible.settings import AppSettings
+from mathessible.templates.template_source import TemplateEdit
 from mathessible.ui.clipboard import set_clipboard_text
 from mathessible.ui.completion_popup import CompletionPopup
 from mathessible.ui.help_menu import append_help_menu
@@ -542,6 +543,18 @@ if wx is not None:
                 return
             self.replace_source(converted.source)
             self.markdown.SetInsertionPoint(converted.caret)
+
+        def apply_insert(self, insert: Callable[[str, int, int], TemplateEdit]) -> None:
+            """Insert > a heading, a list, a table...: `insert` (document_insert) on the text and its selection,
+            the result written in as one undoable change, the caret where it says."""
+            if self.editing_equation:
+                return
+            start, end = self.markdown.GetSelection()
+            edit = insert(self.markdown.GetValue(), start, end)
+            self._close_completion()
+            self.replace_source(edit.source)
+            self.markdown.SetInsertionPoint(edit.caret)
+            self.markdown.SetFocus()
 
         # Completion in the document's text
 

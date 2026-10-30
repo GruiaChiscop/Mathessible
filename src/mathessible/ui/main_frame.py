@@ -55,6 +55,7 @@ from mathessible.documents.tex_macros import expand_markdown_macros
 from mathessible.documents.tex_markdown import tex_to_markdown
 from mathessible.documents.tex_math import NEW_DOCUMENT, NEW_DOCUMENT_CARET
 from mathessible.documents.typst_math import TypstEquation, typst_math
+from mathessible.editing import document_insert
 from mathessible.editing.pasted_math import plain_letters
 from mathessible.error_messages import explain
 from mathessible.i18n import _, ngettext
@@ -65,6 +66,7 @@ from mathessible.settings import AppSettings, load_settings, save_settings
 from mathessible.symbols.braille_signs import load_signs, signs_yaml
 from mathessible.symbols.system_languages import preferred_languages
 from mathessible.symbols.text_braille import default_table, tables_directory, text_tables
+from mathessible.templates.template_source import TemplateEdit
 from mathessible.ui.document_editor import DocumentEditor
 from mathessible.ui.export_dialogs import (
     BrfExportDialog,
@@ -76,6 +78,7 @@ from mathessible.ui.export_dialogs import (
 from mathessible.ui.header_footer_dialog import HeaderFooterDialog
 from mathessible.ui.help_menu import append_help_menu
 from mathessible.ui.home_panel import HomePanel
+from mathessible.ui.insert_dialogs import LinkDialog, TableDialog
 from mathessible.ui.macos_webview import guard_webview_key_equivalents
 from mathessible.ui.pdf_dialog import PdfExportDialog
 from mathessible.ui.settings_dialog import forget_settings_window, show_settings
@@ -308,6 +311,25 @@ if wx is not None:
             edit_menu.Append(wx.ID_PREFERENCES, _("&Settings…"))
             menu_bar.Append(edit_menu, _("&Edit"))
             insert_menu = wx.Menu()
+            # The document's own structures (document_insert): Markdown's, or LaTeX's in a .tex file.
+            heading_menu = wx.Menu()
+            self._heading_ids = [wx.NewIdRef() for _level in range(6)]
+            for level, heading_id in enumerate(self._heading_ids, 1):
+                heading_menu.Append(heading_id, _("Heading &{level}").format(level=level) + f"\tCtrl+{level}")
+            insert_menu.AppendSubMenu(heading_menu, _("H&eading"))
+            self._bulleted_list_id, self._numbered_list_id = wx.NewIdRef(), wx.NewIdRef()
+            self._quotation_id, self._code_block_id, self._rule_id = wx.NewIdRef(), wx.NewIdRef(), wx.NewIdRef()
+            self._link_id, self._image_id, self._table_id = wx.NewIdRef(), wx.NewIdRef(), wx.NewIdRef()
+            insert_menu.Append(self._bulleted_list_id, _("&Bulleted List"))
+            insert_menu.Append(self._numbered_list_id, _("&Numbered List"))
+            insert_menu.Append(self._quotation_id, _("&Quotation"))
+            insert_menu.Append(self._code_block_id, _("&Code Block"))
+            insert_menu.Append(self._rule_id, _("Horizontal &Rule"))
+            insert_menu.AppendSeparator()
+            insert_menu.Append(self._link_id, _("&Link…") + "\tCtrl+K")
+            insert_menu.Append(self._image_id, _("&Image…"))
+            insert_menu.Append(self._table_id, _("&Table…"))
+            insert_menu.AppendSeparator()
             self._footnote_id, self._go_to_footnote_id = wx.NewIdRef(), wx.NewIdRef()
             self._header_footer_id = wx.NewIdRef()
             # Word's Command+Option+F is Replace's here, as in Apple's applications.
@@ -360,6 +382,33 @@ if wx is not None:
 
             self.Bind(wx.EVT_MENU, self._new_document, id=wx.ID_NEW)
             self.Bind(wx.EVT_MENU, self._new_tex_document, id=self._new_tex_id)
+            for level, heading_id in enumerate(self._heading_ids, 1):
+                self.Bind(
+                    wx.EVT_MENU, lambda _event, level=level: self._insert_structure("heading", level), id=heading_id
+                )
+            for kind, command_id in (
+                ("bulleted", self._bulleted_list_id),
+                ("numbered", self._numbered_list_id),
+                ("quotation", self._quotation_id),
+                ("code", self._code_block_id),
+                ("rule", self._rule_id),
+            ):
+                self.Bind(wx.EVT_MENU, lambda _event, kind=kind: self._insert_structure(kind), id=command_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._insert_link(), id=self._link_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._insert_image(), id=self._image_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._insert_table(), id=self._table_id)
+            for command_id in (
+                *self._heading_ids,
+                self._bulleted_list_id,
+                self._numbered_list_id,
+                self._quotation_id,
+                self._code_block_id,
+                self._rule_id,
+                self._link_id,
+                self._image_id,
+                self._table_id,
+            ):
+                self.Bind(wx.EVT_UPDATE_UI, self._on_update_insert_item, id=command_id)
             self.Bind(wx.EVT_MENU, self._open_document, id=wx.ID_OPEN)
             self.Bind(wx.EVT_MENU, self._save_document_event, id=wx.ID_SAVE)
             self.Bind(wx.EVT_MENU, self._save_as_document_event, id=wx.ID_SAVEAS)
@@ -1014,6 +1063,88 @@ if wx is not None:
                 window._closing_application = True
             for window in windows:
                 window.Close()
+
+        # Insert: the document's structures
+
+        def _on_update_insert_item(self, event: wx.UpdateUIEvent) -> None:
+            # Not while an equation is edited (its place in the text is kept), nor on the home screen.
+            event.Enable(not self._home and not self.editor.editing_equation)
+
+        def _insert_structure(self, kind: str, level: int = 1) -> None:
+            tex = self.editor.tex
+            inserts = {
+                "heading": lambda source, start, end: document_insert.heading(source, start, end, level, tex),
+                "bulleted": lambda source, start, end: document_insert.list_items(source, start, end, False, tex),
+                "numbered": lambda source, start, end: document_insert.list_items(source, start, end, True, tex),
+                "quotation": lambda source, start, end: document_insert.quotation(source, start, end, tex),
+                "code": lambda source, start, end: document_insert.code_block(source, start, end, tex),
+                "rule": lambda source, start, end: document_insert.horizontal_rule(source, start, end, tex),
+            }
+            session_log.write("command", f"insert {kind}")
+            self.editor.apply_insert(inserts[kind])
+
+        def _insert_link(self) -> None:
+            """Insert > Link (Command+K): the selection its text, an address asked for; \\href in a .tex file."""
+            start, end = self.editor.markdown.GetSelection()
+            dialog = LinkDialog(self, self.editor.source[start:end])
+            try:
+                if dialog.ShowModal() != wx.ID_OK or not dialog.address.GetValue().strip():
+                    return
+                text, address = dialog.text.GetValue(), dialog.address.GetValue().strip()
+            finally:
+                dialog.Destroy()
+            tex = self.editor.tex
+
+            def insert(source: str, start: int, end: int) -> TemplateEdit:
+                edit = document_insert.link(source, start, end, text, address, tex)
+                return document_insert.with_package(edit, "hyperref") if tex else edit
+
+            self.editor.apply_insert(insert)
+
+        def _insert_image(self) -> None:
+            """Insert > Image: a picture file and its description (the text read instead of it, the caption in
+            a .tex figure); its path relative to the document's folder when it is saved."""
+            dialog = wx.FileDialog(
+                self,
+                message=_("Insert Image"),
+                wildcard=_("Images") + " (*.png;*.jpg;*.jpeg;*.gif;*.svg;*.pdf)|*.png;*.jpg;*.jpeg;*.gif;*.svg;*.pdf",
+                style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST,
+            )
+            try:
+                if dialog.ShowModal() != wx.ID_OK:
+                    return
+                path = Path(dialog.GetPath())
+            finally:
+                dialog.Destroy()
+            description = wx.GetTextFromUser(
+                _("What the image shows, for those who cannot see it:"), _("Image Description"), "", self
+            )
+            if self.document_path is not None:
+                try:
+                    path = path.relative_to(self.document_path.parent)
+                except ValueError:
+                    pass
+            tex = self.editor.tex
+            written = path.as_posix()
+
+            def insert(source: str, start: int, end: int) -> TemplateEdit:
+                edit = document_insert.image(source, start, end, written, description, tex)
+                return document_insert.with_package(edit, "graphicx") if tex else edit
+
+            self.editor.apply_insert(insert)
+
+        def _insert_table(self) -> None:
+            dialog = TableDialog(self)
+            try:
+                if dialog.ShowModal() != wx.ID_OK:
+                    return
+                rows, columns, header = dialog.rows.GetValue(), dialog.columns.GetValue(), dialog.header.GetValue()
+            finally:
+                dialog.Destroy()
+            tex = self.editor.tex
+            self.editor.apply_insert(
+                lambda source, start, end: document_insert.table(source, start, end, rows, columns, header, tex)
+            )
 
         def _new_document(self, _event: wx.CommandEvent | None = None) -> None:
             if self._home:

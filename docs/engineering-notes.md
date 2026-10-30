@@ -1654,6 +1654,19 @@ optional argument equal to its default left out; an operator's
 never folded. The folded LaTeX is kept only if it builds as MathCAT's
 did (both expanded and converted); else MathCAT's LaTeX is.
 
+Insert in the document (2026-10-30,
+[editing/document_insert.py](../src/mathessible/editing/document_insert.py),
+`MainFrame._insert_structure`, [ui/insert_dialogs.py](../src/mathessible/ui/insert_dialogs.py)):
+only what every export already reads (headings, lists, quotations, code,
+rules, links, images, tables: html_export's parser, the PDF, Word and BRF
+writers handle their tokens); task and definition lists need plugins and
+each export first. Each command is a function of the text and its
+selection giving a `TemplateEdit`, written in by `DocumentEditor.apply_insert`
+(`replace_source`, one undoable change); a .tex file gets LaTeX's own, and
+`with_package` adds hyperref or graphicx to the preamble when `\href` or
+`\includegraphics` needs it. Disabled while an equation is edited (its zone's
+offsets are kept) and on the home screen.
+
 Home screen (2026-10-30, [ui/home_panel.py](../src/mathessible/ui/home_panel.py)):
 the first window's own content (`MainFrame(home=True)` from app.py when no
 document is given), in place of the editor's splitter, so the menus and

@@ -90,6 +90,27 @@ a double click selects a word. View → Zoom In and Zoom Out
 `Command+=` is the subscript template) enlarge both views; Actual Size
 (`Command+Option+0`) goes back to 100%.
 
+### Inserting structures
+
+The Insert menu writes the document's structures, in Markdown, or in
+LaTeX's own in a `.tex` file:
+
+- **Heading** 1 to 6 (`Command+1`…`6`, `Ctrl+1`…`6` elsewhere): the
+  caret's line becomes a heading (`## Results`; in a `.tex` file
+  `\section{...}`, `\subsection{...}` and so on).
+- **Bulleted List** and **Numbered List**: the selected lines, or the
+  caret's, become a list (`itemize` and `enumerate` in a `.tex` file).
+- **Quotation**, **Code Block** and **Horizontal Rule**.
+- **Link…** (`Command+K`, `Ctrl+K`): the selection is its text, the
+  address is asked for (`\href`, with `hyperref` added to the preamble
+  when it is missing, in a `.tex` file).
+- **Image…**: a picture and its description, the text read instead of it
+  (in a `.tex` file a `figure`, the description its caption, with
+  `graphicx` added when it is missing); its path is relative to the
+  document's folder when the document is saved.
+- **Table…**: a table of the rows and columns asked for, to fill in, the
+  first row its header (a `tabular` in a `.tex` file).
+
 ### Footnotes
 
 Insert → Footnote (`Command+Shift+F`, `Ctrl+Alt+F` elsewhere) puts a

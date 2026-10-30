@@ -58,6 +58,32 @@ links back, liblouis and BRF need a braille transcriber's convention.
 - [x] Open the exported document in Word and check it by hand: the
   equations, the numbered equation, the table of contents.
 
+## An editor for writing papers
+
+Mathessible should serve for complex work, theses and papers, not only a
+school exercise: hence LaTeX's whole environment, and the basics every
+editor for writing has, without copying Word.
+
+- [ ] An Insert menu in the document: tables, lists of every kind
+  (bulleted, numbered, tasks, definitions), headings, links (`Cmd+K`,
+  `Ctrl+K`), images, quotations, code, a rule, and charts. Done:
+  headings, bulleted and numbered lists, quotations, code, a rule, links,
+  images and tables (`editing/document_insert.py`). Left: task and
+  definition lists (mdit-py-plugins' tasklists and deflist, and each
+  export), and the charts. What Markdown
+  lacks comes from its extensions (markdown-it's plugins, as the
+  footnotes do); in a .tex file each is LaTeX's own (`tabular`,
+  `\section`, `\href`). Charts of three kinds: a function's graph
+  (y = x², from the equation; pgfplots in .tex), charts from data (bars,
+  lines, pie, from a table of values) and diagrams (flowcharts, Mermaid
+  in Markdown, TikZ in .tex).
+- [ ] The editor's basic elements beside the menu bar, as editors for
+  writing have them: a toolbar (bold, italic, headings, lists, equation,
+  table, link, citation), a status bar with counts (words, characters,
+  the current section, the line) and formatting shortcuts (`Cmd+B`,
+  `Cmd+I`, `Cmd+1`…`6` for headings, `Cmd+K` for a link), in Markdown and
+  in .tex alike.
+
 ## A professional application
 
 - [ ] The interface in more languages than MathCAT's 14, Romanian first:
