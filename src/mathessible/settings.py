@@ -174,6 +174,8 @@ class AppSettings:
     symbol_dictionary: str = "mathessible-en"
     auto_zoom_out: bool = False
     show_preview: bool = False
+    # The document window's toolbar (View > Show Toolbar).
+    show_toolbar: bool = True
     recognized_functions: tuple[str, ...] = DEFAULT_RECOGNIZED_FUNCTIONS
     # Math AutoCorrect, as Word's one list (autocorrect.py): what the user
     # added or changed, (what is typed, what it becomes), and the defaults
@@ -260,6 +262,7 @@ def load_settings(path: Path | None = None) -> AppSettings:
         symbol_dictionary=str(data.get("symbol_dictionary", "mathessible-en")),
         auto_zoom_out=bool(data.get("auto_zoom_out", False)),
         show_preview=bool(data.get("show_preview", False)),
+        show_toolbar=bool(data.get("show_toolbar", True)),
         recognized_functions=_normalize_functions(data.get("recognized_functions")),
         math_autocorrect=_normalize_autocorrect(data.get("math_autocorrect")),
         math_autocorrect_removed=_normalize_removed(data.get("math_autocorrect_removed")),

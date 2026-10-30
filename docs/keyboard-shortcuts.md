@@ -11,6 +11,9 @@ both are given. What each command does is explained in the
 | Open the equation at the caret, or a new one | `Control+=` | `Alt+=` |
 | Heading 1 to 6 (Insert → Heading) | `Command+1`…`Command+6` | `Ctrl+1`…`Ctrl+6` |
 | Insert link | `Command+K` | `Ctrl+K` |
+| Read the status line (words, section, line) | `Command+Option+S` | `Ctrl+Alt+S` |
+| Bold, italic (Format menu) | `Command+B`, `Command+I` | `Ctrl+B`, `Ctrl+I` |
+| Strikethrough, code | `Command+Shift+X`, `Command+E` | `Ctrl+Shift+X`, `Ctrl+E` |
 | New document (File → New → Document) | `Command+N` | `Ctrl+N` |
 | Open | `Command+O` | `Ctrl+O` |
 | Save | `Command+S` | `Ctrl+S` |

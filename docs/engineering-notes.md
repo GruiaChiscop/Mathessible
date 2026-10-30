@@ -1667,6 +1667,33 @@ selection giving a `TemplateEdit`, written in by `DocumentEditor.apply_insert`
 `\includegraphics` needs it. Disabled while an equation is edited (its zone's
 offsets are kept) and on the home screen.
 
+Task and definition lists, Format, toolbar, counts (2026-10-30): every
+export parses with `html_export.markdown_parser`, which now uses
+mdit-py-plugins' tasklists and deflist; HTML (and the preview) keep them
+native (`native_lists`: a disabled checkbox, a <dl>), and for the PDF, Word
+and BRF writers a core rule (`_plain_lists`) makes them what those know: the
+checkbox an `☐`/`☑` text, a term a bold paragraph, a definition a blockquote
+(BRF now indents a blockquote by two cells). Format (`document_insert.formatted`)
+toggles `**`/`*`/`~~`/`` ` `` or `\textbf`/`\emph`/`\sout`/`\texttt`, ulem
+loaded `normalem` so \emph stays italic. The toolbar
+([ui/toolbar.py](../src/mathessible/ui/toolbar.py)) is native, its tools the
+menus' ids, its icons drawn from text in the appearance's text colour
+(redrawn on EVT_SYS_COLOUR_CHANGED). The status bar's section and counts
+([documents/text_counts.py](../src/mathessible/documents/text_counts.py): an
+equation one word, marks and commands none, a .tex file from its preview's
+text without its generated heading numbers) are worked out 250 ms after
+typing pauses.
+
+The status line is not wx's status bar: on macOS that draws its fields
+itself and VoiceOver cannot read them (the user found it). It is a row of
+native StaticTexts under the window's content
+([ui/status_line.py](../src/mathessible/ui/status_line.py); `MainFrame.SetStatusText`
+writes to it, so the callers are unchanged), hidden on the home screen;
+View > Read Status (Command+Option+S) speaks it whole through the editor's
+AssistiveOutput. On macOS only: on Windows and Linux wx's status bar is
+native and NVDA reads it (the user's word), so it stays there, and Read
+Status reads its fields.
+
 Home screen (2026-10-30, [ui/home_panel.py](../src/mathessible/ui/home_panel.py)):
 the first window's own content (`MainFrame(home=True)` from app.py when no
 document is given), in place of the editor's splitter, so the menus and

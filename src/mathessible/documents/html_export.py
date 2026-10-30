@@ -9,7 +9,10 @@ from html import escape
 from pathlib import Path
 
 from markdown_it import MarkdownIt
+from markdown_it.token import Token
+from mdit_py_plugins.deflist import deflist_plugin
 from mdit_py_plugins.footnote import footnote_plugin
+from mdit_py_plugins.tasklists import tasklists_plugin
 
 from mathessible.documents.front_matter import LATEX, equation_language
 from mathessible.documents.front_matter import body as without_front_matter
@@ -72,10 +75,51 @@ def _footnote_back_link(self: object, tokens: Sequence[object], index: int, opti
     )
 
 
-def markdown_parser(**options: bool) -> MarkdownIt:
-    """markdown-it as every export reads Markdown: CommonMark, no raw HTML, tables, footnotes."""
+def markdown_parser(native_lists: bool = False, **options: bool) -> MarkdownIt:
+    """markdown-it as every export reads Markdown: CommonMark, no raw HTML, tables, footnotes, task lists
+    (`- [ ] to do`) and definition lists (`Term` then `: definition`).
+
+    HTML keeps them as they are (`native_lists`: a checkbox, which screen readers say is checked or
+    not, and a <dl>). The PDF, Word and BRF writers read them as what they already know
+    (`_plain_lists`): a task's box as ☐ or ☑, a term as a bold paragraph, its definition as an
+    indented block.
+    """
     parser = MarkdownIt("commonmark", {"html": False, **options}).enable(["table", "strikethrough"])
-    return parser.use(footnote_plugin)
+    parser = parser.use(footnote_plugin).use(tasklists_plugin).use(deflist_plugin)
+    if not native_lists:
+        parser.core.ruler.push("plain_lists", _plain_lists)
+    return parser
+
+
+_CHECKBOX = re.compile(r'^<input class="task-list-item-checkbox"[^>]*>$')
+
+
+def _plain_lists(state: object) -> None:
+    """Task and definition lists as the writers that know neither read them (see markdown_parser)."""
+    plain = []
+    term = False
+    for token in state.tokens:
+        if token.type == "inline" and token.children and token.children[0].type == "html_inline":
+            box = token.children[0]
+            if _CHECKBOX.match(box.content):
+                box.type, box.content = "text", "☑" if 'checked="checked"' in box.content else "☐"
+        if token.type in ("dl_open", "dl_close"):
+            continue
+        if token.type in ("dt_open", "dt_close"):
+            term = token.type == "dt_open"
+            token.type, token.tag = ("paragraph_open" if term else "paragraph_close"), "p"
+        elif token.type in ("dd_open", "dd_close"):
+            token.type = "blockquote_open" if token.type == "dd_open" else "blockquote_close"
+            token.tag = "blockquote"
+        elif token.type == "inline" and term:
+            # The term is bold.
+            token.children = [
+                Token("strong_open", "strong", 1),
+                *(token.children or []),
+                Token("strong_close", "strong", -1),
+            ]
+        plain.append(token)
+    state.tokens = plain
 
 
 def render_markdown(source: str, convert_math: MathConverter, prefix: str = "") -> str:
@@ -107,7 +151,7 @@ def render_markdown(source: str, convert_math: MathConverter, prefix: str = "") 
         replacements[tokens[index]] = rendered
     transformed = with_marks(source, zones, tokens.__getitem__)
 
-    renderer = markdown_parser(linkify=True)
+    renderer = markdown_parser(native_lists=True, linkify=True)
     renderer.add_render_rule("footnote_ref", _footnote_reference)
     renderer.add_render_rule("footnote_block_open", _footnotes_open)
     renderer.add_render_rule("footnote_anchor", _footnote_back_link)

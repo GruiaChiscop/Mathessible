@@ -100,6 +100,11 @@ LaTeX's own in a `.tex` file:
   `\section{...}`, `\subsection{...}` and so on).
 - **Bulleted List** and **Numbered List**: the selected lines, or the
   caret's, become a list (`itemize` and `enumerate` in a `.tex` file).
+- **Task List**: the lines become tasks to tick, `- [ ]` (a ticked one,
+  `- [x]`, stays ticked); the preview and HTML show checkboxes, which
+  screen readers say are checked or not, the PDF, Word and braille ☐ and
+  ☑. **Definition List**: each line becomes a term, its definition to be
+  written after `: ` (`description` in a `.tex` file).
 - **Quotation**, **Code Block** and **Horizontal Rule**.
 - **Link…** (`Command+K`, `Ctrl+K`): the selection is its text, the
   address is asked for (`\href`, with `hyperref` added to the preamble
@@ -110,6 +115,25 @@ LaTeX's own in a `.tex` file:
   document's folder when the document is saved.
 - **Table…**: a table of the rows and columns asked for, to fill in, the
   first row its header (a `tabular` in a `.tex` file).
+
+The **Format** menu marks the selected text **Bold** (`Command+B`),
+**Italic** (`Command+I`), **Strikethrough** (`Command+Shift+X`) or
+**Code** (`Command+E`), `Ctrl` elsewhere, and takes the mark off text that
+has it; with nothing selected the marks go in with the caret between
+them (`\textbf`, `\emph`, `\sout` and `\texttt` in a `.tex` file).
+
+The toolbar under the menus holds the commands a paper is written with:
+Bold, Italic, Heading 1 and 2, the lists, Equation, Table, Link and
+Citation (in a `.tex` file `\cite{}`, its keys suggested; in Markdown a
+footnote). View → Show Toolbar hides it.
+
+The status line at the window's foot shows the document, the section the
+caret is in (its heading), the words and characters (an equation is one
+word; of the selection too, when there is one) and the caret's line and
+column. On macOS its fields are native labels, which VoiceOver reads when
+it reaches them; on Windows and Linux it is the window's status bar, which
+NVDA reads. View → Read Status (`Command+Option+S`, `Ctrl+Alt+S` elsewhere) says
+them all without leaving the document.
 
 ### Footnotes
 

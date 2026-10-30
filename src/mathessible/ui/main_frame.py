@@ -54,6 +54,7 @@ from mathessible.documents.tex_compile import (
 from mathessible.documents.tex_macros import expand_markdown_macros
 from mathessible.documents.tex_markdown import tex_to_markdown
 from mathessible.documents.tex_math import NEW_DOCUMENT, NEW_DOCUMENT_CARET
+from mathessible.documents.text_counts import counts, current_section
 from mathessible.documents.typst_math import TypstEquation, typst_math
 from mathessible.editing import document_insert
 from mathessible.editing.pasted_math import plain_letters
@@ -82,6 +83,8 @@ from mathessible.ui.insert_dialogs import LinkDialog, TableDialog
 from mathessible.ui.macos_webview import guard_webview_key_equivalents
 from mathessible.ui.pdf_dialog import PdfExportDialog
 from mathessible.ui.settings_dialog import forget_settings_window, show_settings
+from mathessible.ui.status_line import StatusLine
+from mathessible.ui.toolbar import build_toolbar
 from mathessible.unicodemath import UnicodeMathError, mathml_has_parse_error
 
 try:
@@ -160,11 +163,22 @@ if wx is not None:
                 self._open_recent,
             )
             content_sizer.Add(self.home_panel, 1, wx.EXPAND)
-            panel.SetSizer(content_sizer)
+            # The status: the document (or a message), the caret's section, the counts, the caret's line and
+            # column. On macOS a status line of native labels VoiceOver reads (ui/status_line.py), wx's status bar
+            # being drawn there by wx itself; elsewhere wx's status bar, which NVDA reads.
+            frame_sizer = wx.BoxSizer(wx.VERTICAL)
+            frame_sizer.Add(content_sizer, 1, wx.EXPAND)
+            self.status_line: StatusLine | None = None
+            if wx.Platform == "__WXMAC__":
+                self.status_line = StatusLine(panel, (3, 2, 2, 1))
+                frame_sizer.Add(self.status_line, 0, wx.EXPAND)
+            else:
+                self.CreateStatusBar(4)
+                self.SetStatusWidths([-3, -2, 260, 150])
+            panel.SetSizer(frame_sizer)
 
             self._create_menu()
-            self.CreateStatusBar(2)
-            self.SetStatusWidths([-1, 230])
+            self._counts_timer: wx.CallLater | None = None
             self.editor.markdown.Bind(wx.EVT_TEXT, self._on_document_changed)
             self.editor.markdown.Bind(wx.EVT_KEY_UP, self._on_editor_position_changed)
             self.editor.markdown.Bind(wx.EVT_LEFT_UP, self._on_editor_position_changed)
@@ -184,6 +198,8 @@ if wx is not None:
                 self.editor.set_source(self._new_source())
             if home:
                 self.splitter.Hide()
+                if self.status_line is not None:
+                    self.status_line.Hide()
                 self._update_title()
             else:
                 self.home_panel.Hide()
@@ -322,6 +338,9 @@ if wx is not None:
             self._link_id, self._image_id, self._table_id = wx.NewIdRef(), wx.NewIdRef(), wx.NewIdRef()
             insert_menu.Append(self._bulleted_list_id, _("&Bulleted List"))
             insert_menu.Append(self._numbered_list_id, _("&Numbered List"))
+            self._task_list_id, self._definition_list_id = wx.NewIdRef(), wx.NewIdRef()
+            insert_menu.Append(self._task_list_id, _("Tas&k List"))
+            insert_menu.Append(self._definition_list_id, _("&Definition List"))
             insert_menu.Append(self._quotation_id, _("&Quotation"))
             insert_menu.Append(self._code_block_id, _("&Code Block"))
             insert_menu.Append(self._rule_id, _("Horizontal &Rule"))
@@ -338,9 +357,21 @@ if wx is not None:
             insert_menu.AppendSeparator()
             insert_menu.Append(self._header_footer_id, _("&Header and Footer…"))
             menu_bar.Append(insert_menu, _("&Insert"))
+            # Format: the selected text bold, italic... (document_insert.formatted), or back to plain.
+            format_menu = wx.Menu()
+            self._format_ids = {style: wx.NewIdRef() for style in ("bold", "italic", "strikethrough", "code")}
+            format_menu.Append(self._format_ids["bold"], _("&Bold") + "\tCtrl+B")
+            format_menu.Append(self._format_ids["italic"], _("&Italic") + "\tCtrl+I")
+            format_menu.Append(self._format_ids["strikethrough"], _("&Strikethrough") + "\tCtrl+Shift+X")
+            format_menu.Append(self._format_ids["code"], _("&Code") + "\tCtrl+E")
+            menu_bar.Append(format_menu, _("F&ormat"))
             view_menu = wx.Menu()
             self._preview_id = wx.NewIdRef()
             view_menu.AppendCheckItem(self._preview_id, _("Document &Preview") + "\tCtrl+Shift+P")
+            self._toolbar_id = wx.NewIdRef()
+            view_menu.AppendCheckItem(self._toolbar_id, _("Show &Toolbar"))
+            self._read_status_id = wx.NewIdRef()
+            view_menu.Append(self._read_status_id, _("Read &Status") + "\tCtrl+Alt+S")
             menu_bar.Append(view_menu, _("&View"))
             notebook_menu = wx.Menu()
             self._open_notebook_id = wx.NewIdRef()
@@ -389,11 +420,16 @@ if wx is not None:
             for kind, command_id in (
                 ("bulleted", self._bulleted_list_id),
                 ("numbered", self._numbered_list_id),
+                ("tasks", self._task_list_id),
+                ("definitions", self._definition_list_id),
                 ("quotation", self._quotation_id),
                 ("code", self._code_block_id),
                 ("rule", self._rule_id),
             ):
                 self.Bind(wx.EVT_MENU, lambda _event, kind=kind: self._insert_structure(kind), id=command_id)
+            for style, format_id in self._format_ids.items():
+                self.Bind(wx.EVT_MENU, lambda _event, style=style: self._format(style), id=format_id)
+                self.Bind(wx.EVT_UPDATE_UI, self._on_update_insert_item, id=format_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._insert_link(), id=self._link_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._insert_image(), id=self._image_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._insert_table(), id=self._table_id)
@@ -401,6 +437,8 @@ if wx is not None:
                 *self._heading_ids,
                 self._bulleted_list_id,
                 self._numbered_list_id,
+                self._task_list_id,
+                self._definition_list_id,
                 self._quotation_id,
                 self._code_block_id,
                 self._rule_id,
@@ -456,6 +494,19 @@ if wx is not None:
                 self.Bind(wx.EVT_UPDATE_UI, self._enable_unless_tex, id=command_id)
             self.Bind(wx.EVT_MENU, self._open_settings, id=wx.ID_PREFERENCES)
             self.Bind(wx.EVT_MENU, self._toggle_preview, id=self._preview_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._toggle_toolbar(), id=self._toolbar_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._read_status(), id=self._read_status_id)
+            self.Bind(wx.EVT_UPDATE_UI, lambda event: event.Check(self.GetToolBar() is not None), id=self._toolbar_id)
+            # The toolbar's own commands (its others are the menus' items).
+            self._equation_tool_id, self._citation_id = wx.NewIdRef(), wx.NewIdRef()
+            self.Bind(wx.EVT_MENU, lambda _event: self.editor._open_equation(), id=self._equation_tool_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._insert_citation(), id=self._citation_id)
+            for command_id in (self._equation_tool_id, self._citation_id):
+                self.Bind(wx.EVT_UPDATE_UI, self._on_update_insert_item, id=command_id)
+            if self.settings.show_toolbar:
+                self._show_toolbar(True)
+            # Its icons are drawn in the appearance's text colour: drawn again when it changes.
+            self.Bind(wx.EVT_SYS_COLOUR_CHANGED, self._on_appearance_changed)
             self.Bind(
                 wx.EVT_UPDATE_UI,
                 lambda event: event.Check(self.splitter.IsSplit()),
@@ -509,6 +560,61 @@ if wx is not None:
             self._update_title()
             self._schedule_preview()
             event.Skip()
+
+        def _toggle_toolbar(self) -> None:
+            shown = self.GetToolBar() is None
+            self._show_toolbar(shown)
+            self.settings.show_toolbar = shown
+            try:
+                save_settings(self.settings)
+            except OSError:
+                pass  # Only the remembered preference is lost.
+
+        def _show_toolbar(self, shown: bool) -> None:
+            """The toolbar (ui/toolbar.py), its tools the menus' commands; or none."""
+            toolbar = self.GetToolBar()
+            if not shown:
+                if toolbar is not None:
+                    self.SetToolBar(None)
+                    toolbar.Destroy()
+                return
+            if toolbar is not None:
+                return
+            build_toolbar(
+                self,
+                (
+                    (self._format_ids["bold"], _("Bold"), "B", {"bold": True}),
+                    (self._format_ids["italic"], _("Italic"), "I", {"italic": True}),
+                    (self._heading_ids[0], _("Heading 1"), "H1", {"bold": True}),
+                    (self._heading_ids[1], _("Heading 2"), "H2", {"bold": True}),
+                    None,
+                    (self._bulleted_list_id, _("Bulleted List"), "•", {}),
+                    (self._numbered_list_id, _("Numbered List"), "1.", {}),
+                    None,
+                    (self._equation_tool_id, _("Equation"), "∑", {}),
+                    (self._table_id, _("Table"), "▦", {}),
+                    (self._link_id, _("Link"), "↗", {}),
+                    (self._citation_id, _("Citation"), "[1]", {}),
+                ),
+            )
+
+        def _on_appearance_changed(self, event: wx.SysColourChangedEvent) -> None:
+            if self.GetToolBar() is not None:
+                self._show_toolbar(False)
+                self._show_toolbar(True)
+            event.Skip()
+
+        def _insert_citation(self) -> None:
+            """The toolbar's Citation: in a .tex file \\cite{} with the caret inside, its keys suggested (with
+            completion in the document on); in Markdown, which cites in notes, a footnote."""
+            if not self.editor.tex:
+                self.editor.insert_footnote()
+                return
+            self.editor.apply_insert(
+                lambda source, start, end: TemplateEdit(source[:start] + "\\cite{}" + source[end:], start + 6, "")
+            )
+            if self.settings.autocorrect_in_document and self.settings.complete_in_document:
+                wx.CallAfter(self.editor._offer_completion)
 
         def _toggle_preview(self, _event: wx.CommandEvent | None = None) -> None:
             shown = not self.splitter.IsSplit()
@@ -966,6 +1072,24 @@ if wx is not None:
                 self.SetTitle(_("Mathessible — {name}").format(name=name))
             self._update_status()
 
+        def SetStatusText(self, text: str, number: int = 0) -> None:  # noqa: N802 (wx's name)
+            """The status's field `number`: on macOS the status line's, elsewhere wx's status bar's."""
+            if self.status_line is not None:
+                self.status_line.set(text, number)
+            else:
+                super().SetStatusText(text, number)
+
+        def _read_status(self) -> None:
+            """View > Read Status: the status said, without moving the focus."""
+            self._update_counts()
+            if self.status_line is not None:
+                spoken = self.status_line.spoken()
+            else:
+                bar = self.GetStatusBar()
+                fields = (bar.GetStatusText(index) for index in range(bar.GetFieldsCount()))
+                spoken = "; ".join(field for field in fields if field)
+            self.editor.announce(spoken)
+
         def _update_status(self) -> None:
             source = self.editor.source
             position = min(self.editor.markdown.GetInsertionPoint(), len(source))
@@ -980,7 +1104,32 @@ if wx is not None:
             else:
                 context = self.document_path.name if self.document_path else _("Untitled Markdown document")
             self.SetStatusText(context, 0)
-            self.SetStatusText(_("Line {line}, Column {column}").format(line=line, column=column), 1)
+            self.SetStatusText(_("Line {line}, Column {column}").format(line=line, column=column), 3)
+            # The section and the counts once typing pauses: a long .tex file is read whole for them.
+            if self._counts_timer is not None and self._counts_timer.IsRunning():
+                self._counts_timer.Stop()
+            self._counts_timer = wx.CallLater(250, self._update_counts)
+
+        def _update_counts(self) -> None:
+            """The caret's section and the words and characters, those of the selection beside the whole's."""
+            if not self or self._home:
+                return
+            source, tex = self.editor.source, self.editor.tex
+            caret = min(self.editor.markdown.GetInsertionPoint(), len(source))
+            self.SetStatusText(current_section(source, caret, tex), 1)
+            whole = counts(source, tex)
+            start, end = self.editor.markdown.GetSelection()
+            if start != end:
+                part = counts(source[start:end], False)
+                text = _("{selected} of {words} words, {characters} characters").format(
+                    selected=part.words, words=whole.words, characters=part.characters
+                )
+            else:
+                text = ngettext("{count} word", "{count} words", whole.words).format(count=whole.words)
+                text += ", " + ngettext("{count} character", "{count} characters", whole.characters).format(
+                    count=whole.characters
+                )
+            self.SetStatusText(text, 2)
 
         def _show_error(self, action: str, error: Exception) -> None:
             """What failed, said plainly (error_messages); the technical text goes to the session log."""
@@ -1076,12 +1225,21 @@ if wx is not None:
                 "heading": lambda source, start, end: document_insert.heading(source, start, end, level, tex),
                 "bulleted": lambda source, start, end: document_insert.list_items(source, start, end, False, tex),
                 "numbered": lambda source, start, end: document_insert.list_items(source, start, end, True, tex),
+                "tasks": lambda source, start, end: document_insert.task_list(source, start, end, tex),
+                "definitions": lambda source, start, end: document_insert.definition_list(source, start, end, tex),
                 "quotation": lambda source, start, end: document_insert.quotation(source, start, end, tex),
                 "code": lambda source, start, end: document_insert.code_block(source, start, end, tex),
                 "rule": lambda source, start, end: document_insert.horizontal_rule(source, start, end, tex),
             }
             session_log.write("command", f"insert {kind}")
             self.editor.apply_insert(inserts[kind])
+
+        def _format(self, style: str) -> None:
+            tex = self.editor.tex
+            session_log.write("command", f"format {style}")
+            self.editor.apply_insert(
+                lambda source, start, end: document_insert.formatted(source, start, end, style, tex)
+            )
 
         def _insert_link(self) -> None:
             """Insert > Link (Command+K): the selection its text, an address asked for; \\href in a .tex file."""
@@ -1159,6 +1317,8 @@ if wx is not None:
             self._home = False
             self.home_panel.Hide()
             self.splitter.Show()
+            if self.status_line is not None:
+                self.status_line.Show()
             self.home_panel.GetParent().Layout()
             self._update_title()
             self.editor.markdown.SetFocus()

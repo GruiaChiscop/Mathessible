@@ -35,6 +35,26 @@ class MarkdownInsertTests(unittest.TestCase):
         self.assertEqual(edit.source[edit.caret - 2 : edit.caret], "| ")
 
 
+class ListsAndFormatTests(unittest.TestCase):
+    def test_task_and_definition_lists(self) -> None:
+        self.assertEqual(insert.task_list("buy milk\n- [x] call", 0, 20, False).source, "- [ ] buy milk\n- [x] call")
+        self.assertEqual(parts(insert.definition_list("Ring\nField", 0, 10, False)), ("Ring\n: ", "\n\nField\n: "))
+        self.assertEqual(parts(insert.definition_list("Ring", 0, 0, True))[0], "\\begin{description}\n  \\item[Ring] ")
+        tasks = insert.task_list(NEW_DOCUMENT, NEW_DOCUMENT_CARET, NEW_DOCUMENT_CARET, True).source
+        self.assertIn("\\usepackage{amssymb}", tasks)
+        self.assertIn("\\item[$\\square$]", tasks)
+
+    def test_formatting_marks_and_unmarks(self) -> None:
+        self.assertEqual(insert.formatted("a word b", 2, 6, "bold", False).source, "a **word** b")
+        self.assertEqual(insert.formatted("a **word** b", 4, 8, "bold", False).source, "a word b")
+        self.assertEqual(insert.formatted("a **word** b", 2, 10, "bold", False).source, "a word b")
+        self.assertEqual(parts(insert.formatted("a  b", 2, 2, "italic", False)), ("a *", "* b"))
+        self.assertEqual(insert.formatted("a word b", 2, 6, "italic", True).source, "a \\emph{word} b")
+        self.assertEqual(insert.formatted("a \\emph{word} b", 8, 12, "italic", True).source, "a word b")
+        struck = insert.formatted(NEW_DOCUMENT, NEW_DOCUMENT_CARET, NEW_DOCUMENT_CARET, "strikethrough", True)
+        self.assertIn("\\usepackage[normalem]{ulem}", struck.source)
+
+
 class TexInsertTests(unittest.TestCase):
     def test_sections_lists_and_quotations(self) -> None:
         self.assertEqual(insert.heading("Intro\n", 2, 2, 1, True).source, "\\section{Intro}\n")

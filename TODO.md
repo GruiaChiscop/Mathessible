@@ -68,16 +68,15 @@ editor for writing has, without copying Word.
   (bulleted, numbered, tasks, definitions), headings, links (`Cmd+K`,
   `Ctrl+K`), images, quotations, code, a rule, and charts. Done:
   headings, bulleted and numbered lists, quotations, code, a rule, links,
-  images and tables (`editing/document_insert.py`). Left: task and
-  definition lists (mdit-py-plugins' tasklists and deflist, and each
-  export), and the charts. What Markdown
+  images and tables, task and definition lists
+  (`editing/document_insert.py`). Left: the charts. What Markdown
   lacks comes from its extensions (markdown-it's plugins, as the
   footnotes do); in a .tex file each is LaTeX's own (`tabular`,
   `\section`, `\href`). Charts of three kinds: a function's graph
   (y = x², from the equation; pgfplots in .tex), charts from data (bars,
   lines, pie, from a table of values) and diagrams (flowcharts, Mermaid
   in Markdown, TikZ in .tex).
-- [ ] The editor's basic elements beside the menu bar, as editors for
+- [x] The editor's basic elements beside the menu bar, as editors for
   writing have them: a toolbar (bold, italic, headings, lists, equation,
   table, link, citation), a status bar with counts (words, characters,
   the current section, the line) and formatting shortcuts (`Cmd+B`,

@@ -86,6 +86,7 @@ def _blocks(markdown: str, text_braille: BrailleOf, math_braille: BrailleOf) -> 
     in_note = False
     row: list[str] = []
     in_cell = False
+    quoted = 0  # Open quotations (and definitions, which markdown_parser makes them): two cells each.
     for token in tokens:
         kind = token.type
         if kind == "heading_open":
@@ -96,6 +97,8 @@ def _blocks(markdown: str, text_braille: BrailleOf, math_braille: BrailleOf) -> 
             lists.append([1 if kind == "ordered_list_open" else 0, int(token.attrGet("start") or 1)])
         elif kind in ("bullet_list_close", "ordered_list_close"):
             lists.pop()
+        elif kind in ("blockquote_open", "blockquote_close"):
+            quoted += 1 if kind == "blockquote_open" else -1
         elif kind == "footnote_open":
             item_marker, in_note = f"{_note_number(token.meta)} ", True
         elif kind == "footnote_close":
@@ -130,7 +133,7 @@ def _blocks(markdown: str, text_braille: BrailleOf, math_braille: BrailleOf) -> 
             elif lists or in_note:
                 blocks.append(_Block(braille(text), depth + 2, depth + 2))
             else:
-                blocks.append(_Block(braille(text), 2, 0))
+                blocks.append(_Block(braille(text), 2 + 2 * quoted, 2 * quoted))
     return blocks
 
 

@@ -79,6 +79,41 @@ def list_items(source: str, start: int, end: int, numbered: bool, tex: bool) -> 
     return TemplateEdit(source[:first] + text + source[last:], first + len(text), "")
 
 
+def task_list(source: str, start: int, end: int, tex: bool) -> TemplateEdit:
+    """The lines the selection touches (or the caret's line) as tasks to tick, `- [ ] ...`
+    (in .tex an itemize whose items are boxes, `\\item[$\\square$]`, amssymb's)."""
+    first, last = _line_span(source, start, end)
+    lines = source[first:last].split("\n")
+    if tex:
+        items = "\n".join(f"  \\item[$\\square$] {line.strip()}" for line in lines)
+        block = f"\\begin{{itemize}}\n{items}\n\\end{{itemize}}"
+        edit = _block(source[:first] + source[last:], first, first, block, len("\\begin{itemize}\n") + len(items), tex)
+        return with_package(edit, "amssymb")
+    marked = []
+    for line in lines:
+        indent, content = re.match(r"^(\s*)(.*)$", _MARKDOWN_LIST.sub(r"\1", line)).groups()
+        done = re.match(r"^\[[xX]\]\s*", content)  # A task already ticked stays ticked.
+        marked.append(f"{indent}- [{'x' if done else ' '}] {re.sub(r'^\[[ xX]\]\s*', '', content)}")
+    text = "\n".join(marked)
+    return TemplateEdit(source[:first] + text + source[last:], first + len(text), "")
+
+
+def definition_list(source: str, start: int, end: int, tex: bool) -> TemplateEdit:
+    """The lines the selection touches (or the caret's line) as terms, each with its definition to write
+    after `: ` (in .tex a description, `\\item[term]`); the caret where the first definition goes."""
+    first, last = _line_span(source, start, end)
+    terms = [line.strip() for line in source[first:last].split("\n")]
+    if tex:
+        items = [f"  \\item[{term}] " for term in terms]
+        block = "\\begin{description}\n" + "\n".join(items) + "\n\\end{description}"
+        return _block(
+            source[:first] + source[last:], first, first, block, len("\\begin{description}\n") + len(items[0]), tex
+        )
+    pairs = [f"{term}\n: " for term in terms]
+    text = "\n\n".join(pairs)
+    return TemplateEdit(source[:first] + text + source[last:], first + len(pairs[0]), "")
+
+
 def quotation(source: str, start: int, end: int, tex: bool) -> TemplateEdit:
     """The lines the selection touches (or the caret's line) as a quotation."""
     first, last = _line_span(source, start, end)
@@ -153,7 +188,36 @@ def table(source: str, start: int, end: int, rows: int, columns: int, header: bo
 _USEPACKAGE = re.compile(r"\\usepackage\s*(?:\[[^\]]*\])?\s*\{([^}]*)\}")
 
 
-def with_package(edit: TemplateEdit, package: str) -> TemplateEdit:
+# Format: Markdown's marks and LaTeX's commands for bold, italic, struck-through and code text.
+_MARKS = {"bold": "**", "italic": "*", "strikethrough": "~~", "code": "`"}
+_COMMANDS = {"bold": "textbf", "italic": "emph", "strikethrough": "sout", "code": "texttt"}
+
+
+def formatted(source: str, start: int, end: int, style: str, tex: bool) -> TemplateEdit:
+    """Format > Bold, Italic...: the selection marked (`**...**`, `\\textbf{...}`), or unmarked when it already
+    is; without a selection the marks with the caret between them, to type in. Struck-through text in .tex
+    is ulem's `\\sout`, loaded `normalem` so that \\emph stays italic."""
+    selected = source[start:end]
+    if tex:
+        opening, closing = f"\\{_COMMANDS[style]}{{", "}"
+    else:
+        opening = closing = _MARKS[style]
+    # Already marked, inside the selection or around it: the marks come off.
+    if len(selected) > len(opening) + len(closing) and selected.startswith(opening) and selected.endswith(closing):
+        inner = selected[len(opening) : len(selected) - len(closing)]
+        return TemplateEdit(source[:start] + inner + source[end:], start + len(inner), "")
+    around = source[max(0, start - len(opening)) : start] == opening and source[end : end + len(closing)] == closing
+    bolds_own = style == "italic" and not tex and source[start - 2 : start] == "**"  # *x* in **x** is bold's.
+    if around and not bolds_own:
+        updated = source[: start - len(opening)] + selected + source[end + len(closing) :]
+        return TemplateEdit(updated, start - len(opening) + len(selected), "")
+    text = opening + selected + closing
+    caret = start + len(opening) + len(selected) + (len(closing) if selected else 0)
+    edit = TemplateEdit(source[:start] + text + source[end:], caret, "")
+    return with_package(edit, "ulem", "normalem") if tex and style == "strikethrough" else edit
+
+
+def with_package(edit: TemplateEdit, package: str, options: str = "") -> TemplateEdit:
     """A .tex edit with `\\usepackage{package}` added to the preamble when it is not there yet (`\\href` needs
     hyperref, `\\includegraphics` graphicx): after the last \\usepackage, else before \\begin{document}."""
     source = edit.source
@@ -167,6 +231,6 @@ def with_package(edit: TemplateEdit, package: str) -> TemplateEdit:
     at = source.find("\n", packages[-1].end()) + 1 if packages else begin
     if at <= 0:
         at = begin
-    line = f"\\usepackage{{{package}}}\n"
+    line = f"\\usepackage[{options}]{{{package}}}\n" if options else f"\\usepackage{{{package}}}\n"
     caret = edit.caret + len(line) if edit.caret >= at else edit.caret
     return TemplateEdit(source[:at] + line + source[at:], caret, edit.announcement)
