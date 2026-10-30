@@ -77,6 +77,11 @@ editor for writing has, without copying Word.
   (y = x², from the expression; pgfplots in .tex) and charts from data
   (bars, lines, scatter and pie, from a table of values) are done;
   diagrams are Mermaid in Markdown and TikZ in .tex.
+- [x] Function/data charts and Mermaid flowcharts checked by hand in the
+  running application, including their separate Insert dialogs (2026-10-30).
+- [x] A function chart can be explored by ear from View > Explore Graph:
+  continuous or discrete pitch, stereo position, negative-value noise,
+  generated earcons, landmarks, panning and zooming.
 - [x] The editor's basic elements beside the menu bar, as editors for
   writing have them: a toolbar (bold, italic, headings, lists, equation,
   table, link, citation), a status bar with counts (words, characters,

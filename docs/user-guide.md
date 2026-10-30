@@ -134,6 +134,31 @@ LaTeX's own in a `.tex` file:
   separate from function and data charts: they have no function or data-series
   fields.
 
+### Exploring a function graph by ear
+
+Put the caret anywhere inside a function's fenced `chart` block and choose
+**View → Explore Graph…** (`Command+Option+G`, `Ctrl+Alt+G` elsewhere). This
+opens a keyboard-operated window; data charts and flowcharts do not offer this
+command. The function's y value controls pitch from 100 to 1000 Hz over the
+visible y range, and x controls stereo position. A quiet filtered-noise layer
+marks negative values. Generated earcons mark the y axis, view edges, a value
+that is undefined or outside the visible range, and bookmarks. No recorded
+sounds are bundled.
+
+Left and Right (or J and L, useful with screen readers that take the arrows)
+move over x; hold Shift for fluid movement, or Command (Control elsewhere)
+with an arrow to move among bookmarks and the two view boundaries. Home and
+End go to the view's edges.
+W, A, S and D move the view; Z zooms in and Shift+Z zooms out. Hold X or Y
+while pressing Z to zoom only that axis, press Command+Z (Ctrl+Z elsewhere) to
+centre the view at the cursor, and press R to restore the original view. B or
+Space plays the whole graph from left to right. I switches between a
+continuous tone and the 25 chromatic notes from C3 through C5, P turns sound
+on or off, C reads the coordinates, V reads the view, N selects the next
+function, 1 through 9 selects it directly, and Command+B (Ctrl+B elsewhere)
+adds or removes a bookmark. F1 reads all these keys. Every operation is also
+available from the window's native menus.
+
 The **Format** menu marks the selected text **Bold** (`Command+B`),
 **Italic** (`Command+I`), **Strikethrough** (`Command+Shift+X`) or
 **Code** (`Command+E`), `Ctrl` elsewhere, and takes the mark off text that

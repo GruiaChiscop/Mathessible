@@ -15,9 +15,11 @@ dependencies = [
     "mathessible-mathcat",
     "matplotlib>=3.11.2,<4",
     "mdit-py-plugins>=0.5,<0.6",
+    "numpy>=2,<3",
     "prismatoid>=0.16,<0.17",
     "pypdf[crypto]>=5,<7",
     "python-docx>=1.1,<2",
+    "sounddevice>=0.5,<0.6",
     "typst>=0.15,<0.16",
     "wxPython>=4.2.3",
 ]

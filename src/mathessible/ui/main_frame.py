@@ -65,6 +65,7 @@ from mathessible.mathcat.document_speech import equation_speech
 from mathessible.mathcat.navigator import MATHCAT_MISSING, mathcat_load_error
 from mathessible.patch_check import missing_patches
 from mathessible.settings import AppSettings, load_settings, save_settings
+from mathessible.sonification.graph import function_chart_at
 from mathessible.symbols.braille_signs import load_signs, signs_yaml
 from mathessible.symbols.system_languages import preferred_languages
 from mathessible.symbols.text_braille import default_table, tables_directory, text_tables
@@ -77,6 +78,7 @@ from mathessible.ui.export_dialogs import (
     HtmlExportDialog,
     WordDocument,
 )
+from mathessible.ui.graph_explorer import GraphExplorerWindow
 from mathessible.ui.header_footer_dialog import HeaderFooterDialog
 from mathessible.ui.help_menu import append_help_menu
 from mathessible.ui.home_panel import HomePanel
@@ -374,6 +376,8 @@ if wx is not None:
             view_menu.AppendCheckItem(self._preview_id, _("Document &Preview") + "\tCtrl+Shift+P")
             self._toolbar_id = wx.NewIdRef()
             view_menu.AppendCheckItem(self._toolbar_id, _("Show &Toolbar"))
+            self._explore_graph_id = wx.NewIdRef()
+            view_menu.Append(self._explore_graph_id, _("Explore &Graph…") + "\tCtrl+Alt+G")
             self._read_status_id = wx.NewIdRef()
             view_menu.Append(self._read_status_id, _("Read &Status") + "\tCtrl+Alt+S")
             menu_bar.Append(view_menu, _("&View"))
@@ -439,6 +443,8 @@ if wx is not None:
             self.Bind(wx.EVT_MENU, lambda _event: self._insert_table(), id=self._table_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._insert_chart(), id=self._chart_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._insert_flowchart(), id=self._flowchart_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._explore_graph(), id=self._explore_graph_id)
+            self.Bind(wx.EVT_UPDATE_UI, self._on_update_explore_graph, id=self._explore_graph_id)
             for command_id in (
                 *self._heading_ids,
                 self._bulleted_list_id,
@@ -1050,6 +1056,20 @@ if wx is not None:
             event.Enable(zone is not None and not self.editor.editing_equation)
             inline = zone is not None and zone.display
             event.SetText(_("Change Equation to &Inline") if inline else _("Change Equation to &Display"))
+
+        def _on_update_explore_graph(self, event: wx.UpdateUIEvent) -> None:
+            source = self.editor.markdown.GetValue()
+            caret = self.editor.markdown.GetInsertionPoint()
+            event.Enable(not self.editor.tex and function_chart_at(source, caret) is not None)
+
+        def _explore_graph(self) -> None:
+            source = self.editor.markdown.GetValue()
+            chart = function_chart_at(source, self.editor.markdown.GetInsertionPoint())
+            if chart is None:
+                self._say(_("Put the caret in a function chart to explore it."))
+                return
+            session_log.write("command", "explore graph")
+            GraphExplorerWindow(self, chart, self.editor.output)
 
         def _on_update_notebook_menu(self, event: wx.UpdateUIEvent) -> None:
             has_notebook = self.notebook is not None

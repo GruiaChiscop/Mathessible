@@ -73,6 +73,8 @@ them resolved (`editing/source_view.py`).
   HTML passes `documents/mathml_sanitize.py` first.
 - `symbols/`: the dictionaries that name symbols while typing in the
   linear view (NVDA's `symbols.dic` format).
+- `sonification/`: the wx-free state and synthesiser for exploring a function
+  chart by ear; `ui/graph_explorer.py` is its keyboard-operated window.
 - `settings.py`, `session_log.py` (`MATHESSIBLE_LOG=1`), `patch_check.py` (the
   startup check that bootstrap's patches are applied).
 - `i18n.py` and `locale/`: the interface in MathCAT's languages, read from

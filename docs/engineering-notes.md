@@ -1131,6 +1131,7 @@ modules as they were then, without their package):
 | `templates/` | `template_source`, `math_templates`, `matrix_templates`, `fraction_styles`, `structure_edits`, `insert_catalog`, `structure_gallery` | no |
 | `mathcat/` | `navigator` (`MathCatNavigator`, was `mathcat`), `stops`, `structural`, `tables`, `common`, `prepare`, `lone` (were `mathcat_*`), `mathml_model` | no |
 | `documents/` | `markdown_math`, `footnotes`, `front_matter`, `document_io`, `notebook`, `portable_notebook`, `html_export`, `mathml_sanitize` | no |
+| `sonification/` | a function graph's exploration model (`graph`) and real-time generated audio (`synth`) | no |
 | `symbols/` | `dictionary`, `download` (were `symbol_*`) and the built-in `mathessible-en.dic` | no |
 | `ui/` | `main_frame`, `document_editor`, the dialogs, `macos_webview`, `speech`, `clipboard`, `theme` | yes |
 
@@ -1714,7 +1715,8 @@ whose trigonometry is degree-based; `pgf_expression` adds it and the reader
 removes it. Pie data must be one non-negative series with at least one
 positive value: matplotlib otherwise raises while drawing. The chart dialog
 uses native controls only and inserts through `document_insert.chart`, so
-the operation is one undo step.
+the operation is one undo step. The user checked function/data charts and
+their separate flowchart command by hand in the running app on 2026-10-30.
 
 Flowcharts (2026-10-30, [documents/flowcharts.py](../src/mathessible/documents/flowcharts.py))
 are standard fenced `mermaid` blocks, but deliberately use an offline subset:
@@ -1734,6 +1736,51 @@ commands. This fallback is intentionally not a general TikZ parser. Flowcharts
 have their own Insert item and native dialog (title, description and direction),
 separate from function/data charts; insertion goes through
 `document_insert.flowchart` and is one undo step.
+
+Function-chart sonification (2026-10-30,
+[sonification/graph.py](../src/mathessible/sonification/graph.py),
+[sonification/synth.py](../src/mathessible/sonification/synth.py),
+[ui/graph_explorer.py](../src/mathessible/ui/graph_explorer.py)) is a separate
+frame opened by View > Explore Graph while the caret is in a function `chart`
+block. The wx-free model owns the view, cursor, continuous/discrete modes and
+per-function bookmarks. The frame owns the keys, native menus,
+AssistiveOutput announcements and drawing. `sounddevice` runs the callback;
+numpy renders a two-operator FM continuous voice, a Karplus--Strong plucked
+discrete voice, equal-power stereo pan, filtered noise for negative values and
+generated earcons. There are no bundled sound files.
+An absent audio device does not prevent the frame opening: movement then reads
+coordinates.
+
+The interaction model was reimplemented after auditing the official
+[AudioFunctions+ source](https://github.com/SONAIRGRAPH/audiofunctions-plus)
+and [program guide](https://github.com/SONAIRGRAPH/audiofunctions-plus-doc)
+from the [SONAIRGRAPH](https://sonairgraph.unito.it/) project: y as pitch, x as
+pan, the 100--1000 Hz continuous mapping, the chromatic C3--C5 discrete
+mapping, pink noise below zero, boundary/no-value/y-axis signs, a 0.25 default
+step, landmarks, moving/zooming a view and ten-second whole-graph playback.
+AudioFunctions+ is AGPL-3.0; Mathessible uses none of its code or audio assets.
+The behaviour and all signals were reimplemented locally so Mathessible
+remains GPL-2.0-or-later. Background references are the
+[AudioFunctions paper](https://www.springerprofessional.de/audiofunctions-eyes-free-exploration-of-mathematical-functions-o/2191074)
+and [KIT's SONAIRGRAPH page](https://www.access.kit.edu/english/1611.php).
+
+The deliberate desktop adaptations are recorded here so they are not mistaken
+for AudioFunctions+ behaviour. A chart supplies only an x range, so Mathessible
+chooses one robust common y view for all its functions instead of opening at
+`[-10, 10]` on both axes. Its earcons are newly generated, not the project's
+recordings. The drawn desktop explorer has no mouse-sonification mode, so it
+does not implement AudioFunctions+'s mouse-y-to-volume mapping; keyboard and
+batch exploration in AudioFunctions+ use full volume too. Mathessible calls a
+landmark a bookmark and currently gives every bookmark one generated sign,
+rather than the original's triangle, square and diamond choices. Do not infer
+roots or extrema by sampling: AudioFunctions+'s automatic points of interest
+are endpoints and isolated/unequal points derived from explicit piecewise
+function structure, which Mathessible's chart format does not yet expose.
+
+**Trap:** `function_chart_at` deliberately enables the command only inside a
+Markdown function-chart fence. Data charts, Mermaid flowcharts and malformed
+blocks stay disabled. The audio callback must never touch wx or speak; it reads
+only a small target `Sound`, while the UI thread queues earcons and announcements.
 
 Home screen (2026-10-30, [ui/home_panel.py](../src/mathessible/ui/home_panel.py)):
 the first window's own content (`MainFrame(home=True)` from app.py when no

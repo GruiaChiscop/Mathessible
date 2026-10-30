@@ -33,11 +33,33 @@ both are given. What each command does is explained in the
 | Insert a footnote | `Command+Shift+F` | `Ctrl+Alt+F` |
 | Go to the footnote or its reference | `Command+Option+Shift+F` | `Ctrl+Alt+Shift+F` |
 | Document preview | `Command+Shift+P` | `Ctrl+Shift+P` |
+| Explore the function chart at the caret | `Command+Option+G` | `Ctrl+Alt+G` |
 | Next window | ``Command+` `` | ``Ctrl+` `` |
 | Previous window | ``Command+Shift+` `` | ``Ctrl+Shift+` `` |
 
 Change Equation to Display (or to Inline) is in the Edit menu, without a
 shortcut, as in Word; so is Insert → Header and Footer.
+
+## Explore Graph
+
+| Command | macOS | Windows and Linux |
+| --- | --- | --- |
+| Move left or right; move fluidly | `Left`, `Right` or `J`, `L`; add `Shift` | same |
+| Previous or next landmark or boundary | `Command+Left`, `Command+Right` | `Ctrl+Left`, `Ctrl+Right` |
+| Left or right edge | `Home`, `End` | same |
+| Move the view | `W`, `A`, `S`, `D` | same |
+| Zoom in or out | `Z`, `Shift+Z` | same |
+| Zoom one axis | hold `X` or `Y`, then press `Z` or `Shift+Z` | same |
+| Restore the original view | `R` | same |
+| Play or stop the whole graph | `B` or `Space` | same |
+| Continuous tone or discrete notes | `I` | same |
+| Sound on or off | `P` | same |
+| Read coordinates; read view limits | `C`; `V` | same |
+| Next function in the chart | `N` | same |
+| Choose function 1 through 9 | `1` through `9` | same |
+| Add or remove a bookmark | `Command+B` | `Ctrl+B` |
+| Centre the view at the cursor | `Command+Z` | `Ctrl+Z` |
+| Read every key | `F1` | same |
 
 ## The equation editor
 
