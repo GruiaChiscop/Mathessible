@@ -9,7 +9,7 @@ both are given. What each command does is explained in the
 | Command | macOS | Windows and Linux |
 | --- | --- | --- |
 | Open the equation at the caret, or a new one | `Control+=` | `Alt+=` |
-| New document | `Command+N` | `Ctrl+N` |
+| New document (File → New → Document) | `Command+N` | `Ctrl+N` |
 | Open | `Command+O` | `Ctrl+O` |
 | Save | `Command+S` | `Ctrl+S` |
 | Save as | `Command+Shift+S` | `Ctrl+Shift+S` |

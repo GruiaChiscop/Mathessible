@@ -1672,9 +1672,9 @@ in the middle of a list); a .tex file adds `TEX_TEXT_COMMANDS` and
 `TEX_ENVIRONMENTS`, which the converter (math only) does not have, the
 usual `\documentclass{`/`\usepackage{`/`\bibliographystyle{` arguments, and
 writes a text environment on lines of its own (`accept_document_completion`).
-A document is a .tex one by its path (`DocumentEditor.tex`), so File > New
+A document is a .tex one by its path (`DocumentEditor.tex`), so File > New >
 LaTeX Document (`tex_math.NEW_DOCUMENT`) makes one before it has a path:
-File > New with "Equations in LaTeX" is Markdown, whose text has no
+File > New > Document with "Equations in LaTeX" is Markdown, whose text has no
 preamble (the user's first try offered no \documentclass, rightly).
 
 Settings in categories (2026-10-30): a notebook of categories, each holding

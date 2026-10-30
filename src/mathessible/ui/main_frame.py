@@ -224,9 +224,12 @@ if wx is not None:
             self._export_docx_id = wx.NewIdRef()
             self._compile_tex_id = wx.NewIdRef()
             # In the order of Apple's guidelines; Quit goes to the application menu on macOS.
-            file_menu.Append(wx.ID_NEW, _("&New") + "\tCtrl+N")
+            # File > New: a document (Markdown) or a LaTeX document (.tex, with its frame).
+            new_menu = wx.Menu()
+            new_menu.Append(wx.ID_NEW, _("&Document") + "\tCtrl+N")
             self._new_tex_id = wx.NewIdRef()
-            file_menu.Append(self._new_tex_id, _("New LaTe&X Document"))
+            new_menu.Append(self._new_tex_id, _("&LaTeX Document"))
+            file_menu.AppendSubMenu(new_menu, _("&New"))
             file_menu.Append(wx.ID_OPEN, _("&Open…") + "\tCtrl+O")
             self._recent_menu = wx.Menu()
             self._recent_ids = [wx.NewIdRef() for _ in range(RECENT_LIMIT)]
@@ -991,7 +994,7 @@ if wx is not None:
             self._spawn_window()
 
         def _new_tex_document(self, _event: wx.CommandEvent | None = None) -> None:
-            """File > New LaTeX Document: a .tex document from the start (saved as one), an article's frame in it,
+            """File > New > LaTeX Document: a .tex document from the start (saved as one), an article's frame in it,
             the caret in its body; a new document is otherwise Markdown until it is saved as .tex."""
             frame = self if self._is_blank() else self._spawn_window()
             frame.editor.tex = True

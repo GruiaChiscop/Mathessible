@@ -150,9 +150,9 @@ sums and integrals, `\begin{pmatrix}`, `\begin{cases}`, `\left( \right)`,
 
 File → Open also opens a LaTeX document (`.tex`), and Save keeps it a
 `.tex` file, exactly as it was written but for the equations you edit.
-File → New LaTeX Document starts one: an article (`\documentclass`,
+File → New → LaTeX Document starts one: an article (`\documentclass`,
 `amsmath`, `\begin{document}`), the caret in its body, saved as `.tex`. A
-document begun with File → New is Markdown until it is saved as `.tex`.
+document begun with File → New → Document is Markdown until it is saved as `.tex`.
 Its equations are found by LaTeX's own marks: `$...$`, `\(...\)`,
 `$$...$$`, `\[...\]` and the `equation`, `align`, `gather`, `multline`,
 `eqnarray` and `math` environments (comments, `\verb` and `verbatim` are
