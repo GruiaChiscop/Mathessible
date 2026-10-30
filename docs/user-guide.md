@@ -483,7 +483,7 @@ PDF only:
   are allowed. Whatever is forbidden, screen readers can always read the
   PDF, as PDF/UA requires. PDF/A does not allow passwords.
 
-Layout and content start from `Settings → PDF`, the defaults; **Save as
+Layout and content start from `Settings → PDF Layout` and `PDF Content`, the defaults; **Save as
 Defaults** makes this PDF's layout, content, standard and author the
 defaults. The title, watermark and passwords belong to one PDF and are
 never kept; the header and footer are the document's (Insert → Header

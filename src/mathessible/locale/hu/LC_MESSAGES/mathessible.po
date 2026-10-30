@@ -271,19 +271,19 @@ msgstr "nincs hiba"
 msgid "{message}, selected {span}"
 msgstr "{message}, kijelölve {span}"
 
-#: src/mathessible/editor/built.py:119 src/mathessible/editor/equation_editor.py:1106
+#: src/mathessible/editor/built.py:119 src/mathessible/editor/equation_editor.py:1151
 msgid "could not cut"
 msgstr "nem sikerült kivágni"
 
-#: src/mathessible/editor/built.py:432 src/mathessible/editor/equation_editor.py:1071
+#: src/mathessible/editor/built.py:432 src/mathessible/editor/equation_editor.py:1116
 msgid "nothing to select"
 msgstr "nincs mit kijelölni"
 
-#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:1033
+#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:1078
 msgid "nothing to undo"
 msgstr "nincs mit visszavonni"
 
-#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:1033
+#: src/mathessible/editor/built.py:840 src/mathessible/editor/equation_editor.py:1078
 msgid "nothing to redo"
 msgstr "nincs mit megismételni"
 
@@ -350,170 +350,170 @@ msgstr "Írjon ide LaTeX-et, pl. \\frac{a+b}{2}"
 msgid "Type UnicodeMath here, e.g. (a+b)/2"
 msgstr "Írjon ide UnicodeMath-ot, pl. (a+b)/2"
 
-#: src/mathessible/editor/equation_editor.py:131
+#: src/mathessible/editor/equation_editor.py:136
 msgid "Equation editor"
 msgstr "Egyenletszerkesztő"
 
-#: src/mathessible/editor/equation_editor.py:238 src/mathessible/ui/braille_signs_dialog.py:61
-#: src/mathessible/ui/settings_dialog.py:74
+#: src/mathessible/editor/equation_editor.py:246 src/mathessible/ui/braille_signs_dialog.py:61
+#: src/mathessible/ui/settings_dialog.py:75
 msgid "Braille"
 msgstr "Braille"
 
-#: src/mathessible/editor/equation_editor.py:241
+#: src/mathessible/editor/equation_editor.py:249
 msgid "Equation braille"
 msgstr "Az egyenlet braille-írása"
 
-#: src/mathessible/editor/equation_editor.py:297
+#: src/mathessible/editor/equation_editor.py:305
 msgid "equation ready"
 msgstr "az egyenlet kész"
 
-#: src/mathessible/editor/equation_editor.py:472
+#: src/mathessible/editor/equation_editor.py:480
 msgid "Equation editor, professional mode"
 msgstr "Egyenletszerkesztő, professzionális mód"
 
-#: src/mathessible/editor/equation_editor.py:474
+#: src/mathessible/editor/equation_editor.py:482
 msgid "Equation editor, linear mode"
 msgstr "Egyenletszerkesztő, lineáris mód"
 
-#: src/mathessible/editor/equation_editor.py:546
+#: src/mathessible/editor/equation_editor.py:554
 #, python-brace-format
 msgid "zoom {percent} percent"
 msgstr "nagyítás {percent} százalék"
 
-#: src/mathessible/editor/equation_editor.py:603
+#: src/mathessible/editor/equation_editor.py:611
 msgid "The equation could not be built"
 msgstr "Az egyenletet nem sikerült felépíteni"
 
-#: src/mathessible/editor/equation_editor.py:615
+#: src/mathessible/editor/equation_editor.py:623
 #, python-brace-format
 msgid "The equation could not be read. {error}"
 msgstr "Az egyenletet nem sikerült beolvasni. {error}"
 
-#: src/mathessible/editor/equation_editor.py:639
+#: src/mathessible/editor/equation_editor.py:647
 msgid "empty equation"
 msgstr "üres egyenlet"
 
-#: src/mathessible/editor/equation_editor.py:648
+#: src/mathessible/editor/equation_editor.py:656
 #, python-brace-format
 msgid "Professional mode could not be built. {error}"
 msgstr "A professzionális módot nem sikerült felépíteni. {error}"
 
-#: src/mathessible/editor/equation_editor.py:654 src/mathessible/editor/equation_editor.py:712
+#: src/mathessible/editor/equation_editor.py:662 src/mathessible/editor/equation_editor.py:720
 #, python-brace-format
 msgid "cannot be built, {errors}"
 msgstr "nem építhető fel, {errors}"
 
-#: src/mathessible/editor/equation_editor.py:657
+#: src/mathessible/editor/equation_editor.py:665
 msgid "Professional mode could not be built"
 msgstr "A professzionális módot nem sikerült felépíteni"
 
-#: src/mathessible/editor/equation_editor.py:689
+#: src/mathessible/editor/equation_editor.py:697
 #, python-brace-format
 msgid "professional mode, {speech}"
 msgstr "professzionális mód, {speech}"
 
-#: src/mathessible/editor/equation_editor.py:709
+#: src/mathessible/editor/equation_editor.py:717
 msgid "the LaTeX has errors"
 msgstr "a LaTeX hibás"
 
-#: src/mathessible/editor/equation_editor.py:745
+#: src/mathessible/editor/equation_editor.py:753
 msgid "the equation has errors"
 msgstr "az egyenlet hibás"
 
-#: src/mathessible/editor/equation_editor.py:748
+#: src/mathessible/editor/equation_editor.py:759
 #, python-brace-format
 msgid "cannot be written in LaTeX, {error}"
 msgstr "nem írható LaTeX-ben, {error}"
 
-#: src/mathessible/editor/equation_editor.py:868
+#: src/mathessible/editor/equation_editor.py:913
 msgid "writing mode"
 msgstr "írás mód"
 
-#: src/mathessible/editor/equation_editor.py:868
+#: src/mathessible/editor/equation_editor.py:913
 msgid "exploration mode"
 msgstr "felfedező mód"
 
-#: src/mathessible/editor/equation_editor.py:871
+#: src/mathessible/editor/equation_editor.py:916
 msgid "exploration mode, F10 to write"
 msgstr "felfedező mód, F10 az íráshoz"
 
-#: src/mathessible/editor/equation_editor.py:938 src/mathessible/editor/structures.py:466
+#: src/mathessible/editor/equation_editor.py:983 src/mathessible/editor/structures.py:466
 msgid "not available here"
 msgstr "itt nem érhető el"
 
-#: src/mathessible/editor/equation_editor.py:1066
+#: src/mathessible/editor/equation_editor.py:1111
 #, python-brace-format
 msgid "{count} character selected"
 msgid_plural "{count} characters selected"
 msgstr[0] "{count} karakter kijelölve"
 
-#: src/mathessible/editor/equation_editor.py:1085
+#: src/mathessible/editor/equation_editor.py:1130
 #, python-brace-format
 msgid "copied {item}"
 msgstr "másolva: {item}"
 
-#: src/mathessible/editor/equation_editor.py:1087 src/mathessible/editor/equation_editor.py:1095
+#: src/mathessible/editor/equation_editor.py:1132 src/mathessible/editor/equation_editor.py:1140
 msgid "could not copy"
 msgstr "nem sikerült másolni"
 
-#: src/mathessible/editor/equation_editor.py:1092
+#: src/mathessible/editor/equation_editor.py:1137
 msgid "nothing to copy"
 msgstr "nincs mit másolni"
 
-#: src/mathessible/editor/equation_editor.py:1097
+#: src/mathessible/editor/equation_editor.py:1142
 msgid "selection copied"
 msgstr "kijelölés másolva"
 
-#: src/mathessible/editor/equation_editor.py:1097
+#: src/mathessible/editor/equation_editor.py:1142
 msgid "equation copied"
 msgstr "egyenlet másolva"
 
-#: src/mathessible/editor/equation_editor.py:1103
+#: src/mathessible/editor/equation_editor.py:1148
 msgid "nothing to cut"
 msgstr "nincs mit kivágni"
 
-#: src/mathessible/editor/equation_editor.py:1110
+#: src/mathessible/editor/equation_editor.py:1155
 msgid "selection cut"
 msgstr "kijelölés kivágva"
 
-#: src/mathessible/editor/equation_editor.py:1113
+#: src/mathessible/editor/equation_editor.py:1158
 msgid "equation cut"
 msgstr "egyenlet kivágva"
 
-#: src/mathessible/editor/equation_editor.py:1134
+#: src/mathessible/editor/equation_editor.py:1180
 msgid "the pasted MathML could not be converted"
 msgstr "a beillesztett MathML-t nem sikerült átalakítani"
 
-#: src/mathessible/editor/equation_editor.py:1137 src/mathessible/editor/equation_editor.py:1143
+#: src/mathessible/editor/equation_editor.py:1183 src/mathessible/editor/equation_editor.py:1189
 msgid "clipboard is empty"
 msgstr "a vágólap üres"
 
-#: src/mathessible/editor/equation_editor.py:1150
+#: src/mathessible/editor/equation_editor.py:1196
 msgid "equation pasted"
 msgstr "egyenlet beillesztve"
 
-#: src/mathessible/editor/equation_editor.py:1192
+#: src/mathessible/editor/equation_editor.py:1238
 msgid "still preparing the equation, please wait"
 msgstr "az egyenlet előkészítése még tart, várjon"
 
-#: src/mathessible/editor/equation_editor.py:1385 src/mathessible/editor/equation_editor.py:1396
+#: src/mathessible/editor/equation_editor.py:1431 src/mathessible/editor/equation_editor.py:1442
 msgid "selection deleted"
 msgstr "kijelölés törölve"
 
-#: src/mathessible/editor/equation_editor.py:1584
+#: src/mathessible/editor/equation_editor.py:1630
 msgid "cannot move there"
 msgstr "oda nem lehet lépni"
 
-#: src/mathessible/editor/equation_editor.py:1588
+#: src/mathessible/editor/equation_editor.py:1634
 #, python-brace-format
 msgid "MathCAT could not read the equation, linear mode. {error}"
 msgstr "A MathCAT nem tudta beolvasni az egyenletet, lineáris mód. {error}"
 
-#: src/mathessible/editor/equation_editor.py:1658 src/mathessible/editor/equation_editor.py:1664
+#: src/mathessible/editor/equation_editor.py:1704 src/mathessible/editor/equation_editor.py:1710
 msgid "start"
 msgstr "eleje"
 
-#: src/mathessible/editor/equation_editor.py:1666
+#: src/mathessible/editor/equation_editor.py:1712
 msgid "end"
 msgstr "vége"
 
@@ -546,27 +546,27 @@ msgid "Switch to Linear View"
 msgstr "Váltás lineáris nézetre"
 
 #: src/mathessible/editor/structures.py:160 src/mathessible/ui/document_editor.py:130
-#: src/mathessible/ui/main_frame.py:251
+#: src/mathessible/ui/main_frame.py:254
 msgid "Cu&t"
 msgstr "&Kivágás"
 
 #: src/mathessible/editor/structures.py:161 src/mathessible/ui/document_editor.py:131
-#: src/mathessible/ui/main_frame.py:252
+#: src/mathessible/ui/main_frame.py:255
 msgid "&Copy"
 msgstr "Más&olás"
 
 #: src/mathessible/editor/structures.py:162 src/mathessible/ui/document_editor.py:132
-#: src/mathessible/ui/main_frame.py:253
+#: src/mathessible/ui/main_frame.py:256
 msgid "&Paste"
 msgstr "&Beillesztés"
 
 #: src/mathessible/editor/structures.py:164 src/mathessible/ui/document_editor.py:134
-#: src/mathessible/ui/main_frame.py:256
+#: src/mathessible/ui/main_frame.py:259
 msgid "Select &All"
 msgstr "Az összes kijelö&lése"
 
 #: src/mathessible/editor/structures.py:169 src/mathessible/ui/document_editor.py:153
-#: src/mathessible/ui/main_frame.py:282
+#: src/mathessible/ui/main_frame.py:285
 msgid "&Insert"
 msgstr "&Beszúrás"
 
@@ -961,7 +961,7 @@ msgstr "szóköz után"
 msgid "angle bracket"
 msgstr "csúcsos zárójel"
 
-#: src/mathessible/editor/equation_editor.py:1329 src/mathessible/spoken.py:24
+#: src/mathessible/editor/equation_editor.py:1375 src/mathessible/spoken.py:24
 msgid "argument"
 msgstr "argumentum"
 
@@ -981,7 +981,7 @@ msgstr "alap"
 msgid "binomial"
 msgstr "binomiális együttható"
 
-#: src/mathessible/editor/equation_editor.py:1367 src/mathessible/editor/equation_editor.py:1375
+#: src/mathessible/editor/equation_editor.py:1413 src/mathessible/editor/equation_editor.py:1421
 #: src/mathessible/spoken.py:29
 msgid "blank"
 msgstr "üres"
@@ -1005,8 +1005,8 @@ msgstr "kapcsos zárójel"
 msgid "bracket"
 msgstr "szögletes zárójel"
 
-#: src/mathessible/editor/assist.py:102 src/mathessible/editor/equation_editor.py:1334
-#: src/mathessible/editor/equation_editor.py:1522 src/mathessible/spoken.py:34
+#: src/mathessible/editor/assist.py:102 src/mathessible/editor/equation_editor.py:1380
+#: src/mathessible/editor/equation_editor.py:1568 src/mathessible/spoken.py:34
 msgid "built"
 msgstr "felépítve"
 
@@ -1124,7 +1124,7 @@ msgstr "határok"
 msgid "linear"
 msgstr "lineáris"
 
-#: src/mathessible/editor/assist.py:255 src/mathessible/editor/equation_editor.py:667
+#: src/mathessible/editor/assist.py:255 src/mathessible/editor/equation_editor.py:675
 #: src/mathessible/editor/structures.py:482 src/mathessible/spoken.py:63
 msgid "linear mode"
 msgstr "lineáris mód"
@@ -1141,7 +1141,7 @@ msgstr "alsó határ"
 msgid "matrix"
 msgstr "mátrix"
 
-#: src/mathessible/editor/built.py:828 src/mathessible/editor/equation_editor.py:1293
+#: src/mathessible/editor/built.py:828 src/mathessible/editor/equation_editor.py:1339
 #: src/mathessible/spoken.py:67
 msgid "no slot"
 msgstr "nincs hely"
@@ -1223,7 +1223,7 @@ msgstr "indexek"
 msgid "selected"
 msgstr "kijelölve"
 
-#: src/mathessible/editor/equation_editor.py:1062 src/mathessible/spoken.py:87
+#: src/mathessible/editor/equation_editor.py:1107 src/mathessible/spoken.py:87
 msgid "selection cleared"
 msgstr "kijelölés megszüntetve"
 
@@ -2416,7 +2416,7 @@ msgstr "Matematikai automatikus javítás párbeszédablak"
 msgid "&Replace"
 msgstr "&Csere"
 
-#: src/mathessible/ui/autocorrect_dialog.py:42 src/mathessible/ui/main_frame.py:541
+#: src/mathessible/ui/autocorrect_dialog.py:42 src/mathessible/ui/main_frame.py:544
 msgid "Replace"
 msgstr "Csere"
 
@@ -2444,7 +2444,7 @@ msgstr "&Hozzáadás"
 
 #: src/mathessible/ui/autocorrect_dialog.py:55 src/mathessible/ui/braille_signs_dialog.py:71
 #: src/mathessible/ui/functions_dialog.py:49 src/mathessible/ui/gallery_dialog.py:56
-#: src/mathessible/ui/main_frame.py:254
+#: src/mathessible/ui/main_frame.py:257
 msgid "&Delete"
 msgstr "&Törlés"
 
@@ -2534,15 +2534,15 @@ msgstr "Átalakítás szöveg&közivé"
 msgid "E&quation"
 msgstr "&Egyenlet"
 
-#: src/mathessible/ui/document_editor.py:127 src/mathessible/ui/main_frame.py:248
+#: src/mathessible/ui/document_editor.py:127 src/mathessible/ui/main_frame.py:251
 msgid "&Undo"
 msgstr "&Visszavonás"
 
-#: src/mathessible/ui/document_editor.py:128 src/mathessible/ui/main_frame.py:249
+#: src/mathessible/ui/document_editor.py:128 src/mathessible/ui/main_frame.py:252
 msgid "&Redo"
 msgstr "&Mégis"
 
-#: src/mathessible/ui/document_editor.py:148 src/mathessible/ui/main_frame.py:273
+#: src/mathessible/ui/document_editor.py:148 src/mathessible/ui/main_frame.py:276
 msgid "&Edit"
 msgstr "&Szerkesztés"
 
@@ -2566,7 +2566,7 @@ msgstr "&Kicsinyítés"
 msgid "&Actual Size"
 msgstr "&Tényleges méret"
 
-#: src/mathessible/ui/document_editor.py:172 src/mathessible/ui/main_frame.py:286
+#: src/mathessible/ui/document_editor.py:172 src/mathessible/ui/main_frame.py:289
 msgid "&View"
 msgstr "&Nézet"
 
@@ -2925,11 +2925,11 @@ msgstr "{title} párbeszédablak"
 msgid "These options are now the defaults."
 msgstr "Ezek a beállítások most már az alapértékek."
 
-#: src/mathessible/ui/export_dialogs.py:103 src/mathessible/ui/main_frame.py:1355
+#: src/mathessible/ui/export_dialogs.py:103 src/mathessible/ui/main_frame.py:1359
 msgid "Export as BRF"
 msgstr "Exportálás BRF-ként"
 
-#: src/mathessible/ui/export_dialogs.py:123 src/mathessible/ui/main_frame.py:1348
+#: src/mathessible/ui/export_dialogs.py:123 src/mathessible/ui/main_frame.py:1352
 msgid "Export as HTML"
 msgstr "Exportálás HTML-ként"
 
@@ -2967,11 +2967,11 @@ msgid "&Language (for example ro, en)"
 msgstr "&Nyelv (például ro, en)"
 
 #: src/mathessible/ui/export_dialogs.py:128 src/mathessible/ui/export_dialogs.py:164
-#: src/mathessible/ui/pdf_dialog.py:53 src/mathessible/ui/settings_dialog.py:69
+#: src/mathessible/ui/pdf_dialog.py:53 src/mathessible/ui/settings_dialog.py:70
 msgid "Language"
 msgstr "Nyelv"
 
-#: src/mathessible/ui/export_dialogs.py:156 src/mathessible/ui/main_frame.py:1352
+#: src/mathessible/ui/export_dialogs.py:156 src/mathessible/ui/main_frame.py:1356
 msgid "Export as Word Document"
 msgstr "Exportálás Word-dokumentumként"
 
@@ -3120,7 +3120,7 @@ msgstr "Oldalak"
 msgid "Notebook pages"
 msgstr "A jegyzetfüzet oldalai"
 
-#: src/mathessible/ui/main_frame.py:180
+#: src/mathessible/ui/main_frame.py:183
 #, python-brace-format
 msgid ""
 "MathCAT's native extension could not be loaded, so equations can only be edited as text, not read"
@@ -3130,13 +3130,13 @@ msgstr ""
 "szerkeszthetők, nem olvashatók és nem járhatók be ({error}). Futtassa a scripts/bootstrap.sh "
 "parancsfájlt."
 
-#: src/mathessible/ui/main_frame.py:187
+#: src/mathessible/ui/main_frame.py:190
 msgid "No web view is available to convert and show equations (on Linux, install WebKitGTK for wxPython)."
 msgstr ""
 "Nincs elérhető webes nézet az egyenletek átalakításához és megjelenítéséhez (Linuxon telepítse a "
 "WebKitGTK-t a wxPythonhoz)."
 
-#: src/mathessible/ui/main_frame.py:198
+#: src/mathessible/ui/main_frame.py:201
 #, python-brace-format
 msgid ""
 "Mathessible's fixes to MathCAT and UnicodeMathML are not applied, so some equations will be read "
@@ -3153,231 +3153,231 @@ msgstr ""
 "Hiányzó javítások:\n"
 "{patches}"
 
-#: src/mathessible/ui/main_frame.py:211
+#: src/mathessible/ui/main_frame.py:214
 msgid "Mathessible Setup"
 msgstr "A Mathessible beállítása"
 
-#: src/mathessible/ui/main_frame.py:221
+#: src/mathessible/ui/main_frame.py:224
 msgid "&New"
 msgstr "&Új"
 
-#: src/mathessible/ui/main_frame.py:222
+#: src/mathessible/ui/main_frame.py:225
 msgid "&Open…"
 msgstr "&Megnyitás…"
 
-#: src/mathessible/ui/main_frame.py:226
+#: src/mathessible/ui/main_frame.py:229
 msgid "Open &Recent"
 msgstr "Leg&utóbbiak megnyitása"
 
-#: src/mathessible/ui/main_frame.py:228
+#: src/mathessible/ui/main_frame.py:231
 msgid "&Close Window"
 msgstr "Ablak &bezárása"
 
-#: src/mathessible/ui/main_frame.py:229
+#: src/mathessible/ui/main_frame.py:232
 msgid "&Save"
 msgstr "Men&tés"
 
-#: src/mathessible/ui/main_frame.py:230
+#: src/mathessible/ui/main_frame.py:233
 msgid "Save &As…"
 msgstr "Mentés má&sként…"
 
-#: src/mathessible/ui/main_frame.py:231
+#: src/mathessible/ui/main_frame.py:234
 msgid "Re&vert to Saved"
 msgstr "&Visszaállítás a mentettre"
 
-#: src/mathessible/ui/main_frame.py:235
+#: src/mathessible/ui/main_frame.py:238
 msgid "&HTML…"
 msgstr "&HTML…"
 
-#: src/mathessible/ui/main_frame.py:236
+#: src/mathessible/ui/main_frame.py:239
 msgid "&PDF…"
 msgstr "&PDF…"
 
-#: src/mathessible/ui/main_frame.py:237
+#: src/mathessible/ui/main_frame.py:240
 msgid "&Word Document…"
 msgstr "&Word-dokumentum…"
 
-#: src/mathessible/ui/main_frame.py:238
+#: src/mathessible/ui/main_frame.py:241
 msgid "&BRF (Braille)…"
 msgstr "&BRF (braille)…"
 
-#: src/mathessible/ui/main_frame.py:239
+#: src/mathessible/ui/main_frame.py:242
 msgid "&Export"
 msgstr "&Exportálás"
 
-#: src/mathessible/ui/main_frame.py:240
+#: src/mathessible/ui/main_frame.py:243
 msgid "Compile PDF with &LaTeX"
 msgstr "PDF fordítása &LaTeX-hel"
 
-#: src/mathessible/ui/main_frame.py:242
+#: src/mathessible/ui/main_frame.py:245
 msgid "&Print…"
 msgstr "&Nyomtatás…"
 
-#: src/mathessible/ui/main_frame.py:244
+#: src/mathessible/ui/main_frame.py:247
 msgid "&Quit"
 msgstr "&Kilépés"
 
-#: src/mathessible/ui/main_frame.py:246
+#: src/mathessible/ui/main_frame.py:249
 msgid "&File"
 msgstr "&Fájl"
 
-#: src/mathessible/ui/main_frame.py:262
+#: src/mathessible/ui/main_frame.py:265
 msgid "&Find…"
 msgstr "Ke&resés…"
 
-#: src/mathessible/ui/main_frame.py:263
+#: src/mathessible/ui/main_frame.py:266
 msgid "Find &Next"
 msgstr "Követke&ző keresése"
 
-#: src/mathessible/ui/main_frame.py:264
+#: src/mathessible/ui/main_frame.py:267
 msgid "Find Pre&vious"
 msgstr "&Előző keresése"
 
-#: src/mathessible/ui/main_frame.py:265
+#: src/mathessible/ui/main_frame.py:268
 msgid "R&eplace…"
 msgstr "&Csere…"
 
-#: src/mathessible/ui/main_frame.py:268 src/mathessible/ui/main_frame.py:855
+#: src/mathessible/ui/main_frame.py:271 src/mathessible/ui/main_frame.py:858
 msgid "Change Equation to &Display"
 msgstr "Egyenlet kiemeltté &alakítása"
 
-#: src/mathessible/ui/main_frame.py:270
+#: src/mathessible/ui/main_frame.py:273
 msgid "Equations in &LaTeX"
 msgstr "Egyenletek LaTe&X-ben"
 
-#: src/mathessible/ui/main_frame.py:272
+#: src/mathessible/ui/main_frame.py:275
 msgid "&Settings…"
 msgstr "Beállítá&sok…"
 
-#: src/mathessible/ui/main_frame.py:278
+#: src/mathessible/ui/main_frame.py:281
 msgid "&Footnote"
 msgstr "&Lábjegyzet"
 
-#: src/mathessible/ui/main_frame.py:279
+#: src/mathessible/ui/main_frame.py:282
 msgid "&Go to Footnote or Reference"
 msgstr "&Ugrás a lábjegyzethez vagy a hivatkozáshoz"
 
-#: src/mathessible/ui/main_frame.py:281
+#: src/mathessible/ui/main_frame.py:284
 msgid "&Header and Footer…"
 msgstr "&Élőfej és élőláb…"
 
-#: src/mathessible/ui/main_frame.py:285
+#: src/mathessible/ui/main_frame.py:288
 msgid "Document &Preview"
 msgstr "Dokumentum&előnézet"
 
-#: src/mathessible/ui/main_frame.py:300
+#: src/mathessible/ui/main_frame.py:303
 msgid "&New Notebook…"
 msgstr "&Új jegyzetfüzet…"
 
-#: src/mathessible/ui/main_frame.py:301
+#: src/mathessible/ui/main_frame.py:304
 msgid "New Notebook &Folder…"
 msgstr "Új jegyzetfüzet&mappa…"
 
-#: src/mathessible/ui/main_frame.py:302
+#: src/mathessible/ui/main_frame.py:305
 msgid "&Open Notebook Folder…"
 msgstr "Jegyzetfüzetmappa megn&yitása…"
 
-#: src/mathessible/ui/main_frame.py:303
+#: src/mathessible/ui/main_frame.py:306
 msgid "Save Notebook as &Single File…"
 msgstr "Jegyzetfüzet mentése &egyetlen fájlként…"
 
-#: src/mathessible/ui/main_frame.py:305
+#: src/mathessible/ui/main_frame.py:308
 msgid "&Add Page"
 msgstr "&Oldal hozzáadása"
 
-#: src/mathessible/ui/main_frame.py:306
+#: src/mathessible/ui/main_frame.py:309
 msgid "&Rename Page…"
 msgstr "Oldal át&nevezése…"
 
-#: src/mathessible/ui/main_frame.py:307
+#: src/mathessible/ui/main_frame.py:310
 msgid "&Delete Page…"
 msgstr "Oldal &törlése…"
 
-#: src/mathessible/ui/main_frame.py:309
+#: src/mathessible/ui/main_frame.py:312
 msgid "Move Page &Up"
 msgstr "Oldal mozgatása &felfelé"
 
-#: src/mathessible/ui/main_frame.py:310
+#: src/mathessible/ui/main_frame.py:313
 msgid "Move Page Do&wn"
 msgstr "Oldal mozgatása &lefelé"
 
-#: src/mathessible/ui/main_frame.py:312
+#: src/mathessible/ui/main_frame.py:315
 msgid "&Previous Page"
 msgstr "Elő&ző oldal"
 
-#: src/mathessible/ui/main_frame.py:313
+#: src/mathessible/ui/main_frame.py:316
 msgid "Ne&xt Page"
 msgstr "&Következő oldal"
 
-#: src/mathessible/ui/main_frame.py:314
+#: src/mathessible/ui/main_frame.py:317
 msgid "&Notebook"
 msgstr "&Jegyzetfüzet"
 
-#: src/mathessible/ui/main_frame.py:319
+#: src/mathessible/ui/main_frame.py:322
 msgid "&Next Window"
 msgstr "&Következő ablak"
 
-#: src/mathessible/ui/main_frame.py:320
+#: src/mathessible/ui/main_frame.py:323
 msgid "&Previous Window"
 msgstr "&Előző ablak"
 
-#: src/mathessible/ui/main_frame.py:322
+#: src/mathessible/ui/main_frame.py:325
 msgid "Bring All to &Front"
 msgstr "Mindet elő&térbe"
 
-#: src/mathessible/ui/main_frame.py:323
+#: src/mathessible/ui/main_frame.py:326
 msgid "&Window"
 msgstr "&Ablak"
 
-#: src/mathessible/ui/main_frame.py:453
+#: src/mathessible/ui/main_frame.py:456
 msgid "show the document preview"
 msgstr "a dokumentumelőnézet megjelenítése"
 
-#: src/mathessible/ui/main_frame.py:455
+#: src/mathessible/ui/main_frame.py:458
 msgid "Document preview"
 msgstr "Dokumentumelőnézet"
 
-#: src/mathessible/ui/main_frame.py:541 src/mathessible/ui/main_frame.py:564
+#: src/mathessible/ui/main_frame.py:544 src/mathessible/ui/main_frame.py:567
 msgid "Find"
 msgstr "Keresés"
 
-#: src/mathessible/ui/main_frame.py:563
+#: src/mathessible/ui/main_frame.py:566
 #, python-brace-format
 msgid "“{text}” was not found."
 msgstr "A(z) „{text}” nem található."
 
-#: src/mathessible/ui/main_frame.py:597
+#: src/mathessible/ui/main_frame.py:600
 #, python-brace-format
 msgid "{count} replacement made."
 msgid_plural "{count} replacements made."
 msgstr[0] "{count} csere történt."
 
-#: src/mathessible/ui/main_frame.py:598
+#: src/mathessible/ui/main_frame.py:601
 msgid "Replace All"
 msgstr "Az összes cseréje"
 
-#: src/mathessible/ui/main_frame.py:623
+#: src/mathessible/ui/main_frame.py:626
 msgid "change the equations"
 msgstr "az egyenletek módosítása"
 
-#: src/mathessible/ui/main_frame.py:624 src/mathessible/ui/main_frame.py:1253
-#: src/mathessible/ui/main_frame.py:1365
+#: src/mathessible/ui/main_frame.py:627 src/mathessible/ui/main_frame.py:1257
+#: src/mathessible/ui/main_frame.py:1369
 msgid "The UnicodeMath converter is not ready yet. Please try again."
 msgstr "Az UnicodeMath-átalakító még nem áll készen. Próbálja újra."
 
-#: src/mathessible/ui/main_frame.py:629
+#: src/mathessible/ui/main_frame.py:632
 msgid "Write this document's equations in LaTeX?"
 msgstr "Átírja a dokumentum egyenleteit LaTeX-be?"
 
-#: src/mathessible/ui/main_frame.py:631
+#: src/mathessible/ui/main_frame.py:634
 msgid "Write this document's equations in UnicodeMath?"
 msgstr "Átírja a dokumentum egyenleteit UnicodeMath-ba?"
 
-#: src/mathessible/ui/main_frame.py:632 src/mathessible/ui/main_frame.py:1074
+#: src/mathessible/ui/main_frame.py:635 src/mathessible/ui/main_frame.py:1077
 msgid "Equations in LaTeX"
 msgstr "Egyenletek LaTeX-ben"
 
-#: src/mathessible/ui/main_frame.py:637
+#: src/mathessible/ui/main_frame.py:640
 msgid ""
 "Each equation is written again from what it builds, so its spacing and some details can change. "
 "Equations that do not build are kept as they are. Undo restores them."
@@ -3385,74 +3385,74 @@ msgstr ""
 "Minden egyenlet újra íródik abból, amit felépít, így a térközei és egyes részletei változhatnak. "
 "A fel nem épülő egyenletek változatlanok maradnak. A visszavonás visszaállítja őket."
 
-#: src/mathessible/ui/main_frame.py:641
+#: src/mathessible/ui/main_frame.py:644
 msgid "&Write Again"
 msgstr "Át&írás"
 
-#: src/mathessible/ui/main_frame.py:641 src/mathessible/ui/main_frame.py:777
-#: src/mathessible/ui/main_frame.py:1182
+#: src/mathessible/ui/main_frame.py:644 src/mathessible/ui/main_frame.py:780
+#: src/mathessible/ui/main_frame.py:1185
 msgid "&Cancel"
 msgstr "&Mégse"
 
-#: src/mathessible/ui/main_frame.py:665
+#: src/mathessible/ui/main_frame.py:668
 msgid "equations in LaTeX"
 msgstr "egyenletek LaTeX-ben"
 
-#: src/mathessible/ui/main_frame.py:665
+#: src/mathessible/ui/main_frame.py:668
 msgid "equations in UnicodeMath"
 msgstr "egyenletek UnicodeMath-ban"
 
-#: src/mathessible/ui/main_frame.py:668
+#: src/mathessible/ui/main_frame.py:671
 #, python-brace-format
 msgid "{count} that does not build kept as it was"
 msgid_plural "{count} that do not build kept as they were"
 msgstr[0] "{count} fel nem épülő egyenlet változatlan maradt"
 
-#: src/mathessible/ui/main_frame.py:688
+#: src/mathessible/ui/main_frame.py:691
 #, python-brace-format
 msgid "Compiling {name} with {distribution}…"
 msgstr "{name} fordítása ezzel: {distribution}…"
 
-#: src/mathessible/ui/main_frame.py:712
+#: src/mathessible/ui/main_frame.py:715
 #, python-brace-format
 msgid "installing the LaTeX package {package}…"
 msgstr "a(z) {package} LaTeX-csomag telepítése…"
 
-#: src/mathessible/ui/main_frame.py:720
+#: src/mathessible/ui/main_frame.py:723
 msgid "the PDF could not be compiled"
 msgstr "a PDF-et nem sikerült lefordítani"
 
-#: src/mathessible/ui/main_frame.py:722
+#: src/mathessible/ui/main_frame.py:725
 #, python-brace-format
 msgid "LaTeX stopped at line {line}: {error}"
 msgstr "A LaTeX a(z) {line}. sorban megállt: {error}"
 
-#: src/mathessible/ui/main_frame.py:724
+#: src/mathessible/ui/main_frame.py:727
 #, python-brace-format
 msgid "LaTeX stopped: {error}"
 msgstr "A LaTeX megállt: {error}"
 
-#: src/mathessible/ui/main_frame.py:726 src/mathessible/ui/main_frame.py:742
-#: src/mathessible/ui/main_frame.py:767 src/mathessible/ui/main_frame.py:836
+#: src/mathessible/ui/main_frame.py:729 src/mathessible/ui/main_frame.py:745
+#: src/mathessible/ui/main_frame.py:770 src/mathessible/ui/main_frame.py:839
 msgid "Compile PDF with LaTeX"
 msgstr "PDF fordítása LaTeX-hel"
 
-#: src/mathessible/ui/main_frame.py:734
+#: src/mathessible/ui/main_frame.py:737
 #, python-brace-format
 msgid "PDF compiled: {name}"
 msgstr "PDF lefordítva: {name}"
 
-#: src/mathessible/ui/main_frame.py:736
+#: src/mathessible/ui/main_frame.py:739
 #, python-brace-format
 msgid "The tagged PDF is ready: {name}. Open it?"
 msgstr "A címkézett PDF elkészült: {name}. Megnyitja?"
 
-#: src/mathessible/ui/main_frame.py:738
+#: src/mathessible/ui/main_frame.py:741
 #, python-brace-format
 msgid "The PDF is ready, but it is not tagged: {name}. Open it?"
 msgstr "A PDF elkészült, de nincs címkézve: {name}. Megnyitja?"
 
-#: src/mathessible/ui/main_frame.py:748
+#: src/mathessible/ui/main_frame.py:751
 #, python-brace-format
 msgid ""
 "LaTeX could not tag it ({error}), so it was compiled without tags: a screen reader cannot read "
@@ -3461,23 +3461,23 @@ msgstr ""
 "A LaTeX nem tudta címkézni ({error}), ezért címkék nélkül fordította le: a képernyőolvasó nem "
 "tudja felolvasni a szerkezetét és az egyenleteit."
 
-#: src/mathessible/ui/main_frame.py:753
+#: src/mathessible/ui/main_frame.py:756
 msgid "Tagging needs LuaLaTeX, which this LaTeX distribution does not have."
 msgstr "A címkézéshez LuaLaTeX kell, amely ebben a LaTeX-disztribúcióban nincs meg."
 
-#: src/mathessible/ui/main_frame.py:754
+#: src/mathessible/ui/main_frame.py:757
 msgid "&Open PDF"
 msgstr "PDF &megnyitása"
 
-#: src/mathessible/ui/main_frame.py:754
+#: src/mathessible/ui/main_frame.py:757
 msgid "&Close"
 msgstr "&Bezárás"
 
-#: src/mathessible/ui/main_frame.py:766
+#: src/mathessible/ui/main_frame.py:769
 msgid "No LaTeX distribution was found. Install TinyTeX?"
 msgstr "Nem található LaTeX-disztribúció. Telepíti a TinyTeX-et?"
 
-#: src/mathessible/ui/main_frame.py:772
+#: src/mathessible/ui/main_frame.py:775
 msgid ""
 "TinyTeX is a small LaTeX distribution (about 65 MB to download), installed in your home folder "
 "without an administrator password. Mathessible installs the packages a document needs when it "
@@ -3487,131 +3487,131 @@ msgstr ""
 "saját mappájába települ. A Mathessible fordításkor telepíti a dokumentumhoz szükséges csomagokat."
 " Helyette maga is telepítheti a MacTeX-et, a MiKTeX-et vagy a TeX Live-ot."
 
-#: src/mathessible/ui/main_frame.py:777
+#: src/mathessible/ui/main_frame.py:780
 msgid "&Install TinyTeX"
 msgstr "TinyTeX &telepítése"
 
-#: src/mathessible/ui/main_frame.py:787
+#: src/mathessible/ui/main_frame.py:790
 msgid "Installing TinyTeX"
 msgstr "A TinyTeX telepítése"
 
-#: src/mathessible/ui/main_frame.py:788
+#: src/mathessible/ui/main_frame.py:791
 msgid "Downloading TinyTeX…"
 msgstr "A TinyTeX letöltése…"
 
-#: src/mathessible/ui/main_frame.py:799
+#: src/mathessible/ui/main_frame.py:802
 msgid "Unpacking TinyTeX…"
 msgstr "A TinyTeX kicsomagolása…"
 
-#: src/mathessible/ui/main_frame.py:801
+#: src/mathessible/ui/main_frame.py:804
 #, python-brace-format
 msgid "Downloading TinyTeX: {received} MB of {total} MB"
 msgstr "A TinyTeX letöltése: {received} MB / {total} MB"
 
-#: src/mathessible/ui/main_frame.py:829
+#: src/mathessible/ui/main_frame.py:832
 msgid "TinyTeX installation cancelled"
 msgstr "A TinyTeX telepítése megszakítva"
 
-#: src/mathessible/ui/main_frame.py:832
+#: src/mathessible/ui/main_frame.py:835
 msgid "TinyTeX could not be installed"
 msgstr "a TinyTeX-et nem sikerült telepíteni"
 
-#: src/mathessible/ui/main_frame.py:835
+#: src/mathessible/ui/main_frame.py:838
 msgid "TinyTeX could not be installed."
 msgstr "A TinyTeX-et nem sikerült telepíteni."
 
-#: src/mathessible/ui/main_frame.py:841
+#: src/mathessible/ui/main_frame.py:844
 msgid "TinyTeX installed"
 msgstr "TinyTeX telepítve"
 
-#: src/mathessible/ui/main_frame.py:855
+#: src/mathessible/ui/main_frame.py:858
 msgid "Change Equation to &Inline"
 msgstr "Egyenlet szövegközivé &alakítása"
 
-#: src/mathessible/ui/main_frame.py:876
+#: src/mathessible/ui/main_frame.py:879
 msgid "Untitled"
 msgstr "Névtelen"
 
-#: src/mathessible/ui/main_frame.py:878
+#: src/mathessible/ui/main_frame.py:881
 #, python-brace-format
 msgid "Mathessible — {name} — modified"
 msgstr "Mathessible — {name} — módosítva"
 
-#: src/mathessible/ui/main_frame.py:880
+#: src/mathessible/ui/main_frame.py:883
 #, python-brace-format
 msgid "Mathessible — {name}"
 msgstr "Mathessible — {name}"
 
-#: src/mathessible/ui/main_frame.py:891
+#: src/mathessible/ui/main_frame.py:894
 #, python-brace-format
 msgid "{notebook} — Page {page} of {pages}"
 msgstr "{notebook} — {page}. oldal / {pages}"
 
-#: src/mathessible/ui/main_frame.py:895
+#: src/mathessible/ui/main_frame.py:898
 msgid "Untitled Markdown document"
 msgstr "Névtelen Markdown-dokumentum"
 
-#: src/mathessible/ui/main_frame.py:897
+#: src/mathessible/ui/main_frame.py:900
 #, python-brace-format
 msgid "Line {line}, Column {column}"
 msgstr "{line}. sor, {column}. oszlop"
 
-#: src/mathessible/ui/main_frame.py:903
+#: src/mathessible/ui/main_frame.py:906
 #, python-brace-format
 msgid "Could not {action}."
 msgstr "Nem sikerült: {action}."
 
-#: src/mathessible/ui/main_frame.py:916
+#: src/mathessible/ui/main_frame.py:919
 msgid "The document has unsaved changes. Do you want to save them?"
 msgstr "A dokumentumban nem mentett módosítások vannak. Menti őket?"
 
-#: src/mathessible/ui/main_frame.py:917
+#: src/mathessible/ui/main_frame.py:920
 msgid "Unsaved Changes"
 msgstr "Nem mentett módosítások"
 
-#: src/mathessible/ui/main_frame.py:937
+#: src/mathessible/ui/main_frame.py:940
 msgid "save settings"
 msgstr "a beállítások mentése"
 
-#: src/mathessible/ui/main_frame.py:988
+#: src/mathessible/ui/main_frame.py:991
 msgid "Open"
 msgstr "Megnyitás"
 
-#: src/mathessible/ui/main_frame.py:990
+#: src/mathessible/ui/main_frame.py:993
 msgid "Documents and notebooks"
 msgstr "Dokumentumok és jegyzetfüzetek"
 
-#: src/mathessible/ui/main_frame.py:992
+#: src/mathessible/ui/main_frame.py:995
 msgid "Markdown documents"
 msgstr "Markdown-dokumentumok"
 
-#: src/mathessible/ui/main_frame.py:994
+#: src/mathessible/ui/main_frame.py:997
 msgid "LaTeX documents"
 msgstr "LaTeX-dokumentumok"
 
-#: src/mathessible/ui/main_frame.py:996
+#: src/mathessible/ui/main_frame.py:999
 msgid "Notebooks"
 msgstr "Jegyzetfüzetek"
 
-#: src/mathessible/ui/main_frame.py:998
+#: src/mathessible/ui/main_frame.py:1001
 msgid "PDFs exported by Mathessible"
 msgstr "A Mathessible által exportált PDF-ek"
 
-#: src/mathessible/ui/main_frame.py:1000 src/mathessible/ui/main_frame.py:1287
-#: src/mathessible/ui/settings_dialog.py:477
+#: src/mathessible/ui/main_frame.py:1003 src/mathessible/ui/main_frame.py:1291
+#: src/mathessible/ui/settings_dialog.py:485
 msgid "All files"
 msgstr "Minden fájl"
 
-#: src/mathessible/ui/main_frame.py:1052
+#: src/mathessible/ui/main_frame.py:1055
 #, python-brace-format
 msgid "open {name}"
 msgstr "{name} megnyitása"
 
-#: src/mathessible/ui/main_frame.py:1073
+#: src/mathessible/ui/main_frame.py:1076
 msgid "This document's equations look like LaTeX. Mark it as a LaTeX document?"
 msgstr "A dokumentum egyenletei LaTeX-nek tűnnek. Megjelöli LaTeX-dokumentumként?"
 
-#: src/mathessible/ui/main_frame.py:1079
+#: src/mathessible/ui/main_frame.py:1082
 msgid ""
 "Its equations are then built as LaTeX and kept as they are, and the line math: latex is added at "
 "its top. Without it, Mathessible reads them as UnicodeMath."
@@ -3619,117 +3619,117 @@ msgstr ""
 "Egyenletei ekkor LaTeX-ként épülnek fel, és változatlanok maradnak, az elejére pedig bekerül a "
 "math: latex sor. Enélkül a Mathessible UnicodeMath-ként olvassa őket."
 
-#: src/mathessible/ui/main_frame.py:1083
+#: src/mathessible/ui/main_frame.py:1086
 msgid "&Mark as LaTeX"
 msgstr "&Megjelölés LaTeX-ként"
 
-#: src/mathessible/ui/main_frame.py:1083
+#: src/mathessible/ui/main_frame.py:1086
 msgid "&Leave as It Is"
 msgstr "&Hagyja így"
 
-#: src/mathessible/ui/main_frame.py:1152
+#: src/mathessible/ui/main_frame.py:1155
 msgid "&Clear Menu"
 msgstr "&Lista törlése"
 
-#: src/mathessible/ui/main_frame.py:1178
+#: src/mathessible/ui/main_frame.py:1181
 msgid "Revert to the saved version? The changes since it was saved will be lost."
 msgstr "Visszaállítja a mentett változatot? A mentés óta végzett módosítások elvesznek."
 
-#: src/mathessible/ui/main_frame.py:1179
+#: src/mathessible/ui/main_frame.py:1182
 msgid "Revert to Saved"
 msgstr "Visszaállítás a mentettre"
 
-#: src/mathessible/ui/main_frame.py:1182
+#: src/mathessible/ui/main_frame.py:1185
 msgid "&Revert"
 msgstr "&Visszaállítás"
 
-#: src/mathessible/ui/main_frame.py:1194
+#: src/mathessible/ui/main_frame.py:1197
 msgid "read the saved document"
 msgstr "a mentett dokumentum beolvasása"
 
-#: src/mathessible/ui/main_frame.py:1222
+#: src/mathessible/ui/main_frame.py:1225
 msgid "read the notebook"
 msgstr "a jegyzetfüzet beolvasása"
 
-#: src/mathessible/ui/main_frame.py:1231
+#: src/mathessible/ui/main_frame.py:1234
 msgid "Mathessible document"
 msgstr "Mathessible-dokumentum"
 
-#: src/mathessible/ui/main_frame.py:1259
+#: src/mathessible/ui/main_frame.py:1263
 msgid "print"
 msgstr "nyomtatás"
 
-#: src/mathessible/ui/main_frame.py:1278
+#: src/mathessible/ui/main_frame.py:1282
 msgid "Save LaTeX document"
 msgstr "LaTeX-dokumentum mentése"
 
-#: src/mathessible/ui/main_frame.py:1278
+#: src/mathessible/ui/main_frame.py:1282
 msgid "LaTeX document"
 msgstr "LaTeX-dokumentum"
 
-#: src/mathessible/ui/main_frame.py:1280
+#: src/mathessible/ui/main_frame.py:1284
 msgid "Save Markdown document"
 msgstr "Markdown-dokumentum mentése"
 
-#: src/mathessible/ui/main_frame.py:1280
+#: src/mathessible/ui/main_frame.py:1284
 msgid "Markdown document"
 msgstr "Markdown-dokumentum"
 
-#: src/mathessible/ui/main_frame.py:1314 src/mathessible/ui/main_frame.py:1697
+#: src/mathessible/ui/main_frame.py:1318 src/mathessible/ui/main_frame.py:1714
 msgid "save the page"
 msgstr "az oldal mentése"
 
-#: src/mathessible/ui/main_frame.py:1330
+#: src/mathessible/ui/main_frame.py:1334
 msgid "save the document"
 msgstr "a dokumentum mentése"
 
-#: src/mathessible/ui/main_frame.py:1348
+#: src/mathessible/ui/main_frame.py:1352
 msgid "export the HTML document"
 msgstr "a HTML-dokumentum exportálása"
 
-#: src/mathessible/ui/main_frame.py:1348
+#: src/mathessible/ui/main_frame.py:1352
 msgid "HTML document"
 msgstr "HTML-dokumentum"
 
-#: src/mathessible/ui/main_frame.py:1349
+#: src/mathessible/ui/main_frame.py:1353
 msgid "export the PDF document"
 msgstr "a PDF-dokumentum exportálása"
 
-#: src/mathessible/ui/main_frame.py:1349
+#: src/mathessible/ui/main_frame.py:1353
 msgid "PDF document"
 msgstr "PDF-dokumentum"
 
-#: src/mathessible/ui/main_frame.py:1349 src/mathessible/ui/pdf_dialog.py:38
+#: src/mathessible/ui/main_frame.py:1353 src/mathessible/ui/pdf_dialog.py:38
 msgid "Export as PDF"
 msgstr "Exportálás PDF-ként"
 
-#: src/mathessible/ui/main_frame.py:1351
+#: src/mathessible/ui/main_frame.py:1355
 msgid "export the Word document"
 msgstr "a Word-dokumentum exportálása"
 
-#: src/mathessible/ui/main_frame.py:1353
+#: src/mathessible/ui/main_frame.py:1357
 msgid "Word document"
 msgstr "Word-dokumentum"
 
-#: src/mathessible/ui/main_frame.py:1355
+#: src/mathessible/ui/main_frame.py:1359
 msgid "export the BRF document"
 msgstr "a BRF-dokumentum exportálása"
 
-#: src/mathessible/ui/main_frame.py:1355
+#: src/mathessible/ui/main_frame.py:1359
 msgid "Braille ready file"
 msgstr "Braille-kész fájl (BRF)"
 
-#: src/mathessible/ui/main_frame.py:1421
+#: src/mathessible/ui/main_frame.py:1425
 #, python-brace-format
 msgid "Exported {name}"
 msgstr "Exportálva: {name}"
 
-#: src/mathessible/ui/main_frame.py:1422
+#: src/mathessible/ui/main_frame.py:1426
 #, python-brace-format
 msgid "exported {name}"
 msgstr "exportálva: {name}"
 
-#: src/mathessible/ui/main_frame.py:1504
+#: src/mathessible/ui/main_frame.py:1508
 msgid ""
 "PDF/A does not allow passwords or restrictions. Choose Tagged PDF or PDF/UA-1 under Security, or "
 "export without them."
@@ -3737,81 +3737,81 @@ msgstr ""
 "A PDF/A nem enged jelszavakat vagy korlátozásokat. A Biztonság alatt válassza a címkézett PDF-et "
 "vagy a PDF/UA-1-et, vagy exportáljon nélkülük."
 
-#: src/mathessible/ui/main_frame.py:1678
+#: src/mathessible/ui/main_frame.py:1695
 msgid "open the page"
 msgstr "az oldal megnyitása"
 
-#: src/mathessible/ui/main_frame.py:1717
+#: src/mathessible/ui/main_frame.py:1734
 msgid "Choose or create the new notebook folder"
 msgstr "Válassza ki vagy hozza létre az új jegyzetfüzet mappáját"
 
-#: src/mathessible/ui/main_frame.py:1729
+#: src/mathessible/ui/main_frame.py:1746
 msgid "create the notebook"
 msgstr "a jegyzetfüzet létrehozása"
 
-#: src/mathessible/ui/main_frame.py:1743
+#: src/mathessible/ui/main_frame.py:1760
 msgid "Save portable notebook"
 msgstr "Hordozható jegyzetfüzet mentése"
 
-#: src/mathessible/ui/main_frame.py:1745
+#: src/mathessible/ui/main_frame.py:1762
 msgid "Mathessible notebooks"
 msgstr "Mathessible-jegyzetfüzetek"
 
-#: src/mathessible/ui/main_frame.py:1765
+#: src/mathessible/ui/main_frame.py:1782
 msgid "create the portable notebook"
 msgstr "a hordozható jegyzetfüzet létrehozása"
 
-#: src/mathessible/ui/main_frame.py:1777
+#: src/mathessible/ui/main_frame.py:1794
 msgid "Choose the notebook folder"
 msgstr "Válassza ki a jegyzetfüzet mappáját"
 
-#: src/mathessible/ui/main_frame.py:1787
+#: src/mathessible/ui/main_frame.py:1804
 msgid "Page title:"
 msgstr "Oldal címe:"
 
-#: src/mathessible/ui/main_frame.py:1799
+#: src/mathessible/ui/main_frame.py:1816
 msgid "Add Page"
 msgstr "Oldal hozzáadása"
 
-#: src/mathessible/ui/main_frame.py:1799
+#: src/mathessible/ui/main_frame.py:1816
 #, python-brace-format
 msgid "Page {number}"
 msgstr "{number}. oldal"
 
-#: src/mathessible/ui/main_frame.py:1805
+#: src/mathessible/ui/main_frame.py:1822
 msgid "add the page"
 msgstr "az oldal hozzáadása"
 
-#: src/mathessible/ui/main_frame.py:1815
+#: src/mathessible/ui/main_frame.py:1832
 msgid "Rename Page"
 msgstr "Oldal átnevezése"
 
-#: src/mathessible/ui/main_frame.py:1821
+#: src/mathessible/ui/main_frame.py:1838
 msgid "rename the page"
 msgstr "az oldal átnevezése"
 
-#: src/mathessible/ui/main_frame.py:1833
+#: src/mathessible/ui/main_frame.py:1850
 #, python-brace-format
 msgid "Delete the page “{title}”?"
 msgstr "Törli a(z) „{title}” oldalt?"
 
-#: src/mathessible/ui/main_frame.py:1834
+#: src/mathessible/ui/main_frame.py:1851
 msgid "Delete Page"
 msgstr "Oldal törlése"
 
-#: src/mathessible/ui/main_frame.py:1843
+#: src/mathessible/ui/main_frame.py:1860
 msgid "delete the page"
 msgstr "az oldal törlése"
 
-#: src/mathessible/ui/main_frame.py:1859
+#: src/mathessible/ui/main_frame.py:1876
 msgid "move the page"
 msgstr "az oldal mozgatása"
 
-#: src/mathessible/ui/main_frame.py:1875
+#: src/mathessible/ui/main_frame.py:1892
 msgid "update the portable notebook"
 msgstr "a hordozható jegyzetfüzet frissítése"
 
-#: src/mathessible/ui/main_frame.py:1888
+#: src/mathessible/ui/main_frame.py:1905
 #, python-brace-format
 msgid "Mathessible closed without saving {count} document. Recover the unsaved changes?"
 msgid_plural "Mathessible closed without saving {count} documents. Recover the unsaved changes?"
@@ -3819,15 +3819,15 @@ msgstr[0] ""
 "A Mathessible {count} dokumentum mentése nélkül zárult be. Visszaállítja a nem mentett "
 "módosításokat?"
 
-#: src/mathessible/ui/main_frame.py:1892
+#: src/mathessible/ui/main_frame.py:1909
 msgid "Recover Unsaved Changes"
 msgstr "Nem mentett módosítások visszaállítása"
 
-#: src/mathessible/ui/main_frame.py:1895
+#: src/mathessible/ui/main_frame.py:1912
 msgid "&Recover"
 msgstr "&Helyreállítás"
 
-#: src/mathessible/ui/main_frame.py:1895
+#: src/mathessible/ui/main_frame.py:1912
 msgid "&Discard"
 msgstr "&Elvetés"
 
@@ -3947,55 +3947,63 @@ msgstr "A jelszavakat sosem tároljuk. A PDF/A nem engedi őket."
 msgid "This layout, content, standard and author are now the defaults."
 msgstr "Ez az elrendezés, tartalom, szabvány és szerző most már az alapérték."
 
-#: src/mathessible/ui/settings_dialog.py:68
+#: src/mathessible/ui/settings_dialog.py:69
 msgid "Settings categories"
 msgstr "A beállítások kategóriái"
 
-#: src/mathessible/ui/settings_dialog.py:70
+#: src/mathessible/ui/settings_dialog.py:71
 msgid "Typing"
 msgstr "Gépelés"
 
-#: src/mathessible/ui/settings_dialog.py:71
+#: src/mathessible/ui/settings_dialog.py:72
 msgid "Building"
 msgstr "Felépítés"
 
-#: src/mathessible/ui/settings_dialog.py:72
+#: src/mathessible/ui/settings_dialog.py:73
 msgid "Navigation"
 msgstr "Navigáció"
 
-#: src/mathessible/ui/settings_dialog.py:73
+#: src/mathessible/ui/settings_dialog.py:74
 msgid "Speech"
 msgstr "Beszéd"
 
 #: src/mathessible/ui/settings_dialog.py:77
+msgid "PDF Layout"
+msgstr "PDF elrendezés"
+
+#: src/mathessible/ui/settings_dialog.py:78
+msgid "PDF Content"
+msgstr "PDF tartalom"
+
+#: src/mathessible/ui/settings_dialog.py:80
 msgid "Word"
 msgstr "Word"
 
-#: src/mathessible/ui/settings_dialog.py:96
+#: src/mathessible/ui/settings_dialog.py:99
 msgid "Write the equations of new documents and pages in LaTeX"
 msgstr "Az új dokumentumok és oldalak egyenletei LaTeX-ben"
 
-#: src/mathessible/ui/settings_dialog.py:97
+#: src/mathessible/ui/settings_dialog.py:100
 msgid "Write equations in LaTeX"
 msgstr "Egyenletek írása LaTeX-ben"
 
-#: src/mathessible/ui/settings_dialog.py:102
+#: src/mathessible/ui/settings_dialog.py:105
 msgid "Convert control words (for example \\alpha) when Space or punctuation is typed"
 msgstr "Vezérlőszavak (például \\alpha) átalakítása Szóköz vagy írásjel beírásakor"
 
-#: src/mathessible/ui/settings_dialog.py:103
+#: src/mathessible/ui/settings_dialog.py:106
 msgid "Convert control words while typing"
 msgstr "Vezérlőszavak átalakítása gépelés közben"
 
-#: src/mathessible/ui/settings_dialog.py:108
+#: src/mathessible/ui/settings_dialog.py:111
 msgid "Suggest control words while one is typed (Up/Down browse, Tab completes)"
 msgstr "Vezérlőszavak javaslása, miközben egyet gépel (Fel/Le böngész, a Tab kiegészít)"
 
-#: src/mathessible/ui/settings_dialog.py:109
+#: src/mathessible/ui/settings_dialog.py:112
 msgid "Suggest control words while typing"
 msgstr "Vezérlőszavak javaslása gépelés közben"
 
-#: src/mathessible/ui/settings_dialog.py:115
+#: src/mathessible/ui/settings_dialog.py:118
 msgid ""
 "Convert symbol shortcuts (for example << or ->) as soon as they are typed, in equations and the "
 "document"
@@ -4003,15 +4011,15 @@ msgstr ""
 "Szimbólum-rövidítések (például << vagy ->) átalakítása azonnal, ahogy beírja őket, az "
 "egyenletekben és a dokumentumban"
 
-#: src/mathessible/ui/settings_dialog.py:117
+#: src/mathessible/ui/settings_dialog.py:120
 msgid "Convert symbol shortcuts immediately"
 msgstr "Szimbólum-rövidítések azonnali átalakítása"
 
-#: src/mathessible/ui/settings_dialog.py:120
+#: src/mathessible/ui/settings_dialog.py:123
 msgid "Math &AutoCorrect…"
 msgstr "Matematikai &automatikus javítás…"
 
-#: src/mathessible/ui/settings_dialog.py:126
+#: src/mathessible/ui/settings_dialog.py:129
 msgid ""
 "Math AutoCorrect is one list, as in Word: the converter's control words, Mathessible's shortcuts "
 "and your own entries, each one can be changed or deleted."
@@ -4019,7 +4027,7 @@ msgstr ""
 "A matematikai automatikus javítás egyetlen lista, mint a Wordben: az átalakító vezérlőszavai, a "
 "Mathessible rövidítései és a saját bejegyzései; mindegyik módosítható vagy törölhető."
 
-#: src/mathessible/ui/settings_dialog.py:133
+#: src/mathessible/ui/settings_dialog.py:136
 msgid ""
 "Deleted AutoCorrect control words still show as their symbol (off: they stay the text typed, as "
 "in Word)"
@@ -4027,21 +4035,21 @@ msgstr ""
 "Az automatikus javításból törölt vezérlőszavak továbbra is szimbólumként jelennek meg "
 "(kikapcsolva: a beírt szöveg marad, mint a Wordben)"
 
-#: src/mathessible/ui/settings_dialog.py:135
+#: src/mathessible/ui/settings_dialog.py:138
 msgid "Deleted AutoCorrect control words still show as their symbol"
 msgstr "Az automatikus javításból törölt vezérlőszavak továbbra is szimbólumként jelennek meg"
 
-#: src/mathessible/ui/settings_dialog.py:140
+#: src/mathessible/ui/settings_dialog.py:143
 msgid "Use Math AutoCorrect in an equation's normal text (control words and shortcuts convert there too)"
 msgstr ""
 "A matematikai automatikus javítás használata egy egyenlet normál szövegében (a vezérlőszavak és "
 "rövidítések ott is átalakulnak)"
 
-#: src/mathessible/ui/settings_dialog.py:141
+#: src/mathessible/ui/settings_dialog.py:144
 msgid "Use Math AutoCorrect in an equation's normal text"
 msgstr "A matematikai automatikus javítás használata egy egyenlet normál szövegében"
 
-#: src/mathessible/ui/settings_dialog.py:147
+#: src/mathessible/ui/settings_dialog.py:150
 msgid ""
 "Use Math AutoCorrect in the document too, text and equations alike (as Word's rule outside math "
 "regions)"
@@ -4049,19 +4057,19 @@ msgstr ""
 "A matematikai automatikus javítás használata a dokumentumban is, a szövegben és az egyenletekben "
 "egyaránt (mint a Word szabálya a matematikai területeken kívül)"
 
-#: src/mathessible/ui/settings_dialog.py:149
+#: src/mathessible/ui/settings_dialog.py:152
 msgid "Use Math AutoCorrect in the document"
 msgstr "A matematikai automatikus javítás használata a dokumentumban"
 
-#: src/mathessible/ui/settings_dialog.py:154
+#: src/mathessible/ui/settings_dialog.py:157
 msgid "Insert templates as control words (for example \\sum and \\sqrt instead of ∑ and √)"
 msgstr "Sablonok beszúrása vezérlőszavakként (például \\sum és \\sqrt a ∑ és a √ helyett)"
 
-#: src/mathessible/ui/settings_dialog.py:155
+#: src/mathessible/ui/settings_dialog.py:158
 msgid "Insert templates as control words"
 msgstr "Sablonok beszúrása vezérlőszavakként"
 
-#: src/mathessible/ui/settings_dialog.py:161
+#: src/mathessible/ui/settings_dialog.py:164
 #, python-brace-format
 msgid ""
 "Decimal comma: 1,5 is a number and a set is written {1, 2, 3}; off: decimal point (3.14), and "
@@ -4070,59 +4078,59 @@ msgstr ""
 "Tizedesvessző: az 1,5 egy szám, és a halmaz írásmódja {1, 2, 3}; kikapcsolva: tizedespont (3.14),"
 " és az {1,2,3} egy halmaz"
 
-#: src/mathessible/ui/settings_dialog.py:164
+#: src/mathessible/ui/settings_dialog.py:167
 msgid "Decimal comma"
 msgstr "Tizedesvessző"
 
-#: src/mathessible/ui/settings_dialog.py:169
+#: src/mathessible/ui/settings_dialog.py:172
 msgid "Remove spaces that change nothing when saving the equation or switching to linear view"
 msgstr ""
 "A semmit sem változtató szóközök eltávolítása az egyenlet mentésekor vagy a lineáris nézetre "
 "váltáskor"
 
-#: src/mathessible/ui/settings_dialog.py:170
+#: src/mathessible/ui/settings_dialog.py:173
 msgid "Remove extra spaces"
 msgstr "Felesleges szóközök eltávolítása"
 
-#: src/mathessible/ui/settings_dialog.py:177
+#: src/mathessible/ui/settings_dialog.py:180
 msgid "Build equations as you type (on Space or an operator, what is complete; the rest stays linear)"
 msgstr ""
 "Az egyenletek felépítése gépelés közben (Szóköznél vagy operátornál ami teljes; a többi lineáris "
 "marad)"
 
-#: src/mathessible/ui/settings_dialog.py:178
+#: src/mathessible/ui/settings_dialog.py:181
 msgid "Build equations as you type"
 msgstr "Az egyenletek felépítése gépelés közben"
 
-#: src/mathessible/ui/settings_dialog.py:183
+#: src/mathessible/ui/settings_dialog.py:186
 msgid "Say what was built while typing (for example, built fraction)"
 msgstr "Gépelés közben annak bemondása, mi épült fel (például tört felépítve)"
 
-#: src/mathessible/ui/settings_dialog.py:184
+#: src/mathessible/ui/settings_dialog.py:187
 msgid "Say what was built"
 msgstr "Annak bemondása, mi épült fel"
 
-#: src/mathessible/ui/settings_dialog.py:189
+#: src/mathessible/ui/settings_dialog.py:192
 msgid "Open equations built (professional view), ready to navigate and type into"
 msgstr "Az egyenletek felépítve nyílnak meg (professzionális nézet), bejárásra és gépelésre készen"
 
-#: src/mathessible/ui/settings_dialog.py:190
+#: src/mathessible/ui/settings_dialog.py:193
 msgid "Open equations built"
 msgstr "Az egyenletek felépítve nyílnak meg"
 
-#: src/mathessible/ui/settings_dialog.py:195
+#: src/mathessible/ui/settings_dialog.py:198
 msgid "Open a function's argument as soon as its parenthesis is closed (instead of on Space)"
 msgstr "A függvény argumentumának megnyitása, amint a zárójele bezárul (Szóköz helyett)"
 
-#: src/mathessible/ui/settings_dialog.py:196
+#: src/mathessible/ui/settings_dialog.py:199
 msgid "Open the argument on the closing parenthesis"
 msgstr "Az argumentum megnyitása a záró zárójelnél"
 
-#: src/mathessible/ui/settings_dialog.py:199
+#: src/mathessible/ui/settings_dialog.py:202
 msgid "&Recognized Functions…"
 msgstr "&Felismert függvények…"
 
-#: src/mathessible/ui/settings_dialog.py:205
+#: src/mathessible/ui/settings_dialog.py:208
 msgid ""
 "Space after a recognized function (sin, log, lim…) opens its argument, and it is navigated as "
 "function name and argument, as in Word."
@@ -4130,41 +4138,41 @@ msgstr ""
 "Egy felismert függvény (sin, log, lim…) utáni szóköz megnyitja az argumentumát, és "
 "függvénynévként és argumentumként járható be, mint a Wordben."
 
-#: src/mathessible/ui/settings_dialog.py:213
+#: src/mathessible/ui/settings_dialog.py:216
 msgid "Use linear navigation in exploration mode (F10; writing mode is always linear)"
 msgstr "Lineáris navigáció használata felfedező módban (F10; az írás mód mindig lineáris)"
 
-#: src/mathessible/ui/settings_dialog.py:214
+#: src/mathessible/ui/settings_dialog.py:217
 msgid "Linear navigation in exploration mode"
 msgstr "Lineáris navigáció felfedező módban"
 
-#: src/mathessible/ui/settings_dialog.py:220
+#: src/mathessible/ui/settings_dialog.py:223
 msgid ""
 "Stop at the start and end of every structure (for example \"start fraction\", \"end numerator\") "
 "and of the math"
 msgstr "Megállás minden szerkezet (például „tört eleje”, „számláló vége”) és a matematika elején és végén"
 
-#: src/mathessible/ui/settings_dialog.py:223
+#: src/mathessible/ui/settings_dialog.py:226
 msgid "Stop at structure start and end"
 msgstr "Megállás a szerkezetek elején és végén"
 
-#: src/mathessible/ui/settings_dialog.py:228
+#: src/mathessible/ui/settings_dialog.py:231
 msgid "Stop at invisible operators (for example the invisible times in 3x)"
 msgstr "Megállás a láthatatlan operátoroknál (például a 3x láthatatlan szorzásánál)"
 
-#: src/mathessible/ui/settings_dialog.py:229
+#: src/mathessible/ui/settings_dialog.py:232
 msgid "Stop at invisible operators"
 msgstr "Megállás a láthatatlan operátoroknál"
 
-#: src/mathessible/ui/settings_dialog.py:234
+#: src/mathessible/ui/settings_dialog.py:237
 msgid "Leave a structure automatically at its end (for example, from the numerator to the denominator)"
 msgstr "Egy szerkezet automatikus elhagyása a végén (például a számlálóból a nevezőbe)"
 
-#: src/mathessible/ui/settings_dialog.py:235
+#: src/mathessible/ui/settings_dialog.py:238
 msgid "Leave structures automatically"
 msgstr "Szerkezetek automatikus elhagyása"
 
-#: src/mathessible/ui/settings_dialog.py:241
+#: src/mathessible/ui/settings_dialog.py:244
 msgid ""
 "When enabled, the right arrow enters structures such as fractions automatically, so you can read "
 "more of an expression without pressing Down."
@@ -4172,23 +4180,23 @@ msgstr ""
 "Ha be van kapcsolva, a jobbra nyíl automatikusan belép az olyan szerkezetekbe, mint a törtek, így"
 " többet olvashat egy kifejezésből a Le nyíl lenyomása nélkül."
 
-#: src/mathessible/ui/settings_dialog.py:247
+#: src/mathessible/ui/settings_dialog.py:250
 msgid "&Symbol dictionary (names spoken for symbols while typing)"
 msgstr "&Szimbólumszótár (a szimbólumokhoz gépelés közben kimondott nevek)"
 
-#: src/mathessible/ui/settings_dialog.py:249
+#: src/mathessible/ui/settings_dialog.py:252
 msgid "Symbol dictionary"
 msgstr "Szimbólumszótár"
 
-#: src/mathessible/ui/settings_dialog.py:252
+#: src/mathessible/ui/settings_dialog.py:255
 msgid "&Import dictionary…"
 msgstr "Szótár &importálása…"
 
-#: src/mathessible/ui/settings_dialog.py:254
+#: src/mathessible/ui/settings_dialog.py:257
 msgid "&Download NVDA dictionaries…"
 msgstr "Az NVDA szótárainak &letöltése…"
 
-#: src/mathessible/ui/settings_dialog.py:265
+#: src/mathessible/ui/settings_dialog.py:268
 msgid ""
 "Any file in NVDA's symbols.dic format can be imported. NVDA's own dictionaries are downloaded "
 "from the NVDA project on GitHub. The built equation is always read by MathCAT."
@@ -4196,29 +4204,29 @@ msgstr ""
 "Bármely, az NVDA symbols.dic formátumában lévő fájl importálható. Az NVDA saját szótárai az NVDA "
 "GitHub-projektjéből töltődnek le. A felépített egyenletet mindig a MathCAT olvassa fel."
 
-#: src/mathessible/ui/settings_dialog.py:271
+#: src/mathessible/ui/settings_dialog.py:274
 msgid "Say symbols MathCAT does not know by their Unicode name (for example, alchemical symbol for air)"
 msgstr ""
 "A MathCAT által nem ismert szimbólumok kimondása Unicode-nevükkel (például alchemical symbol for "
 "air)"
 
-#: src/mathessible/ui/settings_dialog.py:272
+#: src/mathessible/ui/settings_dialog.py:275
 msgid "Name unknown symbols"
 msgstr "Ismeretlen szimbólumok megnevezése"
 
-#: src/mathessible/ui/settings_dialog.py:277
+#: src/mathessible/ui/settings_dialog.py:280
 msgid "&Braille code (the braille strip under the equation)"
 msgstr "&Braille-kód (az egyenlet alatti braille-sáv)"
 
-#: src/mathessible/ui/settings_dialog.py:279
+#: src/mathessible/ui/settings_dialog.py:282
 msgid "Braille code"
 msgstr "Braille-kód"
 
-#: src/mathessible/ui/settings_dialog.py:283
+#: src/mathessible/ui/settings_dialog.py:286
 msgid "Braille si&gns…"
 msgstr "Braille-&jelek…"
 
-#: src/mathessible/ui/settings_dialog.py:291
+#: src/mathessible/ui/settings_dialog.py:294
 msgid ""
 "Braille signs are your own braille for symbols in the code chosen above, for symbols it has no "
 "sign for, or to replace its own."
@@ -4226,35 +4234,35 @@ msgstr ""
 "A braille-jelek a saját braille-írása a fent választott kód szimbólumaihoz: azokhoz, amelyekhez "
 "nincs jele, vagy a saját jelei helyett."
 
-#: src/mathessible/ui/settings_dialog.py:295
+#: src/mathessible/ui/settings_dialog.py:298
 msgid "BRF export (its dialog can change them for one file)"
 msgstr "BRF-exportálás (a párbeszédablaka egy fájlra módosíthatja ezeket)"
 
-#: src/mathessible/ui/settings_dialog.py:316
+#: src/mathessible/ui/settings_dialog.py:319
 msgid "The system's"
 msgstr "A rendszeré"
 
-#: src/mathessible/ui/settings_dialog.py:318
+#: src/mathessible/ui/settings_dialog.py:321
 msgid "&Interface"
 msgstr "&Felület"
 
-#: src/mathessible/ui/settings_dialog.py:318
+#: src/mathessible/ui/settings_dialog.py:321
 msgid "Interface language"
 msgstr "A felület nyelve"
 
-#: src/mathessible/ui/settings_dialog.py:320
+#: src/mathessible/ui/settings_dialog.py:323
 msgid "The interface's"
 msgstr "A felületé"
 
-#: src/mathessible/ui/settings_dialog.py:322
+#: src/mathessible/ui/settings_dialog.py:325
 msgid "&Speech of equations"
 msgstr "Az egyenletek &beszéde"
 
-#: src/mathessible/ui/settings_dialog.py:322
+#: src/mathessible/ui/settings_dialog.py:325
 msgid "Speech language"
 msgstr "A beszéd nyelve"
 
-#: src/mathessible/ui/settings_dialog.py:328
+#: src/mathessible/ui/settings_dialog.py:331
 msgid ""
 "The interface changes when Mathessible starts again; the speech of equations at once. These are "
 "MathCAT's languages. Translations other than English are drafts that a native speaker has yet to "
@@ -4264,15 +4272,15 @@ msgstr ""
 "MathCAT nyelvei. Az angoltól eltérő fordítások vázlatok, amelyeket egy anyanyelvi beszélőnek még "
 "át kell néznie."
 
-#: src/mathessible/ui/settings_dialog.py:340
+#: src/mathessible/ui/settings_dialog.py:348
 msgid "Default &author"
 msgstr "Alapértelmezett &szerző"
 
-#: src/mathessible/ui/settings_dialog.py:340
+#: src/mathessible/ui/settings_dialog.py:348
 msgid "Default author"
 msgstr "Alapértelmezett szerző"
 
-#: src/mathessible/ui/settings_dialog.py:345
+#: src/mathessible/ui/settings_dialog.py:353
 msgid ""
 "These are the defaults for every PDF; the export's dialog can change them for one PDF, and holds "
 "the title, watermark and passwords, which are never kept."
@@ -4280,59 +4288,59 @@ msgstr ""
 "Ezek minden PDF alapértékei; az exportálás párbeszédablaka egy PDF-re módosíthatja őket, és ott "
 "van a cím, a vízjel és a jelszavak, amelyeket sosem tárolunk."
 
-#: src/mathessible/ui/settings_dialog.py:476
+#: src/mathessible/ui/settings_dialog.py:484
 msgid "Import a symbol dictionary"
 msgstr "Szimbólumszótár importálása"
 
-#: src/mathessible/ui/settings_dialog.py:477
+#: src/mathessible/ui/settings_dialog.py:485
 msgid "NVDA symbol dictionaries"
 msgstr "Az NVDA szimbólumszótárai"
 
-#: src/mathessible/ui/settings_dialog.py:486
+#: src/mathessible/ui/settings_dialog.py:494
 msgid "Import failed"
 msgstr "Az importálás nem sikerült"
 
-#: src/mathessible/ui/settings_dialog.py:493
+#: src/mathessible/ui/settings_dialog.py:501
 msgid "Listing NVDA's languages…"
 msgstr "Az NVDA nyelveinek lekérése…"
 
-#: src/mathessible/ui/settings_dialog.py:498
+#: src/mathessible/ui/settings_dialog.py:506
 msgid "Choose the languages to download (Space checks one)."
 msgstr "Válassza ki a letöltendő nyelveket (a Szóköz bejelöl egyet)."
 
-#: src/mathessible/ui/settings_dialog.py:499 src/mathessible/ui/settings_dialog.py:532
-#: src/mathessible/ui/settings_dialog.py:537 src/mathessible/ui/settings_dialog.py:558
+#: src/mathessible/ui/settings_dialog.py:507 src/mathessible/ui/settings_dialog.py:540
+#: src/mathessible/ui/settings_dialog.py:545 src/mathessible/ui/settings_dialog.py:566
 msgid "Download NVDA dictionaries"
 msgstr "Az NVDA szótárainak letöltése"
 
-#: src/mathessible/ui/settings_dialog.py:510
+#: src/mathessible/ui/settings_dialog.py:518
 #, python-brace-format
 msgid "Downloading {count} dictionary…"
 msgid_plural "Downloading {count} dictionaries…"
 msgstr[0] "{count} szótár letöltése…"
 
-#: src/mathessible/ui/settings_dialog.py:525
+#: src/mathessible/ui/settings_dialog.py:533
 #, python-brace-format
 msgid "{count} dictionary downloaded."
 msgid_plural "{count} dictionaries downloaded."
 msgstr[0] "{count} szótár letöltve."
 
-#: src/mathessible/ui/settings_dialog.py:529
+#: src/mathessible/ui/settings_dialog.py:537
 #, python-brace-format
 msgid "NVDA has no symbol dictionary for: {languages}."
 msgstr "Az NVDA-nak nincs szimbólumszótára ezekhez: {languages}."
 
-#: src/mathessible/ui/settings_dialog.py:557
+#: src/mathessible/ui/settings_dialog.py:565
 #, python-brace-format
 msgid "The download failed: {error}"
 msgstr "A letöltés nem sikerült: {error}"
 
-#: src/mathessible/ui/settings_dialog.py:577 src/mathessible/ui/settings_dialog.py:578
-#: src/mathessible/ui/settings_dialog.py:615
+#: src/mathessible/ui/settings_dialog.py:585 src/mathessible/ui/settings_dialog.py:586
+#: src/mathessible/ui/settings_dialog.py:623
 msgid "Settings"
 msgstr "Beállítások"
 
-#: src/mathessible/ui/settings_dialog.py:616
+#: src/mathessible/ui/settings_dialog.py:624
 msgid "Settings dialog"
 msgstr "Beállítások párbeszédablak"
 

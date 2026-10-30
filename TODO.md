@@ -66,11 +66,11 @@ links back, liblouis and BRF need a braille transcriber's convention.
 - [x] The equations' spoken form in the PDF in the document's language,
   when MathCAT has it (English otherwise: it has no Romanian).
 - [x] Check the Find dialog (wx's generic one) with VoiceOver.
-- [ ] Check with VoiceOver what is only tested without a screen: Undo
+- [x] Check with VoiceOver what is only tested without a screen: Undo
   after the commands that change the document (Change to Display, Replace
   All, AutoCorrect in the text) and File > Print.
-- [ ] Settings' height (720 px with the PDF tab): fine on a laptop, but
-  still tall.
+- [x] Settings' height (720 px with the PDF tab): the PDF's defaults are two
+  tabs, PDF Layout and PDF Content, as in the export's dialog (544 px).
 - [ ] Distribution: a macOS application (`.app`) with an icon, `.md` and
   `.msnb` files opening in it, signing and notarisation, an installer;
   Windows and Linux built and tried (liblouis needs clang-cl on

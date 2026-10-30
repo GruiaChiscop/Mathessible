@@ -1343,7 +1343,7 @@ forbids encryption: refused before export.
 Settings and the export dialog (the user's design, 2026-10-26): what
 belongs to one PDF is only in the export dialog and never kept (title,
 subject, keywords, language, header, watermark, passwords:
-`pdf_export.PdfDocument`); Settings → PDF holds the defaults (layout,
+`pdf_export.PdfDocument`); Settings → PDF Layout and PDF Content hold the defaults (layout,
 content, standard, author), which the dialog's Layout, Content and
 Security tabs start from on a copy (`dataclasses.replace`) and Save as
 Defaults copies back (every `pdf_` field). Both use the same controls

@@ -21,7 +21,7 @@ if wx is not None:
     class PdfExportDialog(wx.Dialog):
         """File > Export > PDF: this PDF's properties, layout, content and security, in tabs.
 
-        Layout and content start from Settings → PDF; Save as Defaults
+        Layout and content start from Settings → PDF Layout and PDF Content; Save as Defaults
         makes this PDF's layout, content, standard and author the defaults
         (`save_defaults`), never its title, watermark or passwords. The
         header and footer are the document's (Insert > Header and Footer).

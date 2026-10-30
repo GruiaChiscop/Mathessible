@@ -48,7 +48,8 @@ def applies_at_once() -> bool:
 if wx is not None:
 
     class SettingsPanel(wx.Panel):
-        """Every setting, in tabs: Typing, Building, Navigation, Speech, Braille.
+        """Every setting, in tabs: Language, Typing, Building, Navigation, Speech, Braille, and the exports'
+        defaults (PDF Layout, PDF Content, HTML, Word).
 
         `apply()` writes the controls into the settings. With `on_change`,
         every change calls it straight away (the macOS window); a list edited
@@ -72,7 +73,9 @@ if wx is not None:
             self._navigation_page(self._page(_("Navigation")), settings)
             self._speech_page(self._page(_("Speech")), settings)
             self._braille_page(self._page(_("Braille")), settings)
-            self._pdf_page(self._page("PDF"), settings)
+            # The PDF's defaults in two tabs, as its export's dialog has them (one made Settings 780 px tall).
+            self._pdf_layout_page(self._page(_("PDF Layout")), settings)
+            self._pdf_content_page(self._page(_("PDF Content")), settings)
             self._html_page(self._page("HTML"), settings)
             self._docx_page(self._page(_("Word")), settings)
             for index in range(self.notebook.GetPageCount()):
@@ -331,10 +334,15 @@ if wx is not None:
                 ),
             )
 
-        def _pdf_page(self, page: wx.Panel, settings: AppSettings) -> None:
-            """The PDF export's defaults; each export can change them (File > Export > PDF)."""
+        def _pdf_layout_page(self, page: wx.Panel, settings: AppSettings) -> None:
+            """The PDF export's page and text defaults; each export can change them (File > Export > PDF)."""
             rows = FormRows(page, self._changed)
             self.pdf_layout = PdfLayoutControls(rows, settings)
+            rows.finish(page.GetSizer())
+
+        def _pdf_content_page(self, page: wx.Panel, settings: AppSettings) -> None:
+            """The PDF export's content defaults: numbering, colours, contents, standard, author."""
+            rows = FormRows(page, self._changed)
             self.pdf_content = PdfContentControls(rows, settings)
             self.pdf_standard = PdfStandardControl(rows, settings)
             self.pdf_author = rows.row(_("Default &author"), rows.text(settings.pdf_author), _("Default author"))
