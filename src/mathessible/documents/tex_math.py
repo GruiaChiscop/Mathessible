@@ -35,6 +35,10 @@ _ALIGNAT_COLUMNS = re.compile(r"\s*\{[^{}]*\}")
 # The marks of a new equation, and of one changed to inline or display.
 INLINE_MARKS = ("$", "$")
 DISPLAY_MARKS = ("\\[", "\\]")
+# A new LaTeX document (File > New LaTeX Document): an article with amsmath, its text to be written where
+# NEW_DOCUMENT_CARET is, inside the document environment.
+NEW_DOCUMENT = "\\documentclass{article}\n\\usepackage{amsmath}\n\n\\begin{document}\n\n\\end{document}\n"
+NEW_DOCUMENT_CARET = NEW_DOCUMENT.index("\\end{document}") - 1
 
 
 def _environment_end(source: str, name: str, start: int) -> tuple[int, int] | None:

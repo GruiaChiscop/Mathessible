@@ -150,6 +150,9 @@ sums and integrals, `\begin{pmatrix}`, `\begin{cases}`, `\left( \right)`,
 
 File → Open also opens a LaTeX document (`.tex`), and Save keeps it a
 `.tex` file, exactly as it was written but for the equations you edit.
+File → New LaTeX Document starts one: an article (`\documentclass`,
+`amsmath`, `\begin{document}`), the caret in its body, saved as `.tex`. A
+document begun with File → New is Markdown until it is saved as `.tex`.
 Its equations are found by LaTeX's own marks: `$...$`, `\(...\)`,
 `$$...$$`, `\[...\]` and the `equation`, `align`, `gather`, `multline`,
 `eqnarray` and `math` environments (comments, `\verb` and `verbatim` are
@@ -400,8 +403,11 @@ the point: they are LaTeX's commands and the document's own
 (`\newcommand`), kept as words; after `\begin{` its environments (taking
 one writes its `\end{...}`), after `\ref{` or `\eqref{` the document's labels
 and after `\cite{` its citation keys (its `thebibliography` or `.bib` file).
-A `.tex` file adds LaTeX's text commands (`\section`, `\emph`, `\cite`) and
-environments (`itemize`, `figure`, `table`).
+A `.tex` file adds LaTeX's text commands (`\documentclass`, `\section`,
+`\emph`, `\cite`), its environments (`document`, `itemize`, `figure`,
+`table`, each written on lines of its own, the caret between), and the
+usual classes after `\documentclass{`, packages after `\usepackage{` and
+styles after `\bibliographystyle{`.
 
 ### Unknown symbols
 

@@ -28,8 +28,8 @@ from mathessible.documents.tex_math import (
 )
 from mathessible.documents.tex_numbers import tex_numbers
 from mathessible.editing.autocorrect import AutoCorrectTable, autocorrect_defaults
-from mathessible.editing.completion import Completion, accept_completion
-from mathessible.editing.document_completion import document_completion_at
+from mathessible.editing.completion import Completion
+from mathessible.editing.document_completion import accept_document_completion, document_completion_at
 from mathessible.editing.space_conversion import convert_in_text, convert_shortcut_on_character
 from mathessible.editor.equation_editor import EquationEditor
 from mathessible.editor.structures import append_insert_items
@@ -618,7 +618,7 @@ if wx is not None:
                 return
             if key == wx.WXK_TAB and not event.HasAnyModifiers():
                 convert = self.settings.convert_on_space and not self.latex
-                edit = accept_completion(self.markdown.GetValue(), completion, convert)
+                edit = accept_document_completion(self.markdown.GetValue(), completion, convert, self.tex)
                 self._close_completion()
                 self.replace_source(edit.source)
                 self.markdown.SetInsertionPoint(edit.caret)

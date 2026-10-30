@@ -1,7 +1,8 @@
 import unittest
 
+from mathessible.documents.tex_math import NEW_DOCUMENT, NEW_DOCUMENT_CARET
 from mathessible.editing.completion import accept_completion, argument_completion_at
-from mathessible.editing.document_completion import document_completion_at
+from mathessible.editing.document_completion import accept_document_completion, document_completion_at
 
 CONTROL_WORDS = {"alpha": "α", "aleph": "ℵ", "frac": "", "sec": ""}
 LATEX_WORDS = {"frac": "", "sec": "", "sqrt": ""}
@@ -44,6 +45,23 @@ class DocumentCompletionTests(unittest.TestCase):
         self.assertEqual(
             accept_completion("\\begin{ite", completion, convert=False).source, "\\begin{itemize}\\end{itemize}"
         )
+
+    def test_a_tex_files_preamble_and_document_environment(self) -> None:
+        self.assertEqual(words(complete("\\doc", tex=True)), ["documentclass"])
+        self.assertEqual(words(complete("\\documentclass{ar", tex=True)), ["article"])
+        self.assertEqual(words(complete("\\usepackage[utf8]{inp", tex=True)), ["inputenc"])
+        self.assertIn("graphicx", words(complete("\\usepackage{amsmath, gra", tex=True)))
+        completion = complete("\\begin{doc", tex=True)
+        edit = accept_document_completion("\\begin{doc", completion, convert=False, tex=True)
+        self.assertEqual((edit.source, edit.caret), ("\\begin{document}\n\n\\end{document}", 17))
+        matrix = complete("\\begin{pm", tex=True)
+        self.assertEqual(
+            accept_document_completion("\\begin{pm", matrix, False, True).source, "\\begin{pmatrix}\\end{pmatrix}"
+        )
+
+    def test_a_new_latex_document_has_its_caret_in_the_body(self) -> None:
+        self.assertTrue(NEW_DOCUMENT.startswith("\\documentclass{article}"))
+        self.assertEqual(NEW_DOCUMENT[NEW_DOCUMENT_CARET:], "\n\\end{document}\n")
 
     def test_labels_after_ref_and_keys_after_cite(self) -> None:
         labels, keys = ("eq:energy", "eq:e2", "fig:a"), ("knuth84", "lamport86")

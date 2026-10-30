@@ -53,6 +53,7 @@ from mathessible.documents.tex_compile import (
 )
 from mathessible.documents.tex_macros import expand_markdown_macros
 from mathessible.documents.tex_markdown import tex_to_markdown
+from mathessible.documents.tex_math import NEW_DOCUMENT, NEW_DOCUMENT_CARET
 from mathessible.documents.typst_math import TypstEquation, typst_math
 from mathessible.editing.pasted_math import plain_letters
 from mathessible.error_messages import explain
@@ -224,6 +225,8 @@ if wx is not None:
             self._compile_tex_id = wx.NewIdRef()
             # In the order of Apple's guidelines; Quit goes to the application menu on macOS.
             file_menu.Append(wx.ID_NEW, _("&New") + "\tCtrl+N")
+            self._new_tex_id = wx.NewIdRef()
+            file_menu.Append(self._new_tex_id, _("New LaTe&X Document"))
             file_menu.Append(wx.ID_OPEN, _("&Open…") + "\tCtrl+O")
             self._recent_menu = wx.Menu()
             self._recent_ids = [wx.NewIdRef() for _ in range(RECENT_LIMIT)]
@@ -331,6 +334,7 @@ if wx is not None:
             self.SetMenuBar(menu_bar)
 
             self.Bind(wx.EVT_MENU, self._new_document, id=wx.ID_NEW)
+            self.Bind(wx.EVT_MENU, self._new_tex_document, id=self._new_tex_id)
             self.Bind(wx.EVT_MENU, self._open_document, id=wx.ID_OPEN)
             self.Bind(wx.EVT_MENU, self._save_document_event, id=wx.ID_SAVE)
             self.Bind(wx.EVT_MENU, self._save_as_document_event, id=wx.ID_SAVEAS)
@@ -986,6 +990,15 @@ if wx is not None:
         def _new_document(self, _event: wx.CommandEvent | None = None) -> None:
             self._spawn_window()
 
+        def _new_tex_document(self, _event: wx.CommandEvent | None = None) -> None:
+            """File > New LaTeX Document: a .tex document from the start (saved as one), an article's frame in it,
+            the caret in its body; a new document is otherwise Markdown until it is saved as .tex."""
+            frame = self if self._is_blank() else self._spawn_window()
+            frame.editor.tex = True
+            frame.editor.set_source(NEW_DOCUMENT)
+            frame.editor.markdown.SetInsertionPoint(NEW_DOCUMENT_CARET)
+            frame._suggested_path = None
+
         def _open_document(self, _event: wx.CommandEvent | None = None) -> None:
             """File > Open: a Markdown document, a notebook in one file (.msnb) or a PDF with its source attached."""
             dialog = wx.FileDialog(
@@ -1017,7 +1030,7 @@ if wx is not None:
 
         def _is_blank(self) -> bool:
             """An untouched Untitled window, which an opened file takes instead of a new window."""
-            untouched = self.editor.source in ("", self._new_source())
+            untouched = self.editor.source in ("", self._new_source(), NEW_DOCUMENT)
             return not self.dirty and self.document_path is None and self.notebook is None and untouched
 
         def open_path(self, path: Path) -> MainFrame | None:

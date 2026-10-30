@@ -7,8 +7,10 @@ AutoCorrect does. In a LaTeX document it offers what the equation editor's
 LaTeX does (`completion.latex_completion_at`: the converter's words, the
 document's own `\\newcommand`s, the environments after `\\begin{`); a .tex
 file adds LaTeX's text commands and environments (`\\section`, `itemize`),
-which have no math of their own. After `\\ref{`, `\\eqref{` and the like
-it offers the document's labels, after `\\cite{` its bibliography's keys.
+which have no math of their own, and the usual classes after
+`\\documentclass{`, packages after `\\usepackage{` and styles after
+`\\bibliographystyle{`. After `\\ref{`, `\\eqref{` and the like it offers the
+document's labels, after `\\cite{` its bibliography's keys.
 """
 
 from __future__ import annotations
@@ -17,10 +19,12 @@ from collections.abc import Mapping, Sequence
 
 from mathessible.editing.completion import (
     Completion,
+    accept_completion,
     argument_completion_at,
     completion_at,
     latex_completion_at,
 )
+from mathessible.templates.template_source import TemplateEdit
 
 # LaTeX's commands for a document's text, which the converter (math only) does not know.
 TEX_TEXT_COMMANDS = (
@@ -106,6 +110,73 @@ TEX_ENVIRONMENTS = (
     "proof",
     "definition",
 )
+# The usual arguments of a .tex file's preamble commands (any other may be typed).
+DOCUMENT_CLASSES = (
+    "article",
+    "report",
+    "book",
+    "letter",
+    "memoir",
+    "amsart",
+    "amsbook",
+    "beamer",
+    "scrartcl",
+    "scrreprt",
+    "scrbook",
+    "standalone",
+)
+PACKAGES = (
+    "amsmath",
+    "amssymb",
+    "amsthm",
+    "mathtools",
+    "bm",
+    "graphicx",
+    "hyperref",
+    "geometry",
+    "babel",
+    "polyglossia",
+    "fontspec",
+    "unicode-math",
+    "inputenc",
+    "fontenc",
+    "xcolor",
+    "tikz",
+    "pgfplots",
+    "booktabs",
+    "array",
+    "tabularx",
+    "longtable",
+    "multirow",
+    "caption",
+    "subcaption",
+    "float",
+    "siunitx",
+    "physics",
+    "cleveref",
+    "natbib",
+    "biblatex",
+    "enumitem",
+    "listings",
+    "microtype",
+    "csquotes",
+    "url",
+    "mathrsfs",
+    "stmaryrd",
+    "esint",
+)
+BIBLIOGRAPHY_STYLES = (
+    "plain",
+    "unsrt",
+    "abbrv",
+    "alpha",
+    "ieeetr",
+    "acm",
+    "apalike",
+    "plainnat",
+    "unsrtnat",
+    "abbrvnat",
+)
 REFERENCE_COMMANDS = ("ref", "eqref", "pageref", "autoref", "cref", "Cref")
 CITATION_COMMANDS = ("cite", "citep", "citet", "parencite", "textcite", "autocite", "nocite")
 
@@ -131,6 +202,13 @@ def document_completion_at(
     if not latex:
         return completion_at(source, caret, control_words)
     names = dict.fromkeys(REFERENCE_COMMANDS, labels) | dict.fromkeys(CITATION_COMMANDS, keys)
+    if tex:
+        names |= {
+            "documentclass": DOCUMENT_CLASSES,
+            "usepackage": PACKAGES,
+            "RequirePackage": PACKAGES,
+            "bibliographystyle": BIBLIOGRAPHY_STYLES,
+        }
     argument = argument_completion_at(source, caret, names)
     if argument is not None:
         return argument
@@ -138,3 +216,21 @@ def document_completion_at(
         latex_words = {**dict.fromkeys(TEX_TEXT_COMMANDS, ""), **latex_words}
         environments = tuple(dict.fromkeys((*TEX_ENVIRONMENTS, *environments)))
     return latex_completion_at(source, caret, latex_words, environments)
+
+
+def accept_document_completion(source: str, completion: Completion, convert: bool, tex: bool) -> TemplateEdit:
+    """The chosen suggestion written in (`completion.accept_completion`); in a .tex file a text environment's
+    `\\begin{itemize}` and `\\end{itemize}` on lines of their own, the caret on the empty line between."""
+    edit = accept_completion(source, completion, convert)
+    name = completion.current.word
+    ending = f"\\end{{{name}}}"
+    if (
+        tex
+        and completion.environment == "begin"
+        and name in TEX_ENVIRONMENTS
+        and edit.source.startswith(ending, edit.caret)
+    ):
+        return TemplateEdit(
+            edit.source[: edit.caret] + "\n\n" + edit.source[edit.caret :], edit.caret + 1, edit.announcement
+        )
+    return edit
