@@ -115,6 +115,24 @@ LaTeX's own in a `.tex` file:
   document's folder when the document is saved.
 - **Table…**: a table of the rows and columns asked for, to fill in, the
   first row its header (a `tabular` in a `.tex` file).
+- **Chart…**: a function graph, or a bar, line, scatter or pie chart from
+  data. A function uses calculator notation such as `sin(x)` or `x^2`
+  and an x range. A data chart inserts a table to fill in. In Markdown,
+  the source remains an editable `chart` block; in a `.tex` file it is
+  native pgfplots (pgf-pie for a pie chart). The preview and HTML, PDF
+  and Word exports draw the chart; its description and summary are its
+  alternative text, and data charts retain their table for readers and
+  braille.
+- **Flowchart…**: a Mermaid diagram, with its title, description and direction.
+  Mathessible supports
+  `flowchart TD` (also `TB`, `BT`, `LR` and `RL`), process nodes
+  (`step[Do work]`), rounded or terminal nodes (`start([Start])`), decisions
+  (`choice{Ready?}`) and arrows with optional labels (`-->|Yes|`). It draws
+  the diagram locally, without sending its text to a web service; accessible
+  exports include its description, structural summary and connection list.
+  A `.tex` document gets native TikZ and the required packages. Flowcharts are
+  separate from function and data charts: they have no function or data-series
+  fields.
 
 The **Format** menu marks the selected text **Bold** (`Command+B`),
 **Italic** (`Command+I`), **Strikethrough** (`Command+Shift+X`) or

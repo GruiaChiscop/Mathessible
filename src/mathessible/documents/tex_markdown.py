@@ -23,6 +23,8 @@ import re
 from pathlib import Path
 
 from mathessible.documents.bibtex import Bibliography, document_bibliography, entry_text
+from mathessible.documents.charts import pgfplots_chart
+from mathessible.documents.flowcharts import tikz_flowchart
 from mathessible.documents.tex_macros import document_macros, expand_macros
 from mathessible.documents.tex_math import find_tex_math_zones
 from mathessible.documents.tex_numbers import TexNumbers, tex_numbers
@@ -375,6 +377,14 @@ class _Reader:
             self.captions += 1
         title = f"{'Figure' if kind == 'figure' else 'Table'} {number}: {caption}" if number else caption
         if kind == "figure":
+            # Generated TikZ and pgfplots figures return to the text block the normal preview/export draws.
+            plain = re.sub("\x00(\\d+)\x00", lambda mark: self.protected[int(mark.group(1))].strip("$\n"), content)
+            flowchart = tikz_flowchart(plain, re.sub(r"[\[\]$]", "", title))
+            if flowchart is not None:
+                return f"\n\n{flowchart}\n\n{title}\n\n" if title else f"\n\n{flowchart}\n\n"
+            chart = pgfplots_chart(plain, re.sub(r"[\[\]$]", "", title))
+            if chart is not None:
+                return f"\n\n{chart}\n\n{title}\n\n" if title else f"\n\n{chart}\n\n"
             images = _INCLUDEGRAPHICS.findall(content)
             alt = re.sub(r"[\[\]$]", "", caption) or "Figure"
             shown = "\n\n".join(f"![{alt}]({self._image(image.strip())})" for image in images)

@@ -1694,6 +1694,47 @@ AssistiveOutput. On macOS only: on Windows and Linux wx's status bar is
 native and NVDA reads it (the user's word), so it stays there, and Read
 Status reads its fields.
 
+Charts (2026-10-30, [documents/charts.py](../src/mathessible/documents/charts.py))
+are fenced `chart` blocks in Markdown: a function in calculator notation
+(`sin(x)`, `x^2`, several separated by `;`) or a Markdown table for bar,
+line, scatter and pie charts. Expressions are parsed with Python's AST and
+only arithmetic, `x`, the listed constants and mathematical functions are
+accepted; never pass chart text to `eval` without that allow-list. Matplotlib
+draws SVG for the preview, HTML and PDF, and PNG for Word. HTML also keeps a
+data chart's table, Word puts the summary in the picture's alternative text,
+and BRF writes the description, summary and rows. `ExportPage.folder` lets
+PDF and Word find ordinary document images as well. PDF writes every image
+beside a temporary Typst source before compilation.
+
+A `.tex` document gets a native `figure`: pgfplots for functions and data,
+pgf-pie for a pie chart. `tex_markdown.pgfplots_chart` reads the generated
+axis or pie back into a `chart` block so the normal preview and exports use
+the same renderer. Trigonometric functions need `deg(...)` in pgfplots,
+whose trigonometry is degree-based; `pgf_expression` adds it and the reader
+removes it. Pie data must be one non-negative series with at least one
+positive value: matplotlib otherwise raises while drawing. The chart dialog
+uses native controls only and inserts through `document_insert.chart`, so
+the operation is one undo step.
+
+Flowcharts (2026-10-30, [documents/flowcharts.py](../src/mathessible/documents/flowcharts.py))
+are standard fenced `mermaid` blocks, but deliberately use an offline subset:
+`flowchart`/`graph`, TD/TB/BT/LR/RL, process, rounded, terminal and decision
+nodes, and solid arrows with optional labels. The parser never runs Mermaid
+JavaScript or sends document text to a service. Matplotlib lays out and draws
+SVG for preview, HTML and PDF and PNG for Word; HTML and BRF also expose the
+connections as text. Keep syntax additions explicit and tested: an unsupported
+Mermaid diagram must remain source with a useful error, not be partly
+misinterpreted.
+
+A `.tex` insertion is native TikZ with explicit coordinates, `tikz` and
+`shapes.geometric`. The generated figure has canonical Mermaid comments for
+round-tripping, but LaTeX comments are removed before `tex_markdown` sees a
+figure, so `tikz_flowchart` also reads Mathessible's generated node and edge
+commands. This fallback is intentionally not a general TikZ parser. Flowcharts
+have their own Insert item and native dialog (title, description and direction),
+separate from function/data charts; insertion goes through
+`document_insert.flowchart` and is one undo step.
+
 Home screen (2026-10-30, [ui/home_panel.py](../src/mathessible/ui/home_panel.py)):
 the first window's own content (`MainFrame(home=True)` from app.py when no
 document is given), in place of the editor's splitter, so the menus and

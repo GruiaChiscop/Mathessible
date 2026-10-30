@@ -14,6 +14,7 @@ from xml.etree import ElementTree
 import typst
 
 from mathessible import session_log
+from mathessible.documents import charts, flowcharts
 from mathessible.documents.brf_export import BrfLayout, nemeth_in_ueb, notebook_brf
 from mathessible.documents.document_io import read_markdown, write_markdown
 from mathessible.documents.docx_export import DocxOptions, docx_document
@@ -79,7 +80,7 @@ from mathessible.ui.export_dialogs import (
 from mathessible.ui.header_footer_dialog import HeaderFooterDialog
 from mathessible.ui.help_menu import append_help_menu
 from mathessible.ui.home_panel import HomePanel
-from mathessible.ui.insert_dialogs import LinkDialog, TableDialog
+from mathessible.ui.insert_dialogs import ChartDialog, FlowchartDialog, LinkDialog, TableDialog
 from mathessible.ui.macos_webview import guard_webview_key_equivalents
 from mathessible.ui.pdf_dialog import PdfExportDialog
 from mathessible.ui.settings_dialog import forget_settings_window, show_settings
@@ -336,6 +337,7 @@ if wx is not None:
             self._bulleted_list_id, self._numbered_list_id = wx.NewIdRef(), wx.NewIdRef()
             self._quotation_id, self._code_block_id, self._rule_id = wx.NewIdRef(), wx.NewIdRef(), wx.NewIdRef()
             self._link_id, self._image_id, self._table_id = wx.NewIdRef(), wx.NewIdRef(), wx.NewIdRef()
+            self._chart_id, self._flowchart_id = wx.NewIdRef(), wx.NewIdRef()
             insert_menu.Append(self._bulleted_list_id, _("&Bulleted List"))
             insert_menu.Append(self._numbered_list_id, _("&Numbered List"))
             self._task_list_id, self._definition_list_id = wx.NewIdRef(), wx.NewIdRef()
@@ -348,6 +350,8 @@ if wx is not None:
             insert_menu.Append(self._link_id, _("&Link…") + "\tCtrl+K")
             insert_menu.Append(self._image_id, _("&Image…"))
             insert_menu.Append(self._table_id, _("&Table…"))
+            insert_menu.Append(self._chart_id, _("Ch&art…"))
+            insert_menu.Append(self._flowchart_id, _("&Flowchart…"))
             insert_menu.AppendSeparator()
             self._footnote_id, self._go_to_footnote_id = wx.NewIdRef(), wx.NewIdRef()
             self._header_footer_id = wx.NewIdRef()
@@ -433,6 +437,8 @@ if wx is not None:
             self.Bind(wx.EVT_MENU, lambda _event: self._insert_link(), id=self._link_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._insert_image(), id=self._image_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._insert_table(), id=self._table_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._insert_chart(), id=self._chart_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._insert_flowchart(), id=self._flowchart_id)
             for command_id in (
                 *self._heading_ids,
                 self._bulleted_list_id,
@@ -445,6 +451,8 @@ if wx is not None:
                 self._link_id,
                 self._image_id,
                 self._table_id,
+                self._chart_id,
+                self._flowchart_id,
             ):
                 self.Bind(wx.EVT_UPDATE_UI, self._on_update_insert_item, id=command_id)
             self.Bind(wx.EVT_MENU, self._open_document, id=wx.ID_OPEN)
@@ -1304,6 +1312,75 @@ if wx is not None:
                 lambda source, start, end: document_insert.table(source, start, end, rows, columns, header, tex)
             )
 
+        def _insert_chart(self) -> None:
+            """Insert > Chart: a function or data chart in Markdown; pgfplots in a .tex file."""
+            dialog = ChartDialog(self)
+            try:
+                while True:
+                    if dialog.ShowModal() != wx.ID_OK:
+                        return
+                    kind = dialog.selected_kind()
+                    values = (
+                        kind,
+                        " ".join(dialog.title.GetValue().split()),
+                        " ".join(dialog.description.GetValue().split()),
+                        dialog.function.GetValue().strip(),
+                        (dialog.start.GetValue().strip(), dialog.end.GetValue().strip()),
+                        dialog.rows.GetValue(),
+                        1 if kind == "pie" else dialog.series.GetValue(),
+                    )
+                    tex = self.editor.tex
+                    try:
+                        block = charts.pgfplots_figure(*values) if tex else charts.chart_block(*values)
+                        if not tex:
+                            charts.parse_chart(block.split("\n", 1)[1].rsplit("\n", 1)[0])
+                    except charts.ChartError as error:
+                        wx.MessageBox(str(error), _("Insert Chart"), wx.OK | wx.ICON_WARNING, dialog)
+                        continue
+                    break
+            finally:
+                dialog.Destroy()
+            caret_at = ("\\addplot" if tex else "function: ") if kind == "function" else ("(Item1" if tex else "Item 1")
+            session_log.write("command", f"insert chart {kind}")
+
+            def insert(source: str, start: int, end: int) -> TemplateEdit:
+                edit = document_insert.chart(source, start, end, block, caret_at, tex)
+                if not tex:
+                    return edit
+                package = "pgf-pie" if kind == "pie" else "pgfplots"
+                return document_insert.with_package(edit, package)
+
+            self.editor.apply_insert(insert)
+
+        def _insert_flowchart(self) -> None:
+            """Insert > Flowchart: Mermaid in Markdown and native TikZ in a .tex file."""
+            dialog = FlowchartDialog(self)
+            try:
+                if dialog.ShowModal() != wx.ID_OK:
+                    return
+                title = " ".join(dialog.title.GetValue().split())
+                description = " ".join(dialog.description.GetValue().split())
+                direction = dialog.selected_direction()
+            finally:
+                dialog.Destroy()
+            tex = self.editor.tex
+            block = (
+                flowcharts.tikz_figure(title, description, direction)
+                if tex
+                else flowcharts.flowchart_block(title, description, direction)
+            )
+            session_log.write("command", f"insert flowchart {direction}")
+
+            def insert(source: str, start: int, end: int) -> TemplateEdit:
+                caret_at = "{Process}" if tex else "Process"
+                edit = document_insert.flowchart(source, start, end, block, caret_at, tex)
+                if not tex:
+                    return edit
+                edit = document_insert.with_package(edit, "tikz")
+                return document_insert.with_preamble_line(edit, "\\usetikzlibrary{shapes.geometric}")
+
+            self.editor.apply_insert(insert)
+
         def _new_document(self, _event: wx.CommandEvent | None = None) -> None:
             if self._home:
                 self._leave_home()  # The home screen's window takes the new document.
@@ -1571,6 +1648,7 @@ if wx is not None:
                         ExportPage(
                             page.title,
                             self.editor.source if index == self.current_page else self.notebook.read_page(index),
+                            self.notebook.root,
                         )
                         for index, page in enumerate(self.notebook.pages)
                     ]
@@ -1587,7 +1665,8 @@ if wx is not None:
             title = self.document_path.stem if self.document_path is not None else _("Mathessible document")
             stem = self.document_path.stem if self.document_path else "mathessible-document"
             folder = str(self.document_path.parent) if self.document_path else ""
-            return title, [ExportPage(title, self._readable_source())], stem, folder
+            images = self.document_path.parent if self.document_path is not None else None
+            return title, [ExportPage(title, self._readable_source(), images)], stem, folder
 
         def _readable_source(self) -> str:
             """The document as the preview, Print and the exports read it: Markdown, a .tex file's read as
@@ -1862,11 +1941,18 @@ if wx is not None:
                         "Security, or export without them."
                     )
                 )
-            source = typst_document(pages, title, equation_of, options)
+            images: dict[str, bytes] = {}
+            source = typst_document(pages, title, equation_of, options, images)
             try:
-                pdf = typst.compile(
-                    source.encode("utf-8"), sys_inputs=pdf_inputs(pages), pdf_standards=list(options.standards)
-                )
+                # The source and its pictures (charts, images) in a folder of their own, which Typst reads.
+                with tempfile.TemporaryDirectory(prefix="mathessible-pdf-") as folder:
+                    main = Path(folder, "main.typ")
+                    main.write_text(source, encoding="utf-8")
+                    for name, data in images.items():
+                        Path(folder, name).write_bytes(data)
+                    pdf = typst.compile(
+                        str(main), root=folder, sys_inputs=pdf_inputs(pages), pdf_standards=list(options.standards)
+                    )
             except RuntimeError as error:
                 raise RuntimeError(f"Typst could not make the PDF:\n{error}") from error
             path = destination if destination.suffix.lower() == ".pdf" else destination.with_suffix(".pdf")

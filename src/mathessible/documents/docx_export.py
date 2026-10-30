@@ -16,6 +16,8 @@ import io
 import re
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from pathlib import Path
+from urllib.parse import unquote
 from xml.sax.saxutils import escape
 
 from docx import Document
@@ -30,6 +32,18 @@ from docx.oxml.ns import nsdecls, qn
 from docx.shared import Mm, Pt
 from docx.text.paragraph import Paragraph
 
+from mathessible.documents.charts import ChartError, alternative_text, draw, is_chart, parse_chart
+from mathessible.documents.flowcharts import (
+    FlowchartError,
+    is_flowchart,
+    parse_flowchart,
+)
+from mathessible.documents.flowcharts import (
+    alternative_text as flowchart_alternative_text,
+)
+from mathessible.documents.flowcharts import (
+    draw as draw_flowchart,
+)
 from mathessible.documents.front_matter import HeaderFooter, header_and_footer
 from mathessible.documents.front_matter import body as without_front_matter
 from mathessible.documents.html_export import ExportPage, for_page, markdown_parser
@@ -39,6 +53,8 @@ from mathessible.documents.omml_math import M, OmmlEquation
 # Paper sizes in millimetres, portrait.
 PAPERS = {"a4": (210, 297), "a5": (148, 210), "a3": (297, 420), "us-letter": (215.9, 279.4), "us-legal": (215.9, 355.6)}
 _MONOSPACE = "Courier New"
+# The pictures Word shows, which an image beside the document may be (not SVG).
+_PICTURES = (".png", ".jpg", ".jpeg", ".gif")
 
 
 @dataclass(frozen=True, slots=True)
@@ -136,8 +152,11 @@ def _reference_run(paragraph: Paragraph) -> object:
 
 
 class _Writer:
-    def __init__(self, document: Document, markdown: str, omml_of: OmmlOf, footnotes: _Footnotes):
+    def __init__(
+        self, document: Document, markdown: str, omml_of: OmmlOf, footnotes: _Footnotes, folder: Path | None = None
+    ):
         self.document = document
+        self.folder = folder  # Where the document's images are.
         markdown = without_front_matter(markdown)
         self.zones = find_math_zones(markdown)
         self.sources = [zone.content(markdown) for zone in self.zones]
@@ -224,6 +243,62 @@ class _Writer:
         hyperlink.append(run)
         paragraph._p.append(hyperlink)
 
+    @staticmethod
+    def _describe(run: object, description: str) -> None:
+        """A picture's alternative text, which Word reads out (its docPr's descr)."""
+        for properties in run._r.xpath(".//wp:docPr"):
+            properties.set("descr", description)
+
+    def _image(self, paragraph: object, token: object, style: dict, link: str | None) -> None:
+        """An image beside the document, its description its alternative text; else that description."""
+        source = token.attrGet("src") or ""
+        path = (self.folder / unquote(source)) if self.folder is not None and "://" not in source else None
+        if path is None or path.suffix.lower() not in _PICTURES or not path.is_file():
+            self._run(paragraph, token.content, style, link)
+            return
+        run = paragraph.add_run()
+        try:
+            run.add_picture(str(path), width=Mm(140))
+        except (OSError, ValueError):
+            self._run(paragraph, token.content, style, link)
+            return
+        self._describe(run, token.content)
+
+    def _chart(self, text: str) -> None:
+        """A chart drawn (charts.draw, as PNG: Word has no SVG of its own), its alternative text the chart in
+        words, its title as Word's caption; its source as code when it cannot be drawn."""
+        try:
+            chart = parse_chart(text)
+            picture = draw(chart, "png")
+        except ChartError:
+            for line in text.rstrip("\n").split("\n"):
+                self.document.add_paragraph(style="No Spacing").add_run(line).font.name = _MONOSPACE
+            return
+        paragraph = self.document.add_paragraph()
+        paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        run = paragraph.add_run()
+        run.add_picture(io.BytesIO(picture), width=Mm(150))
+        self._describe(run, alternative_text(chart))
+        if chart.title:
+            self.document.add_paragraph(chart.title, style="Caption")
+
+    def _flowchart(self, text: str) -> None:
+        """A Mermaid flowchart drawn locally as PNG, with alternative text and an optional caption."""
+        try:
+            flowchart = parse_flowchart(text)
+            picture = draw_flowchart(flowchart, "png")
+        except FlowchartError:
+            for line in text.rstrip("\n").split("\n"):
+                self.document.add_paragraph(style="No Spacing").add_run(line).font.name = _MONOSPACE
+            return
+        paragraph = self.document.add_paragraph()
+        paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        run = paragraph.add_run()
+        run.add_picture(io.BytesIO(picture), width=Mm(150))
+        self._describe(run, flowchart_alternative_text(flowchart))
+        if flowchart.title:
+            self.document.add_paragraph(flowchart.title, style="Caption")
+
     def inline(self, paragraph: object, token: object) -> None:
         style = {"bold": False, "italic": False, "strike": False, "code": False}
         link: str | None = None
@@ -248,7 +323,7 @@ class _Writer:
             elif kind == "link_close":
                 link = None
             elif kind == "image":
-                self._run(paragraph, child.content, style, link)
+                self._image(paragraph, child, style, link)
             elif kind == "footnote_ref":
                 self._footnote(paragraph, child.meta)
 
@@ -301,6 +376,10 @@ class _Writer:
                 quote += 1
             elif kind == "blockquote_close":
                 quote -= 1
+            elif kind == "fence" and is_chart(token.info):
+                self._chart(token.content)
+            elif kind == "fence" and is_flowchart(token.info):
+                self._flowchart(token.content)
             elif kind in ("fence", "code_block"):
                 for line in token.content.rstrip("\n").split("\n"):
                     paragraph = self.document.add_paragraph(style="No Spacing")
@@ -467,7 +546,7 @@ def docx_document(pages: Sequence[ExportPage], title: str, omml_of: OmmlOf, opti
             elif number:
                 document.add_page_break()
             document.add_heading(page.title, level=1)
-        _Writer(document, page.source, for_page(omml_of, page), footnotes).body()
+        _Writer(document, page.source, for_page(omml_of, page), footnotes, page.folder).body()
     output = io.BytesIO()
     document.save(output)
     return output.getvalue()

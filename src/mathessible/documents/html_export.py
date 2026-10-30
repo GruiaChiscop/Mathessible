@@ -14,6 +14,8 @@ from mdit_py_plugins.deflist import deflist_plugin
 from mdit_py_plugins.footnote import footnote_plugin
 from mdit_py_plugins.tasklists import tasklists_plugin
 
+from mathessible.documents.charts import chart_html, is_chart
+from mathessible.documents.flowcharts import flowchart_html, is_flowchart
 from mathessible.documents.front_matter import LATEX, equation_language
 from mathessible.documents.front_matter import body as without_front_matter
 from mathessible.documents.markdown_math import find_math_zones, with_marks
@@ -29,6 +31,8 @@ _BLOCK_DISPLAY = re.compile(r'^(<math\b[^>]*?\sdisplay=")block(")')
 class ExportPage:
     title: str
     source: str
+    # The folder its images are found in (the document's), when it has one.
+    folder: Path | None = None
 
     @property
     def latex(self) -> bool:
@@ -122,6 +126,16 @@ def _plain_lists(state: object) -> None:
     state.tokens = plain
 
 
+def _chart_or_code(self: object, tokens: Sequence[object], index: int, options: object, env: dict) -> str:
+    """A chart or Mermaid flowchart drawn locally; any other fence as markdown-it writes it."""
+    token = tokens[index]
+    if is_chart(token.info):
+        return chart_html(token.content)
+    if is_flowchart(token.info):
+        return flowchart_html(token.content)
+    return self.fence(tokens, index, options, env)
+
+
 def render_markdown(source: str, convert_math: MathConverter, prefix: str = "") -> str:
     """Render safe Markdown and replace math zones with native MathML; `prefix` keeps a page's note ids apart."""
     source = without_front_matter(source)
@@ -152,6 +166,7 @@ def render_markdown(source: str, convert_math: MathConverter, prefix: str = "") 
     transformed = with_marks(source, zones, tokens.__getitem__)
 
     renderer = markdown_parser(native_lists=True, linkify=True)
+    renderer.add_render_rule("fence", _chart_or_code)
     renderer.add_render_rule("footnote_ref", _footnote_reference)
     renderer.add_render_rule("footnote_block_open", _footnotes_open)
     renderer.add_render_rule("footnote_anchor", _footnote_back_link)

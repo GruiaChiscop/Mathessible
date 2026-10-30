@@ -13,7 +13,21 @@ from __future__ import annotations
 import re
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
+from pathlib import Path
+from urllib.parse import unquote
 
+from mathessible.documents.charts import ChartError, alternative_text, draw, is_chart, parse_chart
+from mathessible.documents.flowcharts import (
+    FlowchartError,
+    is_flowchart,
+    parse_flowchart,
+)
+from mathessible.documents.flowcharts import (
+    alternative_text as flowchart_alternative_text,
+)
+from mathessible.documents.flowcharts import (
+    draw as draw_flowchart,
+)
 from mathessible.documents.front_matter import HeaderFooter, header_and_footer
 from mathessible.documents.front_matter import body as without_front_matter
 from mathessible.documents.html_export import ExportPage, for_page, markdown_parser
@@ -116,11 +130,24 @@ def _placeholder(index: int) -> str:
     return f"\ue000{index}\ue001"
 
 
+# The pictures Typst draws, which an image beside the document may be.
+_PICTURES = (".png", ".jpg", ".jpeg", ".gif", ".svg")
 _PLACEHOLDER = re.compile("\ue000(\\d+)\ue001")
 
 
 class _Writer:
-    def __init__(self, markdown: str, equation_of: EquationOf, page: int = 0):
+    def __init__(
+        self,
+        markdown: str,
+        equation_of: EquationOf,
+        page: int = 0,
+        images: dict[str, bytes] | None = None,
+        folder: Path | None = None,
+    ):
+        # Pictures (charts drawn, images read from `folder`), by the name the Typst source gives them; the
+        # caller writes them beside it (see typst_document).
+        self.images = images if images is not None else {}
+        self.folder = folder
         markdown = without_front_matter(markdown)
         self.zones = find_math_zones(markdown)
         self.sources = [zone.content(markdown) for zone in self.zones]
@@ -198,10 +225,51 @@ class _Writer:
             elif kind == "link_close":
                 out.append(closers.pop() if closers else "")
             elif kind == "image":
-                out.append(escape_markup(child.content))
+                out.append(self._image(child))
             elif kind == "footnote_ref":
                 out.append(self.footnote(child.meta))
         return "".join(out)
+
+    def _picture(self, stem: str, suffix: str, data: bytes) -> str:
+        name = f"{stem}-{len(self.images) + 1}{suffix}"
+        self.images[name] = data
+        return name
+
+    def _chart(self, text: str) -> str:
+        """A chart drawn (charts.draw), a figure whose alternative text is the chart in words; its source as
+        code when it cannot be drawn."""
+        try:
+            chart = parse_chart(text)
+            name = self._picture("chart", ".svg", draw(chart))
+        except ChartError:
+            return f'#raw(block: true, lang: "chart", {typst_string(text.rstrip(chr(10)))})'
+        picture = f"image({typst_string(name)}, alt: {typst_string(alternative_text(chart))}, width: 90%)"
+        caption = f", caption: [{escape_markup(chart.title)}]" if chart.title else ""
+        return f"#figure({picture}{caption})"
+
+    def _flowchart(self, text: str) -> str:
+        """A Mermaid flowchart drawn locally as an accessible Typst figure."""
+        try:
+            flowchart = parse_flowchart(text)
+            name = self._picture("flowchart", ".svg", draw_flowchart(flowchart))
+        except FlowchartError:
+            return f'#raw(block: true, lang: "mermaid", {typst_string(text.rstrip(chr(10)))})'
+        picture = f"image({typst_string(name)}, alt: {typst_string(flowchart_alternative_text(flowchart))}, width: 90%)"
+        caption = f", caption: [{escape_markup(flowchart.title)}]" if flowchart.title else ""
+        return f"#figure({picture}{caption})"
+
+    def _image(self, token: object) -> str:
+        """An image beside the document drawn, its description its alternative text; else that text."""
+        description = token.content
+        source = token.attrGet("src") or ""
+        path = (self.folder / unquote(source)) if self.folder is not None and "://" not in source else None
+        if path is None or path.suffix.lower() not in _PICTURES or not path.is_file():
+            return escape_markup(description)
+        try:
+            name = self._picture("image", path.suffix.lower(), path.read_bytes())
+        except OSError:
+            return escape_markup(description)
+        return f"#image({typst_string(name)}, alt: {typst_string(description)}, width: 80%)"
 
     def body(self) -> str:
         lines: list[str] = []
@@ -234,6 +302,12 @@ class _Writer:
             elif kind == "blockquote_close":
                 quote_depth -= 1
                 lines.append("]")
+            elif kind == "fence" and is_chart(token.info):
+                lines.append(self._chart(token.content))
+                lines.append("")
+            elif kind == "fence" and is_flowchart(token.info):
+                lines.append(self._flowchart(token.content))
+                lines.append("")
             elif kind in ("fence", "code_block"):
                 language = (token.info or "").split(" ")[0]
                 lines.append(f"#raw(block: true, lang: {typst_string(language) if language else 'none'}, ")
@@ -355,10 +429,17 @@ def _preamble(options: PdfOptions, title: str, running: HeaderFooter) -> str:
     )
 
 
-def typst_document(pages: Sequence[ExportPage], title: str, equation_of: EquationOf, options: PdfOptions) -> str:
+def typst_document(
+    pages: Sequence[ExportPage],
+    title: str,
+    equation_of: EquationOf,
+    options: PdfOptions,
+    images: dict[str, bytes] | None = None,
+) -> str:
     """The whole Typst source: settings, outline, every page (a notebook's under their titles), attachments.
 
     The Markdown of an attached source is read from `sys.inputs` (see `pdf_inputs`), never written into the code.
+    The pictures it refers to (charts, images) go into `images`, by name, to be written beside the source.
     """
     heads = [header_and_footer(page.source) for page in pages]
     parts = [_preamble(options, title, heads[0] if heads else HeaderFooter())]
@@ -376,7 +457,7 @@ def typst_document(pages: Sequence[ExportPage], title: str, equation_of: Equatio
             elif number:
                 parts.append("#pagebreak()")
             parts.append(f"= {escape_markup(page.title)}\n")
-        parts.append(_Writer(page.source, for_page(equation_of, page), number).body())
+        parts.append(_Writer(page.source, for_page(equation_of, page), number, images, page.folder).body())
     if options.attach_source:
         names: set[str] = set()
         for number, page in enumerate(pages):

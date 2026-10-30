@@ -185,6 +185,17 @@ def table(source: str, start: int, end: int, rows: int, columns: int, header: bo
     return _block(source, start, end, block, 2, tex)
 
 
+def chart(source: str, start: int, end: int, block: str, caret_at: str, tex: bool) -> TemplateEdit:
+    """A chart's block (`charts.chart_block`, `charts.pgfplots_figure`), the caret where `caret_at` starts in
+    it: the data to fill in, or the function."""
+    return _block(source, start, end, block, max(0, block.find(caret_at)), tex)
+
+
+def flowchart(source: str, start: int, end: int, block: str, caret_at: str, tex: bool) -> TemplateEdit:
+    """A Mermaid or TikZ flowchart block, with the caret in its first process node."""
+    return _block(source, start, end, block, max(0, block.find(caret_at)), tex)
+
+
 _USEPACKAGE = re.compile(r"\\usepackage\s*(?:\[[^\]]*\])?\s*\{([^}]*)\}")
 
 
@@ -234,3 +245,14 @@ def with_package(edit: TemplateEdit, package: str, options: str = "") -> Templat
     line = f"\\usepackage[{options}]{{{package}}}\n" if options else f"\\usepackage{{{package}}}\n"
     caret = edit.caret + len(line) if edit.caret >= at else edit.caret
     return TemplateEdit(source[:at] + line + source[at:], caret, edit.announcement)
+
+
+def with_preamble_line(edit: TemplateEdit, line: str) -> TemplateEdit:
+    """Add an exact LaTeX preamble line before ``\\begin{document}``, once."""
+    source = edit.source
+    begin = source.find("\\begin{document}")
+    if begin < 0 or line in source[:begin]:
+        return edit
+    written = line + "\n"
+    caret = edit.caret + len(written) if edit.caret >= begin else edit.caret
+    return TemplateEdit(source[:begin] + written + source[begin:], caret, edit.announcement)

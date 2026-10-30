@@ -13,6 +13,7 @@ dependencies = [
     "babel>=2.14,<3",
     "markdown-it-py>=3,<5",
     "mathessible-mathcat",
+    "matplotlib>=3.11.2,<4",
     "mdit-py-plugins>=0.5,<0.6",
     "prismatoid>=0.16,<0.17",
     "pypdf[crypto]>=5,<7",

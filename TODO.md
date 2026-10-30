@@ -64,18 +64,19 @@ Mathessible should serve for complex work, theses and papers, not only a
 school exercise: hence LaTeX's whole environment, and the basics every
 editor for writing has, without copying Word.
 
-- [ ] An Insert menu in the document: tables, lists of every kind
+- [x] An Insert menu in the document: tables, lists of every kind
   (bulleted, numbered, tasks, definitions), headings, links (`Cmd+K`,
   `Ctrl+K`), images, quotations, code, a rule, and charts. Done:
   headings, bulleted and numbered lists, quotations, code, a rule, links,
-  images and tables, task and definition lists
-  (`editing/document_insert.py`). Left: the charts. What Markdown
+  images and tables, task and definition lists, function graphs,
+  charts from data (`editing/document_insert.py`, `documents/charts.py`)
+  and accessible Mermaid flowcharts (`documents/flowcharts.py`). What Markdown
   lacks comes from its extensions (markdown-it's plugins, as the
   footnotes do); in a .tex file each is LaTeX's own (`tabular`,
   `\section`, `\href`). Charts of three kinds: a function's graph
-  (y = x², from the equation; pgfplots in .tex), charts from data (bars,
-  lines, pie, from a table of values) and diagrams (flowcharts, Mermaid
-  in Markdown, TikZ in .tex).
+  (y = x², from the expression; pgfplots in .tex) and charts from data
+  (bars, lines, scatter and pie, from a table of values) are done;
+  diagrams are Mermaid in Markdown and TikZ in .tex.
 - [x] The editor's basic elements beside the menu bar, as editors for
   writing have them: a toolbar (bold, italic, headings, lists, equation,
   table, link, citation), a status bar with counts (words, characters,

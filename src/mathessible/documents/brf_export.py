@@ -18,6 +18,16 @@ import re
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
+from mathessible.documents.charts import ChartError, data_rows, is_chart, parse_chart, summary
+from mathessible.documents.flowcharts import (
+    FlowchartError,
+    connection_rows,
+    is_flowchart,
+    parse_flowchart,
+)
+from mathessible.documents.flowcharts import (
+    summary as flowchart_summary,
+)
 from mathessible.documents.front_matter import body as without_front_matter
 from mathessible.documents.html_export import ExportPage, for_page, markdown_parser
 from mathessible.documents.markdown_math import find_math_zones, with_marks
@@ -107,6 +117,33 @@ def _blocks(markdown: str, text_braille: BrailleOf, math_braille: BrailleOf) -> 
             ordered, number = lists[-1]
             item_marker = f"{number}. " if ordered else "• "
             lists[-1][1] += 1
+        elif kind == "fence" and is_chart(token.info):
+            # A chart in braille: its title, the chart in words, its data's rows (a table's, cells in a line).
+            try:
+                chart = parse_chart(token.content)
+            except ChartError as error:
+                blocks.append(_Block(braille(str(error)), 2, 0))
+                continue
+            if chart.title:
+                blocks.append(_Block(braille(chart.title), 0, 0))
+            blocks.append(_Block(braille(" ".join(part for part in (chart.description, summary(chart)) if part)), 2, 0))
+            blocks.extend(_Block(braille(" ".join(row)), 0, 2) for row in data_rows(chart))
+        elif kind == "fence" and is_flowchart(token.info):
+            try:
+                flowchart = parse_flowchart(token.content)
+            except FlowchartError as error:
+                blocks.append(_Block(braille(str(error)), 2, 0))
+                continue
+            if flowchart.title:
+                blocks.append(_Block(braille(flowchart.title), 0, 0))
+            blocks.append(
+                _Block(
+                    braille(" ".join(part for part in (flowchart.description, flowchart_summary(flowchart)) if part)),
+                    2,
+                    0,
+                )
+            )
+            blocks.extend(_Block(braille(row), 0, 2) for row in connection_rows(flowchart))
         elif kind in ("fence", "code_block"):
             code = token.content.rstrip("\n").split("\n")
             blocks.append(_Block("\n".join(text_braille(line) for line in code), 0, 0, lines=True))
