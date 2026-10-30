@@ -75,6 +75,7 @@ from mathessible.ui.export_dialogs import (
 )
 from mathessible.ui.header_footer_dialog import HeaderFooterDialog
 from mathessible.ui.help_menu import append_help_menu
+from mathessible.ui.home_panel import HomePanel
 from mathessible.ui.macos_webview import guard_webview_key_equivalents
 from mathessible.ui.pdf_dialog import PdfExportDialog
 from mathessible.ui.settings_dialog import forget_settings_window, show_settings
@@ -97,7 +98,7 @@ _patches_checked = False
 if wx is not None:
 
     class MainFrame(wx.Frame):
-        def __init__(self, settings: AppSettings | None = None):
+        def __init__(self, settings: AppSettings | None = None, home: bool = False):
             super().__init__(None, title="Mathessible", size=(960, 650))
             # The preview and the equation renderer must not take Cmd+A/C/V/X
             # from the focused editor (see macos_webview).
@@ -142,6 +143,20 @@ if wx is not None:
             self.splitter.Initialize(self.editor)
             content_sizer.Add(self.page_panel, 0, wx.EXPAND)
             content_sizer.Add(self.splitter, 1, wx.EXPAND)
+            # The home screen, in place of the document until one is begun or opened here (`_leave_home`).
+            self._home = home
+            self.home_panel = HomePanel(
+                panel,
+                (
+                    (_("New &Document"), self._new_document),
+                    (_("New &LaTeX Document"), self._new_tex_document),
+                    (_("New &Notebook…"), self._new_portable_notebook),
+                    (_("&Open…"), self._open_document),
+                ),
+                still_there(self.settings.recent_files),
+                self._open_recent,
+            )
+            content_sizer.Add(self.home_panel, 1, wx.EXPAND)
             panel.SetSizer(content_sizer)
 
             self._create_menu()
@@ -164,6 +179,11 @@ if wx is not None:
                 self._set_preview_shown(True)
             if self.settings.latex_new_documents:
                 self.editor.set_source(self._new_source())
+            if home:
+                self.splitter.Hide()
+                self._update_title()
+            else:
+                self.home_panel.Hide()
                 self.editor.markdown.SetInsertionPointEnd()
             self._update_title()
             self._check_patches_once()
@@ -224,11 +244,16 @@ if wx is not None:
             self._export_docx_id = wx.NewIdRef()
             self._compile_tex_id = wx.NewIdRef()
             # In the order of Apple's guidelines; Quit goes to the application menu on macOS.
-            # File > New: a document (Markdown) or a LaTeX document (.tex, with its frame).
+            # File > New: a document (Markdown), a LaTeX document (.tex, with its frame) or a notebook.
+            self._new_notebook_id = wx.NewIdRef()
+            self._new_portable_notebook_id = wx.NewIdRef()
             new_menu = wx.Menu()
             new_menu.Append(wx.ID_NEW, _("&Document") + "\tCtrl+N")
             self._new_tex_id = wx.NewIdRef()
             new_menu.Append(self._new_tex_id, _("&LaTeX Document"))
+            new_menu.AppendSeparator()
+            new_menu.Append(self._new_portable_notebook_id, _("&Notebook…") + "\tCtrl+Alt+N")
+            new_menu.Append(self._new_notebook_id, _("Notebook &Folder…"))
             file_menu.AppendSubMenu(new_menu, _("&New"))
             file_menu.Append(wx.ID_OPEN, _("&Open…") + "\tCtrl+O")
             self._recent_menu = wx.Menu()
@@ -296,9 +321,7 @@ if wx is not None:
             view_menu.AppendCheckItem(self._preview_id, _("Document &Preview") + "\tCtrl+Shift+P")
             menu_bar.Append(view_menu, _("&View"))
             notebook_menu = wx.Menu()
-            self._new_notebook_id = wx.NewIdRef()
             self._open_notebook_id = wx.NewIdRef()
-            self._new_portable_notebook_id = wx.NewIdRef()
             self._save_portable_notebook_id = wx.NewIdRef()
             self._add_page_id = wx.NewIdRef()
             self._rename_page_id = wx.NewIdRef()
@@ -307,9 +330,8 @@ if wx is not None:
             self._move_page_down_id = wx.NewIdRef()
             self._previous_page_id = wx.NewIdRef()
             self._next_page_id = wx.NewIdRef()
-            # A portable notebook (one .msnb file) opens with File > Open, as a document does.
-            notebook_menu.Append(self._new_portable_notebook_id, _("&New Notebook…") + "\tCtrl+Alt+N")
-            notebook_menu.Append(self._new_notebook_id, _("New Notebook &Folder…"))
+            # A portable notebook (one .msnb file) opens with File > Open, as a document does; a new one is
+            # made with File > New.
             notebook_menu.Append(self._open_notebook_id, _("&Open Notebook Folder…"))
             notebook_menu.Append(self._save_portable_notebook_id, _("Save Notebook as &Single File…"))
             notebook_menu.AppendSeparator()
@@ -881,6 +903,9 @@ if wx is not None:
             event.Enable(availability.get(event.GetId(), True))
 
         def _update_title(self) -> None:
+            if self._home:
+                self.SetTitle("Mathessible")  # The home screen: no document yet.
+                return
             if self.notebook is not None:
                 page = self.notebook.pages[self.current_page]
                 name = f"{self.notebook.title} — {page.title}"
@@ -991,12 +1016,27 @@ if wx is not None:
                 window.Close()
 
         def _new_document(self, _event: wx.CommandEvent | None = None) -> None:
+            if self._home:
+                self._leave_home()  # The home screen's window takes the new document.
+                return
             self._spawn_window()
+
+        def _leave_home(self) -> None:
+            """The home screen gives way to the document begun or opened in its window."""
+            if not self._home:
+                return
+            self._home = False
+            self.home_panel.Hide()
+            self.splitter.Show()
+            self.home_panel.GetParent().Layout()
+            self._update_title()
+            self.editor.markdown.SetFocus()
 
         def _new_tex_document(self, _event: wx.CommandEvent | None = None) -> None:
             """File > New > LaTeX Document: a .tex document from the start (saved as one), an article's frame in it,
             the caret in its body; a new document is otherwise Markdown until it is saved as .tex."""
             frame = self if self._is_blank() else self._spawn_window()
+            frame._leave_home()
             frame.editor.tex = True
             frame.editor.set_source(NEW_DOCUMENT)
             frame.editor.markdown.SetInsertionPoint(NEW_DOCUMENT_CARET)
@@ -1073,6 +1113,8 @@ if wx is not None:
                 self._show_error(_("open {name}").format(name=path.name), error)
                 return None
             self.note_recent(path)
+            if frame is not None:
+                frame._leave_home()
             return frame
 
         def _offer_latex_mark(self, attempts: int = 40) -> None:
@@ -1172,6 +1214,8 @@ if wx is not None:
                 self._recent_menu.AppendSeparator()
             self._recent_menu.Append(self._clear_recent_id, _("&Clear Menu"))
             self._recent_menu.Enable(self._clear_recent_id, bool(recent))
+            if self._home:
+                self.home_panel.show_recent(recent)
 
         def _open_recent(self, index: int) -> None:
             recent = still_there(self.settings.recent_files)
@@ -1662,6 +1706,7 @@ if wx is not None:
                     frame._load_page(record.page)
             else:
                 frame = frame or self._spawn_window()
+                frame._leave_home()
                 if record.path:
                     frame.document_path = Path(record.path)
                     frame.editor.tex = frame.document_path.suffix.lower() == ".tex"
@@ -1686,6 +1731,7 @@ if wx is not None:
             archive_path: Path | None = None,
             workspace: tempfile.TemporaryDirectory[str] | None = None,
         ) -> None:
+            self._leave_home()
             if self._portable_workspace is not None:
                 self._portable_workspace.cleanup()
             self.notebook = notebook

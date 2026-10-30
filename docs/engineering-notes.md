@@ -1654,6 +1654,18 @@ optional argument equal to its default left out; an operator's
 never folded. The folded LaTeX is kept only if it builds as MathCAT's
 did (both expanded and converted); else MathCAT's LaTeX is.
 
+Home screen (2026-10-30, [ui/home_panel.py](../src/mathessible/ui/home_panel.py)):
+the first window's own content (`MainFrame(home=True)` from app.py when no
+document is given), in place of the editor's splitter, so the menus and
+their shortcuts work from it as from any window. It is a blank window
+(`_is_blank`), so what is opened or begun there takes it, and
+`_leave_home` (open_path, New > Document and LaTeX Document, a notebook
+activated, a recovery) shows the editor again. Native buttons and a
+ListBox of the recent documents (the Open Recent list, kept current by
+`_rebuild_recent_menu`); the focus starts on the list when it has
+documents. File > New holds the notebooks too (Notebook…, Notebook
+Folder…), which the Notebook menu had.
+
 Completion in the document (2026-10-30,
 [editing/document_completion.py](../src/mathessible/editing/document_completion.py),
 `DocumentEditor._offer_completion`, [ui/completion_popup.py](../src/mathessible/ui/completion_popup.py)):

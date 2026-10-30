@@ -251,11 +251,20 @@ included; Find Next and Find Previous (`Command+G` and
 wrap around. The Find dialog stays open beside the document, and Escape
 closes it. Replace replaces the selected match and finds the next one.
 
+Mathessible starts with its home screen, as other editors do: buttons for
+a new document, a new LaTeX document, a new notebook and Open…, and the
+recent documents, a list in which Enter (or a double click) opens one.
+What is begun or opened there takes its window. Documents given on the
+command line open at once, with no home screen.
+
 Documents are UTF-8 Markdown files. The File menu has, in the order Mac
 applications have them:
 
-- **New** (`Command+N`, `Ctrl+N` elsewhere): a new document, in a window
-  of its own.
+- **New**, a submenu: **Document** (`Command+N`, `Ctrl+N` elsewhere), a
+  new document in a window of its own; **LaTeX Document**, a `.tex` file
+  with the frame of an article; **Notebook…** (`Command+Option+N`,
+  `Ctrl+Alt+N` elsewhere), a notebook in one `.msnb` file; and **Notebook
+  Folder…**, a notebook kept as a folder.
 - **Open…** (`Command+O`): a Markdown document, a notebook saved as one
   `.msnb` file, or a PDF Mathessible exported with its Markdown source
   attached (the default), which opens as the document or notebook it was
@@ -577,10 +586,10 @@ the order of the pages, and the `pages` folder holds one UTF-8 `.md` file
 per page, so a notebook stays readable without Mathessible and works well with
 version control.
 
-The Notebook menu has **New Notebook…** (`Command+Option+N`, `Ctrl+Alt+N`
-elsewhere), a notebook in one `.msnb` file, which File → Open opens like
-a document; **New Notebook Folder…** and **Open Notebook Folder…**, for a
-notebook kept as a folder; **Save Notebook as Single File…**; **Add Page**
+A notebook is begun with File → New → Notebook… (one `.msnb` file, which
+File → Open opens like a document) or Notebook Folder…. The Notebook menu
+has **Open Notebook Folder…**, for a notebook kept as a folder; **Save
+Notebook as Single File…**; **Add Page**
 (`Command+Shift+N`), **Rename Page…** and **Delete Page…** (after
 asking); **Move Page Up** and **Move Page Down** (`Command+Option+Up` and
 `Down`); and **Previous Page** and **Next Page** (`Command+Option+Page Up`

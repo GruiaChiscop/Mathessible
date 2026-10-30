@@ -17,7 +17,7 @@ both are given. What each command does is explained in the
 | Compile a .tex file's PDF with LaTeX | `Command+Shift+B` | `Ctrl+Shift+B` |
 | Close window | `Command+W` | `Ctrl+W` |
 | Quit | `Command+Q` | `Ctrl+Q` |
-| New notebook (one .msnb file) | `Command+Option+N` | `Ctrl+Alt+N` |
+| New notebook (File → New → Notebook…, one .msnb file) | `Command+Option+N` | `Ctrl+Alt+N` |
 | Add a page | `Command+Shift+N` | `Ctrl+Shift+N` |
 | Move the page up, down | `Command+Option+Up`, `Command+Option+Down` | `Ctrl+Alt+Up`, `Ctrl+Alt+Down` |
 | Previous page, next page | `Command+Option+Page Up`, `Command+Option+Page Down` | `Ctrl+Alt+Page Up`, `Ctrl+Alt+Page Down` |

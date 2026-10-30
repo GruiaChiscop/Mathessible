@@ -21,10 +21,14 @@ def main() -> None:
     app = wx.App(False)
     # The interface's language, before any window is built (a change needs a restart).
     set_language(interface_language(load_settings().interface_language, preferred_languages()))
-    frame = MainFrame()
+    # The home screen, as other editors start with, unless documents are given on the command line.
+    frame = MainFrame(home=not sys.argv[1:])
     frame.Centre()
     frame.Show()
-    frame.editor.markdown.SetFocus()
+    if sys.argv[1:]:
+        frame.editor.markdown.SetFocus()
+    else:
+        frame.home_panel.focus()
     for argument in sys.argv[1:]:  # Documents and notebooks given on the command line.
         frame.open_path(Path(argument))
     wx.CallAfter(offer_recovery, frame)
