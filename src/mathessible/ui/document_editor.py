@@ -18,6 +18,7 @@ from mathessible.documents.front_matter import (
     with_header_and_footer,
 )
 from mathessible.documents.markdown_math import MathZone, find_math_zones, math_zone_at, toggle_display
+from mathessible.documents.pasted_html import markdown_from_html
 from mathessible.documents.tex_macros import LatexMacro, document_macros
 from mathessible.documents.tex_math import (
     DISPLAY_MARKS,
@@ -36,7 +37,7 @@ from mathessible.editor.structures import append_insert_items
 from mathessible.i18n import _
 from mathessible.settings import AppSettings
 from mathessible.templates.template_source import TemplateEdit
-from mathessible.ui.clipboard import set_clipboard_text
+from mathessible.ui.clipboard import get_clipboard_document_html, set_clipboard_text
 from mathessible.ui.completion_popup import CompletionPopup
 from mathessible.ui.help_menu import append_help_menu
 from mathessible.ui.speech import AssistiveOutput, create_output
@@ -327,6 +328,7 @@ if wx is not None:
 
             self.Bind(wx.EVT_CHAR_HOOK, self._on_char_hook)
             self.markdown.Bind(wx.EVT_CHAR, self._on_markdown_char)
+            self.markdown.Bind(wx.EVT_TEXT_PASTE, self._on_paste)
             self.markdown.Bind(wx.EVT_KEY_DOWN, self._on_markdown_key)
             self.markdown.Bind(wx.EVT_KILL_FOCUS, self._on_markdown_focus_lost)
             self.markdown.Bind(wx.EVT_LEFT_DOWN, self._on_markdown_click)
@@ -411,6 +413,24 @@ if wx is not None:
             if cut:
                 self.markdown.Remove(start, end)
             return True
+
+        def _on_paste(self, event: wx.CommandEvent) -> None:
+            if self.tex:
+                event.Skip()
+                return
+            html = get_clipboard_document_html()
+            converted = markdown_from_html(html) if html else None
+            if converted is None:
+                event.Skip()
+                return
+            start, end = self.markdown.GetSelection()
+            source = self.markdown.GetValue()
+            if "\n" in converted:
+                if start and source[start - 1] != "\n":
+                    converted = "\n\n" + converted
+                if end < len(source) and source[end] != "\n":
+                    converted += "\n\n"
+            self.markdown.WriteText(converted)
 
         @property
         def latex(self) -> bool:

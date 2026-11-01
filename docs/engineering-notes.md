@@ -1737,6 +1737,25 @@ have their own Insert item and native dialog (title, description and direction),
 separate from function/data charts; insertion goes through
 `document_insert.flowchart` and is one undo step.
 
+Rich document paste (2026-11-01, `documents/pasted_html.py`): the Markdown
+control handles `EVT_TEXT_PASTE` so menu and native paste share conversion.
+Clipboard HTML becomes Markdown paragraphs, headings, basic inline emphasis,
+links, lists and rectangular tables; head/style/script content is ignored and
+no external resources are loaded. Table first rows become Markdown headers.
+Merged cells and detected MathML/OMML fall back to native plain-text paste for
+the entire fragment. Images currently retain only alt text. Word-specific
+CSS list numbering and equation conversion remain
+unfinished. This is not a lossless Word import. Native Word clipboard testing
+is still required, especially on macOS.
+
+Pages/iWork rich paste (2026-11-01): `get_clipboard_document_html` prefers
+HTML and then checks `public.rtf` / `Rich Text Format`. On macOS,
+`documents/pasted_rtf.py` invokes the system `textutil` converter using stdin
+and stdout, a five-second timeout and a bounded RTF input. Its HTML goes
+through the same Markdown importer. Tests exercise Apple's actual converter
+with formatting and a two-row table. This does not import `.pages` files or
+iWork-private clipboard objects; a live copy from Pages still needs checking.
+
 Function-chart sonification (2026-10-30,
 [sonification/graph.py](../src/mathessible/sonification/graph.py),
 [sonification/synth.py](../src/mathessible/sonification/synth.py),
@@ -1781,6 +1800,15 @@ function structure, which Mathessible's chart format does not yet expose.
 Markdown function-chart fence. Data charts, Mermaid flowcharts and malformed
 blocks stay disabled. The audio callback must never touch wx or speak; it reads
 only a small target `Sound`, while the UI thread queues earcons and announcements.
+
+Keyboard motion refinement (2026-10-31): Shift+Left/Right (or J/L) uses
+elapsed monotonic time at one view width per ten seconds, independently of
+OS key repeat. Release or loss of canvas focus stops fluid motion. An arrow
+during batch playback stops it at the current position before exploration
+resumes. The y-axis cue fires on arrival or crossing in either direction,
+not when leaving zero. These fixes do not establish perceptual equivalence
+with AudioFunctions+'s instruments; the synthesiser still needs listening
+comparison.
 
 Home screen (2026-10-30, [ui/home_panel.py](../src/mathessible/ui/home_panel.py)):
 the first window's own content (`MainFrame(home=True)` from app.py when no

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from mathessible.documents.pasted_rtf import html_from_rtf
+
 try:
     import wx
 except ImportError:  # The interface is an optional dependency.
@@ -46,3 +48,22 @@ def get_clipboard_text() -> str | None:
     finally:
         wx.TheClipboard.Close()
     return data.GetText()
+
+
+def get_clipboard_document_html() -> str | None:
+    """Prefer HTML, then macOS RTF supplied by rich-text applications."""
+    html = get_clipboard_html()
+    if html:
+        return html
+    if not wx.TheClipboard.Open():
+        return None
+    rich = None
+    try:
+        for name in ("public.rtf", "Rich Text Format"):
+            data = wx.CustomDataObject(wx.DataFormat(name))
+            if wx.TheClipboard.IsSupported(data.GetFormat()) and wx.TheClipboard.GetData(data):
+                rich = bytes(data.GetData())
+                break
+    finally:
+        wx.TheClipboard.Close()
+    return html_from_rtf(rich) if rich else None

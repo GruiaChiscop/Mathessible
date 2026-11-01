@@ -62,6 +62,8 @@ if wx is not None:
                 self._audio_error = str(error)
             self._axis_key = ""
             self._sweep_started: float | None = None
+            self._fluid_direction = 0
+            self._fluid_origin = 0.0
             self._timer = wx.Timer(self)
             self._resume_sound: wx.CallLater | None = None
             self.canvas = _GraphCanvas(self, self)
@@ -81,6 +83,7 @@ if wx is not None:
             self.Bind(wx.EVT_CLOSE, self._on_close)
             self.canvas.Bind(wx.EVT_KEY_DOWN, self._on_key)
             self.canvas.Bind(wx.EVT_KEY_UP, self._on_key_up)
+            self.canvas.Bind(wx.EVT_KILL_FOCUS, self._on_focus_lost)
             self.Show()
             self.canvas.SetFocus()
             wx.CallAfter(self._announce_opened)
@@ -126,6 +129,17 @@ if wx is not None:
                 return
             if code in (wx.WXK_LEFT, wx.WXK_RIGHT) or letter in ("J", "L"):
                 direction = -1 if code == wx.WXK_LEFT or letter == "J" else 1
+                if self._timer.IsRunning() and not self._fluid_direction:
+                    self._stop_motion()
+                    return
+                if event.ShiftDown() and not event.CmdDown():
+                    if self._fluid_direction != direction:
+                        self._fluid_direction = direction
+                        self._fluid_origin = self.explorer.x
+                        self._sweep_started = time.monotonic()
+                        self._timer.Start(20)
+                    return
+                self._stop_motion()
                 if event.CmdDown():
                     before = self.explorer.x
                     point = self.explorer.next_point(direction)
@@ -139,6 +153,7 @@ if wx is not None:
                     self._after_move(before)
                 return
             if code in (wx.WXK_HOME, wx.WXK_END):
+                self._stop_motion()
                 edge = self.explorer.view.x_min if code == wx.WXK_HOME else self.explorer.view.x_max
                 self._after_move(self.explorer.go_to(edge))
                 return
@@ -183,14 +198,28 @@ if wx is not None:
 
         def _on_key_up(self, event: wx.KeyEvent) -> None:
             letter = key_letter(event.GetUnicodeKey(), event.GetKeyCode())
+            if self._fluid_direction and (
+                event.GetKeyCode() in (wx.WXK_LEFT, wx.WXK_RIGHT, wx.WXK_SHIFT) or letter in ("J", "L")
+            ):
+                self._stop_motion()
             if letter.lower() == self._axis_key:
                 self._axis_key = ""
+            event.Skip()
+
+        def _stop_motion(self) -> None:
+            self._timer.Stop()
+            self._sweep_started = None
+            self._fluid_direction = 0
+
+        def _on_focus_lost(self, event: wx.FocusEvent) -> None:
+            if self._fluid_direction:
+                self._stop_motion()
             event.Skip()
 
         def _after_move(self, before: float, sign: str = "") -> None:
             if sign:
                 self._earcon(sign)
-            if min(before, self.explorer.x) < 0 <= max(before, self.explorer.x) and before != self.explorer.x:
+            if before != 0 and (self.explorer.x == 0 or before * self.explorer.x < 0):
                 self._earcon("axis")
             view = self.explorer.view
             before_y, after_y = self.explorer.y(before), self.explorer.y()
@@ -308,8 +337,7 @@ if wx is not None:
 
         def play(self) -> None:
             if self._timer.IsRunning():
-                self._timer.Stop()
-                self._sweep_started = None
+                self._stop_motion()
                 self.synth.silence()
                 self._update_sound()
                 self.canvas.Refresh(False)
@@ -325,6 +353,12 @@ if wx is not None:
                 return
             fraction = (time.monotonic() - self._sweep_started) / self.SWEEP_SECONDS
             before = self.explorer.x
+            if self._fluid_direction:
+                self.explorer.go_to(self._fluid_origin + self._fluid_direction * fraction * self.explorer.view.width)
+                self._after_move(before)
+                if self.explorer.at_edge():
+                    self._stop_motion()
+                return
             self.explorer.go_to(self.explorer.sweep(fraction))
             self._after_move(before)
             if fraction >= 1:
