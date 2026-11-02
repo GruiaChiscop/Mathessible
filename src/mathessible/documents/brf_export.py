@@ -31,6 +31,7 @@ from mathessible.documents.flowcharts import (
 from mathessible.documents.front_matter import body as without_front_matter
 from mathessible.documents.html_export import ExportPage, for_page, markdown_parser
 from mathessible.documents.markdown_math import find_math_zones, with_marks
+from mathessible.i18n import _
 
 BrailleOf = Callable[[str], str]
 
@@ -156,6 +157,15 @@ def _blocks(markdown: str, text_braille: BrailleOf, math_braille: BrailleOf) -> 
         elif kind == "inline":
             text = _inline_text(token)
             if in_cell:
+                span = token.meta.get("table_cell")
+                if span:
+                    text = _("Row {row}, column {column}, spans {rows} rows and {columns} columns: {text}").format(
+                        row=span["y"] + 1,
+                        column=span["x"] + 1,
+                        rows=span["rowspan"],
+                        columns=span["colspan"],
+                        text=text,
+                    )
                 row.append(text)
                 continue
             depth = 2 * (len(lists) - 1) if lists else 0

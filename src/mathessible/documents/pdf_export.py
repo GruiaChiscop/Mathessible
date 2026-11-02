@@ -276,6 +276,7 @@ class _Writer:
         lists: list[str] = []  # "-" or "+", per open list.
         quote_depth = 0
         table: list[list[str]] | None = None
+        merged_columns = 0
         header_cells = 0
         in_cell = False
         heading = 0
@@ -318,6 +319,7 @@ class _Writer:
                 lines.append("")
             elif kind == "table_open":
                 table, header_cells = [], 0
+                merged_columns = 0
             elif kind == "tr_open" and table is not None:
                 table.append([])
             elif kind in ("th_open", "td_open"):
@@ -327,12 +329,25 @@ class _Writer:
             elif kind in ("th_close", "td_close"):
                 in_cell = False
             elif kind == "table_close" and table is not None:
-                lines.append(self.table(table, header_cells))
+                if merged_columns:
+                    lines.append(
+                        f"#table(columns: {merged_columns}, " + ", ".join(cell for row in table for cell in row) + ")"
+                    )
+                else:
+                    lines.append(self.table(table, header_cells))
                 table = None
             elif kind == "inline":
                 content = self.inline(token)
                 if in_cell and table is not None:
-                    table[-1].append(content)
+                    span = token.meta.get("table_cell")
+                    if span:
+                        merged_columns = span["columns"]
+                        table[-1].append(
+                            f"table.cell(x: {span['x']}, y: {span['y']}, "
+                            f"colspan: {span['colspan']}, rowspan: {span['rowspan']})[{content}]"
+                        )
+                    else:
+                        table[-1].append(content)
                 elif heading:
                     lines.append(f"{'=' * heading} {content}")
                     lines.append("")

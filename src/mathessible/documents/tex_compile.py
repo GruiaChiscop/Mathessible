@@ -4,8 +4,7 @@ Mathessible finds an installed distribution itself (`find_installation`):
 an application started from the Finder does not get the shell's PATH, so
 the usual places are looked at too (MacTeX's /Library/TeX/texbin, TinyTeX
 in the home folder, TeX Live's /usr/local/texlive, MiKTeX). With none, it
-offers TinyTeX (`tinytex_install_command`): small, installed in the home
-folder without an administrator password, by its authors' own script.
+offers a private TinyTeX installation through `optional_tools.install`.
 
 Compiling runs pdflatex (LuaLaTeX or XeLaTeX when the document loads
 fontspec or unicode-math) as many times as its log asks, at most four.
@@ -25,8 +24,6 @@ from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 ENGINES = ("pdflatex", "lualatex", "xelatex")
-TINYTEX_SCRIPT = "https://tinytex.yihui.org/install-bin-unix.sh"
-TINYTEX_WINDOWS_SCRIPT = "https://tinytex.yihui.org/install-bin-windows.bat"
 _MISSING_FILE = re.compile(r"File `([^']+)' not found")
 _ERROR = re.compile(r"^! (.+)$", re.MULTILINE)
 _ERROR_LINE = re.compile(r"^l\.(\d+)", re.MULTILINE)
@@ -142,14 +139,25 @@ def _name(directory: Path) -> str:
 
 
 def find_installation(
-    environ: dict[str, str] | None = None, home: Path | None = None, platform: str | None = None
+    environ: dict[str, str] | None = None,
+    home: Path | None = None,
+    platform: str | None = None,
+    configured: str = "",
 ) -> TexInstallation | None:
-    """The first LaTeX distribution found (TinyTeX first, the one Mathessible installs), None without one."""
+    """An explicit bin directory, otherwise an existing system distribution, then the private copy."""
     environ = dict(os.environ) if environ is None else environ
     home = Path.home() if home is None else home
     platform = sys.platform if platform is None else platform
     seen: set[Path] = set()
-    for directory in _candidates(environ, home, platform):
+    places = (
+        [Path(configured).expanduser()]
+        if configured
+        else [
+            *_candidates(environ, home, platform),
+            *sorted((tinytex_directory(home=home) / "bin").glob("*")),
+        ]
+    )
+    for directory in places:
         if directory in seen:
             continue
         seen.add(directory)
@@ -162,27 +170,9 @@ def find_installation(
 def tinytex_directory(
     environ: dict[str, str] | None = None, home: Path | None = None, platform: str | None = None
 ) -> Path:
-    """Where TinyTeX's installer puts it: ~/Library/TinyTeX (macOS), %APPDATA%\\TinyTeX, ~/.TinyTeX."""
-    environ = dict(os.environ) if environ is None else environ
+    """The private TinyTeX root; legacy user installations are still detected separately."""
     home = Path.home() if home is None else home
-    platform = sys.platform if platform is None else platform
-    if platform == "darwin":
-        return home / "Library" / "TinyTeX"
-    if platform == "win32":
-        return Path(environ.get("APPDATA", str(home))) / "TinyTeX"
-    return home / ".TinyTeX"
-
-
-def tinytex_install_command(platform: str | None = None) -> list[str]:
-    """TinyTeX's own installer, as its authors give it, without changing the PATH (no password asked)."""
-    platform = sys.platform if platform is None else platform
-    if platform == "win32":
-        script = (
-            f"$f = Join-Path $env:TEMP 'install-bin-windows.bat'; "
-            f"Invoke-WebRequest -UseBasicParsing '{TINYTEX_WINDOWS_SCRIPT}' -OutFile $f; & cmd /c $f"
-        )
-        return ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script]
-    return ["/bin/sh", "-c", f'curl -sL "{TINYTEX_SCRIPT}" | sh -s - --no-path']
+    return home / ".mathessible" / "tools" / "TinyTeX"
 
 
 @dataclass(frozen=True, slots=True)
@@ -205,41 +195,6 @@ def megabytes(size: str) -> str:
     factor = {"k": 1 / 1024, "M": 1.0, "G": 1024.0}.get(size[-1:], 1 / 1024 / 1024)
     number = float(size.rstrip("kMG") or 0)
     return f"{number * factor:.1f}"
-
-
-def install_tinytex(
-    progress: Callable[[DownloadProgress | None], None],
-    cancelled: Callable[[], bool] = lambda: False,
-    popen: Callable[..., subprocess.Popen] = subprocess.Popen,
-) -> tuple[bool, str]:
-    """TinyTeX's own installer, run while its download is reported (`progress`: each meter line, then None
-    once it unpacks); stopped when `cancelled`. Whether it ended well, and what it wrote."""
-    process = popen(tinytex_install_command(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    output = bytearray()
-    line = bytearray()
-    downloaded = False
-    while True:
-        if cancelled():
-            process.kill()
-            process.wait()
-            return False, output.decode("utf-8", "replace")
-        chunk = process.stdout.read1(4096) if hasattr(process.stdout, "read1") else process.stdout.read(4096)
-        if not chunk:
-            break
-        output += chunk
-        for byte in chunk:
-            if byte in (10, 13):  # curl rewrites its meter line with a carriage return.
-                meter = download_progress(line.decode("utf-8", "replace"))
-                if meter is not None:
-                    progress(meter)
-                    downloaded = downloaded or meter.percent == 100
-                elif downloaded:
-                    progress(None)
-                line.clear()
-            else:
-                line.append(byte)
-    process.wait()
-    return process.returncode == 0, output.decode("utf-8", "replace")
 
 
 def engine_for(source: str, installation: TexInstallation) -> str:
@@ -359,13 +314,16 @@ def compile_accessible_tex(
     language: str,
     run: Runner = subprocess.run,
     progress: Callable[[str], None] = lambda _message: None,
+    install_missing: bool = True,
 ) -> CompileResult:
     """A tagged PDF when LuaLaTeX can make one; else, when tagging fails (a package that does not support
     it yet), the PDF as the document compiles without it, and why (`tagging_error`)."""
-    result = compile_tex(path, installation, run, progress=progress, tagged_language=language)
+    result = compile_tex(
+        path, installation, run, progress=progress, tagged_language=language, install_missing=install_missing
+    )
     if result.pdf is not None or not result.tagged:
         return result
-    untagged = compile_tex(path, installation, run, progress=progress)
+    untagged = compile_tex(path, installation, run, progress=progress, install_missing=install_missing)
     if untagged.pdf is None:
         return untagged
     return replace(untagged, installed=result.installed + untagged.installed, tagging_error=result.error)

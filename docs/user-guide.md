@@ -134,6 +134,55 @@ LaTeX's own in a `.tex` file:
   separate from function and data charts: they have no function or data-series
   fields.
 
+### Optional tools
+
+Optional converters can be configured in **Settings → General → Optional tools**.
+The fields show detected installations immediately: the Pandoc executable and
+the directory containing LaTeX executables. Automatically displayed paths do
+not become fixed overrides merely by opening or saving Settings. Edit a path
+to select a custom installation, or clear it to return to automatic detection.
+An explicit path takes priority; automatic detection prefers system installations.
+
+**Check for updates** locates the tool and checks available updates. Pandoc is
+compared with its latest official release; TinyTeX checks TeX Live package
+updates through `tlmgr`. A network or repository error is reported as a failed
+check, not as "up to date". A missing tool leads to an installation offer.
+Updates require confirmation. Managed copies are updated privately; for a
+system installation the offer creates and selects an updated private copy,
+leaving Homebrew and the original installation unchanged. The confirmation
+button is **Install updated private copy** when the current copy is external;
+the message shows the download destination. A LaTeX distribution
+without `tlmgr` must use its own package manager.
+
+**Install for Mathessible** downloads into `~/.mathessible/tools/` and selects
+the resulting path. Downloads require a published checksum. Updates are prepared
+in staging; previous managed copies are retained as `*.previous-*` for recovery.
+TinyTeX package updates preserve the existing packages and configuration by
+updating a copy. Cancellation during a package operation waits for that operation
+to finish before discarding the staged copy. Removing backups is currently manual.
+Installing Pandoc alone does not enable complex-table paste; that integration
+is still in progress.
+
+### Pasting merged tables
+
+Pasting a table with merged cells from Word or Pages writes an extended
+`table` block. Its preview and Word/PDF exports preserve the merges; braille
+export describes each cell's position and span. For example:
+
+````markdown
+```table
+| Group | > | Value |
+| --- | --- | --- |
+| ^ | ^ | 42 |
+```
+````
+
+Here Group spans two columns and two rows. `>` continues the cell to its
+left, and `^` continues the cell above. Use `\^` or `\>` for literal markers.
+Ordinary Markdown tables remain unchanged. This is a Mathessible extension;
+other Markdown readers may display the block as source code. Equations in
+Word's native format and embedded clipboard images still have import limits.
+
 ### Exploring a function graph by ear
 
 Put the caret anywhere inside a function's fenced `chart` block and choose
@@ -260,9 +309,10 @@ equations are LaTeX is still Markdown (its headings, lists and
 footnotes), so it becomes a PDF with File → Export → PDF, or after it is
 saved as a `.tex` file. It finds MacTeX, TinyTeX,
 TeX Live and MiKTeX by itself. With none installed, it offers to install
-TinyTeX: a small distribution (about 65 MB) put in your home folder,
+TinyTeX: a distribution put in Mathessible's private tools folder,
 with no administrator password; a progress window shows how much of it is downloaded, and Cancel stops it. When a document loads a package that is
-not installed, Mathessible installs it and compiles again. If LaTeX
+not installed, Mathessible installs it and compiles again only for its own
+managed TinyTeX copy. Packages in a system distribution are managed by its owner. If LaTeX
 stops at an error, Mathessible says which and puts the caret on its line.
 A document that loads `fontspec` or `unicode-math` is compiled with
 LuaLaTeX (or XeLaTeX).

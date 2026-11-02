@@ -1,0 +1,146 @@
+from __future__ import annotations
+
+import hashlib
+import io
+import json
+import os
+import tarfile
+import tempfile
+import unittest
+import zipfile
+from pathlib import Path
+from unittest.mock import patch
+
+from mathessible.documents.optional_tools import ToolError, asset_name, find_pandoc, install, unpack
+from mathessible.documents.tex_compile import find_installation, tinytex_directory
+from mathessible.settings import AppSettings, load_settings, save_settings
+
+
+class OptionalToolTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+
+    def test_settings_round_trip(self) -> None:
+        path = self.root / "settings.json"
+        settings = AppSettings(pandoc_path="/custom/pandoc", latex_bin_directory="/custom/tex/bin")
+        save_settings(settings, path)
+        loaded = load_settings(path)
+        self.assertEqual(
+            (loaded.pandoc_path, loaded.latex_bin_directory), (settings.pandoc_path, settings.latex_bin_directory)
+        )
+
+    def test_custom_path_never_falls_back(self) -> None:
+        with patch("mathessible.documents.optional_tools.shutil.which", return_value=None) as which:
+            self.assertIsNone(find_pandoc("/missing/pandoc"))
+            which.assert_called_once_with("/missing/pandoc")
+        self.assertIsNone(find_installation(configured=str(self.root / "missing")))
+
+    def test_system_pandoc_wins_over_private_copy(self) -> None:
+        with patch("mathessible.documents.optional_tools.shutil.which", return_value="/system/pandoc"):
+            self.assertEqual(find_pandoc(), "/system/pandoc")
+
+    def test_private_pandoc_fallback(self) -> None:
+        binary = self.root / "bin" / "pandoc"
+        binary.parent.mkdir()
+        binary.write_text("binary")
+        binary.chmod(0o755)
+        with (
+            patch("mathessible.documents.optional_tools.shutil.which", return_value=None),
+            patch("mathessible.documents.optional_tools.managed_directory", return_value=self.root),
+        ):
+            self.assertEqual(find_pandoc(), str(binary))
+
+    def test_private_tex_path_does_not_replace_legacy_location(self) -> None:
+        self.assertEqual(tinytex_directory(home=self.root), self.root / ".mathessible/tools/TinyTeX")
+
+    def test_system_tex_precedes_private_copy_and_custom_path_wins(self) -> None:
+        system = self.root / "system"
+        private = tinytex_directory(home=self.root) / "bin" / "platform"
+        for folder in (system, private):
+            folder.mkdir(parents=True)
+            binary = folder / "pdflatex"
+            binary.write_text("binary")
+            binary.chmod(0o755)
+        with patch("mathessible.documents.tex_compile._candidates", return_value=[system]):
+            self.assertEqual(find_installation(home=self.root).bin_directory, system)
+            self.assertEqual(find_installation(home=self.root, configured=str(private)).bin_directory, private)
+        with patch("mathessible.documents.tex_compile._candidates", return_value=[]):
+            self.assertEqual(find_installation(home=self.root).bin_directory, private)
+
+    def test_platform_assets(self) -> None:
+        self.assertEqual(asset_name("pandoc", "3.13", "darwin", "arm64"), "pandoc-3.13-arm64-macOS.zip")
+        self.assertEqual(asset_name("TinyTeX", "v2026.11", "darwin", "arm64"), "TinyTeX-1-darwin-v2026.11.tar.xz")
+        with self.assertRaises(ToolError):
+            asset_name("pandoc", "3.13", "win32", "arm64")
+
+    def test_zip_traversal_is_rejected(self) -> None:
+        archive = self.root / "bad.zip"
+        with zipfile.ZipFile(archive, "w") as bundle:
+            bundle.writestr("../outside", "bad")
+        with self.assertRaises(ToolError):
+            unpack(archive, self.root / "staging", lambda: False)
+        self.assertFalse((self.root / "outside").exists())
+
+    def test_tar_external_symlink_is_rejected(self) -> None:
+        archive = self.root / "bad.tar"
+        with tarfile.open(archive, "w") as bundle:
+            entry = tarfile.TarInfo("link")
+            entry.type, entry.linkname = tarfile.SYMTYPE, "/etc/passwd"
+            bundle.addfile(entry)
+        with self.assertRaises(tarfile.FilterError):
+            unpack(archive, self.root / "staging", lambda: False)
+
+    def _download(self, corrupt: bool = False, cancel: bool = False):
+        data = io.BytesIO()
+        with zipfile.ZipFile(data, "w") as bundle:
+            bundle.writestr("pandoc-3.13/bin/pandoc", "binary")
+        archive = data.getvalue()
+        release = {
+            "tag_name": "3.13",
+            "assets": [
+                {
+                    "name": "pandoc-3.13-arm64-macOS.zip",
+                    "size": len(archive),
+                    "digest": "sha256:" + ("0" * 64 if corrupt else hashlib.sha256(archive).hexdigest()),
+                    "browser_download_url": "https://github.com/jgm/pandoc/releases/download/3.13/archive.zip",
+                }
+            ],
+        }
+        target = self.root / "tools/pandoc"
+        with (
+            patch("mathessible.documents.optional_tools.managed_directory", return_value=target),
+            patch("mathessible.documents.optional_tools.sys.platform", "darwin"),
+            patch("mathessible.documents.optional_tools.platform.machine", return_value="arm64"),
+            patch(
+                "mathessible.documents.optional_tools.urlopen",
+                side_effect=[io.BytesIO(json.dumps(release).encode()), io.BytesIO(archive)],
+            ),
+            patch("mathessible.documents.optional_tools.version", return_value="pandoc 3.13"),
+        ):
+            return install("pandoc", lambda percent: None, lambda: cancel)
+
+    def test_verified_install_is_published(self) -> None:
+        path = self._download()
+        self.assertTrue((path / "pandoc-3.13/bin/pandoc").exists())
+        self.assertTrue((path / "mathessible-install.json").exists())
+        self.assertEqual(os.listdir(path.parent), ["pandoc"])
+
+    def test_cancel_and_checksum_failure_leave_no_installation(self) -> None:
+        for corrupt, cancel in ((True, False), (False, True)):
+            with self.assertRaises(ToolError):
+                self._download(corrupt, cancel)
+            self.assertEqual(list((self.root / "tools").iterdir()), [])
+
+    def test_existing_installation_is_never_replaced(self) -> None:
+        target = self.root / "tools/pandoc"
+        target.mkdir(parents=True)
+        marker = target / "keep"
+        marker.write_text("existing")
+        with (
+            patch("mathessible.documents.optional_tools.managed_directory", return_value=target),
+            self.assertRaises(ToolError),
+        ):
+            install("pandoc", lambda percent: None)
+        self.assertEqual(marker.read_text(), "existing")

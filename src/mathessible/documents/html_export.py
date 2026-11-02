@@ -20,6 +20,7 @@ from mathessible.documents.front_matter import LATEX, equation_language
 from mathessible.documents.front_matter import body as without_front_matter
 from mathessible.documents.markdown_math import find_math_zones, with_marks
 from mathessible.documents.mathml_sanitize import sanitize_mathml
+from mathessible.documents.merged_tables import merged_tables_plugin
 
 MathConverter = Callable[[str], str]
 
@@ -90,6 +91,7 @@ def markdown_parser(native_lists: bool = False, **options: bool) -> MarkdownIt:
     """
     parser = MarkdownIt("commonmark", {"html": False, **options}).enable(["table", "strikethrough"])
     parser = parser.use(footnote_plugin).use(tasklists_plugin).use(deflist_plugin)
+    parser.use(merged_tables_plugin)
     if not native_lists:
         parser.core.ruler.push("plain_lists", _plain_lists)
     return parser

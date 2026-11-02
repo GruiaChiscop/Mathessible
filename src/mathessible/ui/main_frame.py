@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import dataclasses
 import os
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -33,6 +32,7 @@ from mathessible.documents.latex_detection import has_latex_equations
 from mathessible.documents.markdown_math import find_math_zones, rewrite_equations
 from mathessible.documents.notebook import Notebook, NotebookError
 from mathessible.documents.omml_math import OmmlEquation, omml_math
+from mathessible.documents.optional_tools import managed_directory
 from mathessible.documents.pdf_export import PdfDocument, options_for, pdf_inputs, typst_document
 from mathessible.documents.pdf_security import protect
 from mathessible.documents.pdf_source import PdfSourceError, attached_markdown
@@ -44,13 +44,9 @@ from mathessible.documents.recovery import now as recovery_time
 from mathessible.documents.tex_compile import (
     ENGINES,
     CompileResult,
-    DownloadProgress,
     compile_accessible_tex,
     document_language,
     find_installation,
-    install_tinytex,
-    megabytes,
-    tinytex_directory,
 )
 from mathessible.documents.tex_macros import expand_markdown_macros
 from mathessible.documents.tex_markdown import tex_to_markdown
@@ -882,8 +878,18 @@ if wx is not None:
             self.editor.commit_active_equation()
             if (self.dirty or self.document_path is None) and not self.save_document():
                 return
-            installation = find_installation()
+            installation = find_installation(configured=self.settings.latex_bin_directory)
             if installation is None:
+                if self.settings.latex_bin_directory:
+                    wx.MessageBox(
+                        _(
+                            "The configured LaTeX directory contains no executable. Correct it in Settings or clear it for automatic detection."
+                        ),
+                        _("Compile PDF with LaTeX"),
+                        wx.OK | wx.ICON_ERROR,
+                        self,
+                    )
+                    return
                 self._offer_tinytex()
                 return
             path = self.document_path
@@ -899,7 +905,14 @@ if wx is not None:
 
             def work() -> None:
                 try:
-                    result = compile_accessible_tex(path, installation, language, progress=progress)
+                    private = managed_directory("TinyTeX").resolve()
+                    managed = (
+                        installation.bin_directory.resolve().is_relative_to(private)
+                        and (private / "mathessible-install.json").is_file()
+                    )
+                    result = compile_accessible_tex(
+                        path, installation, language, progress=progress, install_missing=managed
+                    )
                 except (OSError, subprocess.SubprocessError) as error:
                     result = CompileResult(None, str(error))
                 wx.CallAfter(self._tex_compiled, result)
@@ -972,9 +985,9 @@ if wx is not None:
             )
             dialog.SetExtendedMessage(
                 _(
-                    "TinyTeX is a small LaTeX distribution (about 65 MB to download), installed in your home folder "
-                    "without an administrator password. Mathessible installs the packages a document needs when it "
-                    "compiles it. You can also install MacTeX, MiKTeX or TeX Live yourself instead."
+                    "TinyTeX will be downloaded from its official releases into Mathessible's private tools folder. "
+                    "No administrator password is needed and existing installations will not be changed. "
+                    "Mathessible installs additional packages when a document needs them."
                 )
             )
             dialog.SetYesNoLabels(_("&Install TinyTeX"), _("&Cancel"))
@@ -985,7 +998,7 @@ if wx is not None:
                 dialog.Destroy()
             self._tex_busy = True
             session_log.write("command", "install TinyTeX")
-            # A native progress window: the download's megabytes, then the unpacking; Cancel stops it.
+            # A native progress window stays responsive during downloads and unpacking.
             progress_dialog = wx.ProgressDialog(
                 _("Installing TinyTeX"),
                 _("Downloading TinyTeX…"),
@@ -994,28 +1007,35 @@ if wx is not None:
                 style=wx.PD_CAN_ABORT | wx.PD_APP_MODAL | wx.PD_ELAPSED_TIME | wx.PD_REMAINING_TIME,
             )
             cancel = threading.Event()
+            state = {"percent": 0, "ok": False, "output": ""}
 
-            def show(meter: DownloadProgress | None) -> None:
-                if not progress_dialog or cancel.is_set():
-                    return
-                if meter is None:
-                    keep_going, _skip = progress_dialog.Pulse(_("Unpacking TinyTeX…"))
-                else:
-                    message = _("Downloading TinyTeX: {received} MB of {total} MB").format(
-                        received=megabytes(meter.received), total=megabytes(meter.total)
-                    )
-                    keep_going, _skip = progress_dialog.Update(min(meter.percent, 99), message)
-                if not keep_going:
-                    cancel.set()
+            def report(percent: int) -> None:
+                state["percent"] = percent
 
             def work() -> None:
-                try:
-                    ok, output = install_tinytex(lambda meter: wx.CallAfter(show, meter), cancel.is_set)
-                except (OSError, subprocess.SubprocessError) as error:
-                    ok, output = False, str(error)
-                wx.CallAfter(self._tinytex_installed, progress_dialog, ok, cancel.is_set(), output)
+                from mathessible.documents.optional_tools import ToolError, install
 
-            threading.Thread(target=work, name="mathessible-tinytex", daemon=True).start()
+                try:
+                    path = install("TinyTeX", report, cancel.is_set)
+                    state["ok"], state["output"] = True, str(path)
+                except (ToolError, OSError) as error:
+                    state["output"] = str(error)
+
+            worker = threading.Thread(target=work, name="mathessible-tinytex", daemon=True)
+            worker.start()
+
+            def poll() -> None:
+                if worker.is_alive():
+                    percent = state["percent"]
+                    message = _("Unpacking TinyTeX…") if percent >= 90 else _("Downloading TinyTeX…")
+                    keep, _skip = progress_dialog.Update(min(percent, 99), message)
+                    if not keep:
+                        cancel.set()
+                    wx.CallLater(150, poll)
+                    return
+                self._tinytex_installed(progress_dialog, state["ok"], cancel.is_set(), state["output"])
+
+            wx.CallLater(150, poll)
 
         def _tinytex_installed(
             self, progress_dialog: wx.ProgressDialog, ok: bool, cancelled: bool, output: str
@@ -1027,11 +1047,10 @@ if wx is not None:
             self._tex_busy = False
             session_log.write("command", f"TinyTeX installer ({'done' if ok else 'stopped'}): {output[-2000:]!r}")
             if cancelled:
-                # Stopped part way: the TinyTeX folder it was unpacking is incomplete (there was none before).
-                shutil.rmtree(tinytex_directory(), ignore_errors=True)
+                # The installer cleans up only its own temporary staging directory.
                 self._say(_("TinyTeX installation cancelled"))
                 return
-            if not ok or find_installation() is None:
+            if not ok or find_installation(configured=self.settings.latex_bin_directory) is None:
                 self._say(_("TinyTeX could not be installed"))
                 last = "\n".join(output.splitlines()[-6:])
                 wx.MessageBox(

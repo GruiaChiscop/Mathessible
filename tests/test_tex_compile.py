@@ -14,12 +14,10 @@ from mathessible.documents.tex_compile import (
     engine_for,
     find_installation,
     first_error,
-    install_tinytex,
     megabytes,
     missing_file,
     package_holding,
     tagging_metadata,
-    tinytex_install_command,
 )
 
 MISSING_LOG = """(./paper.tex
@@ -65,12 +63,6 @@ class FindInstallationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as home:
             found = find_installation({"PATH": home}, Path(home), "linux")
             self.assertTrue(found is None or found.bin_directory in (Path("/usr/bin"), Path("/usr/local/bin")))
-
-    def test_tinytex_is_installed_without_changing_the_path(self) -> None:
-        command = tinytex_install_command("darwin")
-        self.assertIn("--no-path", command[-1])
-        self.assertIn("https://tinytex.yihui.org/install-bin-unix.sh", command[-1])
-        self.assertEqual(tinytex_install_command("win32")[0], "powershell")
 
 
 class LogTests(unittest.TestCase):
@@ -198,32 +190,6 @@ class CompileTests(unittest.TestCase):
         self.assertEqual(document_language("% \\usepackage[french]{babel}", "de"), "de")
 
 
-METER = (
-    b"  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n"
-    b"                                 Dload  Upload   Total   Spent    Left  Speed\n"
-    b"\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\n"
-    b"\r  0 64.0M    0  285k    0     0   867k      0  0:01:15 --:--:--  0:01:15  867k"
-    b"\r 48 64.0M   48 30.9M    0     0  23.2M      0  0:00:02  0:00:01  0:00:01 30.6M"
-    b"\r100 64.0M  100 64.0M    0     0  25.1M      0  0:00:02  0:00:02 --:--:-- 25.1M\n"
-    b"tlmgr postaction install script xetex\n"
-)
-
-
-class FakeProcess:
-    def __init__(self, data: bytes, code: int = 0):
-        import io
-
-        self.stdout = io.BufferedReader(io.BytesIO(data))
-        self.returncode = code
-        self.killed = False
-
-    def kill(self) -> None:
-        self.killed = True
-
-    def wait(self) -> int:
-        return self.returncode
-
-
 class TinyTexInstallTests(unittest.TestCase):
     def test_curls_meter_is_read(self) -> None:
         self.assertEqual(
@@ -232,19 +198,6 @@ class TinyTexInstallTests(unittest.TestCase):
         self.assertIsNone(download_progress("  % Total    % Received % Xferd"))
         self.assertIsNone(download_progress("  0     0    0     0    0     0      0"))
         self.assertEqual((megabytes("64.0M"), megabytes("285k"), megabytes("1.5G")), ("64.0", "0.3", "1536.0"))
-
-    def test_the_download_is_reported_then_its_unpacking(self) -> None:
-        reported: list[DownloadProgress | None] = []
-        ok, output = install_tinytex(reported.append, popen=lambda *_args, **_options: FakeProcess(METER))
-        self.assertTrue(ok)
-        self.assertEqual([meter.percent if meter else None for meter in reported], [0, 48, 100, None])
-        self.assertIn("postaction", output)
-
-    def test_a_cancelled_install_is_stopped(self) -> None:
-        process = FakeProcess(METER)
-        ok, _output = install_tinytex(lambda _meter: None, lambda: True, lambda *_args, **_options: process)
-        self.assertFalse(ok)
-        self.assertTrue(process.killed)
 
 
 if __name__ == "__main__":

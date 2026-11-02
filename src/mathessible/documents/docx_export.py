@@ -419,12 +419,20 @@ class _Writer:
                 self.inline(paragraph, token)
 
     def _table(self, rows: list[list[tuple[str, object]]]) -> None:
-        columns = max((len(row) for row in rows), default=1)
+        columns = max(
+            (token.meta.get("table_cell", {}).get("columns", len(row)) for row in rows for _, token in row), default=1
+        )
         table = self.document.add_table(rows=len(rows), cols=columns)
         table.style = "Table Grid"
         for row_index, row in enumerate(rows):
             for column, (kind, token) in enumerate(row):
-                paragraph = table.cell(row_index, column).paragraphs[0]
+                span = token.meta.get("table_cell", {})
+                x, y = span.get("x", column), span.get("y", row_index)
+                cell = table.cell(y, x)
+                width, height = span.get("colspan", 1), span.get("rowspan", 1)
+                if width > 1 or height > 1:
+                    cell = cell.merge(table.cell(y + height - 1, x + width - 1))
+                paragraph = cell.paragraphs[0]
                 self.inline(paragraph, token)
                 if kind == "th_open":
                     for run in paragraph.runs:

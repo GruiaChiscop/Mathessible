@@ -74,6 +74,8 @@ BRAILLE_CODES: tuple[tuple[str, str], ...] = (
 
 @dataclass(slots=True)
 class AppSettings:
+    pandoc_path: str = ""
+    latex_bin_directory: str = ""
     linear_navigation: bool = False
     # Every structure gets standalone "start X"/"end X" stops, and the math
     # "start of math"/"end of math" -- in linear and structural navigation.
@@ -198,6 +200,10 @@ def load_settings(path: Path | None = None) -> AppSettings:
     except (FileNotFoundError, OSError, json.JSONDecodeError):
         return AppSettings()
     return AppSettings(
+        pandoc_path=data.get("pandoc_path", "") if isinstance(data.get("pandoc_path", ""), str) else "",
+        latex_bin_directory=data.get("latex_bin_directory", "")
+        if isinstance(data.get("latex_bin_directory", ""), str)
+        else "",
         linear_navigation=bool(data.get("linear_navigation", False)),
         structure_stops=bool(data.get("structure_stops", True)),
         invisible_operator_stops=bool(data.get("invisible_operator_stops", False)),

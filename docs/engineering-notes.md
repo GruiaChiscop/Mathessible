@@ -1742,8 +1742,8 @@ control handles `EVT_TEXT_PASTE` so menu and native paste share conversion.
 Clipboard HTML becomes Markdown paragraphs, headings, basic inline emphasis,
 links, lists and rectangular tables; head/style/script content is ignored and
 no external resources are loaded. Table first rows become Markdown headers.
-Merged cells and detected MathML/OMML fall back to native plain-text paste for
-the entire fragment. Images currently retain only alt text. Word-specific
+Detected MathML/OMML falls back to native plain-text paste for the entire
+fragment. Images currently retain only alt text. Word-specific
 CSS list numbering and equation conversion remain
 unfinished. This is not a lossless Word import. Native Word clipboard testing
 is still required, especially on macOS.
@@ -1755,6 +1755,100 @@ and stdout, a five-second timeout and a bounded RTF input. Its HTML goes
 through the same Markdown importer. Tests exercise Apple's actual converter
 with formatting and a two-row table. This does not import `.pages` files or
 iWork-private clipboard objects; a live copy from Pages still needs checking.
+
+Rich paste refinement: row/column spans expand into a rectangular Markdown
+grid with content only in the top-left cell and empty covered positions.
+This preserves column placement, not the visual merged-cell layout. Invalid,
+overlapping or excessive spans fall back to text. Simple embedded tag/class
+CSS rules supply emphasis, with inline declarations overriding those rules;
+this is deliberately not a full CSS cascade. Ordered lists preserve their
+start/value numbers, and pre/code elements preserve literal whitespace and
+Markdown punctuation. Live Word/Pages testing remains necessary.
+Merged-table support supersedes flattening for valid rectangles. The local
+`documents/merged_tables.py` markdown-it-py plugin expands fenced `table`
+blocks: `>` continues the cell on the left and `^` the cell above. Ordinary
+pipe tables keep their existing interpretation. Paste writes this opt-in
+syntax only when spans occur, escaping literal continuation characters.
+Invalid nonrectangular merges remain visible code. The extension supplies
+row/column coordinates and spans on inline token metadata; HTML gets native
+rowspan/colspan, Word gets gridSpan/vMerge, PDF gets positioned Typst table
+cells, and BRF describes the coordinates and spans in text. Headers and body
+share a tbody so a header cell can span into subsequent rows. This is a local
+syntax, not a claim of MultiMarkdown compatibility. Other Markdown readers
+will show its fenced source. No raw HTML execution is enabled.
+
+Trap: the inner table parser already fills inline children; clear these before
+the outer inline pass or every cell's content is duplicated. Export regression
+tests inspect DOCX XML and compile the actual Typst output to PDF.
+Validate source row widths before invoking the inner Markdown parser: its normal
+pipe-table rule silently drops excess cells and pads short rows. Extended tables
+instead keep malformed input as visible source, preserving every cell's text.
+Keep column alignment attributes when replacing the inner table tokens. Nested
+HTML tables are rejected even inside wrapper elements to avoid losing their
+structure during paste.
+
+Optional Pandoc bridge (2026-11-02): `documents/pandoc.py` locates the executable
+through `MATHESSIBLE_PANDOC` or PATH, without installing anything. It exposes
+fixed HTML/JSON/Markdown formats, UTF-8 stdin/stdout, `--sandbox`, failure on
+warnings and a ten-second timeout. No filters, resource extraction, templates
+or PDF engines are accepted. Errors never expose converter stderr (which may
+include private clipboard text). Call it from a worker, not the GUI thread.
+The input limit is 2 MB; the output limit is checked after subprocess capture,
+not a hard process-memory cap. JSON is an intermediate document, not safe HTML.
+
+`documents/paste_requirements.py` identifies candidate features (multiple
+paragraphs or blocks in cells, nested lists) independently of tool availability.
+Office equations, MathML and embedded content remain separate unsupported
+features; installing Pandoc does not promise their conversion. A single Office
+paragraph wrapper and simple merged cells do not require Pandoc. This is
+conservative feature detection, not a complete CSS/layout fidelity analysis.
+The bridge is not yet connected to paste: our cell exporters must gain block
+content support and the grid syntax reader must be integrated before accepting
+Pandoc output into documents. Existing paste therefore remains unchanged.
+The real Pandoc regression test runs only where the optional executable exists;
+mocked tests cover absence, errors, timeout, protocol and invocation flags.
+
+Optional-tool management (2026-11-02): General > Optional tools stores a Pandoc
+executable and a LaTeX bin directory. Explicit paths never silently fall back.
+Automatic detection prefers existing system installations (including Homebrew
+paths when Finder supplies a limited PATH), then `~/.mathessible/tools/pandoc`
+or `~/.mathessible/tools/TinyTeX`. Legacy TinyTeX locations remain detectable;
+they are not moved. Pandoc's environment override is below the saved setting.
+The native Check action reports path, provenance and executable version off the
+GUI thread. Installation is an explicit, cancellable action, also offered when
+compiling LaTeX with no distribution. `optional_tools.py` downloads official
+GitHub release archives, requires their SHA-256 digest, validates the executable
+in staging and publishes by rename. It refuses existing private directories,
+does not register PATH entries, and never invokes Homebrew or a system installer.
+The older TinyTeX shell-script installer and its folder-deleting cancel handler
+are replaced. Cancellation and failure remove only this attempt's staging area.
+Tar extraction uses Python's data filter (TinyTeX contains internal symlinks);
+zip entries are path-checked and executable bits preserved. Updating/removing
+private installations was not exposed in the initial version (updates follow below).
+Windows ARM downloads are not offered.
+The GUI allows automatic `tlmgr` package installs/updates only inside its private
+TinyTeX with an installation manifest. Existing system and custom distributions
+are used for compilation without automatic package management.
+
+Optional-tools UI refinement: paths are prefilled from local discovery, with a
+separate detected-value map so a displayed automatic path is not persisted as
+an override. Check now discovers the tool and checks updates in a worker:
+Pandoc uses numeric version comparison with GitHub's latest official release;
+TinyTeX uses `tlmgr --machine-readable update --list` (including protocol
+validation). Missing tools offer installation; invalid custom paths and failed
+network/repository checks remain explicit errors. No update runs without consent.
+External installations are never upgraded in place: the offer installs/selects
+a private copy instead. Managed Pandoc updates require the ownership manifest;
+TinyTeX updates copy the distribution and run `tlmgr update --self --all` on the
+copy. A successful publication retains a uniquely named previous copy, and a
+failed final rename rolls back. Package-operation cancellation is deferred until
+the subprocess finishes (bounded at ten minutes), then discards staging. Annual
+TeX Live repository incompatibility is reported as a failed check; automatic
+cross-year migration is not implemented. Backups are not automatically deleted.
+The update confirmation uses native action labels: "Update private copy" for
+managed installations and "Install updated private copy" for external ones.
+The latter names the download destination and explicitly explains that the
+existing installation (including Homebrew) is not updated or replaced.
 
 Function-chart sonification (2026-10-30,
 [sonification/graph.py](../src/mathessible/sonification/graph.py),

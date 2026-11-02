@@ -12,6 +12,8 @@ import threading
 from collections.abc import Callable
 from pathlib import Path
 
+from mathessible.documents.optional_tools import ToolError, install, managed_directory, update_tinytex
+from mathessible.documents.tool_updates import check, locate
 from mathessible.editing.autocorrect import AutoCorrectTable, autocorrect_defaults, differences
 from mathessible.i18n import LANGUAGES, _, ngettext
 from mathessible.settings import BRAILLE_CODES, AppSettings
@@ -73,6 +75,7 @@ if wx is not None:
             self.notebook.SetName(_("Settings categories"))
             general = self._category(_("General"))
             self._language_page(self._page(_("Language"), general), settings)
+            self._tools_page(self._page(_("Optional tools"), general), settings)
             equations = self._category(_("Equations"))
             self._typing_page(self._page(_("Typing"), equations), settings)
             self._autocorrect_page(self._page(_("AutoCorrect"), equations), settings)
@@ -95,6 +98,186 @@ if wx is not None:
             self.SetSizer(sizer)
 
         # Pages
+
+        def _tools_page(self, page: wx.Panel, settings: AppSettings) -> None:
+            self._tool_paths = {}
+            self._tool_detected = {}
+            for key, label, initial in (
+                ("pandoc", _("Pandoc executable (empty: automatic)"), settings.pandoc_path),
+                ("TinyTeX", _("LaTeX executable directory (empty: automatic)"), settings.latex_bin_directory),
+            ):
+                page.GetSizer().Add(wx.StaticText(page, label=label), 0, wx.ALL, 8)
+                detected = locate(key) if not initial else ""
+                self._tool_detected[key] = detected
+                control = wx.TextCtrl(page, value=initial or detected)
+                control.SetName(label)
+                page.GetSizer().Add(control, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 8)
+                self._tool_paths[key] = control
+                control.Bind(wx.EVT_TEXT, lambda event: self._changed())
+                check_button = wx.Button(
+                    page, label=_("Check {tool} for updates").format(tool="Pandoc" if key == "pandoc" else key)
+                )
+                check_button.Bind(wx.EVT_BUTTON, lambda event, tool=key: self._check_tool(tool))
+                page.GetSizer().Add(check_button, 0, wx.ALL, 8)
+                button = wx.Button(page, label=_("Install {tool} for Mathessible…").format(tool=key))
+                button.Bind(wx.EVT_BUTTON, lambda event, tool=key: self._install_tool(tool))
+                page.GetSizer().Add(button, 0, wx.ALL, 8)
+
+        def _tool_job(self, job, done) -> None:
+            cancel = threading.Event()
+            outcome = {}
+            progress = wx.ProgressDialog(
+                _("Optional tools"), _("Working…"), parent=self, style=wx.PD_APP_MODAL | wx.PD_CAN_ABORT
+            )
+
+            def work():
+                try:
+                    outcome["result"] = job(cancel)
+                except (ToolError, OSError) as error:
+                    outcome["error"] = str(error)
+
+            worker = threading.Thread(target=work, daemon=True)
+            worker.start()
+
+            def poll():
+                if worker.is_alive():
+                    keep, _skip = progress.Pulse(
+                        _("Cancelling after the current operation…") if cancel.is_set() else _("Working…")
+                    )
+                    if not keep:
+                        cancel.set()
+                    wx.CallLater(150, poll)
+                    return
+                progress.Destroy()
+                if not self or cancel.is_set():
+                    return
+                if "error" in outcome:
+                    wx.MessageBox(
+                        _("The operation failed: {error}").format(error=outcome["error"]),
+                        _("Optional tools"),
+                        wx.OK | wx.ICON_ERROR,
+                        self,
+                    )
+                else:
+                    done(outcome.get("result"))
+
+            wx.CallLater(150, poll)
+
+        def _tool_configured(self, tool: str) -> str:
+            value = self._tool_paths[tool].GetValue().strip()
+            return "" if value == self._tool_detected[tool] else value
+
+        def _check_tool(self, tool: str) -> None:
+            configured = self._tool_configured(tool)
+            detected = locate(tool, configured)
+            if not detected:
+                if configured:
+                    wx.MessageBox(
+                        _("The configured path is invalid. Correct it or clear it to locate the tool automatically."),
+                        _("Optional tools"),
+                        wx.OK | wx.ICON_WARNING,
+                        self,
+                    )
+                else:
+                    self._install_tool(tool)
+                return
+            if not configured:
+                self._tool_detected[tool] = detected
+                self._tool_paths[tool].ChangeValue(detected)
+            self._tool_job(lambda cancel: check(tool, configured), lambda result: self._checked_tool(tool, result))
+
+        def _checked_tool(self, tool: str, result) -> None:
+            details = _("Path: {path}\nInstalled: {installed}\nUpdate source: {latest}").format(
+                path=result.path, installed=result.installed, latest=result.latest
+            )
+            if not result.available:
+                wx.MessageBox(
+                    details + "\n\n" + _("No updates are available."),
+                    _("Optional tools"),
+                    wx.OK | wx.ICON_INFORMATION,
+                    self,
+                )
+                return
+            if result.managed:
+                action = _("&Update private copy")
+                question = _(
+                    "Updates are available. Update the Mathessible-managed copy? The previous copy will be retained for recovery."
+                )
+            else:
+                action = _("&Install updated private copy")
+                question = _(
+                    "Updates are available for {tool}. Mathessible will download an updated private copy into {path} "
+                    "and select it for use in the application. Your existing installation, including one installed "
+                    "through Homebrew, will not be updated or replaced. Install the private copy?"
+                ).format(tool="Pandoc" if tool == "pandoc" else tool, path=managed_directory(tool))
+            dialog = wx.MessageDialog(self, question, _("Optional tools"), wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION)
+            dialog.SetExtendedMessage(details)
+            dialog.SetYesNoLabels(action, _("&Cancel"))
+            try:
+                if dialog.ShowModal() != wx.ID_YES:
+                    return
+            finally:
+                dialog.Destroy()
+            if tool == "TinyTeX" and result.managed:
+                if getattr(wx.GetApp().GetTopWindow(), "_tex_busy", False):
+                    wx.MessageBox(
+                        _("Wait for LaTeX compilation to finish before updating tools."),
+                        _("Optional tools"),
+                        wx.OK,
+                        self,
+                    )
+                    return
+                self._tool_job(
+                    lambda cancel: update_tinytex(cancel.is_set), lambda path: self._tool_installed(tool, path)
+                )
+            else:
+                self._install_tool(tool, confirmed=True)
+
+        def _tool_installed(self, tool: str, path: Path) -> None:
+            if tool == "pandoc":
+                binaries = [p for p in path.rglob("*") if p.name in {"pandoc", "pandoc.exe"} and p.is_file()]
+                selected = str(binaries[0])
+            else:
+                folders = [
+                    p.parent for p in (path / "bin").glob("*/pdflatex*") if p.name in {"pdflatex", "pdflatex.exe"}
+                ]
+                selected = str(folders[0])
+            # Explicit consent to install/update also selects this private copy.
+            self._tool_detected[tool] = ""
+            self._tool_paths[tool].ChangeValue(selected)
+            self._changed()
+            wx.MessageBox(
+                _("Ready to use: {path}").format(path=selected), _("Optional tools"), wx.OK | wx.ICON_INFORMATION, self
+            )
+
+        def _install_tool(self, tool: str, confirmed: bool = False) -> None:
+            if getattr(wx.GetApp().GetTopWindow(), "_tex_busy", False):
+                wx.MessageBox(
+                    _("Wait for LaTeX compilation to finish before updating tools."), _("Optional tools"), wx.OK, self
+                )
+                return
+            target = managed_directory(tool)
+            replace = target.exists()
+            question = _(
+                "Download the latest {tool} into {path} and use it in Mathessible? An existing managed copy will be backed up; system installations will not be changed."
+            ).format(tool=tool, path=target)
+            if (
+                not confirmed
+                and wx.MessageBox(question, _("Optional tools"), wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION, self)
+                != wx.YES
+            ):
+                return
+
+            def job(cancel):
+                path = install(tool, lambda percent: None, cancel.is_set, replace=replace)
+                if confirmed and tool == "TinyTeX":
+                    return update_tinytex(cancel.is_set)
+                return path
+
+            self._tool_job(
+                job,
+                lambda path: self._tool_installed(tool, path),
+            )
 
         def _category(self, title: str) -> wx.Notebook:
             """A category: a tab holding its own tabs (its subcategories)."""
@@ -428,6 +611,8 @@ if wx is not None:
         # Applying
 
         def apply(self) -> None:
+            self._settings.pandoc_path = self._tool_configured("pandoc")
+            self._settings.latex_bin_directory = self._tool_configured("TinyTeX")
             selection = self.symbol_dictionary.GetSelection()
             if selection != wx.NOT_FOUND:
                 self._settings.symbol_dictionary = self._dictionaries[selection].identifier
