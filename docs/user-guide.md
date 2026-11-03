@@ -209,8 +209,21 @@ installed, such a table becomes a **grid table**, Pandoc's standard syntax:
 Its columns are drawn with `+`, `-` and `|`, so other Markdown editors that
 know Pandoc's syntax (Pandoc, Quarto) read it too. Mathessible reads it
 itself: the preview and every export (HTML, PDF, Word, braille) keep its
-paragraphs, lists and merged cells without Pandoc. Editing one by hand means
-keeping its columns aligned, which is slow with a screen reader.
+paragraphs, lists and merged cells without Pandoc.
+
+Rather than keeping its columns aligned by hand, put the caret in a grid table
+and choose **Format → Edit Table…**. The dialog shows the table as a grid of
+text fields, one per cell; a merged cell spans its rows and columns. Each
+field is named by where it is (row, column, whether it is a header, what it
+spans), and its text is edited in place, as Markdown, with paragraphs and
+lists. Tab goes through the cells row by row, and Command+Option with an
+arrow key moves to the next cell in that direction. The buttons act on the
+last cell you were in: they insert and delete rows and columns, merge a cell
+with the one to its right or below it (when they span the same rows or
+columns), and split a merged cell; **Header rows** sets how many rows at the
+top are the header. OK writes the table back, redrawn, as one
+change that Undo takes back. **Insert → Table…** writes an empty grid table
+when **Cells hold paragraphs or lists (grid table)** is checked.
 
 Without Pandoc, Mathessible asks first: **Install Pandoc…**, **Paste Simplified**
 (each cell one line, as before) or **Cancel**. A paste with equations is still

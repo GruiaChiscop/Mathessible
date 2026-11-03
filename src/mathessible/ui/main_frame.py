@@ -21,6 +21,7 @@ from mathessible.documents.docx_import import DocxImportError, import_docx
 from mathessible.documents.find_text import FindOptions, find, is_match, replace_all
 from mathessible.documents.front_matter import LATEX, UNICODEMATH, with_equation_language
 from mathessible.documents.front_matter import body as without_front_matter
+from mathessible.documents.grid_tables import grid_table_at, write_grid_table
 from mathessible.documents.html_export import (
     PREVIEW_PAGE,
     ExportPage,
@@ -80,7 +81,7 @@ from mathessible.ui.graph_explorer import GraphExplorerWindow
 from mathessible.ui.header_footer_dialog import HeaderFooterDialog
 from mathessible.ui.help_menu import append_help_menu
 from mathessible.ui.home_panel import HomePanel
-from mathessible.ui.insert_dialogs import ChartDialog, FlowchartDialog, LinkDialog, TableDialog
+from mathessible.ui.insert_dialogs import ChartDialog, FlowchartDialog, LinkDialog, TableDialog, TableEditDialog
 from mathessible.ui.macos_webview import guard_webview_key_equivalents
 from mathessible.ui.pdf_dialog import PdfExportDialog
 from mathessible.ui.settings_dialog import forget_settings_window, show_settings
@@ -377,6 +378,9 @@ if wx is not None:
             format_menu.Append(self._format_ids["italic"], _("&Italic") + "\tCtrl+I")
             format_menu.Append(self._format_ids["strikethrough"], _("&Strikethrough") + "\tCtrl+Shift+X")
             format_menu.Append(self._format_ids["code"], _("&Code") + "\tCtrl+E")
+            format_menu.AppendSeparator()
+            self._edit_table_id = wx.NewIdRef()
+            format_menu.Append(self._edit_table_id, _("Edit &Table…"))
             menu_bar.Append(format_menu, _("F&ormat"))
             view_menu = wx.Menu()
             self._preview_id = wx.NewIdRef()
@@ -448,6 +452,8 @@ if wx is not None:
             self.Bind(wx.EVT_MENU, lambda _event: self._insert_link(), id=self._link_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._insert_image(), id=self._image_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._insert_table(), id=self._table_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._edit_table(), id=self._edit_table_id)
+            self.Bind(wx.EVT_UPDATE_UI, self._on_update_edit_table, id=self._edit_table_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._insert_chart(), id=self._chart_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._insert_flowchart(), id=self._flowchart_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._explore_graph(), id=self._explore_graph_id)
@@ -1359,11 +1365,42 @@ if wx is not None:
                 if dialog.ShowModal() != wx.ID_OK:
                     return
                 rows, columns, header = dialog.rows.GetValue(), dialog.columns.GetValue(), dialog.header.GetValue()
+                grid = dialog.grid_table.GetValue()
             finally:
                 dialog.Destroy()
             tex = self.editor.tex
             self.editor.apply_insert(
-                lambda source, start, end: document_insert.table(source, start, end, rows, columns, header, tex)
+                lambda source, start, end: document_insert.table(source, start, end, rows, columns, header, tex, grid)
+            )
+
+        def _on_update_edit_table(self, event: wx.UpdateUIEvent) -> None:
+            source = self.editor.markdown.GetValue()
+            caret = self.editor.markdown.GetInsertionPoint()
+            event.Enable(
+                not self._home
+                and not self.editor.tex
+                and not self.editor.editing_equation
+                and grid_table_at(source, caret) is not None
+            )
+
+        def _edit_table(self) -> None:
+            """Format > Edit Table: the grid table at the caret edited cell by cell (TableEditDialog), written
+            back in its place as one undoable change."""
+            found = grid_table_at(self.editor.markdown.GetValue(), self.editor.markdown.GetInsertionPoint())
+            if found is None or self.editor.tex or self.editor.editing_equation:
+                self._say(_("Put the caret in a grid table to edit it."))
+                return
+            start, end, table = found
+            session_log.write("command", f"edit table: {table.rows} rows, {table.columns} columns")
+            dialog = TableEditDialog(self, table)
+            try:
+                if dialog.ShowModal() != wx.ID_OK:
+                    return
+                written = write_grid_table(dialog.table)
+            finally:
+                dialog.Destroy()
+            self.editor.apply_insert(
+                lambda source, _start, _end: TemplateEdit(source[:start] + written + source[end:], start, "")
             )
 
         def _insert_chart(self) -> None:

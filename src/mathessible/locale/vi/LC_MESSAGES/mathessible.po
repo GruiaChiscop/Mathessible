@@ -448,6 +448,33 @@ msgstr "không đọc được phương trình"
 msgid "unknown command {command}"
 msgstr "lệnh không xác định {command}"
 
+#: src/mathessible/editing/grid_table_edit.py:214
+#, fuzzy, python-brace-format
+msgid "Row {row}, column {column}"
+msgstr "hàng {row}, cột {column}"
+
+#: src/mathessible/editing/grid_table_edit.py:216
+#, fuzzy
+msgid "header"
+msgstr "Đầu trang"
+
+#: src/mathessible/editing/grid_table_edit.py:218
+#, fuzzy, python-brace-format
+msgid "{count} row"
+msgid_plural "{count} rows"
+msgstr[0] "{count} từ"
+
+#: src/mathessible/editing/grid_table_edit.py:219
+#, fuzzy, python-brace-format
+msgid "{count} column"
+msgid_plural "{count} columns"
+msgstr[0] "{count} từ"
+
+#: src/mathessible/editing/grid_table_edit.py:220
+#, fuzzy, python-brace-format
+msgid "spans {rows} and {columns}"
+msgstr "hàng {row}, cột {column}"
+
 #: src/mathessible/editor/assist.py:82
 msgid "suggestions closed"
 msgstr "đã đóng gợi ý"
@@ -779,27 +806,27 @@ msgid "Switch to Linear View"
 msgstr "Chuyển sang chế độ xem tuyến tính"
 
 #: src/mathessible/editor/structures.py:160 src/mathessible/ui/document_editor.py:143
-#: src/mathessible/ui/main_frame.py:311
+#: src/mathessible/ui/main_frame.py:312
 msgid "Cu&t"
 msgstr "&Cắt"
 
 #: src/mathessible/editor/structures.py:161 src/mathessible/ui/document_editor.py:144
-#: src/mathessible/ui/main_frame.py:312
+#: src/mathessible/ui/main_frame.py:313
 msgid "&Copy"
 msgstr "Sao ché&p"
 
 #: src/mathessible/editor/structures.py:162 src/mathessible/ui/document_editor.py:145
-#: src/mathessible/ui/main_frame.py:313
+#: src/mathessible/ui/main_frame.py:314
 msgid "&Paste"
 msgstr "&Dán"
 
 #: src/mathessible/editor/structures.py:164 src/mathessible/ui/document_editor.py:147
-#: src/mathessible/ui/main_frame.py:322
+#: src/mathessible/ui/main_frame.py:323
 msgid "Select &All"
 msgstr "Chọ&n tất cả"
 
 #: src/mathessible/editor/structures.py:169 src/mathessible/ui/document_editor.py:166
-#: src/mathessible/ui/main_frame.py:372
+#: src/mathessible/ui/main_frame.py:373
 msgid "&Insert"
 msgstr "C&hèn"
 
@@ -835,19 +862,19 @@ msgstr "&Phương trình"
 msgid "&Cases"
 msgstr "&Các trường hợp"
 
-#: src/mathessible/editor/structures.py:208
+#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:166
 msgid "Insert Row &Above"
 msgstr "Chèn hàng phía &trên"
 
-#: src/mathessible/editor/structures.py:209
+#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:167
 msgid "Insert Row &Below"
 msgstr "Chèn hàng phía &dưới"
 
-#: src/mathessible/editor/structures.py:211
+#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:169
 msgid "Insert Column &Left"
 msgstr "Chèn cột bên t&rái"
 
-#: src/mathessible/editor/structures.py:215
+#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:170
 msgid "Insert Column &Right"
 msgstr "Chèn cột bên &phải"
 
@@ -2652,7 +2679,7 @@ msgstr "Hộp thoại Tự động sửa toán"
 msgid "&Replace"
 msgstr "&Thay thế"
 
-#: src/mathessible/ui/autocorrect_dialog.py:42 src/mathessible/ui/main_frame.py:755
+#: src/mathessible/ui/autocorrect_dialog.py:42 src/mathessible/ui/main_frame.py:761
 msgid "Replace"
 msgstr "Thay thế"
 
@@ -2680,7 +2707,7 @@ msgstr "&Thêm"
 
 #: src/mathessible/ui/autocorrect_dialog.py:55 src/mathessible/ui/braille_signs_dialog.py:71
 #: src/mathessible/ui/functions_dialog.py:49 src/mathessible/ui/gallery_dialog.py:56
-#: src/mathessible/ui/main_frame.py:320
+#: src/mathessible/ui/main_frame.py:321
 msgid "&Delete"
 msgstr "&Xóa"
 
@@ -2783,15 +2810,15 @@ msgstr "Đổi thành nội &dòng"
 msgid "E&quation"
 msgstr "Phương t&rình"
 
-#: src/mathessible/ui/document_editor.py:140 src/mathessible/ui/main_frame.py:308
+#: src/mathessible/ui/document_editor.py:140 src/mathessible/ui/main_frame.py:309
 msgid "&Undo"
 msgstr "&Hoàn tác"
 
-#: src/mathessible/ui/document_editor.py:141 src/mathessible/ui/main_frame.py:309
+#: src/mathessible/ui/document_editor.py:141 src/mathessible/ui/main_frame.py:310
 msgid "&Redo"
 msgstr "&Làm lại"
 
-#: src/mathessible/ui/document_editor.py:161 src/mathessible/ui/main_frame.py:338
+#: src/mathessible/ui/document_editor.py:161 src/mathessible/ui/main_frame.py:339
 msgid "&Edit"
 msgstr "&Sửa"
 
@@ -2815,7 +2842,7 @@ msgstr "Thu &nhỏ"
 msgid "&Actual Size"
 msgstr "Kích thước &thực"
 
-#: src/mathessible/ui/document_editor.py:185 src/mathessible/ui/main_frame.py:390
+#: src/mathessible/ui/document_editor.py:185 src/mathessible/ui/main_frame.py:394
 msgid "&View"
 msgstr "&Xem"
 
@@ -2875,8 +2902,8 @@ msgid "Paste &Simplified"
 msgstr ""
 
 #: src/mathessible/ui/document_editor.py:475 src/mathessible/ui/document_editor.py:477
-#: src/mathessible/ui/main_frame.py:855 src/mathessible/ui/main_frame.py:1008
-#: src/mathessible/ui/main_frame.py:1536 src/mathessible/ui/main_frame.py:1743
+#: src/mathessible/ui/main_frame.py:861 src/mathessible/ui/main_frame.py:1014
+#: src/mathessible/ui/main_frame.py:1573 src/mathessible/ui/main_frame.py:1780
 #: src/mathessible/ui/settings_dialog.py:187
 msgid "&Cancel"
 msgstr "&Hủy"
@@ -2886,7 +2913,7 @@ msgstr "&Hủy"
 msgid "&Install Pandoc…"
 msgstr "&Cài TinyTeX"
 
-#: src/mathessible/ui/document_editor.py:489 src/mathessible/ui/main_frame.py:1544
+#: src/mathessible/ui/document_editor.py:489 src/mathessible/ui/main_frame.py:1581
 #, fuzzy
 msgid "Install Pandoc"
 msgstr "Đã hủy cài TinyTeX"
@@ -3001,7 +3028,7 @@ msgstr "Lề (mm)"
 msgid "Colu&mns"
 msgstr "&Cột"
 
-#: src/mathessible/ui/export_controls.py:121 src/mathessible/ui/insert_dialogs.py:53
+#: src/mathessible/ui/export_controls.py:121 src/mathessible/ui/insert_dialogs.py:76
 #: src/mathessible/ui/matrix_dialog.py:36
 msgid "Columns"
 msgstr "Cột"
@@ -3215,16 +3242,16 @@ msgstr "Hộp thoại {title}"
 msgid "These options are now the defaults."
 msgstr "Các tùy chọn này giờ là mặc định."
 
-#: src/mathessible/ui/export_dialogs.py:103 src/mathessible/ui/main_frame.py:1919
+#: src/mathessible/ui/export_dialogs.py:103 src/mathessible/ui/main_frame.py:1956
 msgid "Export as BRF"
 msgstr "Xuất dưới dạng BRF"
 
-#: src/mathessible/ui/export_dialogs.py:123 src/mathessible/ui/main_frame.py:1912
+#: src/mathessible/ui/export_dialogs.py:123 src/mathessible/ui/main_frame.py:1949
 msgid "Export as HTML"
 msgstr "Xuất dưới dạng HTML"
 
 #: src/mathessible/ui/export_dialogs.py:125 src/mathessible/ui/export_dialogs.py:158
-#: src/mathessible/ui/insert_dialogs.py:77 src/mathessible/ui/insert_dialogs.py:111
+#: src/mathessible/ui/insert_dialogs.py:103 src/mathessible/ui/insert_dialogs.py:137
 #: src/mathessible/ui/pdf_dialog.py:47
 msgid "Title"
 msgstr "Tiêu đề"
@@ -3248,8 +3275,8 @@ msgstr "Tác giả"
 msgid "D&escription"
 msgstr "&Mô tả"
 
-#: src/mathessible/ui/export_dialogs.py:127 src/mathessible/ui/insert_dialogs.py:79
-#: src/mathessible/ui/insert_dialogs.py:113
+#: src/mathessible/ui/export_dialogs.py:127 src/mathessible/ui/insert_dialogs.py:105
+#: src/mathessible/ui/insert_dialogs.py:139
 msgid "Description"
 msgstr "Mô tả"
 
@@ -3263,7 +3290,7 @@ msgstr "&Ngôn ngữ (ví dụ ro, en)"
 msgid "Language"
 msgstr "Ngôn ngữ"
 
-#: src/mathessible/ui/export_dialogs.py:156 src/mathessible/ui/main_frame.py:1916
+#: src/mathessible/ui/export_dialogs.py:156 src/mathessible/ui/main_frame.py:1953
 msgid "Export as Word Document"
 msgstr "Xuất dưới dạng tài liệu Word"
 
@@ -3401,7 +3428,7 @@ msgstr ""
 msgid "Add or remove &bookmark"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:107 src/mathessible/ui/main_frame.py:985
+#: src/mathessible/ui/graph_explorer.py:107 src/mathessible/ui/main_frame.py:991
 msgid "&Close"
 msgstr "Đó&ng"
 
@@ -3418,7 +3445,7 @@ msgstr "&Phím tắt"
 msgid "&Help"
 msgstr "Trợ giú&p"
 
-#: src/mathessible/ui/graph_explorer.py:118 src/mathessible/ui/insert_dialogs.py:69
+#: src/mathessible/ui/graph_explorer.py:118 src/mathessible/ui/insert_dialogs.py:95
 #, fuzzy
 msgid "Function graph"
 msgstr "tên hàm"
@@ -3624,184 +3651,231 @@ msgstr "Tài liệu gần đây"
 msgid "No recent documents"
 msgstr "Không có tài liệu gần đây"
 
-#: src/mathessible/ui/insert_dialogs.py:41
+#: src/mathessible/ui/insert_dialogs.py:64
 msgid "Insert Link"
 msgstr "Chèn liên kết"
 
-#: src/mathessible/ui/insert_dialogs.py:42
+#: src/mathessible/ui/insert_dialogs.py:65
 msgid "&Text:"
 msgstr "&Văn bản:"
 
-#: src/mathessible/ui/insert_dialogs.py:42
+#: src/mathessible/ui/insert_dialogs.py:65
 msgid "Link text"
 msgstr "Văn bản liên kết"
 
-#: src/mathessible/ui/insert_dialogs.py:43
+#: src/mathessible/ui/insert_dialogs.py:66
 msgid "&Address:"
 msgstr "&Địa chỉ:"
 
-#: src/mathessible/ui/insert_dialogs.py:43
+#: src/mathessible/ui/insert_dialogs.py:66
 msgid "Link address"
 msgstr "Địa chỉ liên kết"
 
-#: src/mathessible/ui/insert_dialogs.py:51
+#: src/mathessible/ui/insert_dialogs.py:74
 msgid "Insert Table"
 msgstr "Chèn bảng"
 
-#: src/mathessible/ui/insert_dialogs.py:52 src/mathessible/ui/insert_dialogs.py:84
+#: src/mathessible/ui/insert_dialogs.py:75 src/mathessible/ui/insert_dialogs.py:110
 msgid "&Rows:"
 msgstr "&Hàng:"
 
-#: src/mathessible/ui/insert_dialogs.py:52 src/mathessible/ui/insert_dialogs.py:84
+#: src/mathessible/ui/insert_dialogs.py:75 src/mathessible/ui/insert_dialogs.py:110
 #: src/mathessible/ui/matrix_dialog.py:33
 msgid "Rows"
 msgstr "Hàng"
 
-#: src/mathessible/ui/insert_dialogs.py:53
+#: src/mathessible/ui/insert_dialogs.py:76
 msgid "&Columns:"
 msgstr "&Cột:"
 
-#: src/mathessible/ui/insert_dialogs.py:55
+#: src/mathessible/ui/insert_dialogs.py:78
 msgid "First row is the &header"
 msgstr "Hàng &đầu tiên là tiêu đề"
 
-#: src/mathessible/ui/insert_dialogs.py:67 src/mathessible/ui/main_frame.py:1392
+#: src/mathessible/ui/insert_dialogs.py:82
+msgid "Cells hold paragraphs or lists (&grid table)"
+msgstr ""
+
+#: src/mathessible/ui/insert_dialogs.py:93 src/mathessible/ui/main_frame.py:1429
 #, fuzzy
 msgid "Insert Chart"
 msgstr "Chèn ma trận"
 
-#: src/mathessible/ui/insert_dialogs.py:70
+#: src/mathessible/ui/insert_dialogs.py:96
 msgid "Bar chart"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:71
+#: src/mathessible/ui/insert_dialogs.py:97
 #, fuzzy
 msgid "Line chart"
 msgstr "tuyến tính"
 
-#: src/mathessible/ui/insert_dialogs.py:72
+#: src/mathessible/ui/insert_dialogs.py:98
 msgid "Scatter plot"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:73
+#: src/mathessible/ui/insert_dialogs.py:99
 msgid "Pie chart"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:75
+#: src/mathessible/ui/insert_dialogs.py:101
 #, fuzzy
 msgid "&Kind:"
 msgstr "Tì&m…"
 
-#: src/mathessible/ui/insert_dialogs.py:75
+#: src/mathessible/ui/insert_dialogs.py:101
 #, fuzzy
 msgid "Kind"
 msgstr "Tìm"
 
-#: src/mathessible/ui/insert_dialogs.py:77 src/mathessible/ui/insert_dialogs.py:111
+#: src/mathessible/ui/insert_dialogs.py:103 src/mathessible/ui/insert_dialogs.py:137
 #, fuzzy
 msgid "&Title:"
 msgstr "&Tiêu đề"
 
-#: src/mathessible/ui/insert_dialogs.py:79 src/mathessible/ui/insert_dialogs.py:113
+#: src/mathessible/ui/insert_dialogs.py:105 src/mathessible/ui/insert_dialogs.py:139
 #, fuzzy
 msgid "&Description:"
 msgstr "Mô tả"
 
-#: src/mathessible/ui/insert_dialogs.py:81
+#: src/mathessible/ui/insert_dialogs.py:107
 #, fuzzy
 msgid "&Function of x:"
 msgstr "&Hàm"
 
-#: src/mathessible/ui/insert_dialogs.py:81
+#: src/mathessible/ui/insert_dialogs.py:107
 #, fuzzy
 msgid "Function of x"
 msgstr "Hàm"
 
-#: src/mathessible/ui/insert_dialogs.py:82
+#: src/mathessible/ui/insert_dialogs.py:108
 msgid "x fro&m:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:82
+#: src/mathessible/ui/insert_dialogs.py:108
 msgid "x from"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:83
+#: src/mathessible/ui/insert_dialogs.py:109
 msgid "x t&o:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:83
+#: src/mathessible/ui/insert_dialogs.py:109
 msgid "x to"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:85
+#: src/mathessible/ui/insert_dialogs.py:111
 #, fuzzy
 msgid "&Series:"
 msgstr "&Mục"
 
-#: src/mathessible/ui/insert_dialogs.py:85
+#: src/mathessible/ui/insert_dialogs.py:111
 #, fuzzy
 msgid "Series"
 msgstr "Có chân"
 
-#: src/mathessible/ui/insert_dialogs.py:110
+#: src/mathessible/ui/insert_dialogs.py:136
 #, fuzzy
 msgid "Insert Flowchart"
 msgstr "Chèn ma trận"
 
-#: src/mathessible/ui/insert_dialogs.py:115
+#: src/mathessible/ui/insert_dialogs.py:141
 #, fuzzy
 msgid "Top to bottom"
 msgstr "phần dưới"
 
-#: src/mathessible/ui/insert_dialogs.py:115
+#: src/mathessible/ui/insert_dialogs.py:141
 #, fuzzy
 msgid "Left to right"
 msgstr "Trên, phải"
 
-#: src/mathessible/ui/insert_dialogs.py:115
+#: src/mathessible/ui/insert_dialogs.py:141
 #, fuzzy
 msgid "Bottom to top"
 msgstr "phần dưới"
 
-#: src/mathessible/ui/insert_dialogs.py:115
+#: src/mathessible/ui/insert_dialogs.py:141
 msgid "Right to left"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:116
+#: src/mathessible/ui/insert_dialogs.py:142
 #, fuzzy
 msgid "Di&rection:"
 msgstr "&Phân số"
 
-#: src/mathessible/ui/insert_dialogs.py:116
+#: src/mathessible/ui/insert_dialogs.py:142
 #, fuzzy
 msgid "Direction"
 msgstr "Giao"
 
-#: src/mathessible/ui/main_frame.py:132
+#: src/mathessible/ui/insert_dialogs.py:156 src/mathessible/ui/insert_dialogs.py:277
+#, fuzzy
+msgid "Edit Table"
+msgstr "Chèn bảng"
+
+#: src/mathessible/ui/insert_dialogs.py:162
+#, fuzzy
+msgid "Header rows"
+msgstr "Đầu trang"
+
+#: src/mathessible/ui/insert_dialogs.py:168
+#, fuzzy
+msgid "&Delete Row"
+msgstr "Xóa &hàng"
+
+#: src/mathessible/ui/insert_dialogs.py:171
+#, fuzzy
+msgid "Delete Col&umn"
+msgstr "Xóa &cột"
+
+#: src/mathessible/ui/insert_dialogs.py:172
+msgid "&Merge with Right"
+msgstr ""
+
+#: src/mathessible/ui/insert_dialogs.py:173
+#, fuzzy
+msgid "Merge with Belo&w"
+msgstr "Mũi tên có chữ phía dưới"
+
+#: src/mathessible/ui/insert_dialogs.py:174
+#, fuzzy
+msgid "&Split Cell"
+msgstr "ô trống"
+
+#: src/mathessible/ui/insert_dialogs.py:181
+#, fuzzy
+msgid "&Header rows:"
+msgstr "Đầu &trang"
+
+#: src/mathessible/ui/insert_dialogs.py:276
+msgid "A merged cell crosses the end of the header. Split it, or choose another number of rows."
+msgstr ""
+
+#: src/mathessible/ui/main_frame.py:133
 msgid "Pages"
 msgstr "Trang"
 
-#: src/mathessible/ui/main_frame.py:134
+#: src/mathessible/ui/main_frame.py:135
 msgid "Notebook pages"
 msgstr "Các trang của sổ ghi chép"
 
-#: src/mathessible/ui/main_frame.py:158
+#: src/mathessible/ui/main_frame.py:159
 msgid "New &Document"
 msgstr "&Tài liệu mới"
 
-#: src/mathessible/ui/main_frame.py:159
+#: src/mathessible/ui/main_frame.py:160
 msgid "New &LaTeX Document"
 msgstr "Tài liệu &LaTeX mới"
 
-#: src/mathessible/ui/main_frame.py:160
+#: src/mathessible/ui/main_frame.py:161
 msgid "New &Notebook…"
 msgstr "Sổ &ghi chép mới…"
 
-#: src/mathessible/ui/main_frame.py:161 src/mathessible/ui/main_frame.py:278
+#: src/mathessible/ui/main_frame.py:162 src/mathessible/ui/main_frame.py:279
 msgid "&Open…"
 msgstr "&Mở…"
 
-#: src/mathessible/ui/main_frame.py:226
+#: src/mathessible/ui/main_frame.py:227
 #, python-brace-format
 msgid ""
 "MathCAT's native extension could not be loaded, so equations can only be edited as text, not read"
@@ -3810,13 +3884,13 @@ msgstr ""
 "Không tải được phần mở rộng gốc của MathCAT, vì vậy chỉ có thể sửa phương trình dưới dạng văn "
 "bản, không đọc hay điều hướng được ({error}). Hãy chạy scripts/bootstrap.sh."
 
-#: src/mathessible/ui/main_frame.py:233
+#: src/mathessible/ui/main_frame.py:234
 msgid "No web view is available to convert and show equations (on Linux, install WebKitGTK for wxPython)."
 msgstr ""
 "Không có khung xem web để chuyển đổi và hiển thị phương trình (trên Linux, hãy cài WebKitGTK cho "
 "wxPython)."
 
-#: src/mathessible/ui/main_frame.py:244
+#: src/mathessible/ui/main_frame.py:245
 #, python-brace-format
 msgid ""
 "Mathessible's fixes to MathCAT and UnicodeMathML are not applied, so some equations will be read "
@@ -3833,380 +3907,385 @@ msgstr ""
 "Các bản vá còn thiếu:\n"
 "{patches}"
 
-#: src/mathessible/ui/main_frame.py:257
+#: src/mathessible/ui/main_frame.py:258
 msgid "Mathessible Setup"
 msgstr "Thiết lập Mathessible"
 
-#: src/mathessible/ui/main_frame.py:271
+#: src/mathessible/ui/main_frame.py:272
 msgid "&Document"
 msgstr "&Tài liệu"
 
-#: src/mathessible/ui/main_frame.py:273
+#: src/mathessible/ui/main_frame.py:274
 msgid "&LaTeX Document"
 msgstr "Tài liệu &LaTeX"
 
-#: src/mathessible/ui/main_frame.py:275
+#: src/mathessible/ui/main_frame.py:276
 msgid "&Notebook…"
 msgstr "Sổ &ghi chép…"
 
-#: src/mathessible/ui/main_frame.py:276
+#: src/mathessible/ui/main_frame.py:277
 msgid "Notebook &Folder…"
 msgstr "Thư &mục sổ ghi chép…"
 
-#: src/mathessible/ui/main_frame.py:277
+#: src/mathessible/ui/main_frame.py:278
 msgid "&New"
 msgstr "Tạo mớ&i"
 
-#: src/mathessible/ui/main_frame.py:282
+#: src/mathessible/ui/main_frame.py:283
 msgid "Open &Recent"
 msgstr "Mở &gần đây"
 
-#: src/mathessible/ui/main_frame.py:284
+#: src/mathessible/ui/main_frame.py:285
 msgid "&Close Window"
 msgstr "Đóng &cửa sổ"
 
-#: src/mathessible/ui/main_frame.py:285
+#: src/mathessible/ui/main_frame.py:286
 msgid "&Save"
 msgstr "&Lưu"
 
-#: src/mathessible/ui/main_frame.py:286
+#: src/mathessible/ui/main_frame.py:287
 msgid "Save &As…"
 msgstr "Lưu &thành…"
 
-#: src/mathessible/ui/main_frame.py:287
+#: src/mathessible/ui/main_frame.py:288
 msgid "Re&vert to Saved"
 msgstr "&Hoàn nguyên về bản đã lưu"
 
-#: src/mathessible/ui/main_frame.py:291
+#: src/mathessible/ui/main_frame.py:292
 #, fuzzy
 msgid "&Word Document (.docx)…"
 msgstr "Tài liệu &Word…"
 
-#: src/mathessible/ui/main_frame.py:292
+#: src/mathessible/ui/main_frame.py:293
 #, fuzzy
 msgid "&Import"
 msgstr "&Xuất"
 
-#: src/mathessible/ui/main_frame.py:295
+#: src/mathessible/ui/main_frame.py:296
 msgid "&HTML…"
 msgstr "&HTML…"
 
-#: src/mathessible/ui/main_frame.py:296
+#: src/mathessible/ui/main_frame.py:297
 msgid "&PDF…"
 msgstr "&PDF…"
 
-#: src/mathessible/ui/main_frame.py:297
+#: src/mathessible/ui/main_frame.py:298
 msgid "&Word Document…"
 msgstr "Tài liệu &Word…"
 
-#: src/mathessible/ui/main_frame.py:298
+#: src/mathessible/ui/main_frame.py:299
 msgid "&BRF (Braille)…"
 msgstr "&BRF (chữ nổi)…"
 
-#: src/mathessible/ui/main_frame.py:299
+#: src/mathessible/ui/main_frame.py:300
 msgid "&Export"
 msgstr "&Xuất"
 
-#: src/mathessible/ui/main_frame.py:300
+#: src/mathessible/ui/main_frame.py:301
 msgid "Compile PDF with &LaTeX"
 msgstr "&Biên dịch PDF bằng LaTeX"
 
-#: src/mathessible/ui/main_frame.py:302
+#: src/mathessible/ui/main_frame.py:303
 msgid "&Print…"
 msgstr "I&n…"
 
-#: src/mathessible/ui/main_frame.py:304
+#: src/mathessible/ui/main_frame.py:305
 msgid "&Quit"
 msgstr "Th&oát"
 
-#: src/mathessible/ui/main_frame.py:306
+#: src/mathessible/ui/main_frame.py:307
 msgid "&File"
 msgstr "&Tệp"
 
-#: src/mathessible/ui/main_frame.py:318
+#: src/mathessible/ui/main_frame.py:319
 msgid "Paste as Plain Te&xt"
 msgstr ""
 
-#: src/mathessible/ui/main_frame.py:327
+#: src/mathessible/ui/main_frame.py:328
 msgid "&Find…"
 msgstr "Tì&m…"
 
-#: src/mathessible/ui/main_frame.py:328
+#: src/mathessible/ui/main_frame.py:329
 msgid "Find &Next"
 msgstr "Tìm &kế tiếp"
 
-#: src/mathessible/ui/main_frame.py:329
+#: src/mathessible/ui/main_frame.py:330
 msgid "Find Pre&vious"
 msgstr "Tìm &trước"
 
-#: src/mathessible/ui/main_frame.py:330
+#: src/mathessible/ui/main_frame.py:331
 msgid "R&eplace…"
 msgstr "Tha&y thế…"
 
-#: src/mathessible/ui/main_frame.py:333 src/mathessible/ui/main_frame.py:1092
+#: src/mathessible/ui/main_frame.py:334 src/mathessible/ui/main_frame.py:1098
 msgid "Change Equation to &Display"
 msgstr "Đổi phương trình thành &riêng dòng"
 
-#: src/mathessible/ui/main_frame.py:335
+#: src/mathessible/ui/main_frame.py:336
 msgid "Equations in &LaTeX"
 msgstr "Phương trình &bằng LaTeX"
 
-#: src/mathessible/ui/main_frame.py:337
+#: src/mathessible/ui/main_frame.py:338
 msgid "&Settings…"
 msgstr "Cà&i đặt…"
 
-#: src/mathessible/ui/main_frame.py:344
+#: src/mathessible/ui/main_frame.py:345
 #, python-brace-format
 msgid "Heading &{level}"
 msgstr "Tiêu đề &{level}"
 
-#: src/mathessible/ui/main_frame.py:345
+#: src/mathessible/ui/main_frame.py:346
 msgid "H&eading"
 msgstr "Tiêu &đề"
 
-#: src/mathessible/ui/main_frame.py:350
+#: src/mathessible/ui/main_frame.py:351
 msgid "&Bulleted List"
 msgstr "&Danh sách dấu đầu dòng"
 
-#: src/mathessible/ui/main_frame.py:351
+#: src/mathessible/ui/main_frame.py:352
 msgid "&Numbered List"
 msgstr "Danh &sách đánh số"
 
-#: src/mathessible/ui/main_frame.py:353
+#: src/mathessible/ui/main_frame.py:354
 msgid "Tas&k List"
 msgstr "Danh sách &việc cần làm"
 
-#: src/mathessible/ui/main_frame.py:354
+#: src/mathessible/ui/main_frame.py:355
 msgid "&Definition List"
 msgstr "D&anh sách định nghĩa"
 
-#: src/mathessible/ui/main_frame.py:355
+#: src/mathessible/ui/main_frame.py:356
 msgid "&Quotation"
 msgstr "T&rích dẫn"
 
-#: src/mathessible/ui/main_frame.py:356
+#: src/mathessible/ui/main_frame.py:357
 msgid "&Code Block"
 msgstr "&Khối mã"
 
-#: src/mathessible/ui/main_frame.py:357
+#: src/mathessible/ui/main_frame.py:358
 msgid "Horizontal &Rule"
 msgstr "Đường kẻ &ngang"
 
-#: src/mathessible/ui/main_frame.py:359
+#: src/mathessible/ui/main_frame.py:360
 msgid "&Link…"
 msgstr "&Liên kết…"
 
-#: src/mathessible/ui/main_frame.py:360
+#: src/mathessible/ui/main_frame.py:361
 msgid "&Image…"
 msgstr "Hình &ảnh…"
 
-#: src/mathessible/ui/main_frame.py:361
+#: src/mathessible/ui/main_frame.py:362
 msgid "&Table…"
 msgstr "&Bảng…"
 
-#: src/mathessible/ui/main_frame.py:362
+#: src/mathessible/ui/main_frame.py:363
 #, fuzzy
 msgid "Ch&art…"
 msgstr "Dấu mũ"
 
-#: src/mathessible/ui/main_frame.py:363
+#: src/mathessible/ui/main_frame.py:364
 #, fuzzy
 msgid "&Flowchart…"
 msgstr "tuyến tính"
 
-#: src/mathessible/ui/main_frame.py:368
+#: src/mathessible/ui/main_frame.py:369
 msgid "&Footnote"
 msgstr "&Chú thích cuối trang"
 
-#: src/mathessible/ui/main_frame.py:369
+#: src/mathessible/ui/main_frame.py:370
 msgid "&Go to Footnote or Reference"
 msgstr "C&huyển đến chú thích hoặc tham chiếu"
 
-#: src/mathessible/ui/main_frame.py:371
+#: src/mathessible/ui/main_frame.py:372
 msgid "&Header and Footer…"
 msgstr "Đầu trang và chân &trang…"
 
-#: src/mathessible/ui/main_frame.py:376
+#: src/mathessible/ui/main_frame.py:377
 msgid "&Bold"
 msgstr "&Đậm"
 
-#: src/mathessible/ui/main_frame.py:377
+#: src/mathessible/ui/main_frame.py:378
 msgid "&Italic"
 msgstr "&Nghiêng"
 
-#: src/mathessible/ui/main_frame.py:378
+#: src/mathessible/ui/main_frame.py:379
 msgid "&Strikethrough"
 msgstr "&Gạch ngang"
 
-#: src/mathessible/ui/main_frame.py:379
+#: src/mathessible/ui/main_frame.py:380
 msgid "&Code"
 msgstr "&Mã"
 
-#: src/mathessible/ui/main_frame.py:380
+#: src/mathessible/ui/main_frame.py:383
+#, fuzzy
+msgid "Edit &Table…"
+msgstr "&Bảng…"
+
+#: src/mathessible/ui/main_frame.py:384
 msgid "F&ormat"
 msgstr "&Định dạng"
 
-#: src/mathessible/ui/main_frame.py:383
+#: src/mathessible/ui/main_frame.py:387
 msgid "Document &Preview"
 msgstr "&Xem trước tài liệu"
 
-#: src/mathessible/ui/main_frame.py:385
+#: src/mathessible/ui/main_frame.py:389
 msgid "Show &Toolbar"
 msgstr "&Hiện thanh công cụ"
 
-#: src/mathessible/ui/main_frame.py:387
+#: src/mathessible/ui/main_frame.py:391
 msgid "Explore &Graph…"
 msgstr ""
 
-#: src/mathessible/ui/main_frame.py:389
+#: src/mathessible/ui/main_frame.py:393
 msgid "Read &Status"
 msgstr "&Đọc trạng thái"
 
-#: src/mathessible/ui/main_frame.py:403
+#: src/mathessible/ui/main_frame.py:407
 msgid "&Open Notebook Folder…"
 msgstr "Mở thư mục sổ &ghi chép…"
 
-#: src/mathessible/ui/main_frame.py:404
+#: src/mathessible/ui/main_frame.py:408
 msgid "Save Notebook as &Single File…"
 msgstr "Lưu sổ ghi chép thành một tệ&p…"
 
-#: src/mathessible/ui/main_frame.py:406
+#: src/mathessible/ui/main_frame.py:410
 msgid "&Add Page"
 msgstr "Thêm t&rang"
 
-#: src/mathessible/ui/main_frame.py:407
+#: src/mathessible/ui/main_frame.py:411
 msgid "&Rename Page…"
 msgstr "Đổi &tên trang…"
 
-#: src/mathessible/ui/main_frame.py:408
+#: src/mathessible/ui/main_frame.py:412
 msgid "&Delete Page…"
 msgstr "Xó&a trang…"
 
-#: src/mathessible/ui/main_frame.py:410
+#: src/mathessible/ui/main_frame.py:414
 msgid "Move Page &Up"
 msgstr "Chuyển trang &lên"
 
-#: src/mathessible/ui/main_frame.py:411
+#: src/mathessible/ui/main_frame.py:415
 msgid "Move Page Do&wn"
 msgstr "Chuyển trang &xuống"
 
-#: src/mathessible/ui/main_frame.py:413
+#: src/mathessible/ui/main_frame.py:417
 msgid "&Previous Page"
 msgstr "Trang trướ&c"
 
-#: src/mathessible/ui/main_frame.py:414
+#: src/mathessible/ui/main_frame.py:418
 msgid "Ne&xt Page"
 msgstr "Trang &kế tiếp"
 
-#: src/mathessible/ui/main_frame.py:415
+#: src/mathessible/ui/main_frame.py:419
 msgid "&Notebook"
 msgstr "Sổ &ghi chép"
 
-#: src/mathessible/ui/main_frame.py:420
+#: src/mathessible/ui/main_frame.py:424
 msgid "&Next Window"
 msgstr "Cửa sổ &kế tiếp"
 
-#: src/mathessible/ui/main_frame.py:421
+#: src/mathessible/ui/main_frame.py:425
 msgid "&Previous Window"
 msgstr "Cửa sổ &trước"
 
-#: src/mathessible/ui/main_frame.py:423
+#: src/mathessible/ui/main_frame.py:427
 msgid "Bring All to &Front"
 msgstr "Đưa tất cả &lên trên"
 
-#: src/mathessible/ui/main_frame.py:424
+#: src/mathessible/ui/main_frame.py:428
 msgid "&Window"
 msgstr "&Cửa sổ"
 
-#: src/mathessible/ui/main_frame.py:609
+#: src/mathessible/ui/main_frame.py:615
 msgid "Bold"
 msgstr "Đậm"
 
-#: src/mathessible/ui/main_frame.py:610
+#: src/mathessible/ui/main_frame.py:616
 msgid "Italic"
 msgstr "Nghiêng"
 
-#: src/mathessible/ui/main_frame.py:611
+#: src/mathessible/ui/main_frame.py:617
 msgid "Heading 1"
 msgstr "Tiêu đề 1"
 
-#: src/mathessible/ui/main_frame.py:612
+#: src/mathessible/ui/main_frame.py:618
 msgid "Heading 2"
 msgstr "Tiêu đề 2"
 
-#: src/mathessible/ui/main_frame.py:614
+#: src/mathessible/ui/main_frame.py:620
 msgid "Bulleted List"
 msgstr "Danh sách dấu đầu dòng"
 
-#: src/mathessible/ui/main_frame.py:615
+#: src/mathessible/ui/main_frame.py:621
 msgid "Numbered List"
 msgstr "Danh sách đánh số"
 
-#: src/mathessible/ui/main_frame.py:617
+#: src/mathessible/ui/main_frame.py:623
 msgid "Equation"
 msgstr "Phương trình"
 
-#: src/mathessible/ui/main_frame.py:618
+#: src/mathessible/ui/main_frame.py:624
 msgid "Table"
 msgstr "Bảng"
 
-#: src/mathessible/ui/main_frame.py:619
+#: src/mathessible/ui/main_frame.py:625
 msgid "Link"
 msgstr "Liên kết"
 
-#: src/mathessible/ui/main_frame.py:620
+#: src/mathessible/ui/main_frame.py:626
 msgid "Citation"
 msgstr "Trích dẫn"
 
-#: src/mathessible/ui/main_frame.py:665
+#: src/mathessible/ui/main_frame.py:671
 msgid "show the document preview"
 msgstr "hiện bản xem trước tài liệu"
 
-#: src/mathessible/ui/main_frame.py:667
+#: src/mathessible/ui/main_frame.py:673
 msgid "Document preview"
 msgstr "Xem trước tài liệu"
 
-#: src/mathessible/ui/main_frame.py:755 src/mathessible/ui/main_frame.py:778
+#: src/mathessible/ui/main_frame.py:761 src/mathessible/ui/main_frame.py:784
 msgid "Find"
 msgstr "Tìm"
 
-#: src/mathessible/ui/main_frame.py:777
+#: src/mathessible/ui/main_frame.py:783
 #, python-brace-format
 msgid "“{text}” was not found."
 msgstr "Không tìm thấy “{text}”."
 
-#: src/mathessible/ui/main_frame.py:811
+#: src/mathessible/ui/main_frame.py:817
 #, python-brace-format
 msgid "{count} replacement made."
 msgid_plural "{count} replacements made."
 msgstr[0] "Đã thay thế {count} chỗ."
 
-#: src/mathessible/ui/main_frame.py:812
+#: src/mathessible/ui/main_frame.py:818
 msgid "Replace All"
 msgstr "Thay thế tất cả"
 
-#: src/mathessible/ui/main_frame.py:837
+#: src/mathessible/ui/main_frame.py:843
 msgid "change the equations"
 msgstr "thay đổi các phương trình"
 
-#: src/mathessible/ui/main_frame.py:838 src/mathessible/ui/main_frame.py:1817
-#: src/mathessible/ui/main_frame.py:1929
+#: src/mathessible/ui/main_frame.py:844 src/mathessible/ui/main_frame.py:1854
+#: src/mathessible/ui/main_frame.py:1966
 msgid "The UnicodeMath converter is not ready yet. Please try again."
 msgstr "Bộ chuyển đổi UnicodeMath chưa sẵn sàng. Vui lòng thử lại."
 
-#: src/mathessible/ui/main_frame.py:843
+#: src/mathessible/ui/main_frame.py:849
 msgid "Write this document's equations in LaTeX?"
 msgstr "Viết các phương trình của tài liệu này bằng LaTeX?"
 
-#: src/mathessible/ui/main_frame.py:845
+#: src/mathessible/ui/main_frame.py:851
 msgid "Write this document's equations in UnicodeMath?"
 msgstr "Viết các phương trình của tài liệu này bằng UnicodeMath?"
 
-#: src/mathessible/ui/main_frame.py:846 src/mathessible/ui/main_frame.py:1633
+#: src/mathessible/ui/main_frame.py:852 src/mathessible/ui/main_frame.py:1670
 msgid "Equations in LaTeX"
 msgstr "Phương trình bằng LaTeX"
 
-#: src/mathessible/ui/main_frame.py:851
+#: src/mathessible/ui/main_frame.py:857
 msgid ""
 "Each equation is written again from what it builds, so its spacing and some details can change. "
 "Equations that do not build are kept as they are. Undo restores them."
@@ -4214,76 +4293,76 @@ msgstr ""
 "Mỗi phương trình được viết lại từ những gì nó dựng nên, nên khoảng cách và một số chi tiết có thể"
 " thay đổi. Các phương trình không dựng được sẽ giữ nguyên. Hoàn tác sẽ khôi phục chúng."
 
-#: src/mathessible/ui/main_frame.py:855
+#: src/mathessible/ui/main_frame.py:861
 msgid "&Write Again"
 msgstr "&Viết lại"
 
-#: src/mathessible/ui/main_frame.py:879
+#: src/mathessible/ui/main_frame.py:885
 msgid "equations in LaTeX"
 msgstr "phương trình bằng LaTeX"
 
-#: src/mathessible/ui/main_frame.py:879
+#: src/mathessible/ui/main_frame.py:885
 msgid "equations in UnicodeMath"
 msgstr "phương trình bằng UnicodeMath"
 
-#: src/mathessible/ui/main_frame.py:882
+#: src/mathessible/ui/main_frame.py:888
 #, python-brace-format
 msgid "{count} that does not build kept as it was"
 msgid_plural "{count} that do not build kept as they were"
 msgstr[0] "{count} phương trình không dựng được giữ nguyên"
 
-#: src/mathessible/ui/main_frame.py:901
+#: src/mathessible/ui/main_frame.py:907
 msgid ""
 "The configured LaTeX directory contains no executable. Correct it in Settings or clear it for "
 "automatic detection."
 msgstr ""
 
-#: src/mathessible/ui/main_frame.py:903 src/mathessible/ui/main_frame.py:957
-#: src/mathessible/ui/main_frame.py:973 src/mathessible/ui/main_frame.py:998
-#: src/mathessible/ui/main_frame.py:1073
+#: src/mathessible/ui/main_frame.py:909 src/mathessible/ui/main_frame.py:963
+#: src/mathessible/ui/main_frame.py:979 src/mathessible/ui/main_frame.py:1004
+#: src/mathessible/ui/main_frame.py:1079
 msgid "Compile PDF with LaTeX"
 msgstr "Biên dịch PDF bằng LaTeX"
 
-#: src/mathessible/ui/main_frame.py:912
+#: src/mathessible/ui/main_frame.py:918
 #, python-brace-format
 msgid "Compiling {name} with {distribution}…"
 msgstr "Đang biên dịch {name} bằng {distribution}…"
 
-#: src/mathessible/ui/main_frame.py:943
+#: src/mathessible/ui/main_frame.py:949
 #, python-brace-format
 msgid "installing the LaTeX package {package}…"
 msgstr "đang cài gói LaTeX {package}…"
 
-#: src/mathessible/ui/main_frame.py:951
+#: src/mathessible/ui/main_frame.py:957
 msgid "the PDF could not be compiled"
 msgstr "không thể biên dịch PDF"
 
-#: src/mathessible/ui/main_frame.py:953
+#: src/mathessible/ui/main_frame.py:959
 #, python-brace-format
 msgid "LaTeX stopped at line {line}: {error}"
 msgstr "LaTeX dừng ở dòng {line}: {error}"
 
-#: src/mathessible/ui/main_frame.py:955
+#: src/mathessible/ui/main_frame.py:961
 #, python-brace-format
 msgid "LaTeX stopped: {error}"
 msgstr "LaTeX dừng: {error}"
 
-#: src/mathessible/ui/main_frame.py:965
+#: src/mathessible/ui/main_frame.py:971
 #, python-brace-format
 msgid "PDF compiled: {name}"
 msgstr "Đã biên dịch PDF: {name}"
 
-#: src/mathessible/ui/main_frame.py:967
+#: src/mathessible/ui/main_frame.py:973
 #, python-brace-format
 msgid "The tagged PDF is ready: {name}. Open it?"
 msgstr "Tệp PDF có gắn thẻ đã sẵn sàng: {name}. Mở tệp?"
 
-#: src/mathessible/ui/main_frame.py:969
+#: src/mathessible/ui/main_frame.py:975
 #, python-brace-format
 msgid "The PDF is ready, but it is not tagged: {name}. Open it?"
 msgstr "Tệp PDF đã sẵn sàng nhưng chưa được gắn thẻ: {name}. Mở tệp?"
 
-#: src/mathessible/ui/main_frame.py:979
+#: src/mathessible/ui/main_frame.py:985
 #, python-brace-format
 msgid ""
 "LaTeX could not tag it ({error}), so it was compiled without tags: a screen reader cannot read "
@@ -4292,220 +4371,224 @@ msgstr ""
 "LaTeX không thể gắn thẻ cho tệp ({error}), nên tệp được biên dịch không có thẻ: trình đọc màn "
 "hình không đọc được cấu trúc và các phương trình của tệp."
 
-#: src/mathessible/ui/main_frame.py:984
+#: src/mathessible/ui/main_frame.py:990
 msgid "Tagging needs LuaLaTeX, which this LaTeX distribution does not have."
 msgstr "Gắn thẻ cần LuaLaTeX, mà bản phân phối LaTeX này không có."
 
-#: src/mathessible/ui/main_frame.py:985
+#: src/mathessible/ui/main_frame.py:991
 msgid "&Open PDF"
 msgstr "&Mở PDF"
 
-#: src/mathessible/ui/main_frame.py:997
+#: src/mathessible/ui/main_frame.py:1003
 msgid "No LaTeX distribution was found. Install TinyTeX?"
 msgstr "Không tìm thấy bản phân phối LaTeX nào. Cài TinyTeX?"
 
-#: src/mathessible/ui/main_frame.py:1003
+#: src/mathessible/ui/main_frame.py:1009
 msgid ""
 "TinyTeX will be downloaded from its official releases into Mathessible's private tools folder. No"
 " administrator password is needed and existing installations will not be changed. Mathessible "
 "installs additional packages when a document needs them."
 msgstr ""
 
-#: src/mathessible/ui/main_frame.py:1008
+#: src/mathessible/ui/main_frame.py:1014
 msgid "&Install TinyTeX"
 msgstr "&Cài TinyTeX"
 
-#: src/mathessible/ui/main_frame.py:1018
+#: src/mathessible/ui/main_frame.py:1024
 msgid "Installing TinyTeX"
 msgstr "Đang cài TinyTeX"
 
-#: src/mathessible/ui/main_frame.py:1019 src/mathessible/ui/main_frame.py:1045
+#: src/mathessible/ui/main_frame.py:1025 src/mathessible/ui/main_frame.py:1051
 msgid "Downloading TinyTeX…"
 msgstr "Đang tải TinyTeX…"
 
-#: src/mathessible/ui/main_frame.py:1045
+#: src/mathessible/ui/main_frame.py:1051
 msgid "Unpacking TinyTeX…"
 msgstr "Đang giải nén TinyTeX…"
 
-#: src/mathessible/ui/main_frame.py:1066
+#: src/mathessible/ui/main_frame.py:1072
 msgid "TinyTeX installation cancelled"
 msgstr "Đã hủy cài TinyTeX"
 
-#: src/mathessible/ui/main_frame.py:1069
+#: src/mathessible/ui/main_frame.py:1075
 msgid "TinyTeX could not be installed"
 msgstr "không thể cài TinyTeX"
 
-#: src/mathessible/ui/main_frame.py:1072
+#: src/mathessible/ui/main_frame.py:1078
 msgid "TinyTeX could not be installed."
 msgstr "Không thể cài TinyTeX."
 
-#: src/mathessible/ui/main_frame.py:1078
+#: src/mathessible/ui/main_frame.py:1084
 msgid "TinyTeX installed"
 msgstr "Đã cài TinyTeX"
 
-#: src/mathessible/ui/main_frame.py:1092
+#: src/mathessible/ui/main_frame.py:1098
 msgid "Change Equation to &Inline"
 msgstr "Đổi phương trình thành nội dòn&g"
 
-#: src/mathessible/ui/main_frame.py:1103
+#: src/mathessible/ui/main_frame.py:1109
 msgid "Put the caret in a function chart to explore it."
 msgstr ""
 
-#: src/mathessible/ui/main_frame.py:1130
+#: src/mathessible/ui/main_frame.py:1136
 msgid "Untitled"
 msgstr "Chưa đặt tên"
 
-#: src/mathessible/ui/main_frame.py:1132
+#: src/mathessible/ui/main_frame.py:1138
 #, python-brace-format
 msgid "Mathessible — {name} — modified"
 msgstr "Mathessible — {name} — đã sửa đổi"
 
-#: src/mathessible/ui/main_frame.py:1134
+#: src/mathessible/ui/main_frame.py:1140
 #, python-brace-format
 msgid "Mathessible — {name}"
 msgstr "Mathessible — {name}"
 
-#: src/mathessible/ui/main_frame.py:1163
+#: src/mathessible/ui/main_frame.py:1169
 #, python-brace-format
 msgid "{notebook} — Page {page} of {pages}"
 msgstr "{notebook} — Trang {page} trên {pages}"
 
-#: src/mathessible/ui/main_frame.py:1167
+#: src/mathessible/ui/main_frame.py:1173
 msgid "Untitled Markdown document"
 msgstr "Tài liệu Markdown chưa đặt tên"
 
-#: src/mathessible/ui/main_frame.py:1169
+#: src/mathessible/ui/main_frame.py:1175
 #, python-brace-format
 msgid "Line {line}, Column {column}"
 msgstr "Dòng {line}, cột {column}"
 
-#: src/mathessible/ui/main_frame.py:1186
+#: src/mathessible/ui/main_frame.py:1192
 #, python-brace-format
 msgid "{selected} of {words} words, {characters} characters"
 msgstr "{selected} trên {words} từ, {characters} ký tự"
 
-#: src/mathessible/ui/main_frame.py:1190
+#: src/mathessible/ui/main_frame.py:1196
 #, python-brace-format
 msgid "{count} word"
 msgid_plural "{count} words"
 msgstr[0] "{count} từ"
 
-#: src/mathessible/ui/main_frame.py:1191
+#: src/mathessible/ui/main_frame.py:1197
 #, python-brace-format
 msgid "{count} character"
 msgid_plural "{count} characters"
 msgstr[0] "{count} ký tự"
 
-#: src/mathessible/ui/main_frame.py:1200
+#: src/mathessible/ui/main_frame.py:1206
 #, python-brace-format
 msgid "Could not {action}."
 msgstr "Không thể {action}."
 
-#: src/mathessible/ui/main_frame.py:1213
+#: src/mathessible/ui/main_frame.py:1219
 msgid "The document has unsaved changes. Do you want to save them?"
 msgstr "Tài liệu có thay đổi chưa lưu. Bạn có muốn lưu không?"
 
-#: src/mathessible/ui/main_frame.py:1214
+#: src/mathessible/ui/main_frame.py:1220
 msgid "Unsaved Changes"
 msgstr "Thay đổi chưa lưu"
 
-#: src/mathessible/ui/main_frame.py:1234
+#: src/mathessible/ui/main_frame.py:1240
 msgid "save settings"
 msgstr "lưu cài đặt"
 
-#: src/mathessible/ui/main_frame.py:1329
+#: src/mathessible/ui/main_frame.py:1335
 msgid "Insert Image"
 msgstr "Chèn hình ảnh"
 
-#: src/mathessible/ui/main_frame.py:1330
+#: src/mathessible/ui/main_frame.py:1336
 msgid "Images"
 msgstr "Hình ảnh"
 
-#: src/mathessible/ui/main_frame.py:1340
+#: src/mathessible/ui/main_frame.py:1346
 msgid "What the image shows, for those who cannot see it:"
 msgstr "Hình ảnh cho thấy gì, dành cho người không nhìn thấy:"
 
-#: src/mathessible/ui/main_frame.py:1340
+#: src/mathessible/ui/main_frame.py:1346
 msgid "Image Description"
 msgstr "Mô tả hình ảnh"
 
-#: src/mathessible/ui/main_frame.py:1471
+#: src/mathessible/ui/main_frame.py:1391
+msgid "Put the caret in a grid table to edit it."
+msgstr ""
+
+#: src/mathessible/ui/main_frame.py:1508
 msgid "Open"
 msgstr "Mở"
 
-#: src/mathessible/ui/main_frame.py:1473
+#: src/mathessible/ui/main_frame.py:1510
 msgid "Documents and notebooks"
 msgstr "Tài liệu và sổ ghi chép"
 
-#: src/mathessible/ui/main_frame.py:1475 src/mathessible/ui/main_frame.py:1516
+#: src/mathessible/ui/main_frame.py:1512 src/mathessible/ui/main_frame.py:1553
 msgid "Markdown documents"
 msgstr "Tài liệu Markdown"
 
-#: src/mathessible/ui/main_frame.py:1477
+#: src/mathessible/ui/main_frame.py:1514
 msgid "LaTeX documents"
 msgstr "Tài liệu LaTeX"
 
-#: src/mathessible/ui/main_frame.py:1479
+#: src/mathessible/ui/main_frame.py:1516
 msgid "Notebooks"
 msgstr "Sổ ghi chép"
 
-#: src/mathessible/ui/main_frame.py:1481
+#: src/mathessible/ui/main_frame.py:1518
 msgid "PDFs exported by Mathessible"
 msgstr "PDF do Mathessible xuất"
 
-#: src/mathessible/ui/main_frame.py:1483 src/mathessible/ui/main_frame.py:1851
+#: src/mathessible/ui/main_frame.py:1520 src/mathessible/ui/main_frame.py:1888
 #: src/mathessible/ui/settings_dialog.py:697
 msgid "All files"
 msgstr "Tất cả các tệp"
 
-#: src/mathessible/ui/main_frame.py:1501 src/mathessible/ui/main_frame.py:1530
-#: src/mathessible/ui/main_frame.py:1563
+#: src/mathessible/ui/main_frame.py:1538 src/mathessible/ui/main_frame.py:1567
+#: src/mathessible/ui/main_frame.py:1600
 #, fuzzy
 msgid "Import Word Document"
 msgstr "Xuất dưới dạng tài liệu Word"
 
-#: src/mathessible/ui/main_frame.py:1502
+#: src/mathessible/ui/main_frame.py:1539
 #, fuzzy
 msgid "Word documents"
 msgstr "Tài liệu Word"
 
-#: src/mathessible/ui/main_frame.py:1513
+#: src/mathessible/ui/main_frame.py:1550
 #, fuzzy
 msgid "Save the imported document as"
 msgstr "lưu tài liệu"
 
-#: src/mathessible/ui/main_frame.py:1529
+#: src/mathessible/ui/main_frame.py:1566
 msgid "Importing a Word document needs Pandoc, an optional converter. Install it?"
 msgstr ""
 
-#: src/mathessible/ui/main_frame.py:1534
+#: src/mathessible/ui/main_frame.py:1571
 msgid "Pandoc is downloaded from its official releases into Mathessible's private tools folder."
 msgstr ""
 
-#: src/mathessible/ui/main_frame.py:1536
+#: src/mathessible/ui/main_frame.py:1573
 #, fuzzy
 msgid "&Install Pandoc"
 msgstr "&Cài TinyTeX"
 
-#: src/mathessible/ui/main_frame.py:1555
+#: src/mathessible/ui/main_frame.py:1592
 #, fuzzy, python-brace-format
 msgid "import {name}"
 msgstr "đã xuất {name}"
 
-#: src/mathessible/ui/main_frame.py:1557
+#: src/mathessible/ui/main_frame.py:1594
 msgid "Pandoc could not read this Word document. It may be damaged, or protected by a password."
 msgstr ""
 
-#: src/mathessible/ui/main_frame.py:1609
+#: src/mathessible/ui/main_frame.py:1646
 #, python-brace-format
 msgid "open {name}"
 msgstr "mở {name}"
 
-#: src/mathessible/ui/main_frame.py:1632
+#: src/mathessible/ui/main_frame.py:1669
 msgid "This document's equations look like LaTeX. Mark it as a LaTeX document?"
 msgstr "Các phương trình trong tài liệu này trông giống LaTeX. Đánh dấu nó là tài liệu LaTeX?"
 
-#: src/mathessible/ui/main_frame.py:1638
+#: src/mathessible/ui/main_frame.py:1675
 msgid ""
 "Its equations are then built as LaTeX and kept as they are, and the line math: latex is added at "
 "its top. Without it, Mathessible reads them as UnicodeMath."
@@ -4513,117 +4596,117 @@ msgstr ""
 "Khi đó các phương trình được dựng dưới dạng LaTeX và giữ nguyên, và dòng math: latex được thêm "
 "vào đầu tài liệu. Không có dòng đó, Mathessible đọc chúng như UnicodeMath."
 
-#: src/mathessible/ui/main_frame.py:1642
+#: src/mathessible/ui/main_frame.py:1679
 msgid "&Mark as LaTeX"
 msgstr "Đánh &dấu là LaTeX"
 
-#: src/mathessible/ui/main_frame.py:1642
+#: src/mathessible/ui/main_frame.py:1679
 msgid "&Leave as It Is"
 msgstr "&Giữ nguyên"
 
-#: src/mathessible/ui/main_frame.py:1711
+#: src/mathessible/ui/main_frame.py:1748
 msgid "&Clear Menu"
 msgstr "&Xóa danh sách"
 
-#: src/mathessible/ui/main_frame.py:1739
+#: src/mathessible/ui/main_frame.py:1776
 msgid "Revert to the saved version? The changes since it was saved will be lost."
 msgstr "Hoàn nguyên về phiên bản đã lưu? Các thay đổi kể từ lần lưu sẽ bị mất."
 
-#: src/mathessible/ui/main_frame.py:1740
+#: src/mathessible/ui/main_frame.py:1777
 msgid "Revert to Saved"
 msgstr "Hoàn nguyên về bản đã lưu"
 
-#: src/mathessible/ui/main_frame.py:1743
+#: src/mathessible/ui/main_frame.py:1780
 msgid "&Revert"
 msgstr "&Hoàn nguyên"
 
-#: src/mathessible/ui/main_frame.py:1755
+#: src/mathessible/ui/main_frame.py:1792
 msgid "read the saved document"
 msgstr "đọc tài liệu đã lưu"
 
-#: src/mathessible/ui/main_frame.py:1784
+#: src/mathessible/ui/main_frame.py:1821
 msgid "read the notebook"
 msgstr "đọc sổ ghi chép"
 
-#: src/mathessible/ui/main_frame.py:1793
+#: src/mathessible/ui/main_frame.py:1830
 msgid "Mathessible document"
 msgstr "Tài liệu Mathessible"
 
-#: src/mathessible/ui/main_frame.py:1823
+#: src/mathessible/ui/main_frame.py:1860
 msgid "print"
 msgstr "in"
 
-#: src/mathessible/ui/main_frame.py:1842
+#: src/mathessible/ui/main_frame.py:1879
 msgid "Save LaTeX document"
 msgstr "Lưu tài liệu LaTeX"
 
-#: src/mathessible/ui/main_frame.py:1842
+#: src/mathessible/ui/main_frame.py:1879
 msgid "LaTeX document"
 msgstr "Tài liệu LaTeX"
 
-#: src/mathessible/ui/main_frame.py:1844
+#: src/mathessible/ui/main_frame.py:1881
 msgid "Save Markdown document"
 msgstr "Lưu tài liệu Markdown"
 
-#: src/mathessible/ui/main_frame.py:1844
+#: src/mathessible/ui/main_frame.py:1881
 msgid "Markdown document"
 msgstr "Tài liệu Markdown"
 
-#: src/mathessible/ui/main_frame.py:1878 src/mathessible/ui/main_frame.py:2283
+#: src/mathessible/ui/main_frame.py:1915 src/mathessible/ui/main_frame.py:2320
 msgid "save the page"
 msgstr "lưu trang"
 
-#: src/mathessible/ui/main_frame.py:1894
+#: src/mathessible/ui/main_frame.py:1931
 msgid "save the document"
 msgstr "lưu tài liệu"
 
-#: src/mathessible/ui/main_frame.py:1912
+#: src/mathessible/ui/main_frame.py:1949
 msgid "export the HTML document"
 msgstr "xuất tài liệu HTML"
 
-#: src/mathessible/ui/main_frame.py:1912
+#: src/mathessible/ui/main_frame.py:1949
 msgid "HTML document"
 msgstr "Tài liệu HTML"
 
-#: src/mathessible/ui/main_frame.py:1913
+#: src/mathessible/ui/main_frame.py:1950
 msgid "export the PDF document"
 msgstr "xuất tài liệu PDF"
 
-#: src/mathessible/ui/main_frame.py:1913
+#: src/mathessible/ui/main_frame.py:1950
 msgid "PDF document"
 msgstr "Tài liệu PDF"
 
-#: src/mathessible/ui/main_frame.py:1913 src/mathessible/ui/pdf_dialog.py:38
+#: src/mathessible/ui/main_frame.py:1950 src/mathessible/ui/pdf_dialog.py:38
 msgid "Export as PDF"
 msgstr "Xuất dưới dạng PDF"
 
-#: src/mathessible/ui/main_frame.py:1915
+#: src/mathessible/ui/main_frame.py:1952
 msgid "export the Word document"
 msgstr "xuất tài liệu Word"
 
-#: src/mathessible/ui/main_frame.py:1917
+#: src/mathessible/ui/main_frame.py:1954
 msgid "Word document"
 msgstr "Tài liệu Word"
 
-#: src/mathessible/ui/main_frame.py:1919
+#: src/mathessible/ui/main_frame.py:1956
 msgid "export the BRF document"
 msgstr "xuất tài liệu BRF"
 
-#: src/mathessible/ui/main_frame.py:1919
+#: src/mathessible/ui/main_frame.py:1956
 msgid "Braille ready file"
 msgstr "Tệp sẵn sàng cho chữ nổi (BRF)"
 
-#: src/mathessible/ui/main_frame.py:1985
+#: src/mathessible/ui/main_frame.py:2022
 #, python-brace-format
 msgid "Exported {name}"
 msgstr "Đã xuất {name}"
 
-#: src/mathessible/ui/main_frame.py:1986
+#: src/mathessible/ui/main_frame.py:2023
 #, python-brace-format
 msgid "exported {name}"
 msgstr "đã xuất {name}"
 
-#: src/mathessible/ui/main_frame.py:2068
+#: src/mathessible/ui/main_frame.py:2105
 msgid ""
 "PDF/A does not allow passwords or restrictions. Choose Tagged PDF or PDF/UA-1 under Security, or "
 "export without them."
@@ -4631,95 +4714,95 @@ msgstr ""
 "PDF/A không cho phép mật khẩu hay hạn chế. Hãy chọn PDF có gắn thẻ hoặc PDF/UA-1 trong mục Bảo "
 "mật, hoặc xuất mà không dùng chúng."
 
-#: src/mathessible/ui/main_frame.py:2264
+#: src/mathessible/ui/main_frame.py:2301
 msgid "open the page"
 msgstr "mở trang"
 
-#: src/mathessible/ui/main_frame.py:2303
+#: src/mathessible/ui/main_frame.py:2340
 msgid "Choose or create the new notebook folder"
 msgstr "Chọn hoặc tạo thư mục cho sổ ghi chép mới"
 
-#: src/mathessible/ui/main_frame.py:2315
+#: src/mathessible/ui/main_frame.py:2352
 msgid "create the notebook"
 msgstr "tạo sổ ghi chép"
 
-#: src/mathessible/ui/main_frame.py:2329
+#: src/mathessible/ui/main_frame.py:2366
 msgid "Save portable notebook"
 msgstr "Lưu sổ ghi chép di động"
 
-#: src/mathessible/ui/main_frame.py:2331
+#: src/mathessible/ui/main_frame.py:2368
 msgid "Mathessible notebooks"
 msgstr "Sổ ghi chép Mathessible"
 
-#: src/mathessible/ui/main_frame.py:2351
+#: src/mathessible/ui/main_frame.py:2388
 msgid "create the portable notebook"
 msgstr "tạo sổ ghi chép di động"
 
-#: src/mathessible/ui/main_frame.py:2363
+#: src/mathessible/ui/main_frame.py:2400
 msgid "Choose the notebook folder"
 msgstr "Chọn thư mục sổ ghi chép"
 
-#: src/mathessible/ui/main_frame.py:2373
+#: src/mathessible/ui/main_frame.py:2410
 msgid "Page title:"
 msgstr "Tiêu đề trang:"
 
-#: src/mathessible/ui/main_frame.py:2385
+#: src/mathessible/ui/main_frame.py:2422
 msgid "Add Page"
 msgstr "Thêm trang"
 
-#: src/mathessible/ui/main_frame.py:2385
+#: src/mathessible/ui/main_frame.py:2422
 #, python-brace-format
 msgid "Page {number}"
 msgstr "Trang {number}"
 
-#: src/mathessible/ui/main_frame.py:2391
+#: src/mathessible/ui/main_frame.py:2428
 msgid "add the page"
 msgstr "thêm trang"
 
-#: src/mathessible/ui/main_frame.py:2401
+#: src/mathessible/ui/main_frame.py:2438
 msgid "Rename Page"
 msgstr "Đổi tên trang"
 
-#: src/mathessible/ui/main_frame.py:2407
+#: src/mathessible/ui/main_frame.py:2444
 msgid "rename the page"
 msgstr "đổi tên trang"
 
-#: src/mathessible/ui/main_frame.py:2419
+#: src/mathessible/ui/main_frame.py:2456
 #, python-brace-format
 msgid "Delete the page “{title}”?"
 msgstr "Xóa trang “{title}”?"
 
-#: src/mathessible/ui/main_frame.py:2420
+#: src/mathessible/ui/main_frame.py:2457
 msgid "Delete Page"
 msgstr "Xóa trang"
 
-#: src/mathessible/ui/main_frame.py:2429
+#: src/mathessible/ui/main_frame.py:2466
 msgid "delete the page"
 msgstr "xóa trang"
 
-#: src/mathessible/ui/main_frame.py:2445
+#: src/mathessible/ui/main_frame.py:2482
 msgid "move the page"
 msgstr "di chuyển trang"
 
-#: src/mathessible/ui/main_frame.py:2461
+#: src/mathessible/ui/main_frame.py:2498
 msgid "update the portable notebook"
 msgstr "cập nhật sổ ghi chép di động"
 
-#: src/mathessible/ui/main_frame.py:2474
+#: src/mathessible/ui/main_frame.py:2511
 #, python-brace-format
 msgid "Mathessible closed without saving {count} document. Recover the unsaved changes?"
 msgid_plural "Mathessible closed without saving {count} documents. Recover the unsaved changes?"
 msgstr[0] "Mathessible đã đóng mà chưa lưu {count} tài liệu. Khôi phục các thay đổi chưa lưu?"
 
-#: src/mathessible/ui/main_frame.py:2478
+#: src/mathessible/ui/main_frame.py:2515
 msgid "Recover Unsaved Changes"
 msgstr "Khôi phục thay đổi chưa lưu"
 
-#: src/mathessible/ui/main_frame.py:2481
+#: src/mathessible/ui/main_frame.py:2518
 msgid "&Recover"
 msgstr "&Khôi phục"
 
-#: src/mathessible/ui/main_frame.py:2481
+#: src/mathessible/ui/main_frame.py:2518
 msgid "&Discard"
 msgstr "&Bỏ"
 
@@ -5496,5 +5579,17 @@ msgstr "Ký hiệu khớp"
 #~ "Updates are available. Install an updated private "
 #~ "copy and use it in Mathessible? Your system "
 #~ "installation will remain unchanged."
+#~ msgstr ""
+
+#~ msgid "Cells"
+#~ msgstr "ô"
+
+#~ msgid "Cell text"
+#~ msgstr "Văn bản liên kết"
+
+#~ msgid "C&ells:"
+#~ msgstr "ô"
+
+#~ msgid "Cell &text (Markdown):"
 #~ msgstr ""
 

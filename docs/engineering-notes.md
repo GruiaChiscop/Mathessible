@@ -1841,6 +1841,24 @@ without it.
   cells are therefore found and marked as anywhere else. Cells carry
   `table_cell` positions only when the table has merged cells, as
   `merged_tables` does; the exporters then place cells by position.
+- Format > Edit Table (`ui/insert_dialogs.TableEditDialog`) edits a grid
+  table as a grid of native multiline text fields in a GridBagSizer, a merged
+  cell's field spanning its rows and columns. wx.grid is not used: it is drawn
+  by wx, and macOS's accessibility tree shows nothing of it (checked with
+  System Events: only the window's title bar), where DataViewListCtrl is a
+  native table but holds one line per cell and no merged cells. wx 3.2 gives
+  a text field no accessibility label on macOS, so
+  `ui/macos_accessibility.set_accessibility_label` sets AppKit's
+  `accessibilityLabel` (on the NSScrollView and its text view) to the cell's
+  position. Tab goes row by row (creation order); Command+Option+arrow uses
+  `grid_table_edit.neighbour`.
+  The changes are wx-free in `editing/grid_table_edit.py`, each giving a new
+  frozen `GridTable`; `grid_tables.write_grid_table` draws it as Pandoc does
+  (corners drawn after every border, so a merged cell's border cannot cover a
+  neighbour's corner). A row or column that only lies inside merged cells (no
+  cell starts or ends there) cannot be drawn in a grid, so `_table` collapses
+  it. A randomized test applies hundreds of changes and checks that each table
+  is read back exactly as written.
 - `table_cells.collect_cell`/`cell_blocks` give every exporter a cell's
   paragraphs, list items and code. Word writes them as the cell's paragraphs
   with Word's list styles; Typst as content with `parbreak`s and its lists,

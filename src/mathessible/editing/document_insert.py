@@ -16,6 +16,8 @@ from __future__ import annotations
 
 import re
 
+from mathessible.documents.grid_tables import write_grid_table
+from mathessible.editing.grid_table_edit import new_table
 from mathessible.templates.template_source import TemplateEdit
 
 # LaTeX's sectioning commands for the six heading levels (an article has no \chapter).
@@ -164,9 +166,15 @@ def image(source: str, start: int, end: int, path: str, description: str, tex: b
     return _block(source, start, end, written, len(written), tex)
 
 
-def table(source: str, start: int, end: int, rows: int, columns: int, header: bool, tex: bool) -> TemplateEdit:
-    """A table of `rows` by `columns` to fill in, its first row the header, the caret in its first cell."""
+def table(
+    source: str, start: int, end: int, rows: int, columns: int, header: bool, tex: bool, grid: bool = False
+) -> TemplateEdit:
+    """A table of `rows` by `columns` to fill in, its first row the header, the caret in its first cell. A
+    `grid` table (Pandoc's, grid_tables) is for cells that hold paragraphs or lists; Edit Table fills it in."""
     rows, columns = max(1, rows), max(1, columns)
+    if grid and not tex:
+        block = write_grid_table(new_table(rows, columns, header))
+        return _block(source, start, end, block, block.index("\n") + 3, tex)
     if tex:
         spec = "l" * columns
         lines = [" & ".join(["  "] * columns).rstrip() + " \\\\" for _ in range(rows)]

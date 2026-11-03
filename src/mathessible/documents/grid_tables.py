@@ -15,6 +15,7 @@ from __future__ import annotations
 import re
 import textwrap
 import unicodedata
+from collections.abc import Iterator
 from dataclasses import dataclass
 
 from markdown_it import MarkdownIt
@@ -130,12 +131,8 @@ def _content(text: str) -> str:
     return textwrap.dedent(text).strip("\n")
 
 
-def expand_grid_tables(source: str) -> str:
-    """The Markdown with each grid table (outside code fences) rewritten for `grid_tables_plugin`."""
-    if "+-" not in source:
-        return source
-    lines = source.split("\n")
-    result: list[str] = []
+def _grid_blocks(lines: list[str]) -> Iterator[tuple[int, int, GridTable]]:
+    """Each grid table outside code fences: its first line, the line after its last, and the table."""
     fence = ""
     index = 0
     while index < len(lines):
@@ -152,12 +149,89 @@ def expand_grid_tables(source: str) -> str:
                 end += 1
             table = parse_grid_table(lines[index:end])
             if table is not None:
-                result += ["", *_written(table), ""]
+                yield index, end, table
                 index = end
                 continue
-        result.append(line)
         index += 1
-    return "\n".join(result)
+
+
+def expand_grid_tables(source: str) -> str:
+    """The Markdown with each grid table (outside code fences) rewritten for `grid_tables_plugin`."""
+    if "+-" not in source:
+        return source
+    lines = source.split("\n")
+    result: list[str] = []
+    position = 0
+    for first, end, table in _grid_blocks(lines):
+        result += [*lines[position:first], "", *_written(table), ""]
+        position = end
+    return "\n".join([*result, *lines[position:]])
+
+
+def grid_table_at(source: str, position: int) -> tuple[int, int, GridTable] | None:
+    """The grid table the caret at `position` is in: where its text starts and ends, and the table."""
+    if "+-" not in source:
+        return None
+    lines = source.split("\n")
+    offsets = [0]
+    for line in lines:
+        offsets.append(offsets[-1] + len(line) + 1)
+    for first, end, table in _grid_blocks(lines):
+        start, stop = offsets[first], offsets[end] - 1  # The last line's end, without its line break.
+        if start <= position <= stop:
+            return start, stop, table
+    return None
+
+
+def write_grid_table(table: GridTable) -> str:
+    """The table drawn as Pandoc draws a grid table, which `parse_grid_table` reads back: each column as
+    wide as its widest line (a merged cell widening its last column), each row as tall as its tallest cell,
+    the header rows above a `+===+` line."""
+    contents = {(cell.row, cell.column): cell.content.split("\n") if cell.content else [""] for cell in table.cells}
+    widths = [3] * table.columns  # A column's text width, one space either side included.
+    heights = [1] * table.rows
+    for cell in sorted(table.cells, key=lambda cell: cell.colspan):
+        needed = max(len(_slots(line)) for line in contents[cell.row, cell.column]) + 2
+        last = cell.column + cell.colspan - 1
+        available = sum(widths[cell.column : last + 1]) + cell.colspan - 1
+        widths[last] += max(0, needed - available)
+    for cell in sorted(table.cells, key=lambda cell: cell.rowspan):
+        needed = len(contents[cell.row, cell.column])
+        last = cell.row + cell.rowspan - 1
+        available = sum(heights[cell.row : last + 1]) + cell.rowspan - 1
+        heights[last] += max(0, needed - available)
+    xs, ys = [0], [0]
+    for width in widths:
+        xs.append(xs[-1] + width + 1)
+    for height in heights:
+        ys.append(ys[-1] + height + 1)
+    canvas = [[" "] * (xs[-1] + 1) for _ in range(ys[-1] + 1)]
+    header_rows = header_row_count(table)
+    for cell in table.cells:
+        top, bottom = ys[cell.row], ys[cell.row + cell.rowspan]
+        left, right = xs[cell.column], xs[cell.column + cell.colspan]
+        for row, line in ((top, top), (bottom, bottom)):
+            rule = "=" if header_rows and line == ys[header_rows] else "-"
+            for column in range(left + 1, right):
+                canvas[row][column] = rule
+        for row in range(top + 1, bottom):
+            canvas[row][left] = canvas[row][right] = "|"
+            for column in range(left + 1, right):
+                canvas[row][column] = " "
+        for number, line in enumerate(contents[cell.row, cell.column]):
+            for offset, slot in enumerate(_slots(line)):
+                canvas[top + 1 + number][left + 2 + offset] = slot
+    # Every cell's corners after every border: a merged cell's border must not cover a neighbour's corner.
+    for cell in table.cells:
+        for row in (ys[cell.row], ys[cell.row + cell.rowspan]):
+            for column in (xs[cell.column], xs[cell.column + cell.colspan]):
+                canvas[row][column] = "+"
+    return "\n".join("".join(row).rstrip() for row in canvas)
+
+
+def header_row_count(table: GridTable) -> int:
+    """How many rows at the top are the header: the rows every header cell lies in."""
+    return max((cell.row + cell.rowspan for cell in table.cells if cell.header), default=0)
 
 
 def _written(table: GridTable) -> list[str]:
