@@ -2,7 +2,7 @@
 
 Where Nemeth or UEB defines no sign for a symbol, both leave it to the
 transcriber, and a school or a teacher may have its own conventions. One
-plain text file per code, `~/.mathessible/braille/Nemeth.txt`, one sign per line:
+plain text file per code, `<data directory>/braille/Nemeth.txt`, one sign per line:
 
     # Square image of: the class's sign.
     ⊏ ⠈⠸⠣
@@ -19,12 +19,14 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from mathessible.data_paths import data_directory
+
 _DOTS = re.compile(r"^[1-8]+(?:[- ][1-8]+)*$")
 _BRAILLE = re.compile(r"^[⠀-⣿]+$")
 
 
 def signs_directory() -> Path:
-    return Path.home() / ".mathessible" / "braille"
+    return data_directory() / "braille"
 
 
 def signs_path(code: str, directory: Path | None = None) -> Path:

@@ -2,7 +2,7 @@
 
 On only when the environment has MATHESSIBLE_LOG=1 (or a file path in it), so a
 user's test can be read back afterwards: the screen reader's own speech is
-not in it, only what Mathessible says. Writes to ~/.mathessible/logs/session-<time>.log.
+not in it, only what Mathessible says. Writes to <data directory>/logs/session-<time>.log.
 Never raises: a log that cannot be written is simply not written.
 """
 
@@ -14,6 +14,8 @@ import time
 import traceback
 from pathlib import Path
 from types import TracebackType
+
+from mathessible.data_paths import data_directory
 
 _path: Path | None = None
 _started = 0.0
@@ -30,7 +32,7 @@ def start(environment: dict[str, str] | None = None) -> Path | None:
     if not value or value == "0":
         return None
     if value == "1":
-        path = Path.home() / ".mathessible" / "logs" / time.strftime("session-%Y%m%d-%H%M%S.log")
+        path = data_directory() / "logs" / time.strftime("session-%Y%m%d-%H%M%S.log")
     else:
         path = Path(value).expanduser()
     try:

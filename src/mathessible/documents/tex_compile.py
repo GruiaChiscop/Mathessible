@@ -23,6 +23,8 @@ from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 
+from mathessible.data_paths import data_directory
+
 ENGINES = ("pdflatex", "lualatex", "xelatex")
 _MISSING_FILE = re.compile(r"File `([^']+)' not found")
 _ERROR = re.compile(r"^! (.+)$", re.MULTILINE)
@@ -154,7 +156,7 @@ def find_installation(
         if configured
         else [
             *_candidates(environ, home, platform),
-            *sorted((tinytex_directory(home=home) / "bin").glob("*")),
+            *sorted((tinytex_directory(home=home, environ=environ, platform=platform) / "bin").glob("*")),
         ]
     )
     for directory in places:
@@ -172,7 +174,7 @@ def tinytex_directory(
 ) -> Path:
     """The private TinyTeX root; legacy user installations are still detected separately."""
     home = Path.home() if home is None else home
-    return home / ".mathessible" / "tools" / "TinyTeX"
+    return data_directory(home=home, platform=platform, environ=environ) / "tools" / "TinyTeX"
 
 
 @dataclass(frozen=True, slots=True)

@@ -56,29 +56,36 @@ def _apply_styles(root: Node) -> None:
                 visit(child)
 
     visit(root)
-    rules: list[tuple[str, str]] = []
+    # Each rule under its (tag, class), either of them None; its number keeps the stylesheet's order.
+    rules: dict[tuple[str | None, str | None], list[tuple[int, str]]] = {}
+    number = 0
     for node in nodes:
         if node.tag == "style":
             css = "".join(part for part in node.children if isinstance(part, str))
             for selectors, declarations in re.findall(r"([^{}]+)\{([^{}]*)\}", css):
-                rules.extend((selector.strip(), declarations) for selector in selectors.split(","))
+                for selector in selectors.split(","):
+                    match = re.fullmatch(r"([a-zA-Z][\w-]*)?(?:\.([\w-]+))?", selector.strip())
+                    if match and (match[1] or match[2]):
+                        key = (match[1].lower() if match[1] else None, match[2])
+                        rules.setdefault(key, []).append((number, declarations))
+                        number += 1
+    if not rules:
+        return
     for node in nodes:
-        matched = []
-        for selector, declarations in rules:
-            match = re.fullmatch(r"([a-zA-Z][\w-]*)?(?:\.([\w-]+))?", selector)
-            if (
-                match
-                and (not match[1] or node.tag == match[1].lower())
-                and (not match[2] or match[2] in node.attrs.get("class", "").split())
-            ):
-                matched.append(declarations)
-        node.attrs["style"] = ";".join([*matched, node.attrs.get("style", "")])
+        keys = [(node.tag, None)]
+        for name in node.attrs.get("class", "").split():
+            keys += [(None, name), (node.tag, name)]
+        matched = sorted(rule for key in keys for rule in rules.get(key, ()))
+        if matched:
+            node.attrs["style"] = ";".join(
+                [*(declarations for _, declarations in matched), node.attrs.get("style", "")]
+            )
 
 
 def _render(node: Node | str) -> str:
     if isinstance(node, str):
         text = re.sub(r"\s+", " ", node.replace("\xa0", " "))
-        return re.sub(r"([\\`*_{}\[\]<>$|#!])", r"\\\1", text)
+        return re.sub(r"([\\`*_{}\[\]<>$|#!~])", r"\\\1", text)
     tag = node.tag
     if tag in {"script", "style", "head", "xml", "object", "iframe"}:
         return ""
@@ -98,7 +105,6 @@ def _render(node: Node | str) -> str:
         return fence + " " + value.replace("\n", " ") + " " + fence
     if tag == "table":
         merged = False
-        rows: list[list[str]] = []
         occupied: dict[tuple[int, int], str] = {}
         row_number = 0
 
@@ -150,8 +156,7 @@ def _render(node: Node | str) -> str:
         width = max(column for _, column in occupied) + 1
         height = max(row for row, _ in occupied) + 1
         rows = [[occupied.get((row, column), "") for column in range(width)] for row in range(height)]
-        width = max(map(len, rows))
-        lines = ["| " + " | ".join(row + [""] * (width - len(row))) + " |" for row in rows]
+        lines = ["| " + " | ".join(row) + " |" for row in rows]
         lines.insert(1, "| " + " | ".join(["---"] * width) + " |")
         content = "\n".join(lines)
         return "\n\n" + ("```table\n" + content + "\n```" if merged else content) + "\n\n"
@@ -166,6 +171,10 @@ def _render(node: Node | str) -> str:
                 lines.append(prefix + content)
                 number += 1
         return "\n\n" + "\n".join(lines) + "\n\n"
+    properties = _properties(node)
+    if tag == "div" and properties.get("white-space", "").startswith("pre"):
+        # A code editor's copy (VS Code's): its text as it is, Markdown or equations included.
+        return "\n\n" + _lines(node).strip("\n") + "\n\n"
     content = "".join(_render(child) for child in node.children)
     if tag == "br":
         return "\n"
@@ -180,32 +189,61 @@ def _render(node: Node | str) -> str:
         if target and urlsplit(target).scheme.lower() in {"", "https", "http", "mailto"}:
             target = target.replace(" ", "%20").replace("(", "%28").replace(")", "%29")
             return f"[{content}]({target})"
-    properties = {}
-    for declaration in node.attrs.get("style", "").lower().split(";"):
-        key, separator, value = declaration.partition(":")
-        if separator:
-            properties[key.strip()] = value.strip()
-    style = ";".join(f"{key}:{value}" for key, value in properties.items())
+    weight, slant = properties.get("font-weight", ""), properties.get("font-style", "")
+    decoration = properties.get("text-decoration", "") + " " + properties.get("text-decoration-line", "")
     marks = ""
-    if tag in {"b", "strong"} or "font-weight:bold" in style or "font-weight:700" in style:
+    # Google Docs wraps a whole copy in <b style="font-weight:normal">: the style wins over the tag.
+    if weight in {"bold", "bolder", "600", "700", "800", "900"} or (
+        tag in {"b", "strong"} and weight not in {"normal", "lighter", "100", "200", "300", "400", "500"}
+    ):
         marks += "**"
-    if tag in {"i", "em"} or "font-style:italic" in style:
+    if slant in {"italic", "oblique"} or (tag in {"i", "em"} and slant != "normal"):
         marks += "*"
-    if tag in {"s", "del", "strike"} or "line-through" in style:
+    if "line-through" in decoration or (tag in {"s", "del", "strike"} and "none" not in decoration.split()):
         marks += "~~"
-    if marks and content.strip():
-        content = (
-            (" " if content.startswith(" ") else "")
-            + marks
-            + content.strip()
-            + marks[::-1]
-            + (" " if content.endswith(" ") else "")
-        )
+    if marks:
+        content = _marked(content, marks)
     if tag in {"p", "div", "section", "article"}:
         return "\n\n" + content.strip() + "\n\n"
     if tag == "img":
         return _render(node.attrs.get("alt", ""))
     return content
+
+
+def _properties(node: Node) -> dict[str, str]:
+    """The node's style (its stylesheet rules, then its own), lower case and without !important."""
+    properties = {}
+    for declaration in node.attrs.get("style", "").lower().split(";"):
+        key, separator, value = declaration.partition(":")
+        if separator:
+            properties[key.strip()] = value.replace("!important", "").strip()
+    return properties
+
+
+def _marked(content: str, marks: str) -> str:
+    """Emphasis around each paragraph of the content: Markdown's marks do not span a blank line, and
+    never enclose a heading, list, quotation, table or code block (those keep their own)."""
+    parts = re.split(r"(\n{2,})", content)
+    for index, part in enumerate(parts):
+        text = part.strip()
+        if not text or "\n" in text or re.match(r"(?:[#>|`-]|\d+\.)", text):
+            continue
+        parts[index] = (
+            (" " if part.startswith(" ") else "") + marks + text + marks[::-1] + (" " if part.endswith(" ") else "")
+        )
+    return "".join(parts)
+
+
+def _lines(node: Node | str) -> str:
+    """A pre-formatted block's text as it shows: each <div> or <p> a line, each <br> a line break."""
+    if isinstance(node, str):
+        return node.replace("\xa0", " ")
+    if node.tag in {"script", "style"}:
+        return ""
+    if node.tag == "br":
+        return "\n"
+    text = "".join(_lines(child) for child in node.children)
+    return text.removesuffix("\n") + "\n" if node.tag in {"div", "p"} else text
 
 
 def markdown_from_html(html: str) -> str | None:

@@ -38,6 +38,9 @@ class ExpressionTests(unittest.TestCase):
         self.assertAlmostEqual(expression_function("sin(π/2)")(0), 1)
         self.assertAlmostEqual(expression_function("(x+1)(x-1)")(2), 3)
         self.assertTrue(math.isnan(expression_function("ln(x)")(-1)))
+        # floor and ceil give floats: an exact integer power of them would never end.
+        self.assertTrue(math.isnan(expression_function("ceil(9)^ceil(9)^ceil(9)")(0)))
+        self.assertEqual(expression_function("floor(x) + ceil(x)")(1.5), 3.0)
         self.assertTrue(math.isnan(expression_function("10^x^x")(9)))
 
     def test_anything_but_arithmetic_is_refused(self) -> None:

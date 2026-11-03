@@ -57,8 +57,9 @@ _FUNCTIONS: dict[str, Callable[..., float]] = {
     "log2": math.log2,
     "sqrt": math.sqrt,
     "abs": abs,
-    "floor": math.floor,
-    "ceil": math.ceil,
+    # As floats: Python's own are exact integers, and a power of them (ceil(9)^ceil(9)^ceil(9)) never ends.
+    "floor": lambda value: float(math.floor(value)),
+    "ceil": lambda value: float(math.ceil(value)),
 }
 _CONSTANTS = {"pi": math.pi, "π": math.pi, "e": math.e, "tau": math.tau}
 

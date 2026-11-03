@@ -63,3 +63,25 @@ class PasteTests(unittest.TestCase):
 
     def test_lists(self) -> None:
         self.assertEqual(markdown_from_html("<ul><li>One</li><li>Two</li></ul>"), "- One\n- Two")
+
+    def test_google_docs_normal_weight_wrapper_is_not_bold(self) -> None:
+        html = (
+            '<b style="font-weight:normal;" id="docs-internal-guid-1"><p><span style="font-weight:400">One</span> '
+            '<span style="font-weight:700">strong</span></p><p><span>Two</span></p></b>'
+        )
+        self.assertEqual(markdown_from_html(html), "One **strong**\n\nTwo")
+
+    def test_emphasis_around_blocks_marks_each_paragraph(self) -> None:
+        self.assertEqual(markdown_from_html("<b><p>a</p><ul><li>x</li></ul><p>b</p></b>"), "**a**\n\n- x\n\n**b**")
+
+    def test_code_editor_copy_keeps_its_source(self) -> None:
+        html = (
+            '<div style="white-space: pre;"><div><span>Let $x^2$ be  *a*</span></div><div><br></div>'
+            "<div><span>    indented</span></div></div>"
+        )
+        self.assertEqual(markdown_from_html(html), "Let $x^2$ be  *a*\n\n    indented")
+
+    def test_tildes_are_escaped_and_rules_keep_their_order(self) -> None:
+        self.assertEqual(markdown_from_html("<p>~~not~~</p>"), "\\~\\~not\\~\\~")
+        html = "<style>p{font-style:italic} .plain{font-style:normal}</style><p class=plain>a</p><p>b</p>"
+        self.assertEqual(markdown_from_html(html), "a\n\n*b*")

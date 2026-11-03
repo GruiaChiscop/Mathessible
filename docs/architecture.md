@@ -76,7 +76,8 @@ them resolved (`editing/source_view.py`).
 - `sonification/`: the wx-free state and synthesiser for exploring a function
   chart by ear; `ui/graph_explorer.py` is its keyboard-operated window.
 - `settings.py`, `session_log.py` (`MATHESSIBLE_LOG=1`), `patch_check.py` (the
-  startup check that bootstrap's patches are applied).
+  startup check that bootstrap's patches are applied), `data_paths.py` (the
+  data directory), `processes.py` (whether a process still runs).
 - `i18n.py` and `locale/`: the interface in MathCAT's languages, read from
   the `.po` catalogs at startup; `spoken.py` holds the editor's words
   about an equation, said in the speech language

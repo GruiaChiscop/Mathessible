@@ -305,12 +305,17 @@ if wx is not None:
             edit_menu.Append(wx.ID_CUT, _("Cu&t") + "\tCtrl+X")
             edit_menu.Append(wx.ID_COPY, _("&Copy") + "\tCtrl+C")
             edit_menu.Append(wx.ID_PASTE, _("&Paste") + "\tCtrl+V")
+            # The platform's own keys: macOS's Paste and Match Style, Ctrl+Shift+V elsewhere.
+            mac = sys.platform == "darwin"
+            self._paste_plain_id = wx.NewIdRef()
+            edit_menu.Append(
+                self._paste_plain_id, _("Paste as Plain Te&xt") + ("\tCtrl+Alt+Shift+V" if mac else "\tCtrl+Shift+V")
+            )
             edit_menu.Append(wx.ID_DELETE, _("&Delete"))
             edit_menu.AppendSeparator()
             edit_menu.Append(wx.ID_SELECTALL, _("Select &All") + "\tCtrl+A")
             edit_menu.AppendSeparator()
             # The platform's own keys: Command+G/Shift+G and Command+Option+F on macOS, F3 and Ctrl+H elsewhere.
-            mac = sys.platform == "darwin"
             self._find_id, self._find_next_id = wx.NewIdRef(), wx.NewIdRef()
             self._find_previous_id, self._replace_id = wx.NewIdRef(), wx.NewIdRef()
             edit_menu.Append(self._find_id, _("&Find…") + "\tCtrl+F")
@@ -472,6 +477,7 @@ if wx is not None:
                 wx.ID_CUT,
                 wx.ID_COPY,
                 wx.ID_PASTE,
+                self._paste_plain_id,
                 wx.ID_DELETE,
                 wx.ID_SELECTALL,
             ):
@@ -698,6 +704,7 @@ if wx is not None:
                 wx.ID_CUT: lambda: self.editor.copy_selection(cut=True) or control.Cut(),
                 wx.ID_COPY: lambda: self.editor.copy_selection() or control.Copy(),
                 wx.ID_PASTE: control.Paste,
+                self._paste_plain_id: self.editor.paste_plain_text,
                 wx.ID_SELECTALL: control.SelectAll,
             }
             if event.GetId() == wx.ID_DELETE:
@@ -720,6 +727,7 @@ if wx is not None:
                 wx.ID_CUT: start != end,
                 wx.ID_COPY: start != end,
                 wx.ID_PASTE: control.CanPaste(),
+                self._paste_plain_id: control.CanPaste(),
                 wx.ID_DELETE: start != end,
                 wx.ID_SELECTALL: bool(control.GetValue()),
             }
@@ -976,7 +984,7 @@ if wx is not None:
             self.editor.markdown.SetFocus()
 
         def _offer_tinytex(self) -> None:
-            """No LaTeX distribution: TinyTeX offered, installed by its own script in the home folder."""
+            """No LaTeX distribution: TinyTeX offered, installed into Mathessible's private tools folder."""
             dialog = wx.MessageDialog(
                 self,
                 _("No LaTeX distribution was found. Install TinyTeX?"),

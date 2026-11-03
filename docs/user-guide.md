@@ -134,6 +134,12 @@ LaTeX's own in a `.tex` file:
   separate from function and data charts: they have no function or data-series
   fields.
 
+### Application data
+
+Mathessible stores its data in `~/Library/Application Support/Mathessible` on macOS,
+`%APPDATA%\mathessible` on Windows and `~/.mathessible` on Linux. Paths shown
+with `<data directory>` below are relative to that folder.
+
 ### Optional tools
 
 Optional converters can be configured in **Settings → General → Optional tools**.
@@ -154,12 +160,13 @@ button is **Install updated private copy** when the current copy is external;
 the message shows the download destination. A LaTeX distribution
 without `tlmgr` must use its own package manager.
 
-**Install for Mathessible** downloads into `~/.mathessible/tools/` and selects
+**Install for Mathessible** downloads into `<data directory>/tools/` and selects
 the resulting path. Downloads require a published checksum. Updates are prepared
-in staging; previous managed copies are retained as `*.previous-*` for recovery.
+in staging; the copy an update replaces is retained as `*.previous-*` for recovery
+(only the most recent one: older ones are removed).
 TinyTeX package updates preserve the existing packages and configuration by
 updating a copy. Cancellation during a package operation waits for that operation
-to finish before discarding the staged copy. Removing backups is currently manual.
+to finish before discarding the staged copy.
 Installing Pandoc alone does not enable complex-table paste; that integration
 is still in progress.
 
@@ -182,6 +189,12 @@ left, and `^` continues the cell above. Use `\^` or `\>` for literal markers.
 Ordinary Markdown tables remain unchanged. This is a Mathessible extension;
 other Markdown readers may display the block as source code. Equations in
 Word's native format and embedded clipboard images still have import limits.
+
+Text copied with formatting (from a web page, Word or Google Docs) is pasted
+as Markdown: its headings, lists, emphasis, links and tables. Text copied from
+a code editor keeps its lines and indentation as they are. **Edit → Paste as
+Plain Text** (`Command+Option+Shift+V`, or `Ctrl+Shift+V`) pastes only the
+clipboard's text, its formatting not converted.
 
 ### Exploring a function graph by ear
 
@@ -424,7 +437,7 @@ applications have them:
 Mathessible asks before discarding unsaved changes, including an
 equation still open in the equation editor, and `Quit` checks every
 window. Every thirty seconds, a window with unsaved changes also writes
-them to `~/.mathessible/recovery/`; should Mathessible stop unexpectedly
+them to `<data directory>/recovery/`; should Mathessible stop unexpectedly
 (a crash, a power cut), it offers them back when it starts again:
 **Recover** opens them as unsaved changes, **Discard** forgets them.
 
@@ -606,7 +619,7 @@ As in Word, Equation → Save as New Equation… keeps the equation being
 edited under a name you give; saving a name again replaces it. Your
 equations come first in the Structure Gallery, as **My Equations**, and
 Delete (the button or the key) removes the selected one, after asking.
-They are kept in `~/.mathessible/equations.json`, each with its name and
+They are kept in `<data directory>/equations.json`, each with its name and
 its UnicodeMath, so a class can share one file.
 
 ## Braille
@@ -621,7 +634,7 @@ Nemeth and UEB leave such symbols to the transcriber.
 code chosen above; it replaces the code's own sign too. Type the symbol
 as itself, as a control word (`\sqsubset`) or as its code (`U+228F`),
 and the braille as cells or as dot numbers with hyphens between cells
-(`4-456-126`). The signs are kept per code in `~/.mathessible/braille/`, one
+(`4-456-126`). The signs are kept per code in `<data directory>/braille/`, one
 plain text file each (`Nemeth.txt`), a symbol and its braille per line,
 so a class can share one file:
 
@@ -773,7 +786,7 @@ uv run mathessible-fetch-symbols          # every language
 uv run mathessible-fetch-symbols ro en    # only these
 ```
 
-They are saved in `~/.mathessible/symbols/` and chosen in `Settings → Symbol
+They are saved in `<data directory>/symbols/` and chosen in `Settings → Symbol
 dictionary`. The download notes, in the first lines of each file, the
 source (NVDA), the language, the address and the date; the Settings list
 shows "NVDA" only for files with that note, never because of a file name.

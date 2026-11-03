@@ -4,6 +4,7 @@ import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
+from mathessible.data_paths import data_directory
 from mathessible.i18n import LANGUAGES, N_
 
 # Word's own Recognized Functions (Equation Options), with the Romanian tg/ctg
@@ -190,7 +191,7 @@ class AppSettings:
 
 
 def default_settings_path() -> Path:
-    return Path.home() / ".mathessible" / "settings.json"
+    return data_directory() / "settings.json"
 
 
 def load_settings(path: Path | None = None) -> AppSettings:

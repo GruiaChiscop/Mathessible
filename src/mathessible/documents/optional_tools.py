@@ -13,11 +13,16 @@ import tarfile
 import tempfile
 import uuid
 import zipfile
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from urllib.request import Request, urlopen
 
+from mathessible.data_paths import data_directory
 from mathessible.i18n import _
+from mathessible.processes import running
+
+_REPOSITORIES = {"pandoc": "jgm/pandoc", "TinyTeX": "rstudio/tinytex-releases"}
 
 
 class ToolError(RuntimeError):
@@ -25,13 +30,75 @@ class ToolError(RuntimeError):
 
 
 def tools_directory(home: Path | None = None) -> Path:
-    return (home or Path.home()) / ".mathessible" / "tools"
+    return data_directory(home=home) / "tools"
 
 
 def managed_directory(tool: str, home: Path | None = None) -> Path:
     if tool not in {"pandoc", "TinyTeX"}:
         raise ValueError("Unknown optional tool")
     return tools_directory(home) / tool
+
+
+def release(tool: str) -> dict:
+    """The tool's latest GitHub release, as GitHub's API describes it."""
+    repo = _REPOSITORIES[tool]
+    try:
+        request = Request(f"https://api.github.com/repos/{repo}/releases/latest", headers={"User-Agent": "Mathessible"})
+        with urlopen(request, timeout=30) as response:
+            data = json.loads(response.read(2_000_001))
+        if not isinstance(data, dict) or not isinstance(data.get("tag_name"), str):
+            raise ValueError("Invalid release")
+        return data
+    except (OSError, ValueError) as error:
+        raise ToolError(_("Could not check for updates. Try again later.")) from error
+
+
+def tlmgr_program(directory: Path, system: str | None = None) -> Path | None:
+    """TeX Live's package manager in a bin directory: `tlmgr.bat` on Windows, where `tlmgr` is a shell script."""
+    system = sys.platform if system is None else system
+    for name in ("tlmgr.bat", "tlmgr.exe") if system == "win32" else ("tlmgr",):
+        if (directory / name).is_file():
+            return directory / name
+    return None
+
+
+def installed_program(tool: str, root: Path) -> Path:
+    """What Settings selects in a private installation: Pandoc's executable, or TinyTeX's bin directory."""
+    candidates = sorted(root.rglob("pandoc*") if tool == "pandoc" else root.glob("bin/*/pdflatex*"))
+    for path in candidates:
+        if path.name in {"pandoc", "pandoc.exe", "pdflatex", "pdflatex.exe"} and path.is_file():
+            return path if tool == "pandoc" else path.parent
+    raise ToolError(_("The archive does not contain the expected executable"))
+
+
+@contextmanager
+def _installing(tool: str) -> Iterator[None]:
+    """One installation of a tool at a time. The lock holds its process's number, so one left by a
+    Mathessible that stopped (a crash, a power cut) is taken over instead of blocking every later one."""
+    lock = managed_directory(tool).parent / f".{tool}.installing"
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    for _attempt in range(2):
+        try:
+            with lock.open("x", encoding="ascii") as file:
+                file.write(str(os.getpid()))
+            break
+        except FileExistsError:
+            try:
+                owner = int(lock.read_text(encoding="ascii").strip())
+            except (OSError, ValueError):
+                owner = 0  # Unreadable, or the folder an earlier version used: no owner.
+            if owner == os.getpid() or running(owner):
+                raise ToolError(_("Another installation is in progress")) from None
+            try:
+                lock.rmdir() if lock.is_dir() else lock.unlink()
+            except OSError as error:
+                raise ToolError(_("Another installation is in progress")) from error
+    else:
+        raise ToolError(_("Another installation is in progress"))
+    try:
+        yield
+    finally:
+        lock.unlink(missing_ok=True)
 
 
 def find_pandoc(configured: str = "") -> str | None:
@@ -110,8 +177,12 @@ def unpack(archive: Path, destination: Path, cancelled: Callable[[], bool]) -> N
                 bundle.extract(item, destination, filter="data")
 
 
-def publish(root: Path, target: Path) -> None:
-    """Keep a recoverable previous copy and roll back if the final rename fails."""
+def publish(root: Path, target: Path, keep_previous: bool = True) -> None:
+    """Replace the target by renaming, rolling back if the final rename fails.
+
+    With `keep_previous` the replaced copy stays beside it for recovery, as the only one: older ones
+    are removed. Without it (a copy published moments before, now updated) it is removed itself.
+    """
     backup = target.with_name(target.name + ".previous-" + uuid.uuid4().hex[:12])
     existed = target.exists()
     if existed:
@@ -122,6 +193,14 @@ def publish(root: Path, target: Path) -> None:
         if existed:
             backup.rename(target)
         raise
+    if not existed:
+        return
+    if keep_previous:
+        for older in target.parent.glob(target.name + ".previous-*"):
+            if older != backup:
+                shutil.rmtree(older, ignore_errors=True)
+    else:
+        shutil.rmtree(backup, ignore_errors=True)
 
 
 def install(
@@ -134,23 +213,22 @@ def install(
     No PATH, registry, Homebrew, shell profile or external installation is changed.
     """
     target = managed_directory(tool)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    lock = target.parent / f".{tool}.installing"
-    try:
-        lock.mkdir()
-    except FileExistsError as error:
-        raise ToolError(_("Another installation is in progress")) from error
+    with _installing(tool):
+        return _install(tool, target, progress, cancelled, replace)
+
+
+def _install(
+    tool: str, target: Path, progress: Callable[[int], None], cancelled: Callable[[], bool], replace: bool
+) -> Path:
     try:
         if target.is_symlink() or (
             target.exists() and not (replace and (target / "mathessible-install.json").is_file())
         ):
             raise ToolError(_("A private installation already exists; it was left unchanged"))
-        repo = "jgm/pandoc" if tool == "pandoc" else "rstudio/tinytex-releases"
-        request = Request(f"https://api.github.com/repos/{repo}/releases/latest", headers={"User-Agent": "Mathessible"})
-        with urlopen(request, timeout=30) as response:
-            release = json.loads(response.read(2_000_001))
-        name = asset_name(tool, release["tag_name"], sys.platform, platform.machine())
-        asset = next((item for item in release["assets"] if item["name"] == name), None)
+        repo = _REPOSITORIES[tool]
+        latest = release(tool)
+        name = asset_name(tool, latest["tag_name"], sys.platform, platform.machine())
+        asset = next((item for item in latest["assets"] if item["name"] == name), None)
         if asset is None or not str(asset.get("digest", "")).startswith("sha256:"):
             raise ToolError(_("No checksummed release is available for this platform"))
         url = asset["browser_download_url"]
@@ -195,34 +273,35 @@ def install(
             if cancelled():
                 raise ToolError(_("Installation cancelled"))
             (root / "mathessible-install.json").write_text(
-                json.dumps({"release": release["tag_name"], "sha256": digest.hexdigest()})
+                json.dumps({"release": latest["tag_name"], "sha256": digest.hexdigest()})
             )
             publish(root, target)
             progress(100)
         return target
-    except (OSError, ValueError, KeyError, tarfile.TarError, zipfile.BadZipFile) as error:
+    except (OSError, ValueError, KeyError, TypeError, tarfile.TarError, zipfile.BadZipFile) as error:
         raise ToolError(str(error)) from error
-    finally:
-        lock.rmdir()
 
 
-def update_tinytex(cancelled: Callable[[], bool] = lambda: False) -> Path:
-    """Update packages in an isolated copy; preserve the working installation on failure."""
+def update_tinytex(cancelled: Callable[[], bool] = lambda: False, keep_previous: bool = True) -> Path:
+    """Update packages in an isolated copy; preserve the working installation on failure.
+
+    `keep_previous=False` for a copy installed moments before: it need not be kept for recovery.
+    """
     target = managed_directory("TinyTeX")
     if target.is_symlink() or not (target / "mathessible-install.json").is_file():
         raise ToolError(_("Only a Mathessible-managed installation can be updated."))
-    lock = target.parent / ".TinyTeX.installing"
-    try:
-        lock.mkdir()
-    except FileExistsError as error:
-        raise ToolError(_("Another installation is in progress")) from error
+    with _installing("TinyTeX"):
+        return _update_tinytex(target, cancelled, keep_previous)
+
+
+def _update_tinytex(target: Path, cancelled: Callable[[], bool], keep_previous: bool) -> Path:
     try:
         with tempfile.TemporaryDirectory(prefix=".TinyTeX-update-", dir=target.parent) as temporary:
             root = Path(temporary) / "TinyTeX"
             shutil.copytree(target, root, symlinks=True)
             if cancelled():
                 raise ToolError(_("Installation cancelled"))
-            programs = [p for p in (root / "bin").glob("*/tlmgr*") if p.name in {"tlmgr", "tlmgr.bat", "tlmgr.exe"}]
+            programs = [program for folder in sorted((root / "bin").glob("*")) if (program := tlmgr_program(folder))]
             if not programs:
                 raise ToolError(_("The archive does not contain the expected executable"))
             program = programs[0]
@@ -232,9 +311,7 @@ def update_tinytex(cancelled: Callable[[], bool] = lambda: False) -> Path:
             subprocess.run([str(program), "update", "--self", "--all"], capture_output=True, timeout=600, check=True)
             if cancelled():
                 raise ToolError(_("Installation cancelled"))
-            publish(root, target)
+            publish(root, target, keep_previous)
         return target
     except (OSError, subprocess.SubprocessError) as error:
         raise ToolError(_("TinyTeX could not be updated. The previous installation was kept.")) from error
-    finally:
-        lock.rmdir()

@@ -37,7 +37,7 @@ from mathessible.editor.structures import append_insert_items
 from mathessible.i18n import _
 from mathessible.settings import AppSettings
 from mathessible.templates.template_source import TemplateEdit
-from mathessible.ui.clipboard import get_clipboard_document_html, set_clipboard_text
+from mathessible.ui.clipboard import get_clipboard_document_html, get_clipboard_text, set_clipboard_text
 from mathessible.ui.completion_popup import CompletionPopup
 from mathessible.ui.help_menu import append_help_menu
 from mathessible.ui.speech import AssistiveOutput, create_output
@@ -431,6 +431,12 @@ if wx is not None:
                 if end < len(source) and source[end] != "\n":
                     converted += "\n\n"
             self.markdown.WriteText(converted)
+
+        def paste_plain_text(self) -> None:
+            """Edit > Paste as Plain Text: the clipboard's text exactly, its formatting not converted to Markdown."""
+            text = get_clipboard_text()
+            if text:
+                self.markdown.WriteText(text)
 
         @property
         def latex(self) -> bool:

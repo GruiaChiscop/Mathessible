@@ -2,14 +2,19 @@
 
 from __future__ import annotations
 
-import json
 import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from urllib.request import Request, urlopen
 
-from mathessible.documents.optional_tools import ToolError, find_pandoc, managed_directory, version
+from mathessible.documents.optional_tools import (
+    ToolError,
+    find_pandoc,
+    managed_directory,
+    release,
+    tlmgr_program,
+    version,
+)
 from mathessible.documents.tex_compile import find_installation
 from mathessible.i18n import _
 
@@ -41,21 +46,8 @@ def is_managed(tool: str, path: str) -> bool:
     )
 
 
-def release(tool: str) -> dict:
-    repo = "jgm/pandoc" if tool == "pandoc" else "rstudio/tinytex-releases"
-    try:
-        request = Request(f"https://api.github.com/repos/{repo}/releases/latest", headers={"User-Agent": "Mathessible"})
-        with urlopen(request, timeout=30) as response:
-            data = json.loads(response.read(2_000_001))
-        if not isinstance(data, dict) or not isinstance(data.get("tag_name"), str):
-            raise ValueError("Invalid release")
-        return data
-    except (OSError, ValueError) as error:
-        raise ToolError(_("Could not check for updates. Try again later.")) from error
-
-
 def newer(latest: str, installed: str) -> bool:
-    def parts(value):
+    def parts(value: str) -> tuple[int, ...]:
         match = re.search(r"\d+(?:\.\d+)*", value)
         if not match:
             raise ToolError(_("The installed version could not be compared."))
@@ -76,9 +68,11 @@ def check(tool: str, configured: str = "") -> UpdateCheck:
         latest = release(tool)["tag_name"]
         return UpdateCheck(path, installed, latest, newer(latest, installed), managed)
     found = find_installation(configured=path)
+    if found is None:
+        raise ToolError(_("No executable was found. Correct the path or clear it for automatic detection."))
     installed = version(str(found.program(found.engines[0])))
-    tlmgr = found.program("tlmgr")
-    if not tlmgr.is_file():
+    tlmgr = tlmgr_program(found.bin_directory)
+    if tlmgr is None:
         raise ToolError(
             _("This LaTeX distribution does not provide tlmgr. Use its own package manager to check for updates.")
         )

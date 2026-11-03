@@ -12,7 +12,13 @@ import threading
 from collections.abc import Callable
 from pathlib import Path
 
-from mathessible.documents.optional_tools import ToolError, install, managed_directory, update_tinytex
+from mathessible.documents.optional_tools import (
+    ToolError,
+    install,
+    installed_program,
+    managed_directory,
+    update_tinytex,
+)
 from mathessible.documents.tool_updates import check, locate
 from mathessible.editing.autocorrect import AutoCorrectTable, autocorrect_defaults, differences
 from mathessible.i18n import LANGUAGES, _, ngettext
@@ -124,15 +130,19 @@ if wx is not None:
                 page.GetSizer().Add(button, 0, wx.ALL, 8)
 
         def _tool_job(self, job, done) -> None:
+            """`job(cancel, report)` on a worker; `report(percent)` turns the pulsing bar into a percentage."""
             cancel = threading.Event()
             outcome = {}
             progress = wx.ProgressDialog(
-                _("Optional tools"), _("Working…"), parent=self, style=wx.PD_APP_MODAL | wx.PD_CAN_ABORT
+                _("Optional tools"), _("Working…"), maximum=100, parent=self, style=wx.PD_APP_MODAL | wx.PD_CAN_ABORT
             )
+
+            def report(percent: int) -> None:
+                outcome["percent"] = percent
 
             def work():
                 try:
-                    outcome["result"] = job(cancel)
+                    outcome["result"] = job(cancel, report)
                 except (ToolError, OSError) as error:
                     outcome["error"] = str(error)
 
@@ -141,9 +151,12 @@ if wx is not None:
 
             def poll():
                 if worker.is_alive():
-                    keep, _skip = progress.Pulse(
-                        _("Cancelling after the current operation…") if cancel.is_set() else _("Working…")
-                    )
+                    message = _("Cancelling after the current operation…") if cancel.is_set() else _("Working…")
+                    percent = outcome.get("percent")
+                    if percent is None or percent >= 90:  # Unpacking and checking have no percentage.
+                        keep, _skip = progress.Pulse(message)
+                    else:
+                        keep, _skip = progress.Update(percent, message)
                     if not keep:
                         cancel.set()
                     wx.CallLater(150, poll)
@@ -151,9 +164,9 @@ if wx is not None:
                 progress.Destroy()
                 if not self or cancel.is_set():
                     return
-                if "error" in outcome:
+                if "error" in outcome or "result" not in outcome:  # Or the job stopped on an unexpected error.
                     wx.MessageBox(
-                        _("The operation failed: {error}").format(error=outcome["error"]),
+                        _("The operation failed: {error}").format(error=outcome.get("error", "")),
                         _("Optional tools"),
                         wx.OK | wx.ICON_ERROR,
                         self,
@@ -184,7 +197,9 @@ if wx is not None:
             if not configured:
                 self._tool_detected[tool] = detected
                 self._tool_paths[tool].ChangeValue(detected)
-            self._tool_job(lambda cancel: check(tool, configured), lambda result: self._checked_tool(tool, result))
+            self._tool_job(
+                lambda cancel, report: check(tool, configured), lambda result: self._checked_tool(tool, result)
+            )
 
         def _checked_tool(self, tool: str, result) -> None:
             details = _("Path: {path}\nInstalled: {installed}\nUpdate source: {latest}").format(
@@ -228,20 +243,23 @@ if wx is not None:
                     )
                     return
                 self._tool_job(
-                    lambda cancel: update_tinytex(cancel.is_set), lambda path: self._tool_installed(tool, path)
+                    lambda cancel, report: update_tinytex(cancel.is_set),
+                    lambda path: self._tool_installed(tool, path),
                 )
             else:
                 self._install_tool(tool, confirmed=True)
 
         def _tool_installed(self, tool: str, path: Path) -> None:
-            if tool == "pandoc":
-                binaries = [p for p in path.rglob("*") if p.name in {"pandoc", "pandoc.exe"} and p.is_file()]
-                selected = str(binaries[0])
-            else:
-                folders = [
-                    p.parent for p in (path / "bin").glob("*/pdflatex*") if p.name in {"pdflatex", "pdflatex.exe"}
-                ]
-                selected = str(folders[0])
+            try:
+                selected = str(installed_program(tool, path))
+            except ToolError as error:
+                wx.MessageBox(
+                    _("The operation failed: {error}").format(error=error),
+                    _("Optional tools"),
+                    wx.OK | wx.ICON_ERROR,
+                    self,
+                )
+                return
             # Explicit consent to install/update also selects this private copy.
             self._tool_detected[tool] = ""
             self._tool_paths[tool].ChangeValue(selected)
@@ -268,10 +286,11 @@ if wx is not None:
             ):
                 return
 
-            def job(cancel):
-                path = install(tool, lambda percent: None, cancel.is_set, replace=replace)
+            def job(cancel, report):
+                path = install(tool, report, cancel.is_set, replace=replace)
                 if confirmed and tool == "TinyTeX":
-                    return update_tinytex(cancel.is_set)
+                    # The copy just installed need not be kept: the one it replaced already is.
+                    return update_tinytex(cancel.is_set, keep_previous=False)
                 return path
 
             self._tool_job(

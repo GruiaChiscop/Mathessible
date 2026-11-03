@@ -11,7 +11,15 @@ import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
-from mathessible.documents.optional_tools import ToolError, asset_name, find_pandoc, install, unpack
+from mathessible.documents.optional_tools import (
+    ToolError,
+    asset_name,
+    find_pandoc,
+    install,
+    installed_program,
+    tlmgr_program,
+    unpack,
+)
 from mathessible.documents.tex_compile import find_installation, tinytex_directory
 from mathessible.settings import AppSettings, load_settings, save_settings
 
@@ -52,8 +60,49 @@ class OptionalToolTests(unittest.TestCase):
         ):
             self.assertEqual(find_pandoc(), str(binary))
 
-    def test_private_tex_path_does_not_replace_legacy_location(self) -> None:
-        self.assertEqual(tinytex_directory(home=self.root), self.root / ".mathessible/tools/TinyTeX")
+    def test_private_tex_path_is_in_the_data_directory(self) -> None:
+        self.assertEqual(
+            tinytex_directory(home=self.root, platform="darwin"),
+            self.root / "Library/Application Support/Mathessible/tools/TinyTeX",
+        )
+        self.assertEqual(tinytex_directory(home=self.root, platform="linux"), self.root / ".mathessible/tools/TinyTeX")
+
+    def test_lock_left_by_a_stopped_process_is_taken_over(self) -> None:
+        target = self.root / "tools" / "pandoc"
+        target.parent.mkdir()
+        lock = target.parent / ".pandoc.installing"
+        with patch("mathessible.documents.optional_tools.managed_directory", return_value=target):
+            for owner, running in (("4242", True), (str(os.getpid()), False)):
+                lock.write_text(owner)
+                with (
+                    patch("mathessible.documents.optional_tools.running", return_value=running),
+                    self.assertRaisesRegex(ToolError, "Another installation"),
+                ):
+                    install("pandoc", lambda percent: None)
+            lock.write_text("4242")
+            with (
+                patch("mathessible.documents.optional_tools.running", return_value=False),
+                patch("mathessible.documents.optional_tools.release", side_effect=ToolError("offline")),
+                self.assertRaisesRegex(ToolError, "offline"),
+            ):
+                install("pandoc", lambda percent: None)
+            self.assertFalse(lock.exists())
+
+    def test_tlmgr_and_installed_programs(self) -> None:
+        folder = self.root / "TinyTeX" / "bin" / "windows"
+        folder.mkdir(parents=True)
+        for name in ("tlmgr", "tlmgr.bat", "pdflatex.exe"):
+            (folder / name).write_text("")
+        self.assertEqual(tlmgr_program(folder, "win32"), folder / "tlmgr.bat")
+        self.assertEqual(tlmgr_program(folder, "darwin"), folder / "tlmgr")
+        self.assertIsNone(tlmgr_program(self.root, "linux"))
+        self.assertEqual(installed_program("TinyTeX", self.root / "TinyTeX"), folder)
+        pandoc = self.root / "pandoc" / "pandoc-3.5" / "bin" / "pandoc"
+        pandoc.parent.mkdir(parents=True)
+        pandoc.write_text("")
+        self.assertEqual(installed_program("pandoc", self.root / "pandoc"), pandoc)
+        with self.assertRaises(ToolError):
+            installed_program("pandoc", self.root / "TinyTeX")
 
     def test_system_tex_precedes_private_copy_and_custom_path_wins(self) -> None:
         system = self.root / "system"

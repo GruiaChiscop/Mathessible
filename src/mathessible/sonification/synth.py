@@ -68,7 +68,9 @@ class Synthesizer:
         self._frequency = 220.0
         self._gain = 0.0
         self._strike = 1.0
+        # The UI asks for a pluck or its end; only the audio thread (render) touches the pluck's buffer.
         self._pluck_pending: float | None = None
+        self._pluck_stop = False
         self._pluck_buffer = np.empty(0, dtype=np.float64)
         self._pluck_index = 0
         self._pink = np.zeros(3, dtype=np.float64)
@@ -99,7 +101,7 @@ class Synthesizer:
                 if sound.discrete and sound.frequency is not None:
                     self._pluck_pending = sound.frequency
             if sound.discrete and sound.frequency is None:
-                self._pluck_buffer = np.empty(0, dtype=np.float64)
+                self._pluck_pending, self._pluck_stop = None, True
             self._sound = sound
 
     def play_earcon(self, kind: str) -> None:
@@ -122,6 +124,7 @@ class Synthesizer:
             queued = self._earcons[0] if self._earcons else None
             offset = self._earcon_offset
             pluck_pending, self._pluck_pending = self._pluck_pending, None
+            pluck_stop, self._pluck_stop = self._pluck_stop, False
 
         target_frequency = sound.frequency or self._frequency
         target_gain = GAIN if sound.frequency is not None and not sound.discrete else 0.0
@@ -150,6 +153,8 @@ class Synthesizer:
         mono = np.sin(2 * np.pi * carrier) * gains * loudness * attack
         left, right = stereo_gains(sound.pan)
         output[:, 0], output[:, 1] = mono * left, mono * right
+        if pluck_stop:
+            self._pluck_buffer = np.empty(0, dtype=np.float64)
         if pluck_pending is not None:
             period = max(2, round(self.sample_rate / pluck_pending))
             self._pluck_buffer = self._random.uniform(-1, 1, period)

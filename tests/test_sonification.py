@@ -103,6 +103,16 @@ class SynthTests(unittest.TestCase):
             silent = synth.render(512)
         self.assertLess(float(np.max(np.abs(silent))), 0.01)
 
+    def test_a_pluck_is_stopped_by_the_audio_thread(self) -> None:
+        synth = Synthesizer(8_000)
+        synth.update(Sound(440, 0, False, strike=True, discrete=True))
+        self.assertGreater(float(np.max(np.abs(synth.render(256)))), 0)
+        synth.update(Sound(None, 0, False, discrete=True))
+        self.assertTrue(synth._pluck_buffer.size)  # Untouched until the audio thread's next block.
+        synth.update(Sound(None, 0, False, discrete=True))
+        self.assertEqual(float(np.max(np.abs(synth.render(256)))), 0)
+        self.assertEqual(synth._pluck_buffer.size, 0)
+
     def test_negative_noise_is_a_centred_background(self) -> None:
         synth = Synthesizer(8_000)
         synth.update(Sound(None, -1, True))

@@ -17,6 +17,8 @@ from datetime import date
 from itertools import islice
 from pathlib import Path
 
+from mathessible.data_paths import data_directory
+
 BUILTIN_ID = "mathessible-en"
 BUILTIN_PATH = Path(__file__).resolve().parent / "mathessible-en.dic"
 # NVDA leaves a field it does not set as "-" (the base English file fills it in).
@@ -54,7 +56,7 @@ def read_provenance(text: str) -> dict[str, str]:
 
 def symbols_directory() -> Path:
     """Where downloaded and imported dictionaries live: one `.dic` file each."""
-    return Path.home() / ".mathessible" / "symbols"
+    return data_directory() / "symbols"
 
 
 def parse_symbols(text: str) -> dict[str, str]:

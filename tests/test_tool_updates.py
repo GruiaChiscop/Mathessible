@@ -59,6 +59,23 @@ class UpdateTests(unittest.TestCase):
             backup = next(Path(folder).glob("current.previous-*"))
             self.assertEqual((backup / "data").read_text(), "old")
 
+    def test_publish_keeps_only_the_latest_previous_copy(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            target = Path(folder) / "current"
+            target.mkdir()
+            for version in ("1", "2", "3"):
+                staged = Path(folder) / "new"
+                staged.mkdir()
+                (staged / "data").write_text(version)
+                publish(staged, target)
+            backups = list(Path(folder).glob("current.previous-*"))
+            self.assertEqual([(backup / "data").read_text() for backup in backups], ["2"])
+            staged.mkdir()
+            (staged / "data").write_text("4")
+            publish(staged, target, keep_previous=False)
+            self.assertEqual(list(Path(folder).glob("current.previous-*")), backups)
+            self.assertEqual((target / "data").read_text(), "4")
+
     def test_failed_publish_restores_previous_copy(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             target, staged = Path(folder) / "current", Path(folder) / "missing"

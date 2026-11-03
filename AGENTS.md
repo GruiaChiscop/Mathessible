@@ -85,7 +85,7 @@ for what the equation editor says about an equation), and
   (see "Probing the converter" in the engineering notes).
 - GUI code has no automated tests: GUI changes are tested by hand in the
   running app, so give short test steps. Start Mathessible for a test with
-  `MATHESSIBLE_LOG=1 uv run mathessible` and read the session log in `~/.mathessible/logs/`
+  `MATHESSIBLE_LOG=1 uv run mathessible` and read the session log in `<data directory>/logs/`
   afterwards instead of asking the tester what happened.
 - Before relaunching Mathessible, check that no older instance is still running.
 

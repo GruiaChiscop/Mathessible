@@ -1224,9 +1224,11 @@ every window. Revert reloads the document or re-reads the notebook's
 page. Print renders `notebook_html` in a web view of a never-shown frame
 and calls `WebView.Print()` (the system's panel; not testable headless).
 Recovery (`documents/recovery.py`): a 30 s timer writes a dirty window's
-`source_with_open_equation()` to `~/.mathessible/recovery/<pid>-<window>.json`
+`source_with_open_equation()` to `<data directory>/recovery/<pid>-<window>.json`
 (atomically), removed on save, revert and close; at start
-`offer_recovery` offers the records of processes no longer running.
+`offer_recovery` offers the records of processes no longer running
+(`processes.running`: on Windows `os.kill(pid, 0)` does not test a process,
+it ends it, so Windows asks `OpenProcess`/`GetExitCodeProcess` instead).
 Notebook: Title Case, no file extensions in labels, "Open portable" gone
 (File > Open does it), shortcuts for New Notebook, Add Page, moving
 pages and Previous/Next Page.
@@ -1700,7 +1702,10 @@ are fenced `chart` blocks in Markdown: a function in calculator notation
 (`sin(x)`, `x^2`, several separated by `;`) or a Markdown table for bar,
 line, scatter and pie charts. Expressions are parsed with Python's AST and
 only arithmetic, `x`, the listed constants and mathematical functions are
-accepted; never pass chart text to `eval` without that allow-list. Matplotlib
+accepted; never pass chart text to `eval` without that allow-list. Every
+number is a float, including what `floor` and `ceil` return: an integer power
+is exact in Python, so `ceil(9)^ceil(9)^ceil(9)` would never finish, where a
+float overflows at once. Matplotlib
 draws SVG for the preview, HTML and PDF, and PNG for Word. HTML also keeps a
 data chart's table, Word puts the summary in the picture's alternative text,
 and BRF writes the description, summary and rows. `ExportPage.folder` lets
@@ -1747,6 +1752,15 @@ fragment. Images currently retain only alt text. Word-specific
 CSS list numbering and equation conversion remain
 unfinished. This is not a lossless Word import. Native Word clipboard testing
 is still required, especially on macOS.
+Emphasis follows the computed style, not only the tag: Google Docs wraps a
+whole copy in `<b style="font-weight:normal">`, which must not make it bold.
+Marks go around each paragraph, never across a blank line or around a block
+(Markdown's emphasis cannot span them). A `<div>` with `white-space: pre` is a
+code editor's copy (VS Code's): its lines and indentation are kept and nothing
+is escaped, since it is usually Markdown or equation source; escaping it would
+turn `$x$` into `\$x\$`. Stylesheet rules are indexed by tag and class, in
+their order, because Word's HTML has hundreds of them. Edit > Paste as Plain
+Text inserts the clipboard's text without any of this conversion.
 
 Pages/iWork rich paste (2026-11-01): `get_clipboard_document_html` prefers
 HTML and then checks `public.rtf` / `Rich Text Format`. On macOS,
@@ -1808,11 +1822,15 @@ Pandoc output into documents. Existing paste therefore remains unchanged.
 The real Pandoc regression test runs only where the optional executable exists;
 mocked tests cover absence, errors, timeout, protocol and invocation flags.
 
+Application data paths are resolved centrally by `data_paths.data_directory`.
+Windows uses roaming AppData and macOS uses the user’s Application Support folder.
+Linux retains its home-directory location.
+
 Optional-tool management (2026-11-02): General > Optional tools stores a Pandoc
 executable and a LaTeX bin directory. Explicit paths never silently fall back.
 Automatic detection prefers existing system installations (including Homebrew
-paths when Finder supplies a limited PATH), then `~/.mathessible/tools/pandoc`
-or `~/.mathessible/tools/TinyTeX`. Legacy TinyTeX locations remain detectable;
+paths when Finder supplies a limited PATH), then `<data directory>/tools/pandoc`
+or `<data directory>/tools/TinyTeX`. Legacy TinyTeX locations remain detectable;
 they are not moved. Pandoc's environment override is below the saved setting.
 The native Check action reports path, provenance and executable version off the
 GUI thread. Installation is an explicit, cancellable action, also offered when
@@ -1844,7 +1862,14 @@ copy. A successful publication retains a uniquely named previous copy, and a
 failed final rename rolls back. Package-operation cancellation is deferred until
 the subprocess finishes (bounded at ten minutes), then discards staging. Annual
 TeX Live repository incompatibility is reported as a failed check; automatic
-cross-year migration is not implemented. Backups are not automatically deleted.
+cross-year migration is not implemented. Only the latest backup is kept: `publish`
+removes older `*.previous-*` copies, and Install updated private copy's TinyTeX
+update (`keep_previous=False`) removes the copy it installed moments before, so a
+repeated update does not add a full TeX distribution each time. The installation
+lock (`.<tool>.installing`) is a file holding its process number; a lock whose
+process is no longer running (a crash during a download) is taken over, so it
+never blocks installation for good. On Windows `tlmgr` is `tlmgr.bat` (the bare
+`tlmgr` is a shell script): find it with `tlmgr_program`, never `program("tlmgr")`.
 The update confirmation uses native action labels: "Update private copy" for
 managed installations and "Install updated private copy" for external ones.
 The latter names the download destination and explicitly explains that the
@@ -1860,7 +1885,10 @@ per-function bookmarks. The frame owns the keys, native menus,
 AssistiveOutput announcements and drawing. `sounddevice` runs the callback;
 numpy renders a two-operator FM continuous voice, a Karplus--Strong plucked
 discrete voice, equal-power stereo pan, filtered noise for negative values and
-generated earcons. There are no bundled sound files.
+generated earcons. There are no bundled sound files. Only the audio thread
+(`render`) touches the pluck's buffer; `update`, on the UI thread, only leaves a
+pending pluck or stop for it under the lock (replacing the buffer mid-block raised
+in the callback, and sounddevice stops calling a callback that raised).
 An absent audio device does not prevent the frame opening: movement then reads
 coordinates.
 
@@ -2096,7 +2124,7 @@ still `1,2` and `,3`, and `MathMLtoUnicodeMath` still loses an integral's
     is looked up first, so each replaces the code's sign. A change calls
     `invalidate_braille_caches`; a mistake in them is logged and ignored.
     Mathessible side: [symbols/braille_signs.py](../src/mathessible/symbols/braille_signs.py)
-    (`~/.mathessible/braille/<code>.txt`, a symbol and its cells or dot numbers
+    (`<data directory>/braille/<code>.txt`, a symbol and its cells or dot numbers
     per line), `MathCatNavigator.braille_signs` sent on every `load` (MathCAT
     reloads only on a change, so each thread's own MathCAT gets them too),
     and Settings > Braille signs… (`BrailleSignsDialog`, saved on the
@@ -2184,7 +2212,7 @@ still `1,2` and `,3`, and `MathMLtoUnicodeMath` still loses an integral's
   committed: Settings > "Download NVDA dictionaries…" (for users of a
   binary, no `uv`) and `mathessible-fetch-symbols` both call
   `download_languages` in [symbols/download.py](../src/mathessible/symbols/download.py),
-  into `~/.mathessible/symbols/nvda-<lang>.dic`. In Settings the network calls
+  into `<data directory>/symbols/nvda-<lang>.dic`. In Settings the network calls
   run on a worker thread behind a pulsing `wx.ProgressDialog`
   (`_in_background`); the thread only writes files, results go back
   through a `wx.CallLater` poll. Typed-character echo and the

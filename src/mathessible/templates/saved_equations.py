@@ -1,6 +1,6 @@
 """The user's own equations (Word's Save as New Equation), offered in the Structure Gallery.
 
-Kept in `~/.mathessible/equations.json`: a list of `{"name", "source"}`,
+Kept in `<data directory>/equations.json`: a list of `{"name", "source"}`,
 the source in UnicodeMath, so a class can share one file.
 """
 
@@ -11,6 +11,8 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from mathessible.data_paths import data_directory
+
 
 @dataclass(frozen=True, slots=True)
 class SavedEquation:
@@ -19,7 +21,7 @@ class SavedEquation:
 
 
 def equations_path() -> Path:
-    return Path.home() / ".mathessible" / "equations.json"
+    return data_directory() / "equations.json"
 
 
 def load_equations(path: Path | None = None) -> list[SavedEquation]:

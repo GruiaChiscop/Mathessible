@@ -1,7 +1,7 @@
 """Recovery of unsaved work after Mathessible closed unexpectedly.
 
 Every open window with unsaved changes writes its text to
-`~/.mathessible/recovery/` now and then; saving, reverting or closing the
+`<data directory>/recovery/` now and then; saving, reverting or closing the
 window removes it. What is left when Mathessible starts, from a process
 that is no longer running, was lost in a crash or a power cut and is
 offered back.
@@ -14,6 +14,9 @@ import os
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
+
+from mathessible.data_paths import data_directory
+from mathessible.processes import running
 
 
 @dataclass(frozen=True, slots=True)
@@ -28,7 +31,7 @@ class Recovered:
 
 
 def recovery_directory() -> Path:
-    return Path.home() / ".mathessible" / "recovery"
+    return data_directory() / "recovery"
 
 
 def write_record(name: str, record: Recovered, directory: Path | None = None) -> None:
@@ -46,18 +49,6 @@ def delete_record(name: str, directory: Path | None = None) -> None:
         pass
 
 
-def _running(process: int) -> bool:
-    try:
-        os.kill(process, 0)
-    except ProcessLookupError:
-        return False
-    except PermissionError:
-        return True
-    except OSError:
-        return False
-    return True
-
-
 def pending_records(directory: Path | None = None) -> list[tuple[str, Recovered]]:
     """Records left by a Mathessible that is no longer running, newest first; unreadable ones are left alone."""
     folder = directory or recovery_directory()
@@ -67,7 +58,7 @@ def pending_records(directory: Path | None = None) -> list[tuple[str, Recovered]
             record = Recovered(**json.loads(path.read_text(encoding="utf-8")))
         except (OSError, ValueError, TypeError):
             continue
-        if record.process != os.getpid() and not _running(record.process):
+        if record.process != os.getpid() and not running(record.process):
             found.append((path.stem, record))
     return sorted(found, key=lambda item: item[1].saved_at, reverse=True)
 
