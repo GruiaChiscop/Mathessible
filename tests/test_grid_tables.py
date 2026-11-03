@@ -57,6 +57,22 @@ class GridTableTests(unittest.TestCase):
         self.assertIn("<td>a | b</td>", html)
         self.assertNotIn("rowspan", html)
 
+    def test_a_merged_cells_pipe_under_a_border_is_its_text(self) -> None:
+        # The merged cell's `$|z|$` puts a "|" under the "+" of the row above, and the header's "+" above
+        # it: neither is a cell's edge, as Pandoc traces cells (found by a randomized test).
+        lines = [
+            "+-----+-----+",
+            "| a   | b   |",
+            "+=====+=====+",
+            "| xy $|z|$  |",
+            "|           |",
+            "| y         |",
+            "+-----------+",
+        ]
+        table = parse_grid_table(lines)
+        self.assertIsNotNone(table)
+        self.assertEqual((table.cells[-1].colspan, table.cells[-1].content), (2, "xy $|z|$\n\ny"))
+
     def test_equations_in_cells_are_found(self) -> None:
         html = render_markdown(PLAIN, lambda source: f"<math><mi>{source}</mi></math>")
         self.assertIn("<mi>|x|</mi>", html)

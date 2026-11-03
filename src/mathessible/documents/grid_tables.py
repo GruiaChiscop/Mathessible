@@ -15,7 +15,7 @@ from __future__ import annotations
 import re
 import textwrap
 import unicodedata
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 
 from markdown_it import MarkdownIt
@@ -46,6 +46,8 @@ class GridTable:
     rows: int
     columns: int
     cells: tuple[GridCell, ...]
+    # Per column "left", "center", "right" or "" (a pipe table's `:---:`); () when the table has none.
+    alignments: tuple[str, ...] = ()
 
 
 def _slots(line: str) -> list[str]:
@@ -77,31 +79,12 @@ def parse_grid_table(lines: list[str]) -> GridTable | None:
         for left in range(width - 1):
             if at(top, left) != "+" or at(top, left + 1) not in ("-", "=", ":") or at(top + 1, left) not in ("|", "+"):
                 continue
-            right = next(
-                (
-                    column
-                    for column in range(left + 1, width)
-                    if at(top, column) == "+" and at(top + 1, column) in ("|", "+")
-                ),
-                None,
-            )
-            if right is None or any(at(top, column) not in "-=:+" for column in range(left, right + 1)):
+            if any(above <= top < below and start < left < end for above, start, below, end in found):
+                continue  # Under a merged cell's border: its text's "|" below a "+", not a cell's corner.
+            cell = _rectangle(at, top, left, height, width)
+            if cell is None:
                 return None
-            bottom = next(
-                (
-                    row
-                    for row in range(top + 1, height)
-                    if at(row, left) == "+"
-                    and at(row, right) == "+"
-                    and all(at(row, column) in "-=:+" for column in range(left, right + 1))
-                ),
-                None,
-            )
-            if bottom is None or any(
-                at(row, column) not in "|+" for row in range(top, bottom + 1) for column in (left, right)
-            ):
-                return None
-            found.append((top, left, bottom, right))
+            found.append(cell)
     if not found:
         return None
     row_lines = sorted({edge for top, _, bottom, _ in found for edge in (top, bottom)})
@@ -124,6 +107,30 @@ def parse_grid_table(lines: list[str]) -> GridTable | None:
     if len(occupied) != rows * columns:
         return None
     return GridTable(rows, columns, tuple(sorted(cells, key=lambda cell: (cell.row, cell.column))))
+
+
+def _rectangle(at: Callable[[int, int], str], top: int, left: int, height: int, width: int):
+    """The cell whose top left corner is (top, left), as (top, left, bottom, right); None when none closes.
+
+    Each "+" along its top border is a right edge it may have, the nearest first, as Pandoc traces a cell:
+    one that closes (a "|" all the way down to a "+") is the cell's. A merged cell's text may have a "|"
+    under a "+" of the border above it (`$|z|$`), where its row is not split; that edge does not close.
+    """
+    for right in range(left + 1, width):
+        if at(top, right) not in "-=:+":
+            return None  # The top border ends: no edge closed.
+        if at(top, right) != "+" or at(top + 1, right) not in ("|", "+"):
+            continue
+        for bottom in range(top + 1, height):
+            if at(bottom, left) not in "|+" or at(bottom, right) not in "|+":
+                break
+            if (
+                at(bottom, left) == "+"
+                and at(bottom, right) == "+"
+                and all(at(bottom, column) in "-=:+" for column in range(left, right + 1))
+            ):
+                return top, left, bottom, right
+    return None
 
 
 def _content(text: str) -> str:

@@ -1885,6 +1885,23 @@ without it.
   staging folder just after `pandoc --version` is refused a moment (the
   exe still locked), so `_rename` retries for a few seconds there, and
   staging a lock kept is removed by the next installation.
+- Edit Table on pipe tables and ```table blocks (2026-11-03,
+  [documents/pipe_tables.py](../src/mathessible/documents/pipe_tables.py)):
+  both are read into the same `GridTable` (`editable_table_at`, kind
+  "grid", "block" or "pipe"), its new `alignments` carried through every
+  edit. A pipe row is split at a `|` neither escaped nor in an equation
+  (Mathessible masks equations before markdown-it reads a table), while a
+  code span is split as GitHub splits it; an empty header row is no header
+  (Insert Table's table without one). `simplest_table` writes pipe, block
+  (merged cells) or grid (a cell of several lines, a header of several rows,
+  or a merged table with `|` in an equation, since `merged_tables` splits a
+  block's rows at every `|`). A grid table is written back as a grid, so an
+  empty one just inserted does not turn into a pipe table. A randomized test
+  of 300 edits reads every written table back; run on 400 seeds it found
+  that the grid reader took a merged cell's `|` (from `$|z|$`) under a
+  border's `+` for an edge and then refused the whole table: it now tries
+  each `+` along the top as Pandoc does (`_rectangle`), and skips corners
+  inside a cell already found.
 - `table_cells.collect_cell`/`cell_blocks` give every exporter a cell's
   paragraphs, list items and code. Word writes them as the cell's paragraphs
   with Word's list styles; Typst as content with `parbreak`s and its lists,

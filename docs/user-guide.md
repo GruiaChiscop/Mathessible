@@ -225,6 +225,14 @@ top are the header. OK writes the table back, redrawn, as one
 change that Undo takes back. **Insert → Table…** writes an empty grid table
 when **Cells hold paragraphs or lists (grid table)** is checked.
 
+Edit Table works on any table: an ordinary Markdown (pipe) table and a
+```` ```table ```` block with merged cells too. A grid table stays a grid
+table; any other is written back in the simplest syntax that holds it: a
+pipe table; a ```` ```table ```` block once cells are merged; a grid table
+once a cell holds more than one line (paragraphs, a list) or the header is
+more than one row. Columns keep their alignment (`:---:`) in a pipe table or
+a block; a grid table does not keep it.
+
 Without Pandoc, Mathessible asks first: **Install Pandoc…**, **Paste Simplified**
 (each cell one line, as before) or **Cancel**. On Windows on ARM, Pandoc's x64
 build is installed: Windows runs it.

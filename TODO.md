@@ -68,7 +68,7 @@ links back, liblouis and BRF need a braille transcriber's convention.
 - [x] A dialog to edit a grid table cell by cell (Format > Edit Table): a grid
   is drawn with aligned columns, which is slow to edit as text with a screen
   reader. Insert > Table can write a grid table too.
-- [ ] Edit Table for pipe tables and ```` ```table ```` blocks, written back in
+- [x] Edit Table for pipe tables and ```` ```table ```` blocks, written back in
   the simplest syntax that holds them.
 - [x] Word's own list paragraphs (`MsoListParagraph`) in pasted HTML, which
   Word does not write as HTML lists, and its footnotes in a paste.

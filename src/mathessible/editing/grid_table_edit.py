@@ -25,9 +25,10 @@ def cell_at(table: GridTable, row: int, column: int) -> GridCell:
     raise TableEditError(f"No cell at row {row}, column {column}")
 
 
-def _table(rows: int, columns: int, cells: list[GridCell]) -> GridTable:
+def _table(rows: int, columns: int, cells: list[GridCell], alignments: tuple[str, ...] = ()) -> GridTable:
     """The table of those cells, a row (or column) that only lies inside merged cells left out: no cell
-    starts or ends there, so a grid could not draw it (merging a one-column table's two rows makes one)."""
+    starts or ends there, so a grid could not draw it (merging a one-column table's two rows makes one).
+    `alignments` are the columns' (as many as `columns`), the ones left out dropped with them."""
     row_lines = sorted({0, rows, *(edge for cell in cells for edge in (cell.row, cell.row + cell.rowspan))})
     column_lines = sorted({0, columns, *(edge for cell in cells for edge in (cell.column, cell.column + cell.colspan))})
     placed = []
@@ -36,8 +37,13 @@ def _table(rows: int, columns: int, cells: list[GridCell]) -> GridTable:
         rowspan = row_lines.index(cell.row + cell.rowspan) - row
         colspan = column_lines.index(cell.column + cell.colspan) - column
         placed.append(replace(cell, row=row, column=column, rowspan=rowspan, colspan=colspan))
+    kept = tuple(alignments[edge] for edge in column_lines[:-1]) if len(alignments) == columns else ()
+    kept = kept if any(kept) else ()  # No column aligned: none given, as a table read without colons.
     return GridTable(
-        len(row_lines) - 1, len(column_lines) - 1, tuple(sorted(placed, key=lambda cell: (cell.row, cell.column)))
+        len(row_lines) - 1,
+        len(column_lines) - 1,
+        tuple(sorted(placed, key=lambda cell: (cell.row, cell.column))),
+        kept,
     )
 
 
@@ -50,7 +56,10 @@ def new_table(rows: int, columns: int, header: bool) -> GridTable:
 def with_content(table: GridTable, cell: GridCell, content: str) -> GridTable:
     text = "\n".join(line.rstrip() for line in content.replace("\r\n", "\n").split("\n")).strip("\n")
     return _table(
-        table.rows, table.columns, [replace(each, content=text) if each == cell else each for each in table.cells]
+        table.rows,
+        table.columns,
+        [replace(each, content=text) if each == cell else each for each in table.cells],
+        table.alignments,
     )
 
 
@@ -68,7 +77,7 @@ def insert_row(table: GridTable, index: int) -> GridTable:
             cells.append(cell)
     covered = {column for cell in cells if cell.row < index < cell.row + cell.rowspan for column in _columns(cell)}
     cells += [GridCell(index, column, 1, 1, header, "") for column in range(table.columns) if column not in covered]
-    return _table(table.rows + 1, table.columns, cells)
+    return _table(table.rows + 1, table.columns, cells, table.alignments)
 
 
 def delete_row(table: GridTable, index: int) -> GridTable:
@@ -83,7 +92,7 @@ def delete_row(table: GridTable, index: int) -> GridTable:
             cells.append(cell)
         elif cell.rowspan > 1:
             cells.append(replace(cell, rowspan=cell.rowspan - 1))
-    return _table(table.rows - 1, table.columns, cells)
+    return _table(table.rows - 1, table.columns, cells, table.alignments)
 
 
 def insert_column(table: GridTable, index: int) -> GridTable:
@@ -100,7 +109,8 @@ def insert_column(table: GridTable, index: int) -> GridTable:
     covered = {row for cell in cells if cell.column < index < cell.column + cell.colspan for row in _rows(cell)}
     header_rows = header_row_count(table)
     cells += [GridCell(row, index, 1, 1, row < header_rows, "") for row in range(table.rows) if row not in covered]
-    return _table(table.rows, table.columns + 1, cells)
+    aligned = table.alignments
+    return _table(table.rows, table.columns + 1, cells, (*aligned[:index], "", *aligned[index:]) if aligned else ())
 
 
 def delete_column(table: GridTable, index: int) -> GridTable:
@@ -115,7 +125,8 @@ def delete_column(table: GridTable, index: int) -> GridTable:
             cells.append(cell)
         elif cell.colspan > 1:
             cells.append(replace(cell, colspan=cell.colspan - 1))
-    return _table(table.rows, table.columns - 1, cells)
+    aligned = table.alignments
+    return _table(table.rows, table.columns - 1, cells, aligned[:index] + aligned[index + 1 :] if aligned else ())
 
 
 def _right_neighbour(table: GridTable, cell: GridCell) -> GridCell | None:
@@ -169,14 +180,16 @@ def split(table: GridTable, cell: GridCell) -> GridTable:
         for column in _columns(cell):
             first = row == cell.row and column == cell.column
             cells.append(GridCell(row, column, 1, 1, cell.header, cell.content if first else ""))
-    return _table(table.rows, table.columns, cells)
+    return _table(table.rows, table.columns, cells, table.alignments)
 
 
 def with_header_rows(table: GridTable, count: int) -> GridTable:
     """The first `count` rows as the header (0: none). A merged cell may not cross the header's end."""
     if any(cell.row < count < cell.row + cell.rowspan for cell in table.cells):
         raise TableEditError("A merged cell crosses the end of the header")
-    return _table(table.rows, table.columns, [replace(cell, header=cell.row < count) for cell in table.cells])
+    return _table(
+        table.rows, table.columns, [replace(cell, header=cell.row < count) for cell in table.cells], table.alignments
+    )
 
 
 def _joined(first: GridCell, second: GridCell) -> str:
@@ -184,7 +197,9 @@ def _joined(first: GridCell, second: GridCell) -> str:
 
 
 def _merged(table: GridTable, removed: tuple[GridCell, GridCell], merged: GridCell) -> GridTable:
-    return _table(table.rows, table.columns, [cell for cell in table.cells if cell not in removed] + [merged])
+    return _table(
+        table.rows, table.columns, [cell for cell in table.cells if cell not in removed] + [merged], table.alignments
+    )
 
 
 def _rows(cell: GridCell) -> range:

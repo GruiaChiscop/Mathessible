@@ -21,7 +21,7 @@ from mathessible.documents.docx_import import DocxImportError, import_docx
 from mathessible.documents.find_text import FindOptions, find, is_match, replace_all
 from mathessible.documents.front_matter import LATEX, UNICODEMATH, with_equation_language
 from mathessible.documents.front_matter import body as without_front_matter
-from mathessible.documents.grid_tables import grid_table_at, write_grid_table
+from mathessible.documents.grid_tables import write_grid_table
 from mathessible.documents.html_export import (
     PREVIEW_PAGE,
     ExportPage,
@@ -38,6 +38,7 @@ from mathessible.documents.optional_tools import install, managed_directory
 from mathessible.documents.pdf_export import PdfDocument, options_for, pdf_inputs, typst_document
 from mathessible.documents.pdf_security import protect
 from mathessible.documents.pdf_source import PdfSourceError, attached_markdown
+from mathessible.documents.pipe_tables import editable_table_at, simplest_table
 from mathessible.documents.portable_notebook import extract_portable, save_portable
 from mathessible.documents.recent_files import LIMIT as RECENT_LIMIT
 from mathessible.documents.recent_files import menu_labels, remember, still_there
@@ -1381,23 +1382,24 @@ if wx is not None:
                 not self._home
                 and not self.editor.tex
                 and not self.editor.editing_equation
-                and grid_table_at(source, caret) is not None
+                and editable_table_at(source, caret) is not None
             )
 
         def _edit_table(self) -> None:
-            """Format > Edit Table: the grid table at the caret edited cell by cell (TableEditDialog), written
-            back in its place as one undoable change."""
-            found = grid_table_at(self.editor.markdown.GetValue(), self.editor.markdown.GetInsertionPoint())
+            """Format > Edit Table: the table at the caret edited cell by cell (TableEditDialog), written back
+            in its place as one undoable change: a grid table as a grid, any other in the simplest syntax
+            that holds it (pipe_tables)."""
+            found = editable_table_at(self.editor.markdown.GetValue(), self.editor.markdown.GetInsertionPoint())
             if found is None or self.editor.tex or self.editor.editing_equation:
-                self._say(_("Put the caret in a grid table to edit it."))
+                self._say(_("Put the caret in a table to edit it."))
                 return
-            start, end, table = found
-            session_log.write("command", f"edit table: {table.rows} rows, {table.columns} columns")
+            start, end, table, kind = found
+            session_log.write("command", f"edit table: {kind}, {table.rows} rows, {table.columns} columns")
             dialog = TableEditDialog(self, table)
             try:
                 if dialog.ShowModal() != wx.ID_OK:
                     return
-                written = write_grid_table(dialog.table)
+                written = write_grid_table(dialog.table) if kind == "grid" else simplest_table(dialog.table)
             finally:
                 dialog.Destroy()
             self.editor.apply_insert(
