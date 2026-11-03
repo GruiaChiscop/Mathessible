@@ -29,8 +29,9 @@ from mathessible.documents.flowcharts import (
     summary as flowchart_summary,
 )
 from mathessible.documents.front_matter import body as without_front_matter
-from mathessible.documents.html_export import ExportPage, for_page, markdown_parser
+from mathessible.documents.html_export import ExportPage, for_page, markdown_body, markdown_parser
 from mathessible.documents.markdown_math import find_math_zones, with_marks
+from mathessible.documents.table_cells import Cell, collect_cell
 from mathessible.i18n import _
 
 BrailleOf = Callable[[str], str]
@@ -70,8 +71,27 @@ def _placeholder(index: int) -> str:
 _PLACEHOLDER = re.compile("(\\d+)")
 
 
+def _cell_text(cell: Cell) -> str:
+    """A cell in one line: its paragraphs and list items (with their bullet or number) apart; in a table
+    with merged cells, where it is and what it spans first."""
+    parts = []
+    for block in cell.blocks:
+        if block.kind == "code":
+            parts.append(block.code.replace("\n", " "))
+        else:
+            marker = {"bullet": "• ", "ordered": f"{block.number}. "}.get(block.kind, "")
+            parts.append(marker + _inline_text(block.inline))
+    text = "; ".join(part for part in parts if part)
+    span = cell.span  # A merged table's cell (merged or grid), each one placed, as in the PDF.
+    if span:
+        text = _("Row {row}, column {column}, spans {rows} rows and {columns} columns: {text}").format(
+            row=span["y"] + 1, column=span["x"] + 1, rows=span["rowspan"], columns=span["colspan"], text=text
+        )
+    return text
+
+
 def _blocks(markdown: str, text_braille: BrailleOf, math_braille: BrailleOf) -> list[_Block]:
-    markdown = without_front_matter(markdown)
+    markdown = markdown_body(markdown)
     zones = find_math_zones(markdown)
     equations = [zone.content(markdown) for zone in zones]
     transformed = with_marks(markdown, zones, _placeholder)
@@ -96,10 +116,17 @@ def _blocks(markdown: str, text_braille: BrailleOf, math_braille: BrailleOf) -> 
     item_marker: str | None = None
     in_note = False
     row: list[str] = []
-    in_cell = False
+    cell: tuple[object, list[object]] | None = None  # The open cell's opening token and its tokens.
     quoted = 0  # Open quotations (and definitions, which markdown_parser makes them): two cells each.
     for token in tokens:
         kind = token.type
+        if cell is not None:
+            if kind in ("th_close", "td_close"):
+                row.append(_cell_text(collect_cell(*cell)))
+                cell = None
+            else:
+                cell[1].append(token)  # A cell's lists and paragraphs are its own, not the document's.
+            continue
         if kind == "heading_open":
             heading = int(token.tag[1])
         elif kind == "heading_close":
@@ -152,22 +179,10 @@ def _blocks(markdown: str, text_braille: BrailleOf, math_braille: BrailleOf) -> 
             row = []
         elif kind == "tr_close":
             blocks.append(_Block(braille(" ".join(row)), 0, 2))  # A table row, its cells in a line.
-        elif kind in ("th_open", "td_open", "th_close", "td_close"):
-            in_cell = kind.endswith("_open")
+        elif kind in ("th_open", "td_open"):
+            cell = (token, [])
         elif kind == "inline":
             text = _inline_text(token)
-            if in_cell:
-                span = token.meta.get("table_cell")
-                if span:
-                    text = _("Row {row}, column {column}, spans {rows} rows and {columns} columns: {text}").format(
-                        row=span["y"] + 1,
-                        column=span["x"] + 1,
-                        rows=span["rowspan"],
-                        columns=span["colspan"],
-                        text=text,
-                    )
-                row.append(text)
-                continue
             depth = 2 * (len(lists) - 1) if lists else 0
             only = _PLACEHOLDER.fullmatch(text.strip())
             if heading is not None:

@@ -58,6 +58,22 @@ links back, liblouis and BRF need a braille transcriber's convention.
 - [x] Open the exported document in Word and check it by hand: the
   equations, the numbered equation, the table of contents.
 
+## Content from Word (Pandoc)
+
+- [x] Pasting tables whose cells hold paragraphs, lists or line breaks, and
+  nested lists, through Pandoc (optional) as grid tables, which Mathessible
+  reads itself for the preview and every export.
+- [x] File > Import > Word Document (.docx): equations (as LaTeX), footnotes,
+  pictures and merged tables.
+- [ ] A dialog to edit a grid table cell by cell: a grid is drawn with aligned
+  columns, which is slow to edit as text with a screen reader.
+- [ ] Word's own list paragraphs (`MsoListParagraph`) in pasted HTML, which
+  Word does not write as HTML lists, and its footnotes in a paste (the import
+  keeps them).
+- [ ] Equations in a paste from Word: Word's clipboard HTML hides them in
+  conditional comments, so such a paste is still the clipboard's text.
+- [ ] Check a live paste and an import from Word, on macOS and Windows.
+
 ## An editor for writing papers
 
 Mathessible should serve for complex work, theses and papers, not only a

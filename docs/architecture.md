@@ -70,7 +70,11 @@ them resolved (`editing/source_view.py`).
   exports (HTML, PDF, Word, BRF), which read Markdown through one parser
   with footnotes (`html_export.markdown_parser`) and the header and
   footer from the front matter (`front_matter.py`); converter output for
-  HTML passes `documents/mathml_sanitize.py` first.
+  HTML passes `documents/mathml_sanitize.py` first. Grid tables are
+  expanded before it (`grid_tables.py`), and every exporter writes a
+  table cell's blocks from `table_cells.py`. Pandoc (optional, `pandoc.py`,
+  its JSON cut down by `pandoc_ast.py`) serves only a rich paste
+  (`paste_plan.py`) and the Word import (`docx_import.py`).
 - `symbols/`: the dictionaries that name symbols while typing in the
   linear view (NVDA's `symbols.dic` format).
 - `sonification/`: the wx-free state and synthesiser for exploring a function

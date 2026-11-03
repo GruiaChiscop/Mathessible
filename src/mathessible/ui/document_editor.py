@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from mathessible import session_log
+from mathessible.documents import pandoc
 from mathessible.documents.bibtex import document_bibliography
 from mathessible.documents.clipboard_html import document_html
 from mathessible.documents.footnotes import counterpart, insert_footnote
@@ -18,6 +19,8 @@ from mathessible.documents.front_matter import (
     with_header_and_footer,
 )
 from mathessible.documents.markdown_math import MathZone, find_math_zones, math_zone_at, toggle_display
+from mathessible.documents.optional_tools import install
+from mathessible.documents.paste_plan import PasteRoute, paste_route
 from mathessible.documents.pasted_html import markdown_from_html
 from mathessible.documents.tex_macros import LatexMacro, document_macros
 from mathessible.documents.tex_math import (
@@ -37,6 +40,7 @@ from mathessible.editor.structures import append_insert_items
 from mathessible.i18n import _
 from mathessible.settings import AppSettings
 from mathessible.templates.template_source import TemplateEdit
+from mathessible.ui.background_job import run_job
 from mathessible.ui.clipboard import get_clipboard_document_html, get_clipboard_text, set_clipboard_text
 from mathessible.ui.completion_popup import CompletionPopup
 from mathessible.ui.help_menu import append_help_menu
@@ -415,14 +419,82 @@ if wx is not None:
             return True
 
         def _on_paste(self, event: wx.CommandEvent) -> None:
+            """Clipboard HTML (or macOS RTF) as Markdown: by the local conversion, or by Pandoc for what it
+            cannot hold (paste_plan); the clipboard's text when neither applies."""
             if self.tex:
                 event.Skip()
                 return
             html = get_clipboard_document_html()
-            converted = markdown_from_html(html) if html else None
-            if converted is None:
+            route = paste_route(html, pandoc.executable() is not None) if html else PasteRoute.PLAIN
+            session_log.write("command", f"paste: {route}")
+            if route == PasteRoute.PANDOC:
+                self._paste_with_pandoc(html)
+            elif route == PasteRoute.NEEDS_PANDOC:
+                self._offer_pandoc(html)
+            elif route == PasteRoute.LOCAL and (converted := markdown_from_html(html)) is not None:
+                self._insert_pasted(converted)
+            else:
                 event.Skip()
+
+        def _paste_simplified(self, html: str) -> None:
+            converted = markdown_from_html(html)
+            if converted is None:
+                self.paste_plain_text()
+            else:
+                self._insert_pasted(converted)
+
+        def _paste_with_pandoc(self, html: str) -> None:
+            run_job(
+                self,
+                _("Paste"),
+                lambda cancel, report: pandoc.html_to_markdown(html),
+                lambda converted: self._insert_pasted(converted) if converted else self._paste_simplified(html),
+                lambda message: self._offer_pandoc(html, failed=True),
+            )
+
+        def _offer_pandoc(self, html: str, failed: bool = False) -> None:
+            """Content that only Pandoc keeps (blocks in table cells, nested lists): install it, paste it
+            simplified, or leave the document as it is."""
+            if failed:
+                question = _("Pandoc could not convert this content.")
+            else:
+                question = _("This content has paragraphs, lists or line breaks inside table cells, or nested lists.")
+            dialog = wx.MessageDialog(
+                self,
+                question,
+                _("Paste"),
+                (wx.YES_NO if failed else wx.YES_NO | wx.CANCEL) | wx.ICON_QUESTION,
+            )
+            dialog.SetExtendedMessage(
+                _(
+                    "Pasted simplified, each cell becomes one line and nested lists may lose their levels. "
+                    "Pandoc, an optional converter, keeps them as a grid table."
+                )
+            )
+            if failed:
+                dialog.SetYesNoLabels(_("Paste &Simplified"), _("&Cancel"))
+            else:
+                dialog.SetYesNoCancelLabels(_("&Install Pandoc…"), _("Paste &Simplified"), _("&Cancel"))
+            try:
+                answer = dialog.ShowModal()
+            finally:
+                dialog.Destroy()
+            if failed:
+                if answer == wx.ID_YES:
+                    self._paste_simplified(html)
                 return
+            if answer == wx.ID_YES:
+                run_job(
+                    self,
+                    _("Install Pandoc"),
+                    lambda cancel, report: install("pandoc", report, cancel.is_set),
+                    lambda path: self._paste_with_pandoc(html),
+                )
+            elif answer == wx.ID_NO:
+                self._paste_simplified(html)
+
+        def _insert_pasted(self, converted: str) -> None:
+            """Converted Markdown at the selection, as paragraphs of their own when it has several lines."""
             start, end = self.markdown.GetSelection()
             source = self.markdown.GetValue()
             if "\n" in converted:

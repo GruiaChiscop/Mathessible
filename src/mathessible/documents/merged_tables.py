@@ -83,7 +83,8 @@ def _table(source: str) -> list[Token]:
                 opening.attrSet("colspan", str(width))
             if height > 1:
                 opening.attrSet("rowspan", str(height))
-            inline.meta["table_cell"] = {"x": x, "y": y, "colspan": width, "rowspan": height, "columns": len(rows[0])}
+            span = {"x": x, "y": y, "colspan": width, "rowspan": height, "columns": len(rows[0])}
+            opening.meta["table_cell"] = inline.meta["table_cell"] = span
             result.extend([opening, inline, Token("th_close" if y == 0 else "td_close", opening.tag, -1)])
         result.append(Token("tr_close", "tr", -1))
     result.extend([Token("tbody_close", "tbody", -1), Token("table_close", "table", -1)])

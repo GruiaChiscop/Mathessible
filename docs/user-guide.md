@@ -167,8 +167,8 @@ in staging; the copy an update replaces is retained as `*.previous-*` for recove
 TinyTeX package updates preserve the existing packages and configuration by
 updating a copy. Cancellation during a package operation waits for that operation
 to finish before discarding the staged copy.
-Installing Pandoc alone does not enable complex-table paste; that integration
-is still in progress.
+Pandoc is used for pasting tables whose cells hold more than one line and for
+importing Word documents (below); nothing else needs it.
 
 ### Pasting merged tables
 
@@ -189,6 +189,45 @@ left, and `^` continues the cell above. Use `\^` or `\>` for literal markers.
 Ordinary Markdown tables remain unchanged. This is a Mathessible extension;
 other Markdown readers may display the block as source code. Equations in
 Word's native format and embedded clipboard images still have import limits.
+
+### Tables with paragraphs or lists in their cells
+
+A table whose cells hold several paragraphs, a list, code or line breaks, and
+nested lists, are more than a Markdown table can hold. Pasted with Pandoc
+installed, such a table becomes a **grid table**, Pandoc's standard syntax:
+
+```text
++-----------------+-----------------+
+| Group                             |
++=================+=================+
+| First paragraph | - x             |
+|                 | - y             |
+| Second          |                 |
++-----------------+-----------------+
+```
+
+Its columns are drawn with `+`, `-` and `|`, so other Markdown editors that
+know Pandoc's syntax (Pandoc, Quarto) read it too. Mathessible reads it
+itself: the preview and every export (HTML, PDF, Word, braille) keep its
+paragraphs, lists and merged cells without Pandoc. Editing one by hand means
+keeping its columns aligned, which is slow with a screen reader.
+
+Without Pandoc, Mathessible asks first: **Install Pandoc…**, **Paste Simplified**
+(each cell one line, as before) or **Cancel**. A paste with equations is still
+pasted as the clipboard's text, Pandoc or not.
+
+### Importing a Word document
+
+**File → Import → Word Document (.docx)…** converts a Word document with
+Pandoc (offered for installation when it is missing) and saves it as a
+Markdown document where you choose, then opens it. It keeps Word's
+equations (as LaTeX, so the document is marked `math: latex` and its
+equations are kept unconverted), footnotes, tables (merged cells and cells
+with paragraphs as grid tables) and pictures, which are copied into a
+`<name>-media` folder beside the document. Word's drawing formats (EMF, WMF)
+are copied but not shown in the preview.
+
+### Pasting formatted text
 
 Text copied with formatting (from a web page, Word or Google Docs) is pasted
 as Markdown: its headings, lists, emphasis, links and tables. Text copied from

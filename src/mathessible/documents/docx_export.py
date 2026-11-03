@@ -45,10 +45,10 @@ from mathessible.documents.flowcharts import (
     draw as draw_flowchart,
 )
 from mathessible.documents.front_matter import HeaderFooter, header_and_footer
-from mathessible.documents.front_matter import body as without_front_matter
-from mathessible.documents.html_export import ExportPage, for_page, markdown_parser
+from mathessible.documents.html_export import ExportPage, for_page, markdown_body, markdown_parser
 from mathessible.documents.markdown_math import find_math_zones, with_marks
 from mathessible.documents.omml_math import M, OmmlEquation
+from mathessible.documents.table_cells import Cell, collect_cell
 
 # Paper sizes in millimetres, portrait.
 PAPERS = {"a4": (210, 297), "a5": (148, 210), "a3": (297, 420), "us-letter": (215.9, 279.4), "us-legal": (215.9, 355.6)}
@@ -157,7 +157,7 @@ class _Writer:
     ):
         self.document = document
         self.folder = folder  # Where the document's images are.
-        markdown = without_front_matter(markdown)
+        markdown = markdown_body(markdown)
         self.zones = find_math_zones(markdown)
         self.sources = [zone.content(markdown) for zone in self.zones]
         self.omml_of = omml_of
@@ -354,12 +354,19 @@ class _Writer:
         lists: list[str] = []  # "Bullet" or "Number", per open list.
         quote = 0
         heading = 0
-        table: list[list[object]] | None = None
-        cell_token: list[object] = []
-        rows_tokens: list[list[object]] = []
+        rows: list[list[Cell]] | None = None  # The open table's.
+        cell: tuple[object, list[object]] | None = None  # The open cell's opening token and its tokens.
         in_notes = False
         for token in self.tokens:
             kind = token.type
+            if cell is not None:
+                if kind in ("th_close", "td_close"):
+                    if rows:
+                        rows[-1].append(collect_cell(*cell))
+                    cell = None
+                else:
+                    cell[1].append(token)
+                continue
             if kind in ("footnote_block_open", "footnote_block_close"):
                 in_notes = kind == "footnote_block_open"  # Written as Word's footnotes, at their references.
             elif in_notes:
@@ -388,19 +395,15 @@ class _Writer:
             elif kind == "hr":
                 self._rule()
             elif kind == "table_open":
-                table, rows_tokens = [], []
-            elif kind == "tr_open" and table is not None:
-                rows_tokens.append([])
+                rows = []
+            elif kind == "tr_open" and rows is not None:
+                rows.append([])
             elif kind in ("th_open", "td_open"):
-                cell_token = [kind]
-            elif kind == "table_close" and table is not None:
-                self._table(rows_tokens)
-                table = None
+                cell = (token, [])
+            elif kind == "table_close" and rows is not None:
+                self._table(rows)
+                rows = None
             elif kind == "inline":
-                if table is not None and cell_token:
-                    rows_tokens[-1].append((cell_token[0], token))
-                    cell_token = []
-                    continue
                 text = "".join(child.content for child in token.children or () if child.type == "text").strip()
                 only = _PLACEHOLDER.fullmatch(text)
                 if only is not None and self.zones[int(only.group(1))].display and len(token.children or ()) == 1:
@@ -409,35 +412,51 @@ class _Writer:
                 if heading:
                     paragraph = self.document.add_heading(level=min(heading, 9))
                 elif lists:
-                    level = len(lists)
-                    style = f"List {lists[-1]}" + (f" {level}" if 1 < level <= 3 else "")
-                    paragraph = self.document.add_paragraph(style=style)
+                    paragraph = self.document.add_paragraph(style=_list_style(lists[-1], len(lists)))
                 elif quote:
                     paragraph = self.document.add_paragraph(style="Quote")
                 else:
                     paragraph = self.document.add_paragraph()
                 self.inline(paragraph, token)
 
-    def _table(self, rows: list[list[tuple[str, object]]]) -> None:
-        columns = max(
-            (token.meta.get("table_cell", {}).get("columns", len(row)) for row in rows for _, token in row), default=1
-        )
+    def _table(self, rows: list[list[Cell]]) -> None:
+        columns = max((cell.span.get("columns", len(row)) for row in rows for cell in row), default=1)
         table = self.document.add_table(rows=len(rows), cols=columns)
         table.style = "Table Grid"
         for row_index, row in enumerate(rows):
-            for column, (kind, token) in enumerate(row):
-                span = token.meta.get("table_cell", {})
-                x, y = span.get("x", column), span.get("y", row_index)
-                cell = table.cell(y, x)
-                width, height = span.get("colspan", 1), span.get("rowspan", 1)
+            for column, cell in enumerate(row):
+                x, y = cell.span.get("x", column), cell.span.get("y", row_index)
+                word_cell = table.cell(y, x)
+                width, height = cell.span.get("colspan", 1), cell.span.get("rowspan", 1)
                 if width > 1 or height > 1:
-                    cell = cell.merge(table.cell(y + height - 1, x + width - 1))
-                paragraph = cell.paragraphs[0]
-                self.inline(paragraph, token)
-                if kind == "th_open":
-                    for run in paragraph.runs:
-                        run.bold = True
+                    word_cell = word_cell.merge(table.cell(y + height - 1, x + width - 1))
+                self._cell(word_cell, cell)
         self.document.add_paragraph()
+
+    def _cell(self, word_cell: object, cell: Cell) -> None:
+        """A cell's paragraphs, list items (Word's list styles) and code, the first in its own paragraph."""
+        for index, block in enumerate(cell.blocks):
+            style = None
+            if block.kind in ("bullet", "ordered"):
+                style = _list_style("Bullet" if block.kind == "bullet" else "Number", block.level)
+            elif block.kind == "code":
+                style = "No Spacing"
+            if index == 0:
+                paragraph = word_cell.paragraphs[0]
+                if style:
+                    paragraph.style = self.document.styles[style]
+            else:
+                paragraph = word_cell.add_paragraph(style=style)
+            if block.kind == "code":
+                for number, line in enumerate(block.code.split("\n")):
+                    if number:
+                        paragraph.add_run().add_break()
+                    paragraph.add_run(line).font.name = _MONOSPACE
+            else:
+                self.inline(paragraph, block.inline)
+            if cell.header:
+                for run in paragraph.runs:
+                    run.bold = True
 
     def _rule(self) -> None:
         paragraph = self.document.add_paragraph()
@@ -447,6 +466,11 @@ class _Writer:
             bottom.set(qn(name), value)
         borders.append(bottom)
         paragraph._p.get_or_add_pPr().append(borders)
+
+
+def _list_style(kind: str, level: int) -> str:
+    """Word's list style: "List Bullet", "List Number 2" (Word has them to the third level)."""
+    return f"List {kind}" + (f" {level}" if 1 < level <= 3 else "")
 
 
 def _field(paragraph: object, instruction: str, placeholder: str = "") -> None:

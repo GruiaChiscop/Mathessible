@@ -18,6 +18,7 @@ from mathessible.documents.charts import chart_html, is_chart
 from mathessible.documents.flowcharts import flowchart_html, is_flowchart
 from mathessible.documents.front_matter import LATEX, equation_language
 from mathessible.documents.front_matter import body as without_front_matter
+from mathessible.documents.grid_tables import expand_grid_tables, grid_tables_plugin
 from mathessible.documents.markdown_math import find_math_zones, with_marks
 from mathessible.documents.mathml_sanitize import sanitize_mathml
 from mathessible.documents.merged_tables import merged_tables_plugin
@@ -91,10 +92,16 @@ def markdown_parser(native_lists: bool = False, **options: bool) -> MarkdownIt:
     """
     parser = MarkdownIt("commonmark", {"html": False, **options}).enable(["table", "strikethrough"])
     parser = parser.use(footnote_plugin).use(tasklists_plugin).use(deflist_plugin)
-    parser.use(merged_tables_plugin)
+    parser.use(merged_tables_plugin).use(grid_tables_plugin)
     if not native_lists:
         parser.core.ruler.push("plain_lists", _plain_lists)
     return parser
+
+
+def markdown_body(source: str) -> str:
+    """The Markdown every export parses: its front matter left out, its grid tables expanded for
+    `markdown_parser` (see grid_tables: this runs before equations are found and marked)."""
+    return expand_grid_tables(without_front_matter(source))
 
 
 _CHECKBOX = re.compile(r'^<input class="task-list-item-checkbox"[^>]*>$')
@@ -140,7 +147,7 @@ def _chart_or_code(self: object, tokens: Sequence[object], index: int, options: 
 
 def render_markdown(source: str, convert_math: MathConverter, prefix: str = "") -> str:
     """Render safe Markdown and replace math zones with native MathML; `prefix` keeps a page's note ids apart."""
-    source = without_front_matter(source)
+    source = markdown_body(source)
     replacements: dict[str, str] = {}
     zones = find_math_zones(source)
     tokens: list[str] = []

@@ -27,6 +27,7 @@ from mathessible.symbols.braille_signs import load_signs, save_signs
 from mathessible.symbols.dictionary import SymbolDictionaryError, available_dictionaries, import_dictionary
 from mathessible.symbols.download import SymbolDownloadError, download_languages, nvda_languages
 from mathessible.ui.autocorrect_dialog import AutoCorrectDialog
+from mathessible.ui.background_job import run_job
 from mathessible.ui.braille_signs_dialog import BrailleSignsDialog
 from mathessible.ui.export_controls import (
     BrfControls,
@@ -130,51 +131,7 @@ if wx is not None:
                 page.GetSizer().Add(button, 0, wx.ALL, 8)
 
         def _tool_job(self, job, done) -> None:
-            """`job(cancel, report)` on a worker; `report(percent)` turns the pulsing bar into a percentage."""
-            cancel = threading.Event()
-            outcome = {}
-            progress = wx.ProgressDialog(
-                _("Optional tools"), _("Working…"), maximum=100, parent=self, style=wx.PD_APP_MODAL | wx.PD_CAN_ABORT
-            )
-
-            def report(percent: int) -> None:
-                outcome["percent"] = percent
-
-            def work():
-                try:
-                    outcome["result"] = job(cancel, report)
-                except (ToolError, OSError) as error:
-                    outcome["error"] = str(error)
-
-            worker = threading.Thread(target=work, daemon=True)
-            worker.start()
-
-            def poll():
-                if worker.is_alive():
-                    message = _("Cancelling after the current operation…") if cancel.is_set() else _("Working…")
-                    percent = outcome.get("percent")
-                    if percent is None or percent >= 90:  # Unpacking and checking have no percentage.
-                        keep, _skip = progress.Pulse(message)
-                    else:
-                        keep, _skip = progress.Update(percent, message)
-                    if not keep:
-                        cancel.set()
-                    wx.CallLater(150, poll)
-                    return
-                progress.Destroy()
-                if not self or cancel.is_set():
-                    return
-                if "error" in outcome or "result" not in outcome:  # Or the job stopped on an unexpected error.
-                    wx.MessageBox(
-                        _("The operation failed: {error}").format(error=outcome.get("error", "")),
-                        _("Optional tools"),
-                        wx.OK | wx.ICON_ERROR,
-                        self,
-                    )
-                else:
-                    done(outcome.get("result"))
-
-            wx.CallLater(150, poll)
+            run_job(self, _("Optional tools"), job, done)
 
         def _tool_configured(self, tool: str) -> str:
             value = self._tool_paths[tool].GetValue().strip()

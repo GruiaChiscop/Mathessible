@@ -13,10 +13,11 @@ from xml.etree import ElementTree
 import typst
 
 from mathessible import session_log
-from mathessible.documents import charts, flowcharts
+from mathessible.documents import charts, flowcharts, pandoc
 from mathessible.documents.brf_export import BrfLayout, nemeth_in_ueb, notebook_brf
 from mathessible.documents.document_io import read_markdown, write_markdown
 from mathessible.documents.docx_export import DocxOptions, docx_document
+from mathessible.documents.docx_import import DocxImportError, import_docx
 from mathessible.documents.find_text import FindOptions, find, is_match, replace_all
 from mathessible.documents.front_matter import LATEX, UNICODEMATH, with_equation_language
 from mathessible.documents.front_matter import body as without_front_matter
@@ -32,7 +33,7 @@ from mathessible.documents.latex_detection import has_latex_equations
 from mathessible.documents.markdown_math import find_math_zones, rewrite_equations
 from mathessible.documents.notebook import Notebook, NotebookError
 from mathessible.documents.omml_math import OmmlEquation, omml_math
-from mathessible.documents.optional_tools import managed_directory
+from mathessible.documents.optional_tools import install, managed_directory
 from mathessible.documents.pdf_export import PdfDocument, options_for, pdf_inputs, typst_document
 from mathessible.documents.pdf_security import protect
 from mathessible.documents.pdf_source import PdfSourceError, attached_markdown
@@ -66,6 +67,7 @@ from mathessible.symbols.braille_signs import load_signs, signs_yaml
 from mathessible.symbols.system_languages import preferred_languages
 from mathessible.symbols.text_braille import default_table, tables_directory, text_tables
 from mathessible.templates.template_source import TemplateEdit
+from mathessible.ui.background_job import run_job
 from mathessible.ui.document_editor import DocumentEditor
 from mathessible.ui.export_dialogs import (
     BrfExportDialog,
@@ -284,7 +286,11 @@ if wx is not None:
             file_menu.Append(wx.ID_SAVEAS, _("Save &As…") + "\tCtrl+Shift+S")
             file_menu.Append(wx.ID_REVERT_TO_SAVED, _("Re&vert to Saved"))
             file_menu.AppendSeparator()
-            # Export, one item per format (DOCX is to come).
+            self._import_docx_id = wx.NewIdRef()
+            import_menu = wx.Menu()
+            import_menu.Append(self._import_docx_id, _("&Word Document (.docx)…"))
+            file_menu.AppendSubMenu(import_menu, _("&Import"))
+            # Export, one item per format.
             export_menu = wx.Menu()
             export_menu.Append(self._export_html_id, _("&HTML…"))
             export_menu.Append(self._export_pdf_id, _("&PDF…"))
@@ -469,6 +475,7 @@ if wx is not None:
             self.Bind(wx.EVT_MENU, lambda _event: self._export("brf"), id=self._export_brf_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._export("pdf"), id=self._export_pdf_id)
             self.Bind(wx.EVT_MENU, lambda _event: self._export("docx"), id=self._export_docx_id)
+            self.Bind(wx.EVT_MENU, lambda _event: self._import_docx(), id=self._import_docx_id)
             self.Bind(wx.EVT_MENU, lambda _event: self.Close(), id=wx.ID_CLOSE)
             self.Bind(wx.EVT_MENU, self._quit_application, id=wx.ID_EXIT)
             for command_id in (
@@ -1485,6 +1492,80 @@ if wx is not None:
             finally:
                 dialog.Destroy()
             self.open_path(path)
+
+        def _import_docx(self) -> None:
+            """File > Import > Word Document: the .docx through Pandoc (docx_import) into a Markdown document
+            saved where the user chooses, its pictures beside it, then opened."""
+            dialog = wx.FileDialog(
+                self,
+                message=_("Import Word Document"),
+                wildcard=_("Word documents") + " (*.docx)|*.docx",
+                style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST,
+            )
+            try:
+                if dialog.ShowModal() != wx.ID_OK:
+                    return
+                docx = Path(dialog.GetPath())
+            finally:
+                dialog.Destroy()
+            dialog = wx.FileDialog(
+                self,
+                message=_("Save the imported document as"),
+                defaultDir=str(docx.parent),
+                defaultFile=docx.stem + ".md",
+                wildcard=_("Markdown documents") + " (*.md)|*.md",
+                style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,
+            )
+            try:
+                if dialog.ShowModal() != wx.ID_OK:
+                    return
+                destination = Path(dialog.GetPath())
+            finally:
+                dialog.Destroy()
+            session_log.write("command", f"import {docx.name} as {destination.name}")
+            if pandoc.executable() is None:
+                question = wx.MessageDialog(
+                    self,
+                    _("Importing a Word document needs Pandoc, an optional converter. Install it?"),
+                    _("Import Word Document"),
+                    wx.YES_NO | wx.ICON_QUESTION,
+                )
+                question.SetExtendedMessage(
+                    _("Pandoc is downloaded from its official releases into Mathessible's private tools folder.")
+                )
+                question.SetYesNoLabels(_("&Install Pandoc"), _("&Cancel"))
+                try:
+                    if question.ShowModal() != wx.ID_YES:
+                        return
+                finally:
+                    question.Destroy()
+                run_job(
+                    self,
+                    _("Install Pandoc"),
+                    lambda cancel, report: install("pandoc", report, cancel.is_set),
+                    lambda _path: self._run_docx_import(docx, destination),
+                )
+                return
+            self._run_docx_import(docx, destination)
+
+        def _run_docx_import(self, docx: Path, destination: Path) -> None:
+            def failed(message: str) -> None:
+                session_log.write("error", f"import {docx.name}: {message}")  # Pandoc's words, in English.
+                self._show_error(
+                    _("import {name}").format(name=docx.name),
+                    DocxImportError(
+                        _("Pandoc could not read this Word document. It may be damaged, or protected by a password.")
+                    ),
+                )
+
+            run_job(
+                self,
+                _("Import Word Document"),
+                lambda cancel, report: import_docx(docx, destination),
+                lambda imported: self.open_path(imported.path),
+                failed,
+                errors=(DocxImportError,),
+            )
 
         def _is_blank(self) -> bool:
             """An untouched Untitled window, which an opened file takes instead of a new window."""

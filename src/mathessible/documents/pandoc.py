@@ -10,16 +10,30 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+from collections.abc import Callable
 from enum import StrEnum
 
 from mathessible.documents.optional_tools import find_pandoc
+from mathessible.documents.pandoc_ast import clean
 from mathessible.settings import load_settings
+
+# Pandoc's Markdown as Mathessible reads it: CommonMark's syntax with its tables (pipe tables, and grid
+# tables where a cell holds blocks or cells are merged, see grid_tables), footnotes, task and definition
+# lists, strikethrough and `$` equations; none of Pandoc's own (attributes, spans, raw HTML, line blocks).
+_MARKDOWN_EXTENSIONS = (
+    "+pipe_tables+grid_tables-simple_tables-multiline_tables-table_captions"
+    "-raw_html-raw_tex-raw_attribute-native_divs-native_spans-bracketed_spans-fenced_divs"
+    "-link_attributes-header_attributes-fenced_code_attributes-inline_code_attributes-implicit_figures"
+    "-superscript-subscript-inline_notes-citations-line_blocks-fancy_lists-example_lists"
+    "-yaml_metadata_block-pandoc_title_block-smart"
+)
 
 
 class Format(StrEnum):
     HTML = "html"
     JSON = "json"
-    MARKDOWN = "markdown+grid_tables-pipe_tables-simple_tables-multiline_tables-raw_html-raw_tex"
+    DOCX = "docx"
+    MARKDOWN = "markdown" + _MARKDOWN_EXTENSIONS
 
 
 class PandocError(RuntimeError):
@@ -35,16 +49,18 @@ def executable() -> str | None:
     return find_pandoc(load_settings().pandoc_path or os.environ.get("MATHESSIBLE_PANDOC", ""))
 
 
-def convert(source: str, source_format: Format, target_format: Format) -> str:
-    """Convert UTF-8 text locally, with bounded input and a ten-second deadline.
+def convert(
+    source: str | bytes, source_format: Format, target_format: Format, limit: int = 2_000_000, timeout: int = 10
+) -> str:
+    """Convert UTF-8 text (or a binary document, a .docx's bytes) locally, with bounded input and a deadline.
 
     Output is untrusted document data, not safe HTML. Consumers must validate it.
     Warnings are failures so unsupported input cannot silently disappear.
     """
     if not isinstance(source_format, Format) or not isinstance(target_format, Format):
         raise ValueError("Use an explicitly supported Pandoc format")
-    data = source.encode("utf-8")
-    if len(data) > 2_000_000:
+    data = source if isinstance(source, bytes) else source.encode("utf-8")
+    if len(data) > limit:
         raise PandocError("Input exceeds the Pandoc conversion limit")
     program = executable()
     if program is None:
@@ -61,7 +77,7 @@ def convert(source: str, source_format: Format, target_format: Format) -> str:
             ],
             input=data,
             capture_output=True,
-            timeout=10,
+            timeout=timeout,
             check=True,
         )
         if len(result.stdout) > 16_000_000:
@@ -79,8 +95,28 @@ def read_html(source: str) -> dict:
 
     This is an intermediate representation, not Markdown ready for insertion.
     """
+    return _document(convert(source, Format.HTML, Format.JSON))
+
+
+def read_docx(data: bytes) -> dict:
+    """Read a Word document (its bytes, on standard input) as Pandoc's JSON document: its equations as
+    LaTeX, its footnotes, its tables, its pictures by their place in the archive (`media/image1.png`)."""
+    return _document(convert(data, Format.DOCX, Format.JSON, limit=50_000_000, timeout=60))
+
+
+def write_markdown(document: dict) -> str:
+    """Pandoc's document as Mathessible's Markdown (see _MARKDOWN_EXTENSIONS)."""
+    return convert(json.dumps(document), Format.JSON, Format.MARKDOWN, limit=16_000_000, timeout=30).strip("\n")
+
+
+def html_to_markdown(html: str, image_source: Callable[[str], str | None] | None = None) -> str:
+    """Pasted HTML as Markdown through Pandoc, for what the local conversion (pasted_html) cannot hold."""
+    return write_markdown(clean(read_html(html), image_source))
+
+
+def _document(text: str) -> dict:
     try:
-        document = json.loads(convert(source, Format.HTML, Format.JSON))
+        document = json.loads(text)
     except (ValueError, RecursionError) as error:
         raise PandocError("Pandoc returned invalid JSON") from error
     if (

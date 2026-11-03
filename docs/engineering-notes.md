@@ -1822,6 +1822,51 @@ Pandoc output into documents. Existing paste therefore remains unchanged.
 The real Pandoc regression test runs only where the optional executable exists;
 mocked tests cover absence, errors, timeout, protocol and invocation flags.
 
+Pandoc for Word content (2026-11-03). Pandoc is needed only on the way in: a
+paste that only it keeps, and File > Import > Word Document. What it writes is
+read by Mathessible's own code, so a document opens, previews and exports
+without it.
+
+- Tables whose cells hold blocks are stored as Pandoc's grid tables (the
+  standard syntax, chosen over extending the ```` ```table ```` block); merged
+  cells alone stay ```` ```table ````, which needs no Pandoc.
+- `grid_tables.py` reads them by character columns (Pandoc pads a wide
+  character as two and does not escape `|` in a cell, so rows cannot be split
+  at `|`). The exporters replace equations with marks of another width before
+  parsing, which would break the columns, so `expand_grid_tables` runs first
+  (`html_export.markdown_body`, used by the preview and all four exports): it
+  rewrites each grid as private-use marker paragraphs with each cell's content
+  as ordinary Markdown between them, and `grid_tables_plugin` (a core rule)
+  turns them into table tokens whose cells hold block tokens. Equations in
+  cells are therefore found and marked as anywhere else. Cells carry
+  `table_cell` positions only when the table has merged cells, as
+  `merged_tables` does; the exporters then place cells by position.
+- `table_cells.collect_cell`/`cell_blocks` give every exporter a cell's
+  paragraphs, list items and code. Word writes them as the cell's paragraphs
+  with Word's list styles; Typst as content with `parbreak`s and its lists,
+  and a merged table's header as `table.header` only when no header cell
+  spans into the body (Typst refuses that); BRF as one line joined by "; ".
+  A cell's lists no longer touch the document's list state (they leaked past
+  the table in BRF).
+- Paste (`paste_plan.paste_route`): equations (Word's or MathML) keep the
+  clipboard's text, as before; `paste_requirements` features go to Pandoc,
+  or to a native dialog (Install Pandoc, Paste Simplified, Cancel) when it is
+  missing; everything else stays local. Pandoc runs on a worker
+  (`ui/background_job.run_job`, shared with Settings) behind a modal progress
+  window, so the selection cannot change before the insertion.
+- Pandoc gets no filters: `pandoc_ast.clean` cuts its JSON down in Python
+  (raw HTML/TeX dropped, Div/Span/Figure replaced by their content, pictures
+  by their description unless the import places them), then Pandoc writes
+  Markdown with `_MARKDOWN_EXTENSIONS` (pipe tables, grid tables where needed,
+  none of Pandoc's attributes, spans, raw HTML or YAML).
+- Import (`docx_import.py`): Pandoc reads the .docx from stdin in its sandbox
+  (50 MB, 60 s). Word's equations arrive as LaTeX, so the document gets
+  `math: latex` and keeps them unconverted. Pictures are copied by us from the
+  archive (`word/media/…`, each path checked: no absolute paths, `..`, links or
+  directories) into `<name>-media/`; Pandoc's `--extract-media` would need
+  writing outside the sandbox. A caption that repeats the picture's
+  description is not written twice.
+
 Application data paths are resolved centrally by `data_paths.data_directory`.
 Windows uses roaming AppData and macOS uses the user’s Application Support folder.
 Linux retains its home-directory location.

@@ -29,11 +29,11 @@ from mathessible.documents.flowcharts import (
     draw as draw_flowchart,
 )
 from mathessible.documents.front_matter import HeaderFooter, header_and_footer
-from mathessible.documents.front_matter import body as without_front_matter
-from mathessible.documents.html_export import ExportPage, for_page, markdown_parser
+from mathessible.documents.html_export import ExportPage, for_page, markdown_body, markdown_parser
 from mathessible.documents.markdown_math import find_math_zones, with_marks
 from mathessible.documents.pdf_security import PdfSecurity
 from mathessible.documents.pdf_source import DOCUMENT_DESCRIPTION, PAGE_DESCRIPTION
+from mathessible.documents.table_cells import Cell, collect_cell
 from mathessible.documents.typst_math import TypstEquation
 from mathessible.settings import AppSettings, pdf_standards
 
@@ -148,7 +148,7 @@ class _Writer:
         # caller writes them beside it (see typst_document).
         self.images = images if images is not None else {}
         self.folder = folder
-        markdown = without_front_matter(markdown)
+        markdown = markdown_body(markdown)
         self.zones = find_math_zones(markdown)
         self.sources = [zone.content(markdown) for zone in self.zones]
         self.equation_of = equation_of
@@ -275,14 +275,20 @@ class _Writer:
         lines: list[str] = []
         lists: list[str] = []  # "-" or "+", per open list.
         quote_depth = 0
-        table: list[list[str]] | None = None
-        merged_columns = 0
-        header_cells = 0
-        in_cell = False
+        table: list[list[Cell]] | None = None
+        cell: tuple[object, list[object]] | None = None  # The open cell's opening token and its tokens.
         heading = 0
         in_notes = False
         for token in self.tokens:
             kind = token.type
+            if cell is not None:
+                if kind in ("th_close", "td_close"):
+                    if table:
+                        table[-1].append(collect_cell(*cell))
+                    cell = None
+                else:
+                    cell[1].append(token)
+                continue
             indent = "  " * max(0, len(lists) - 1)
             if kind in ("footnote_block_open", "footnote_block_close"):
                 in_notes = kind == "footnote_block_open"  # The notes are written at their references.
@@ -318,37 +324,17 @@ class _Writer:
                 lines.append("#line(length: 100%)")
                 lines.append("")
             elif kind == "table_open":
-                table, header_cells = [], 0
-                merged_columns = 0
+                table = []
             elif kind == "tr_open" and table is not None:
                 table.append([])
             elif kind in ("th_open", "td_open"):
-                in_cell = True
-                if kind == "th_open":
-                    header_cells += 1
-            elif kind in ("th_close", "td_close"):
-                in_cell = False
+                cell = (token, [])
             elif kind == "table_close" and table is not None:
-                if merged_columns:
-                    lines.append(
-                        f"#table(columns: {merged_columns}, " + ", ".join(cell for row in table for cell in row) + ")"
-                    )
-                else:
-                    lines.append(self.table(table, header_cells))
+                lines.append(self._table(table))
                 table = None
             elif kind == "inline":
                 content = self.inline(token)
-                if in_cell and table is not None:
-                    span = token.meta.get("table_cell")
-                    if span:
-                        merged_columns = span["columns"]
-                        table[-1].append(
-                            f"table.cell(x: {span['x']}, y: {span['y']}, "
-                            f"colspan: {span['colspan']}, rowspan: {span['rowspan']})[{content}]"
-                        )
-                    else:
-                        table[-1].append(content)
-                elif heading:
+                if heading:
                     lines.append(f"{'=' * heading} {content}")
                     lines.append("")
                 elif lists and token.level > 0 and self._first_in_item(token):
@@ -363,6 +349,48 @@ class _Writer:
     def _first_in_item(self, token: object) -> bool:
         index = self.tokens.index(token)
         return index >= 2 and self.tokens[index - 2].type == "list_item_open"
+
+    def _table(self, rows: list[list[Cell]]) -> str:
+        """A merged or grid table's cells placed by position (`table.cell`), its header rows as the table's
+        header; an ordinary table's row by row (`table`)."""
+        cells = [cell for row in rows for cell in row]
+        if not any(cell.span for cell in cells):
+            return self.table(
+                [[self._cell(cell) for cell in row] for row in rows],
+                sum(cell.header for cell in rows[0]) if rows else 0,
+            )
+        columns = max(cell.span.get("columns", 1) for cell in cells if cell.span)
+        placed = {
+            id(cell): f"table.cell(x: {cell.span['x']}, y: {cell.span['y']}, colspan: {cell.span['colspan']}, "
+            f"rowspan: {cell.span['rowspan']})[{self._cell(cell)}]"
+            for cell in cells
+        }
+        # Typst's header: its rows only, so not when a header cell spans down into the body.
+        headers = [cell for cell in cells if cell.header]
+        last = max((cell.span["y"] for cell in headers), default=-1)
+        if any(cell.span["y"] + cell.span["rowspan"] - 1 > last for cell in headers) or any(
+            cell.span["y"] <= last for cell in cells if not cell.header
+        ):
+            headers = []
+        header = [placed[id(cell)] for cell in headers]
+        body = [placed[id(cell)] for cell in cells if id(cell) not in {id(header_cell) for header_cell in headers}]
+        parts = ([f"table.header({', '.join(header)})"] if header else []) + body
+        return f"#table(columns: {columns}, " + ", ".join(parts) + ")\n"
+
+    def _cell(self, cell: Cell) -> str:
+        """A cell's content as Typst markup: its paragraphs apart, its list items as Typst's lists."""
+        parts: list[str] = []
+        for block in cell.blocks:
+            indent = "  " * max(0, block.level - 1)
+            if block.kind == "code":
+                parts.append(f"#raw(block: true, {typst_string(block.code)})")
+            elif block.kind == "bullet":
+                parts.append(f"{indent}- {self.inline(block.inline)}")
+            elif block.kind == "ordered":
+                parts.append(f"{indent}+ {self.inline(block.inline)}")
+            else:
+                parts.append(f"{indent}{self.inline(block.inline)}")
+        return "\n\n".join(parts)
 
     @staticmethod
     def table(rows: list[list[str]], header_cells: int) -> str:
