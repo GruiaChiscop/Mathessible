@@ -95,7 +95,7 @@ for what the equation editor says about an equation), and
   upstream commits (liblouis at a release tag, compiled into the native
   extension by `native/mathcat_py/build.rs`, as NVDA builds it).
   Mathessible's fixes to them are files in `patches/`, applied by
-  `scripts/bootstrap.sh`; the app warns at startup when one is missing
+  `scripts/bootstrap.sh` (`bootstrap.ps1` on Windows); the app warns at startup when one is missing
   ([patch_check.py](src/mathessible/patch_check.py)).
 - Changing either submodule is allowed when a fix belongs there. Keep the
   change minimal, save it as a numbered patch with a header saying what

@@ -46,10 +46,15 @@ sh scripts/bootstrap.sh
 uv run mathessible
 ```
 
-`scripts/bootstrap.sh` fetches the MathCAT and UnicodeMathML submodules,
+On Windows, run `scripts\bootstrap.bat` instead of `sh scripts/bootstrap.sh`.
+
+The bootstrap script fetches the MathCAT and UnicodeMathML submodules,
 applies Mathessible's patches to them, builds the native MathCAT extension and
 runs the tests. On macOS wxPython needs a Framework build of Python
-(Homebrew's or python.org's); the script finds one. The
+(Homebrew's or python.org's); the script finds one. On Windows the extension
+is compiled with Visual Studio's C++ build tools and their Clang: when they
+are missing, the script prints the command that installs them (as an
+administrator). The
 [quick start](docs/quick-start.md) goes on from there to a first
 equation.
 

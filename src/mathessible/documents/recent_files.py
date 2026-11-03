@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -11,7 +12,12 @@ LIMIT = 10
 def remember(recent: Sequence[str], path: Path, limit: int = LIMIT) -> tuple[str, ...]:
     """`path` first, without its earlier place, the list cut at `limit`."""
     entry = str(path.expanduser().resolve())
-    return tuple([entry, *(item for item in recent if item != entry)][:limit])
+    return tuple([entry, *(item for item in recent if not _same(item, entry))][:limit])
+
+
+def _same(item: str, entry: str) -> bool:
+    """Whether a remembered entry is that file: Windows spells one path several ways (`/b.md`, `C:\\B.md`)."""
+    return os.path.normcase(str(Path(item).expanduser().resolve())) == os.path.normcase(entry)
 
 
 def still_there(recent: Sequence[str]) -> tuple[str, ...]:

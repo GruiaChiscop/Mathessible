@@ -1,6 +1,6 @@
 import unittest
 
-from converter_harness import convert
+from converter_harness import convert, needs_node
 from mathessible.editing.source_map import anchor_offset, inside_leaf, leaf_at, leaf_characters, leaf_nodes, map_leaves
 from mathessible.mathcat.navigator import MathCatNavigator
 
@@ -122,6 +122,7 @@ class AnchorTests(unittest.TestCase):
         self.assertEqual(self.anchor(source, mathml, fraction, "before"), 1)
         self.assertEqual(self.anchor(source, mathml, fraction, "after"), 8)
 
+    @needs_node
     def test_the_end_of_an_argument_or_integrand_box_types_inside_it(self) -> None:
         # "end integrand" / "end argument": inside the box `〖...〗`, empty or not, never after it.
         def box(document):

@@ -24,6 +24,7 @@ from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 from mathessible.data_paths import data_directory
+from mathessible.documents.optional_tools import tlmgr_program
 
 ENGINES = ("pdflatex", "lualatex", "xelatex")
 _MISSING_FILE = re.compile(r"File `([^']+)' not found")
@@ -147,6 +148,8 @@ def find_installation(
     configured: str = "",
 ) -> TexInstallation | None:
     """An explicit bin directory, otherwise an existing system distribution, then the private copy."""
+    # The private copy from the arguments as given: a test's home is the whole answer (data_directory).
+    private = tinytex_directory(home=home, environ=environ, platform=platform)
     environ = dict(os.environ) if environ is None else environ
     home = Path.home() if home is None else home
     platform = sys.platform if platform is None else platform
@@ -154,10 +157,7 @@ def find_installation(
     places = (
         [Path(configured).expanduser()]
         if configured
-        else [
-            *_candidates(environ, home, platform),
-            *sorted((tinytex_directory(home=home, environ=environ, platform=platform) / "bin").glob("*")),
-        ]
+        else [*_candidates(environ, home, platform), *sorted((private / "bin").glob("*"))]
     )
     for directory in places:
         if directory in seen:
@@ -173,7 +173,6 @@ def tinytex_directory(
     environ: dict[str, str] | None = None, home: Path | None = None, platform: str | None = None
 ) -> Path:
     """The private TinyTeX root; legacy user installations are still detected separately."""
-    home = Path.home() if home is None else home
     return data_directory(home=home, platform=platform, environ=environ) / "tools" / "TinyTeX"
 
 
@@ -345,9 +344,10 @@ def document_language(source: str, fallback: str) -> str:
 
 def _install(installation: TexInstallation, filename: str, run: Runner) -> str | None:
     """Install the package holding `filename` with tlmgr; its name, or None when it cannot."""
-    if not _executable(installation.bin_directory, "tlmgr"):
+    program = tlmgr_program(installation.bin_directory)  # `tlmgr.bat` on Windows.
+    if program is None:
         return None
-    tlmgr = str(installation.program("tlmgr"))
+    tlmgr = str(program)
     try:
         search = run(
             [tlmgr, "search", "--global", "--file", "/" + filename], capture_output=True, text=True, timeout=300
@@ -360,9 +360,10 @@ def _install(installation: TexInstallation, filename: str, run: Runner) -> str |
 
 def _install_package(installation: TexInstallation, package: str, run: Runner) -> str | None:
     """Install `package` with tlmgr; its name, or None when it cannot."""
-    if not _executable(installation.bin_directory, "tlmgr"):
+    program = tlmgr_program(installation.bin_directory)
+    if program is None:
         return None
-    tlmgr = str(installation.program("tlmgr"))
+    tlmgr = str(program)
     try:
         done = run([tlmgr, "install", package], capture_output=True, text=True, timeout=900)
         if done.returncode != 0 and _TLMGR_OUTDATED in done.stdout + done.stderr:

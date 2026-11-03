@@ -1892,7 +1892,12 @@ Linux retains its home-directory location.
 
 Windows on ARM64 (2026-11-03, first run in a Windows 11 ARM64 VM): the
 extension builds natively with Visual Studio Build Tools (the ARM64 tools
-and its Clang component, for `clang-cl`) and Rust. Traps found:
+and its Clang component, for `clang-cl`) and Rust.
+[scripts/bootstrap.ps1](../scripts/bootstrap.ps1) (`bootstrap.bat` runs it
+past the execution policy) does what bootstrap.sh does, and finds the
+build tools with vswhere, loads `vcvars`, puts clang-cl on the PATH and
+builds OpenSSL on ARM64; installing the build tools needs an administrator,
+so it prints the winget command instead. Traps found:
 - `cryptography` (through `pypdf[crypto]`) has had no win_arm64 wheel since
   46.0.3, so uv builds it, which needs OpenSSL: `vcpkg install
   openssl:arm64-windows-static-md`, then `OPENSSL_DIR` set to that tree and
@@ -1904,6 +1909,18 @@ and its Clang component, for `clang-cl`) and Rust. Traps found:
   on load), and speech fell back silently to the console; 0.18.3's is ARM64.
 - wxPython has `OSXDisableAllSmartSubstitutions` on every platform and
   raises NotImplementedError off macOS: test the platform, not `hasattr`.
+- Package installs while compiling a .tex file looked for `tlmgr` or
+  `tlmgr.exe`; on Windows it is `tlmgr.bat`, so they never ran. `_install`
+  uses `optional_tools.tlmgr_program`.
+- `data_directory(home=...)` still took APPDATA on Windows, so tests given
+  a temporary home wrote into the real `AppData\Roaming\mathessible`
+  (a fake TinyTeX the app would then have found). An explicit home is now
+  the whole answer; `find_installation` passes its arguments on as given.
+- The tests assumed Unix: program names without `.exe`/`.bat`, `/missing`
+  as a path, `shutil.rmtree` on git's read-only objects, and one converter
+  test without `needs_node`. All 783 pass on Windows (72 skipped: Node,
+  Pandoc, TeX). Recent files compare entries as normalized paths, as
+  Windows spells one path several ways.
 - WebView2 (wx's Edge backend) reports the page `SetPage` gives (a `data:`
   URL) as loaded "about:blank". Once the converter never became ready in a
   session started right after the previous one was killed (its

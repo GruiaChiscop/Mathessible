@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -36,6 +37,13 @@ siunitx:
 other:
 \ttexmf-dist/tex/latex/other/siunitx.sty.bak
 """
+
+
+def program(name: str) -> str:
+    """A TeX program's file name on this platform: `pdflatex.exe` and `tlmgr.bat` on Windows."""
+    if sys.platform != "win32":
+        return name
+    return f"{name}.bat" if name == "tlmgr" else f"{name}.exe"
 
 
 def executable(path: Path) -> None:
@@ -90,8 +98,8 @@ class CompileTests(unittest.TestCase):
         self.folder = tempfile.TemporaryDirectory()
         self.addCleanup(self.folder.cleanup)
         self.bin = Path(self.folder.name, "bin")
-        for program in ("pdflatex", "tlmgr"):
-            executable(self.bin / program)
+        for name in ("pdflatex", "tlmgr"):
+            executable(self.bin / program(name))
         self.tex = Path(self.folder.name, "paper.tex")
         self.tex.write_text("\\documentclass{article}\\usepackage{siunitx}\\begin{document}x\\end{document}")
         self.installation = TexInstallation("TinyTeX", self.bin, ("pdflatex",))
@@ -102,7 +110,7 @@ class CompileTests(unittest.TestCase):
 
         def run(command: list[str], **options: object) -> subprocess.CompletedProcess:
             self.calls.append(command)
-            name = Path(command[0]).name
+            name = Path(command[0]).stem
             if name == "tlmgr":
                 return subprocess.CompletedProcess(command, 0, SEARCH if command[1] == "search" else "", "")
             code, log = logs.pop(0)
@@ -117,12 +125,12 @@ class CompileTests(unittest.TestCase):
         result = compile_tex(self.tex, self.installation, self.runner([(1, MISSING_LOG), (0, "done")]))
         self.assertEqual(result.pdf, self.tex.with_suffix(".pdf"))
         self.assertEqual(result.installed, ("siunitx",))
-        self.assertIn([os.fspath(self.bin / "tlmgr"), "install", "siunitx"], self.calls)
+        self.assertIn([os.fspath(self.bin / program("tlmgr")), "install", "siunitx"], self.calls)
 
     def test_compiled_again_while_the_log_asks(self) -> None:
         logs = [(0, "LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right."), (0, "done")]
         compile_tex(self.tex, self.installation, self.runner(logs))
-        self.assertEqual(sum(Path(call[0]).name == "pdflatex" for call in self.calls), 2)
+        self.assertEqual(sum(Path(call[0]).stem == "pdflatex" for call in self.calls), 2)
 
     def test_an_error_is_reported_with_its_line(self) -> None:
         result = compile_tex(self.tex, self.installation, self.runner([(1, ERROR_LOG)]))
@@ -136,42 +144,42 @@ class CompileTests(unittest.TestCase):
         self.assertIn("nowhere.sty", result.error)
 
     def test_a_tagged_pdf_is_compiled_by_lualatex_with_its_metadata_on_the_command_line(self) -> None:
-        executable(self.bin / "lualatex")
+        executable(self.bin / program("lualatex"))
         installation = TexInstallation("TinyTeX", self.bin, ("pdflatex", "lualatex"))
         result = compile_accessible_tex(self.tex, installation, "ro", self.runner([(0, "done")]))
         self.assertTrue(result.tagged)
         command = self.calls[0]
-        self.assertEqual(Path(command[0]).name, "lualatex")
+        self.assertEqual(Path(command[0]).stem, "lualatex")
         self.assertIn("-jobname=paper", command)
         self.assertEqual(command[-1], tagging_metadata("ro") + "\\input{paper.tex}")
         self.assertIn("lang=ro", command[-1])
         self.assertIn("math/setup=mathml-SE", command[-1])
 
     def test_a_document_with_its_own_metadata_is_compiled_as_it_says(self) -> None:
-        executable(self.bin / "lualatex")
+        executable(self.bin / program("lualatex"))
         self.tex.write_text("\\DocumentMetadata{lang=de}\\documentclass{article}")
         installation = TexInstallation("TinyTeX", self.bin, ("pdflatex", "lualatex"))
         compile_accessible_tex(self.tex, installation, "ro", self.runner([(0, "done")]))
         self.assertEqual(self.calls[0][-1], "paper.tex")
 
     def test_when_tagging_fails_the_pdf_is_compiled_untagged(self) -> None:
-        executable(self.bin / "lualatex")
+        executable(self.bin / program("lualatex"))
         installation = TexInstallation("TinyTeX", self.bin, ("pdflatex", "lualatex"))
         result = compile_accessible_tex(self.tex, installation, "en", self.runner([(1, ERROR_LOG), (0, "done")]))
         self.assertEqual(result.pdf, self.tex.with_suffix(".pdf"))
         self.assertFalse(result.tagged)
         self.assertEqual(result.tagging_error, "Undefined control sequence.")
-        self.assertEqual(Path(self.calls[-1][0]).name, "pdflatex")
+        self.assertEqual(Path(self.calls[-1][0]).stem, "pdflatex")
 
     def test_the_tagging_support_is_installed_and_an_old_tlmgr_updated_first(self) -> None:
-        executable(self.bin / "lualatex")
+        executable(self.bin / program("lualatex"))
         installation = TexInstallation("TinyTeX", self.bin, ("pdflatex", "lualatex"))
         installs = iter([1, 0])
         logs = [(1, "! LaTeX Error: No support files for \\DocumentMetadata found."), (0, "done")]
         latex = self.runner(logs)
 
         def run(command: list[str], **options: object) -> subprocess.CompletedProcess:
-            if Path(command[0]).name == "tlmgr" and command[1] == "install":
+            if Path(command[0]).stem == "tlmgr" and command[1] == "install":
                 self.calls.append(command)
                 code = next(installs)
                 return subprocess.CompletedProcess(
@@ -181,7 +189,7 @@ class CompileTests(unittest.TestCase):
 
         result = compile_accessible_tex(self.tex, installation, "en", run)
         self.assertEqual(result.installed, ("latex-lab",))
-        self.assertIn([os.fspath(self.bin / "tlmgr"), "update", "--self"], self.calls)
+        self.assertIn([os.fspath(self.bin / program("tlmgr")), "update", "--self"], self.calls)
         self.assertTrue(result.tagged)
 
     def test_the_documents_language(self) -> None:

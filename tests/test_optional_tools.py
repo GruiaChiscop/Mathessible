@@ -42,7 +42,7 @@ class OptionalToolTests(unittest.TestCase):
     def test_custom_path_never_falls_back(self) -> None:
         with patch("mathessible.documents.optional_tools.shutil.which", return_value=None) as which:
             self.assertIsNone(find_pandoc("/missing/pandoc"))
-            which.assert_called_once_with("/missing/pandoc")
+            which.assert_called_once_with(str(Path("/missing/pandoc")))
         self.assertIsNone(find_installation(configured=str(self.root / "missing")))
 
     def test_system_pandoc_wins_over_private_copy(self) -> None:

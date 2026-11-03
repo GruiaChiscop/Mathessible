@@ -11,9 +11,10 @@ def data_directory(
     home: Path | None = None, platform: str | None = None, environ: dict[str, str] | None = None
 ) -> Path:
     """Resolve paths only; never create directories or migrate during an import."""
+    # An explicit home (a test's folder) is the whole answer: APPDATA would still name the real one.
+    environ = environ if environ is not None else (os.environ if home is None else {})
     home = home if home is not None else Path.home()
     platform = platform if platform is not None else sys.platform
-    environ = environ if environ is not None else os.environ
     if platform == "win32":
         roaming = Path(environ.get("APPDATA", ""))
         if not roaming.is_absolute():

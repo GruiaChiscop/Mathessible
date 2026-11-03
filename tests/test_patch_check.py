@@ -1,10 +1,22 @@
+import os
 import shutil
+import stat
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 
 from mathessible.patch_check import missing_patches
+
+
+def _remove(directory: Path) -> None:
+    """The folder and everything in it; Windows refuses to delete git's read-only objects."""
+
+    def writable_again(function, path, _error) -> None:
+        os.chmod(path, stat.S_IWRITE)
+        function(path)
+
+    shutil.rmtree(directory, onexc=writable_again)
 
 
 def _git(directory: Path, *arguments: str) -> None:
@@ -15,7 +27,7 @@ def _git(directory: Path, *arguments: str) -> None:
 class PatchCheckTests(unittest.TestCase):
     def setUp(self) -> None:
         self.root = Path(tempfile.mkdtemp())
-        self.addCleanup(shutil.rmtree, self.root)
+        self.addCleanup(_remove, self.root)
         submodule = self.root / "MathCAT"
         submodule.mkdir()
         _git(submodule, "init", "-q")
@@ -37,8 +49,9 @@ class PatchCheckTests(unittest.TestCase):
         self.assertEqual(missing_patches(self.root), ["MathCAT/0001-names.patch"])
 
     def test_without_submodules_nothing_can_be_told(self) -> None:
-        self.assertIsNone(missing_patches(Path(tempfile.mkdtemp())))
+        with tempfile.TemporaryDirectory() as empty:
+            self.assertIsNone(missing_patches(Path(empty)))
 
     def test_this_checkout_has_every_patch(self) -> None:
-        # Fails after a fresh clone until scripts/bootstrap.sh has run.
+        # Fails after a fresh clone until scripts/bootstrap.sh (bootstrap.bat) has run.
         self.assertEqual(missing_patches(), [])

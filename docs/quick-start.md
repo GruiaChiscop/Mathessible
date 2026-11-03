@@ -17,7 +17,10 @@ sh scripts/bootstrap.sh
 uv run mathessible
 ```
 
-`scripts/bootstrap.sh` prepares MathCAT and the converter and runs the
+On Windows, run `scripts\bootstrap.bat` instead of `sh scripts/bootstrap.sh`;
+it says what to install first if Visual Studio's C++ build tools are missing.
+
+The bootstrap script prepares MathCAT and the converter and runs the
 tests; it is needed once, and again after an update. Afterwards
 `uv run mathessible` is enough. Mathessible speaks through the screen reader that is
 running (VoiceOver, NVDA, JAWS…).
