@@ -41,7 +41,128 @@ def prepare_for_mathcat(mathml: str) -> str:
         mathml = _intent_fixups(mathml)
     if 'intent=":equations"' in mathml and "<mtext>(" in mathml:
         mathml = _row_labels(mathml)
+    # Accents: the converter writes `x\vec` with the combining arrow (U+20D7) as its `<mo>`, which MathCAT
+    # reads "x with right arrow above embellishment above"; MathCAT knows the spacing characters.
+    mathml = _COMBINING_ACCENT.sub(_spacing_accent, mathml)
+    if "<mover" in mathml or "<munder" in mathml or 'notation="top"' in mathml or 'notation="bottom"' in mathml:
+        mathml = _accents(mathml)
     return mathml
+
+
+# Combining accents the converter writes in an `<mo>`, and the spacing characters MathCAT names (the source
+# map finds them by these: source_map._SPELLINGS).
+SPACING_ACCENTS = {
+    "\u0300": "`",
+    "\u0301": "\u00b4",
+    "\u0302": "\u02c6",
+    "\u0303": "\u02dc",
+    "\u0304": "\u00af",
+    "\u0305": "\u00af",
+    "\u0306": "\u02d8",
+    "\u0307": "\u02d9",
+    "\u0308": "\u00a8",
+    "\u030c": "\u02c7",
+    "\u20d0": "\u21bc",
+    "\u20d1": "\u21c0",
+    "\u20d6": "\u2190",
+    "\u20d7": "\u2192",
+    "\u20e1": "\u2194",
+}
+_COMBINING_ACCENT = re.compile(r"(<mo\b[^>]*>)(&#x[0-9a-fA-F]+;|[\u0300-\u036f\u20d0-\u20ff])</mo>")
+
+
+def _spacing_accent(match: re.Match[str]) -> str:
+    text = match.group(2)
+    character = chr(int(text[3:-1], 16)) if text.startswith("&#x") else text
+    return match.group(1) + SPACING_ACCENTS[character] + "</mo>" if character in SPACING_ACCENTS else match.group(0)
+
+
+# An accent's name for its intent (`_accents`): MathCAT says it with "start" and "end" (MathCAT patch 0010).
+_ACCENT_NAMES = {
+    "\u00af": "bar",
+    "\u203e": "bar",
+    "^": "hat",
+    "\u02c6": "hat",
+    "~": "tilde",
+    "\u02dc": "tilde",
+    "\u02d9": "dot",
+    "\u00a8": "double-dot",
+    "\u20db": "triple-dot",
+    "\u20dc": "quadruple-dot",
+    "\u02c7": "check",
+    "\u02d8": "breve",
+    "\u00b4": "acute",
+    "`": "grave",
+    "\u2192": "vector",
+    "\u21c0": "vector",
+    "\u2190": "left-arrow",
+    "\u2194": "left-right-arrow",
+    "\u21bc": "left-harpoon",
+}
+_UNDERLINES = frozenset("_\u00af\u203e")
+
+
+def _accents(mathml: str) -> str:
+    """Accents MathCAT reads with what they cover: "start bar, x y z t, end bar", not "x y z t bar" (the bar
+    over t, or over all four?). Leaves the MathML as is if it does not parse.
+
+    `x\bar` comes as a frame with only its top side (`menclose notation="top"`, "line on top, enclosing x"):
+    it becomes the accent it is; a ▭ with only its top side (the same MathML) is drawn as one. An accent gets
+    intent="bar:accent($base)" (the name, `_ACCENT_NAMES`); letters under it are kept apart by invisible
+    times, as MathCAT puts between them elsewhere: alone in a row, MathCAT reads them as one word ("𝑥𝑦𝑧𝑡").
+    """
+    try:
+        root = ElementTree.fromstring(mathml)
+    except ElementTree.ParseError:
+        return mathml
+    changed = False
+    namespace = root.tag[: -len(_local(root))]
+    for element in list(root.iter()):
+        tag = _local(element)
+        if tag == "menclose" and element.get("notation") in ("top", "bottom"):
+            children = list(element)
+            base = children[0] if len(children) == 1 else _row(namespace, children)
+            line = ElementTree.Element(namespace + "mo")
+            line.text = "\u00af" if element.get("notation") == "top" else "_"
+            tail = element.tail
+            element.clear()
+            element.tail = tail
+            element.tag = namespace + ("mover" if line.text == "\u00af" else "munder")
+            element.extend([base, line])
+            tag = _local(element)
+        children = list(element)
+        if tag not in ("mover", "munder") or len(children) != 2 or "intent" in element.attrib:
+            continue
+        base, mark = children
+        name = _ACCENT_NAMES.get((mark.text or "").strip()) if _local(mark) == "mo" else None
+        if name is None or _local(base) == "mo":
+            continue  # Not an accent, or text over an operator (`→┴(x)`).
+        if tag == "munder":
+            if (mark.text or "").strip() not in _UNDERLINES:
+                continue
+            name = "underline"
+        if _local(base) == "mrow":
+            _apart(namespace, base)
+        base.set("arg", "base")
+        element.set("intent", f"{name}:accent($base)")
+        changed = True
+    return ElementTree.tostring(root, encoding="unicode") if changed else mathml
+
+
+def _row(namespace: str, children: list[ElementTree.Element]) -> ElementTree.Element:
+    row = ElementTree.Element(namespace + "mrow")
+    row.extend(children)
+    return row
+
+
+def _apart(namespace: str, row: ElementTree.Element) -> None:
+    """Invisible times between letters next to each other in a row."""
+    children = list(row)
+    for index in range(len(children) - 1, 0, -1):
+        if _local(children[index]) == "mi" and _local(children[index - 1]) == "mi":
+            times = ElementTree.Element(namespace + "mo")
+            times.text = "\u2062"
+            row.insert(index, times)
 
 
 # max/min/sup/inf with a condition under them read like ∑ ("the max over x of f").

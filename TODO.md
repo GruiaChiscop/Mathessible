@@ -113,6 +113,9 @@ editor for writing has, without copying Word.
 - [ ] The interface in more languages than MathCAT's 14, Romanian first:
   the translation system is there (docs/translating.md), but equations
   would still be spoken in another language.
+- [ ] Accents read "start bar, x, end bar" in English only (MathCAT patch
+  0010): the same rule in MathCAT's other languages, with their words for
+  "start" and "end" and the accents' names.
 - [x] The equations' spoken form in the PDF in the document's language,
   when MathCAT has it (English otherwise: it has no Romanian).
 - [x] Check the Find dialog (wx's generic one) with VoiceOver.

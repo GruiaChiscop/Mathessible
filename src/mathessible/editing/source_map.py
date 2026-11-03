@@ -20,6 +20,7 @@ from dataclasses import dataclass
 
 from mathessible.editing.source_view import view_of
 from mathessible.mathcat.mathml_model import MathMLDocument, MathMLNode, is_equation_label, number_last
+from mathessible.mathcat.prepare import SPACING_ACCENTS
 
 _INVISIBLE = frozenset("⁡⁢⁣⁤")
 # Empty template slots ("()") come back as a non-breaking space or nothing.
@@ -43,7 +44,12 @@ _SPELLINGS = {
     # The index of a cube or fourth root is its sign.
     "3": ("∛",),
     "4": ("∜",),
+    # `x\bar`'s frame with only its top (bottom) side, an accent for MathCAT (prepare_for_mathcat).
+    "_": ("\u0332",),
 }
+# The accents prepare_for_mathcat gives MathCAT as spacing characters are combining ones in the source.
+for _combining, _spacing in SPACING_ACCENTS.items():
+    _SPELLINGS[_spacing] = (*_SPELLINGS.get(_spacing, ()), _combining)
 # Signs that open a structure: "before the square root" is before its "√".
 _STRUCTURE_SIGNS = frozenset("√∛∜■█")
 # How far ahead a leaf is looked for before giving up on it.

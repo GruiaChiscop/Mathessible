@@ -18,7 +18,7 @@ from mathessible.mathcat.common import (
     BoundaryStop,
     _LinearStop,
 )
-from mathessible.mathcat.mathml_model import MathMLNode, is_equation_label, number_last
+from mathessible.mathcat.mathml_model import MathMLNode, accent_name, is_equation_label, number_last
 from mathessible.templates.math_templates import FUNCTION_SCRIPTS
 
 
@@ -308,9 +308,11 @@ class LinearStopsMixin:
                     # The index first, as it is said ("cube root of") and written (`√(3&x)`).
                     children = (children[1], children[0])
                 for child in children:
-                    # A brace, `|x|`'s or `‖x‖`'s bars read as their whole structure;
-                    # "start overbrace", "start absolute value" stand for them.
+                    # A brace, an accent's mark, `|x|`'s or `‖x‖`'s bars read as their whole structure;
+                    # "start overbrace", "start bar", "start absolute value" stand for them.
                     if fenced_table and child.tag == "mo" or child.text in ("⏞", "⏟"):
+                        continue
+                    if structure.accent_mark_name(child) is not None:
                         continue
                     if bars and child.tag == "mo" and child in (children[0], children[-1]):
                         continue
@@ -329,7 +331,10 @@ class LinearStopsMixin:
             stop = BoundaryStop(speech=speech, pending_speeches=(), resume_command="MoveNext", current_id=node_id)
             edge = None
             if region is not None and region[0] in region_nodes:
-                edge = (region_nodes[region[0]], region[1] in _CONTAINER_REGIONS)
+                node = structure.node(region_nodes[region[0]])
+                # An accent is a whole structure too: its end is after its mark (`x\bar|`).
+                whole = region[1] in _CONTAINER_REGIONS or (node is not None and accent_name(node) is not None)
+                edge = (region_nodes[region[0]], whole)
             elif region is None and structure.root.identifier and speech == "end of math":
                 edge = (structure.root.identifier, True)
             return _LinearStop(node_id, speech, stop, display_id, edge)

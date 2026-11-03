@@ -34,6 +34,7 @@ CONVERTED = {
         '<math><mrow intent="closed-open-interval(0,1)"><mo>[</mo><mn>0</mn><mo>,</mo><mn>1</mn>'
         "<mo>)</mo></mrow></math>"
     ),
+    "x\\vec+y": ('<math><mover accent="true"><mi>𝑥</mi><mo>&#x20d7;</mo></mover><mo>+</mo><mi>𝑦</mi></math>'),
     "{a,b}": (
         '<math><mrow intent=":fenced"><mo>{</mo><mrow><mi>𝑎</mi><mo>,</mo><mi>𝑏</mi></mrow><mo>}</mo></mrow></math>'
     ),
@@ -197,6 +198,26 @@ class MathReadingTests(unittest.TestCase):
         whole, stops = read("|x|+1")
         self.assertEqual(whole, "the absolute value of x, plus 1")
         self.assertEqual(stops[:3], ["start absolute value", "x", "end absolute value"])
+
+    def test_accents_say_what_they_cover(self) -> None:
+        # Converter output for `x\\bar`, `(xyzt)\\bar`, `xyzt\\bar` and `x\\tilde`: \\bar is a frame with only its
+        # top side, the other accents combining characters. Needs patches/mathcat/0010 (the accent rule).
+        navigator = MathCatNavigator(language="en", auto_zoom_out=True)
+        letters = "".join(f"<mi>{letter}</mi>" for letter in "𝑥𝑦𝑧")
+        for mathml, reading in (
+            ('<math><menclose notation="top"><mi>𝑥</mi></menclose></math>', "start bar, x, end bar"),
+            (
+                f'<math><menclose notation="top">{letters}<mi>𝑡</mi></menclose></math>',
+                "start bar, x y z t, end bar",
+            ),
+            (f'<math>{letters}<menclose notation="top"><mi>𝑡</mi></menclose></math>', "x y z start bar, t, end bar"),
+            ('<math><mover accent="true"><mi>𝑥</mi><mo>&#x303;</mo></mover></math>', "start tilde, x, end tilde"),
+        ):
+            with self.subTest(mathml=mathml):
+                navigator.load(mathml)
+                self.assertEqual(navigator.command("ReadCurrent"), reading)
+        # The flat reading enters and leaves the accent; "start vector" and "end vector" stand for its mark.
+        self.assertEqual(read("x\\vec+y")[1][:5], ["start vector", "x", "end vector", "plus", "y"])
 
 
 if __name__ == "__main__":

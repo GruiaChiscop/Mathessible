@@ -2093,7 +2093,29 @@ with label 1"; what is shown is unchanged.
 
 MathCAT read every h as "planck constant": the converter's italic h is ℎ
 (U+210E; Unicode's math italic block has no h), which MathCAT's English
-table names so. `prepare_for_mathcat` gives MathCAT an h. A `.bib`
+table names so. `prepare_for_mathcat` gives MathCAT an h.
+
+Accents (2026-11-03): the converter writes `x\vec`, `x\tilde` and the like as
+`mover accent` with the *combining* character as the `<mo>` (U+20D7,
+U+0303), which MathCAT names "x with right arrow above embellishment above";
+and `x\bar` (U+0305) as `menclose notation="top"`, read "line on top,
+enclosing x end enclosure". MathCAT's own accent readings ("x bar", "x y z t
+bar") do not say what the accent covers: `xyzt\bar` (over t) and
+`(xyzt)\bar` read the same. `prepare_for_mathcat` (`_accents`) writes the
+spacing characters (`_ACCENTS`), a top (bottom) `menclose` as `mover`
+(`munder`) with ¯ (_), and gives each accent `intent="bar:accent($base)"`
+(`_ACCENT_NAMES`), which MathCAT patch 0010 reads "start bar, x y z t, end
+bar", as Word does. A ▭ with only its top side gives the same MathML and
+reads as a bar too; it is drawn as one. Letters alone in the base row get
+invisible times between them, or MathCAT reads them as one word ("𝑥𝑦𝑧𝑡").
+The explicit intent also keeps MathCAT's `modified-variable` and `vector`
+intents off. The linear stops get "start bar"/"end bar" (`accent_name`,
+a structural region, a whole structure: "end bar" types after `\bar`), and
+the mark is no stop of its own (`accent_mark_name`), as a brace's is not:
+"bar" between "t" and "end bar" said it twice. The source map finds the
+spacing characters as the source's combining ones (`SPACING_ACCENTS` in
+`_SPELLINGS`); without them "end bar" put the caret before `\bar`. LaTeX written by
+MathCAT is unchanged (`\overline{x}`, `\vec{x}`). A `.bib`
 bibliography ([documents/bibtex.py](../src/mathessible/documents/bibtex.py)):
 the files `\bibliography`/`\addbibresource` name, beside the .tex file;
 @string expanded; the entries cited (all after `\nocite{*}`), numbered in
@@ -2241,6 +2263,12 @@ still `1,2` and `,3`, and `MathMLtoUnicodeMath` still loses an integral's
     checks that every math alphanumeric is written with LaTeX's own
     commands. After changing the rules:
     `uv sync --reinstall-package mathessible-mathcat`.
+  - `Rules/Languages/en/SharedRules/general.yaml` (patch 0010): the rule
+    for the accent intents `prepare_for_mathcat` gives (`bar:accent($base)`):
+    "start bar, x, end bar", the name through `SpeakIntentName`. At the
+    file's end: next to 0003's labeled-brace rule it broke 0003's reverse
+    check. Only English has it; the other languages read the intent as a
+    function ("bar de t").
 - **Startup patch check** ([patch_check.py](../src/mathessible/patch_check.py)):
   `git apply --reverse --check` per patch file, on a worker thread from
   the first `MainFrame`; a warning dialog lists the missing ones (a

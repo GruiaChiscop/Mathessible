@@ -257,11 +257,20 @@ class MathMLDocument:
         intent = node.attributes.get("intent", "")
         if intent.startswith(("overbrace(", "underbrace(")):
             return intent.split("(", 1)[0]  # `⏞(a+b)┴n` (prepare_for_mathcat gives the intent).
+        if ":accent(" in intent:
+            return accent_name(node)
         return {
             "mfrac": "fraction",
             "msqrt": "square root",
             "mroot": "root",
         }.get(node.tag)
+
+    def accent_mark_name(self, node: MathMLNode) -> str | None:
+        """The accent's name ("bar") if the node is an accent's mark: `x\\bar`'s ¯."""
+        parent = self.parent_by_id.get(node.identifier or "")
+        if parent is None or len(parent.children) != 2 or parent.children[1] is not node:
+            return None
+        return accent_name(parent)
 
     def bar_pair_name(self, node: MathMLNode) -> str | None:
         """ "absolute value" for an mrow `|x|`, "norm" for `‖x‖`: bars MathCAT reads as the whole."""
@@ -598,6 +607,12 @@ class MathMLDocument:
 def is_equation_label(node: MathMLNode) -> bool:
     """The cell of an equation's number (`#(1)`), as the converter writes it."""
     return node.tag == "mtd" and ":equation-label" in node.attributes.get("intent", "")
+
+
+def accent_name(node: MathMLNode) -> str | None:
+    """ "bar" for an accent prepare_for_mathcat named (intent="bar:accent($base)"), else None."""
+    intent = node.attributes.get("intent", "")
+    return intent.split(":", 1)[0].replace("-", " ") if ":accent(" in intent else None
 
 
 def number_last(node: MathMLNode) -> tuple[MathMLNode, ...]:
