@@ -1,8 +1,9 @@
-"""Name a control for VoiceOver: wx 3.2 on macOS gives a text field no accessibility label of its own.
+"""Name a control for the screen reader when it has no visible label next to it, like Edit Table's cells.
 
-`set_accessibility_label` sets AppKit's `accessibilityLabel` on the control's view and, for a multiline
-text field (an NSScrollView), on the text view inside it, which is the one that takes the focus. It is
-for controls with no visible label next to them, like Edit Table's cells; a no-op off macOS.
+wx 3.2 gives a text field no name of its own: on macOS `set_accessibility_label` sets AppKit's
+`accessibilityLabel` on the control's view and, for a multiline text field (an NSScrollView), on the text
+view inside it, which is the one that takes the focus; on Windows it answers MSAA's name (what NVDA reads)
+through a `wx.Accessible` that leaves everything else to the standard control.
 """
 
 from __future__ import annotations
@@ -37,9 +38,27 @@ def _runtime() -> tuple | None:
     return objc, send_id, send_with_text, send_with_id, send_bool
 
 
+if wx is not None:
+
+    class _Named(wx.Accessible):
+        def __init__(self, control: wx.Window, label: str):
+            super().__init__(control)
+            self.label = label
+
+        def GetName(self, childId: int) -> tuple[int, str]:  # noqa: N802 (wx's name)
+            if childId == wx.ACC_SELF:
+                return wx.ACC_OK, self.label
+            return wx.ACC_NOT_IMPLEMENTED, ""
+
+
 def set_accessibility_label(control: wx.Window, label: str) -> None:
     control.SetName(label)
-    if sys.platform != "darwin" or wx is None or (runtime := _runtime()) is None:
+    if wx is None:
+        return
+    if sys.platform == "win32":
+        control.SetAccessible(_Named(control, label))
+        return
+    if sys.platform != "darwin" or (runtime := _runtime()) is None:
         return
     objc, send_id, send_with_text, send_with_id, send_bool = runtime
     view = control.GetHandle()

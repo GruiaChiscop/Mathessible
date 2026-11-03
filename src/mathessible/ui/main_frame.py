@@ -335,7 +335,8 @@ if wx is not None:
             self._latex_id = wx.NewIdRef()
             edit_menu.AppendCheckItem(self._latex_id, _("Equations in &LaTeX"))
             edit_menu.AppendSeparator()
-            edit_menu.Append(wx.ID_PREFERENCES, _("&Settings…"))
+            # macOS gives the Preferences item Command+, itself; the same keys elsewhere.
+            edit_menu.Append(wx.ID_PREFERENCES, _("&Settings…") + ("" if mac else "\tCtrl+,"))
             menu_bar.Append(edit_menu, _("&Edit"))
             insert_menu = wx.Menu()
             # The document's own structures (document_insert): Markdown's, or LaTeX's in a .tex file.

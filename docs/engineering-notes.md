@@ -1847,10 +1847,11 @@ without it.
   by wx, and macOS's accessibility tree shows nothing of it (checked with
   System Events: only the window's title bar), where DataViewListCtrl is a
   native table but holds one line per cell and no merged cells. wx 3.2 gives
-  a text field no accessibility label on macOS, so
-  `ui/macos_accessibility.set_accessibility_label` sets AppKit's
-  `accessibilityLabel` (on the NSScrollView and its text view) to the cell's
-  position. Tab goes row by row (creation order); Command+Option+arrow uses
+  a text field no accessible name, so `ui/accessibility.set_accessibility_label`
+  gives the cell's position: on macOS as AppKit's `accessibilityLabel` (on the
+  NSScrollView and its text view), on Windows as MSAA's name through a
+  `wx.Accessible` whose other answers fall back to the standard control
+  (`SetName` alone is not read by NVDA). Tab goes row by row (creation order); Command+Option+arrow uses
   `grid_table_edit.neighbour`.
   The changes are wx-free in `editing/grid_table_edit.py`, each giving a new
   frozen `GridTable`; `grid_tables.write_grid_table` draws it as Pandoc does
@@ -1888,6 +1889,28 @@ without it.
 Application data paths are resolved centrally by `data_paths.data_directory`.
 Windows uses roaming AppData and macOS uses the user’s Application Support folder.
 Linux retains its home-directory location.
+
+Windows on ARM64 (2026-11-03, first run in a Windows 11 ARM64 VM): the
+extension builds natively with Visual Studio Build Tools (the ARM64 tools
+and its Clang component, for `clang-cl`) and Rust. Traps found:
+- `cryptography` (through `pypdf[crypto]`) has had no win_arm64 wheel since
+  46.0.3, so uv builds it, which needs OpenSSL: `vcpkg install
+  openssl:arm64-windows-static-md`, then `OPENSSL_DIR` set to that tree and
+  `OPENSSL_STATIC=1`.
+- liblouis's header declares its functions `dllimport` under MSVC (NVDA
+  builds a DLL); linked statically, a function only liblouis calls
+  (`lou_backTranslate`) was unresolved, so `build.rs` drops `dllimport`.
+- `prismatoid` 0.16.7's win_arm64 wheel holds an x64 `prism.dll` (error 0xc1
+  on load), and speech fell back silently to the console; 0.18.3's is ARM64.
+- wxPython has `OSXDisableAllSmartSubstitutions` on every platform and
+  raises NotImplementedError off macOS: test the platform, not `hasattr`.
+- WebView2 (wx's Edge backend) reports the page `SetPage` gives (a `data:`
+  URL) as loaded "about:blank". Once the converter never became ready in a
+  session started right after the previous one was killed (its
+  msedgewebview2 processes may still hold the data folder,
+  `python.exe.WebView2`). The session log now records the page being set,
+  each LOADED and ERROR, and `_check_renderer_ready` asks the page itself
+  before a conversion is refused.
 
 Optional-tool management (2026-11-02): General > Optional tools stores a Pandoc
 executable and a LaTeX bin directory. Explicit paths never silently fall back.

@@ -6,6 +6,7 @@ import json
 import time
 from collections.abc import Callable
 
+from mathessible import session_log
 from mathessible.documents.mathml_sanitize import MathMLModelError, sanitize_mathml
 from mathessible.documents.tex_macros import expand_macros
 from mathessible.editing.build_repair import literal_repair, literal_text, repair_for_build
@@ -34,6 +35,10 @@ except ImportError:  # The interface is an optional dependency.
     wx = None
 
 
+# Whether the converter page has run: its functions are there.
+_READY_SCRIPT = "typeof window.mathessibleConvert === 'function' && typeof window.mathessibleRender === 'function'"
+
+
 class EquationRendererMixin:
     """Methods of `EquationEditor` (editor.py); relies on its state."""
 
@@ -50,19 +55,37 @@ class EquationRendererMixin:
                 self._webview.SetCanFocus(False)
             self._webview.Bind(wx.EVT_SET_FOCUS, self._on_renderer_focus)
             self._webview.Bind(wx.html2.EVT_WEBVIEW_LOADED, self._on_renderer_loaded)
+            self._webview.Bind(wx.html2.EVT_WEBVIEW_ERROR, self._on_renderer_error)
             if hasattr(self._webview, "AddScriptMessageHandler"):
                 self._webview.AddScriptMessageHandler("mathessible")
                 self._webview.Bind(wx.html2.EVT_WEBVIEW_SCRIPT_MESSAGE_RECEIVED, self._on_renderer_click)
             self._webview.SetPage(page, base_url)
+            session_log.write("webview", f"converter page set ({len(page)} characters)")
         except (FileNotFoundError, RuntimeError) as error:
             self._renderer_error = str(error)
+            session_log.write("webview", f"no converter: {error}")
+
+    def _on_renderer_error(self, event: wx.html2.WebViewEvent) -> None:
+        session_log.write("webview", f"error {event.GetInt()} on {event.GetURL()[:80]}: {event.GetString()}")
+        event.Skip()
+
+    def _check_renderer_ready(self) -> bool:
+        """Whether the converter page has run, asking it when no LOADED said so: WebView2 on Windows
+        sends LOADED for the page set with SetPage as for "about:blank", and may send it before the
+        page's scripts have run."""
+        if not self._renderer_ready and self._webview is not None and not self._converting:
+            success, value = self._webview.RunScript(_READY_SCRIPT)
+            if success and value.strip().lower() == "true":
+                self._renderer_ready = True
+                self._renderer_error = None
+                session_log.write("webview", "converter ready (asked)")
+        return self._renderer_ready
 
     def _on_renderer_loaded(self, event: wx.html2.WebViewEvent) -> None:
         if self._webview is not None:
-            success, value = self._webview.RunScript(
-                "typeof window.mathessibleConvert === 'function' && typeof window.mathessibleRender === 'function'"
-            )
+            success, value = self._webview.RunScript(_READY_SCRIPT)
             self._renderer_ready = success and value.strip().lower() == "true"
+            session_log.write("webview", f"loaded {event.GetURL()[:80]}: ready {self._renderer_ready}")
             if not self._renderer_ready:
                 self._renderer_error = _("the UnicodeMathML engine did not initialize")
             else:
@@ -183,7 +206,7 @@ class EquationRendererMixin:
 
     @property
     def converter_ready(self) -> bool:
-        return self._renderer_ready and self._webview is not None
+        return self._check_renderer_ready() and self._webview is not None
 
     def convert_unicode_math(self, source: str) -> str:
         """The equation being edited (or one like it) as MathML: in its document's language (`self.latex`), a
@@ -223,7 +246,7 @@ class EquationRendererMixin:
 
     def _run_converter[T](self, script: Callable[[int], str], decode: Callable[[str, int], T]) -> T:
         """Run one converter script synchronously and decode its own result (`script(token)`)."""
-        if not self._renderer_ready or self._webview is None:
+        if not self._check_renderer_ready() or self._webview is None:
             reason = self._renderer_error or _("the UnicodeMathML converter is still loading")
             raise UnicodeMathError(reason)
         if self._converting:

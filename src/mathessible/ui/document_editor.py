@@ -321,8 +321,9 @@ if wx is not None:
             )
             self.markdown.SetName(_("Markdown editor"))
             # macOS turns "--" into "—" and straight quotes into curly ones,
-            # which breaks Markdown and UnicodeMath source.
-            if hasattr(self.markdown, "OSXDisableAllSmartSubstitutions"):
+            # which breaks Markdown and UnicodeMath source. wxPython has the method on
+            # every platform; elsewhere it raises NotImplementedError.
+            if sys.platform == "darwin":
                 self.markdown.OSXDisableAllSmartSubstitutions()
             self.equation_window = EquationWindow(self, self.output, self.settings)
 

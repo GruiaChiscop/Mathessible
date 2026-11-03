@@ -24,7 +24,7 @@ from mathessible.editing.grid_table_edit import (
     with_header_rows,
 )
 from mathessible.i18n import _
-from mathessible.ui.macos_accessibility import set_accessibility_label
+from mathessible.ui.accessibility import set_accessibility_label
 
 try:
     import wx

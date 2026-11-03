@@ -16,7 +16,7 @@ only be edited as text, and Mathessible says so at startup.
 
 ## Settings
 
-`Settings…` (`Command+,` on macOS, in the Edit menu elsewhere) groups the
+`Settings…` (`Command+,` on macOS, `Ctrl+,` elsewhere, in the Edit menu) groups the
 settings in categories, each a tab with tabs of its own:
 
 - **General**: Language (see below).
