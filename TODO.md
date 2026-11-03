@@ -70,12 +70,13 @@ links back, liblouis and BRF need a braille transcriber's convention.
   reader. Insert > Table can write a grid table too.
 - [ ] Edit Table for pipe tables and ```` ```table ```` blocks, written back in
   the simplest syntax that holds them.
-- [ ] Word's own list paragraphs (`MsoListParagraph`) in pasted HTML, which
-  Word does not write as HTML lists, and its footnotes in a paste (the import
-  keeps them).
-- [ ] Equations in a paste from Word: Word's clipboard HTML hides them in
-  conditional comments, so such a paste is still the clipboard's text.
-- [ ] Check a live paste and an import from Word, on macOS and Windows.
+- [x] Word's own list paragraphs (`MsoListParagraph`) in pasted HTML, which
+  Word does not write as HTML lists, and its footnotes in a paste.
+- [x] Equations in a paste from Word (OMML in conditional comments), through
+  MathML and the converter's lineariser.
+- [x] Check a live paste from Word on Windows.
+- [ ] Check a live paste from Word on macOS (Word for Mac's clipboard HTML may
+  differ), and an import of a .docx on Windows.
 
 ## An editor for writing papers
 
@@ -124,10 +125,12 @@ editor for writing has, without copying Word.
   All, AutoCorrect in the text) and File > Print.
 - [x] Settings' height (720 px with the PDF tab): the PDF's defaults are two
   tabs, PDF Layout and PDF Content, as in the export's dialog (544 px).
+- [x] Windows built and tried from a checkout (Windows 11 ARM64:
+  `scripts\bootstrap.bat`, all tests pass).
 - [ ] Distribution: a macOS application (`.app`) with an icon, `.md` and
   `.msnb` files opening in it, signing and notarisation, an installer;
-  Windows and Linux built and tried (liblouis needs clang-cl on
-  Windows); Mathessible running outside its checkout.
+  Windows x64 and Linux built and tried; a Windows installer; Mathessible
+  running outside its checkout.
 - [ ] Versions: a changelog and releases on GitHub (it is 0.1.0).
 
 ## Later

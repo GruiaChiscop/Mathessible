@@ -226,8 +226,8 @@ change that Undo takes back. **Insert → Table…** writes an empty grid table
 when **Cells hold paragraphs or lists (grid table)** is checked.
 
 Without Pandoc, Mathessible asks first: **Install Pandoc…**, **Paste Simplified**
-(each cell one line, as before) or **Cancel**. A paste with equations is still
-pasted as the clipboard's text, Pandoc or not.
+(each cell one line, as before) or **Cancel**. On Windows on ARM, Pandoc's x64
+build is installed: Windows runs it.
 
 ### Importing a Word document
 
@@ -243,7 +243,12 @@ are copied but not shown in the preview.
 ### Pasting formatted text
 
 Text copied with formatting (from a web page, Word or Google Docs) is pasted
-as Markdown: its headings, lists, emphasis, links and tables. Text copied from
+as Markdown: its headings, lists, emphasis, links and tables. From Word, its
+lists keep their levels and numbering, its footnotes become footnotes (`[^1]`,
+the note after the pasted text, numbered after the document's own), and its
+equations become equations, in the document's notation (UnicodeMath, or LaTeX):
+`$...$`, or `$$...$$` for an equation on its own line. If an equation cannot be
+converted, the clipboard's text is pasted instead. Text copied from
 a code editor keeps its lines and indentation as they are. **Edit → Paste as
 Plain Text** (`Command+Option+Shift+V`, or `Ctrl+Shift+V`) pastes only the
 clipboard's text, its formatting not converted.

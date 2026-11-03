@@ -11,6 +11,7 @@ import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
+from mathessible.documents import optional_tools
 from mathessible.documents.optional_tools import (
     ToolError,
     asset_name,
@@ -118,11 +119,31 @@ class OptionalToolTests(unittest.TestCase):
         with patch("mathessible.documents.tex_compile._candidates", return_value=[]):
             self.assertEqual(find_installation(home=self.root).bin_directory, private)
 
+    def test_a_rename_windows_refuses_a_moment_is_tried_again(self) -> None:
+        # Just after `pandoc --version`, Windows still locks pandoc.exe and refuses to rename its folder.
+        refusals = [PermissionError(5, "Access is denied"), PermissionError(5, "Access is denied"), None]
+        with (
+            patch("mathessible.documents.optional_tools.os.rename", side_effect=refusals) as rename,
+            patch("mathessible.documents.optional_tools.sys.platform", "win32"),
+            patch("mathessible.documents.optional_tools.time.sleep"),
+        ):
+            optional_tools._rename(self.root / "staged", self.root / "pandoc")
+        self.assertEqual(rename.call_count, 3)
+        with (
+            patch("mathessible.documents.optional_tools.os.rename", side_effect=PermissionError(13, "denied")),
+            patch("mathessible.documents.optional_tools.sys.platform", "darwin"),
+            self.assertRaises(PermissionError),
+        ):
+            optional_tools._rename(self.root / "staged", self.root / "pandoc")  # Elsewhere a refusal is final.
+
     def test_platform_assets(self) -> None:
         self.assertEqual(asset_name("pandoc", "3.13", "darwin", "arm64"), "pandoc-3.13-arm64-macOS.zip")
         self.assertEqual(asset_name("TinyTeX", "v2026.11", "darwin", "arm64"), "TinyTeX-1-darwin-v2026.11.tar.xz")
+        # Windows 11 on ARM runs the x64 builds; there are no others.
+        self.assertEqual(asset_name("pandoc", "3.13", "win32", "arm64"), "pandoc-3.13-windows-x86_64.zip")
+        self.assertEqual(asset_name("TinyTeX", "v2026.11", "win32", "ARM64"), "TinyTeX-v2026.11.zip")
         with self.assertRaises(ToolError):
-            asset_name("pandoc", "3.13", "win32", "arm64")
+            asset_name("pandoc", "3.13", "win32", "ppc64")
 
     def test_zip_traversal_is_rejected(self) -> None:
         archive = self.root / "bad.zip"

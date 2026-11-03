@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import time
 import uuid
 import zipfile
 from collections.abc import Callable, Iterator
@@ -137,8 +138,8 @@ def asset_name(tool: str, tag: str, system: str, machine: str) -> str:
             suffix = f"{'arm64' if arm else 'x86_64'}-macOS.zip"
         elif system == "linux":
             suffix = f"linux-{'arm64' if arm else 'amd64'}.tar.gz"
-        elif system == "win32" and not arm:
-            suffix = "windows-x86_64.zip"
+        elif system == "win32":
+            suffix = "windows-x86_64.zip"  # Also on ARM64: Windows 11 runs x64 programs, and Pandoc has no ARM build.
         else:
             raise ToolError(_("No supported Pandoc download for this platform"))
         return f"pandoc-{tag}-{suffix}"
@@ -146,8 +147,8 @@ def asset_name(tool: str, tag: str, system: str, machine: str) -> str:
         return f"TinyTeX-1-darwin-{tag}.tar.xz"
     if system == "linux":
         return f"TinyTeX-1-linux-{'arm64' if arm else 'x86_64'}-{tag}.tar.xz"
-    if system == "win32" and not arm:
-        return f"TinyTeX-{tag}.zip"
+    if system == "win32":
+        return f"TinyTeX-{tag}.zip"  # Also on ARM64, as Pandoc.
     raise ToolError(_("No supported TinyTeX download for this platform"))
 
 
@@ -186,12 +187,12 @@ def publish(root: Path, target: Path, keep_previous: bool = True) -> None:
     backup = target.with_name(target.name + ".previous-" + uuid.uuid4().hex[:12])
     existed = target.exists()
     if existed:
-        target.rename(backup)
+        _rename(target, backup)
     try:
-        root.rename(target)
+        _rename(root, target)
     except OSError:
         if existed:
-            backup.rename(target)
+            _rename(backup, target)
         raise
     if not existed:
         return
@@ -201,6 +202,27 @@ def publish(root: Path, target: Path, keep_previous: bool = True) -> None:
                 shutil.rmtree(older, ignore_errors=True)
     else:
         shutil.rmtree(backup, ignore_errors=True)
+
+
+def _rename(source: Path, target: Path) -> None:
+    """Rename, retried for a few seconds on Windows: a program just run (`version`) stays locked a moment
+    after it exits (by Windows, or a virus scanner reading it), and renaming its folder is refused."""
+    for attempt in range(20):
+        try:
+            os.rename(source, target)
+            return
+        except PermissionError:
+            if sys.platform != "win32" or attempt == 19:
+                raise
+            time.sleep(0.25)
+
+
+def _remove_staging(tool: str, folder: Path) -> None:
+    """Staging folders an earlier attempt could not remove (Windows kept a file locked), while no
+    installation of the tool runs (the caller holds its lock)."""
+    for leftover in folder.glob(f".{tool}-*") if folder.exists() else ():
+        if leftover.is_dir():
+            shutil.rmtree(leftover, ignore_errors=True)
 
 
 def install(
@@ -214,6 +236,7 @@ def install(
     """
     target = managed_directory(tool)
     with _installing(tool):
+        _remove_staging(tool, target.parent)
         return _install(tool, target, progress, cancelled, replace)
 
 
@@ -234,7 +257,10 @@ def _install(
         url = asset["browser_download_url"]
         if not url.startswith(f"https://github.com/{repo}/releases/download/"):
             raise ToolError(_("Unexpected release download URL"))
-        with tempfile.TemporaryDirectory(prefix=f".{tool}-", dir=target.parent) as temporary:
+        # A staging file Windows still locks is left for the next installation (`_remove_staging`).
+        with tempfile.TemporaryDirectory(
+            prefix=f".{tool}-", dir=target.parent, ignore_cleanup_errors=True
+        ) as temporary:
             staging = Path(temporary)
             archive = staging / "download"
             digest = hashlib.sha256()
@@ -291,12 +317,15 @@ def update_tinytex(cancelled: Callable[[], bool] = lambda: False, keep_previous:
     if target.is_symlink() or not (target / "mathessible-install.json").is_file():
         raise ToolError(_("Only a Mathessible-managed installation can be updated."))
     with _installing("TinyTeX"):
+        _remove_staging("TinyTeX", target.parent)
         return _update_tinytex(target, cancelled, keep_previous)
 
 
 def _update_tinytex(target: Path, cancelled: Callable[[], bool], keep_previous: bool) -> Path:
     try:
-        with tempfile.TemporaryDirectory(prefix=".TinyTeX-update-", dir=target.parent) as temporary:
+        with tempfile.TemporaryDirectory(
+            prefix=".TinyTeX-update-", dir=target.parent, ignore_cleanup_errors=True
+        ) as temporary:
             root = Path(temporary) / "TinyTeX"
             shutil.copytree(target, root, symlinks=True)
             if cancelled():

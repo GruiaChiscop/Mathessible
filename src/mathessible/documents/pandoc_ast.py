@@ -6,7 +6,9 @@ document cannot hold is not written as raw HTML or attributes, which the editor 
 - raw HTML and TeX are left out (what a web page or Word adds around its text);
 - a Div, Span or Figure gives way to its content, its classes and styles dropped;
 - an image is kept only when `image_source` gives it a place (an imported Word document's pictures,
-  docx_import); otherwise its description stands for it, as in a local paste.
+  docx_import); otherwise its description stands for it, as in a local paste;
+- a paragraph of nothing but spaces is left out: Word's empty paragraphs (`<o:p>&nbsp;</o:p>`) would be
+  lines holding a no-break space.
 """
 
 from __future__ import annotations
@@ -15,6 +17,7 @@ from collections.abc import Callable
 
 _SPLICED = {"Div": 1, "Span": 1, "Figure": 2}  # Element: the index of its content in "c".
 _DROPPED = {"RawInline", "RawBlock"}
+_SPACES = {"Space", "SoftBreak", "LineBreak"}
 
 
 def clean(document: dict, image_source: Callable[[str], str | None] | None = None) -> dict:
@@ -55,6 +58,14 @@ def _element(element: dict, image_source: Callable[[str], str | None] | None) ->
         if target is None:
             return _walk(description, image_source)
         return [{"t": "Image", "c": [["", [], []], _walk(description, image_source), [target, title]]}]
+    if kind in ("Para", "Plain") and isinstance(content, list):
+        inlines = _walk(content, image_source)
+        blank = all(
+            inline.get("t") in _SPACES or (inline.get("t") == "Str" and not str(inline.get("c", "")).strip())
+            for inline in inlines
+            if isinstance(inline, dict)
+        )
+        return [] if blank else [{**element, "c": inlines}]
     return [{**element, "c": _walk(content, image_source)} if "c" in element else element]
 
 

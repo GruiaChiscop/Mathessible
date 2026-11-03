@@ -19,6 +19,7 @@ from mathessible.documents.front_matter import (
     with_header_and_footer,
 )
 from mathessible.documents.markdown_math import MathZone, find_math_zones, math_zone_at, toggle_display
+from mathessible.documents.omml_mathml import mathml_from_omml
 from mathessible.documents.optional_tools import install
 from mathessible.documents.paste_plan import PasteRoute, paste_route
 from mathessible.documents.pasted_html import markdown_from_html
@@ -31,9 +32,11 @@ from mathessible.documents.tex_math import (
     toggle_tex_display,
 )
 from mathessible.documents.tex_numbers import tex_numbers
+from mathessible.documents.word_html import WordEquation, WordParts, plain_word_html, with_word_parts
 from mathessible.editing.autocorrect import AutoCorrectTable, autocorrect_defaults
 from mathessible.editing.completion import Completion
 from mathessible.editing.document_completion import accept_document_completion, document_completion_at
+from mathessible.editing.pasted_math import plain_letters
 from mathessible.editing.space_conversion import convert_in_text, convert_shortcut_on_character
 from mathessible.editor.equation_editor import EquationEditor
 from mathessible.editor.structures import append_insert_items
@@ -45,7 +48,7 @@ from mathessible.ui.clipboard import get_clipboard_document_html, get_clipboard_
 from mathessible.ui.completion_popup import CompletionPopup
 from mathessible.ui.help_menu import append_help_menu
 from mathessible.ui.speech import AssistiveOutput, create_output
-from mathessible.unicodemath import latex_environments, latex_words
+from mathessible.unicodemath import UnicodeMathError, latex_environments, latex_words
 
 try:
     import wx
@@ -421,39 +424,51 @@ if wx is not None:
 
         def _on_paste(self, event: wx.CommandEvent) -> None:
             """Clipboard HTML (or macOS RTF) as Markdown: by the local conversion, or by Pandoc for what it
-            cannot hold (paste_plan); the clipboard's text when neither applies."""
+            cannot hold (paste_plan); the clipboard's text when neither applies. Word's lists, footnotes and
+            equations are made plain HTML first (word_html), and its equations converted at the end."""
             if self.tex:
                 event.Skip()
                 return
             html = get_clipboard_document_html()
+            parts = WordParts()
+            if html:
+                html, parts = plain_word_html(html)
+            if parts.equations and not self.equation_window.equation.converter_ready:
+                session_log.write("command", "paste: plain (the converter is not ready for its equations)")
+                event.Skip()
+                return
             route = paste_route(html, pandoc.executable() is not None) if html else PasteRoute.PLAIN
-            session_log.write("command", f"paste: {route}")
+            session_log.write(
+                "command", f"paste: {route}, {len(parts.equations)} equations, {len(parts.notes)} footnotes"
+            )
             if route == PasteRoute.PANDOC:
-                self._paste_with_pandoc(html)
+                self._paste_with_pandoc(html, parts)
             elif route == PasteRoute.NEEDS_PANDOC:
-                self._offer_pandoc(html)
+                self._offer_pandoc(html, parts)
             elif route == PasteRoute.LOCAL and (converted := markdown_from_html(html)) is not None:
-                self._insert_pasted(converted)
+                self._insert_pasted(converted, parts)
             else:
                 event.Skip()
 
-        def _paste_simplified(self, html: str) -> None:
+        def _paste_simplified(self, html: str, parts: WordParts) -> None:
             converted = markdown_from_html(html)
             if converted is None:
                 self.paste_plain_text()
             else:
-                self._insert_pasted(converted)
+                self._insert_pasted(converted, parts)
 
-        def _paste_with_pandoc(self, html: str) -> None:
+        def _paste_with_pandoc(self, html: str, parts: WordParts) -> None:
             run_job(
                 self,
                 _("Paste"),
                 lambda cancel, report: pandoc.html_to_markdown(html),
-                lambda converted: self._insert_pasted(converted) if converted else self._paste_simplified(html),
-                lambda message: self._offer_pandoc(html, failed=True),
+                lambda converted: (
+                    self._insert_pasted(converted, parts) if converted else self._paste_simplified(html, parts)
+                ),
+                lambda message: self._offer_pandoc(html, parts, failed=True),
             )
 
-        def _offer_pandoc(self, html: str, failed: bool = False) -> None:
+        def _offer_pandoc(self, html: str, parts: WordParts, failed: bool = False) -> None:
             """Content that only Pandoc keeps (blocks in table cells, nested lists): install it, paste it
             simplified, or leave the document as it is."""
             if failed:
@@ -482,22 +497,42 @@ if wx is not None:
                 dialog.Destroy()
             if failed:
                 if answer == wx.ID_YES:
-                    self._paste_simplified(html)
+                    self._paste_simplified(html, parts)
                 return
             if answer == wx.ID_YES:
                 run_job(
                     self,
                     _("Install Pandoc"),
                     lambda cancel, report: install("pandoc", report, cancel.is_set),
-                    lambda path: self._paste_with_pandoc(html),
+                    lambda path: self._paste_with_pandoc(html, parts),
                 )
             elif answer == wx.ID_NO:
-                self._paste_simplified(html)
+                self._paste_simplified(html, parts)
 
-        def _insert_pasted(self, converted: str) -> None:
+        def _pasted_equation(self, equation: WordEquation) -> str | None:
+            """A Word equation as the document writes equations (UnicodeMath, or LaTeX), by the converter."""
+            editor = self.equation_window.equation
+            try:
+                mathml = mathml_from_omml(equation.omml)
+                if self.latex:
+                    return editor.latex_from_mathml(mathml)
+                return plain_letters(editor.unicode_math_from_mathml(mathml))
+            except (UnicodeMathError, RuntimeError, ValueError) as error:
+                session_log.write("command", f"paste: an equation could not be converted: {error}")
+                return None
+
+        def _insert_pasted(self, converted: str, parts: WordParts | None = None) -> None:
             """Converted Markdown at the selection, as paragraphs of their own when it has several lines."""
             start, end = self.markdown.GetSelection()
             source = self.markdown.GetValue()
+            if parts is not None and (parts.equations or parts.notes):
+                written = with_word_parts(
+                    converted, parts, source, self._pasted_equation, lambda note: markdown_from_html(note) or ""
+                )
+                if written is None:
+                    self.paste_plain_text()  # An equation the converter could not write: as before, the text.
+                    return
+                converted = written
             if "\n" in converted:
                 if start and source[start - 1] != "\n":
                     converted = "\n\n" + converted

@@ -1860,6 +1860,29 @@ without it.
   cell starts or ends there) cannot be drawn in a grid, so `_table` collapses
   it. A randomized test applies hundreds of changes and checks that each table
   is read back exactly as written.
+- A paste from Word (2026-11-03, from a live copy in Word for Windows):
+  Word writes list items as paragraphs (`MsoListParagraph`, `mso-list:l2
+  level3`, the marker as text in `<![if !supportLists]>`), footnotes as an
+  `_ftn1` link and a `mso-element:footnote` div, equations as OMML in a
+  conditional comment `<!--[if gte msEquation 12]>` with a picture for other
+  readers in `<![if !msEquation]>` (which nests conditional blocks of its
+  own). [documents/word_html.py](../src/mathessible/documents/word_html.py)
+  `plain_word_html` writes the lists as nested `ul`/`ol` and puts
+  private-use stand-ins where footnotes and equations were, before either
+  conversion (local or Pandoc) reads the HTML; `with_word_parts` writes them
+  back into its Markdown: `[^label]` numbered after the document's own
+  notes, and `$...$`/`$$...$$` (an `m:oMathPara`). Equations go OMML →
+  MathML ([omml_mathml.py](../src/mathessible/documents/omml_mathml.py),
+  read with the paste's tolerant parser: the clipboard's OMML is HTML, a
+  run's text without `m:t`, styling spans between the elements) → the
+  converter's lineariser (`unicode_math_from_mathml`, or LaTeX). One
+  equation the converter cannot write makes the paste the clipboard's text,
+  as every equation did before. Pandoc separates two adjacent numbered lists
+  with `&nbsp;` (no raw HTML for its usual comment); the AST filter drops
+  Word's empty paragraphs. Installing Pandoc on Windows failed: renaming the
+  staging folder just after `pandoc --version` is refused a moment (the
+  exe still locked), so `_rename` retries for a few seconds there, and
+  staging a lock kept is removed by the next installation.
 - `table_cells.collect_cell`/`cell_blocks` give every exporter a cell's
   paragraphs, list items and code. Word writes them as the cell's paragraphs
   with Word's list styles; Typst as content with `parbreak`s and its lists,
@@ -1946,7 +1969,8 @@ are replaced. Cancellation and failure remove only this attempt's staging area.
 Tar extraction uses Python's data filter (TinyTeX contains internal symlinks);
 zip entries are path-checked and executable bits preserved. Updating/removing
 private installations was not exposed in the initial version (updates follow below).
-Windows ARM downloads are not offered.
+On Windows ARM64 the x64 Pandoc and TinyTeX are downloaded: neither has an ARM build, and
+Windows 11 runs x64 programs (Prism emulation).
 The GUI allows automatic `tlmgr` package installs/updates only inside its private
 TinyTeX with an installation manifest. Existing system and custom distributions
 are used for compilation without automatic package management.

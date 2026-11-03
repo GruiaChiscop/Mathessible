@@ -46,6 +46,11 @@ class AstTests(unittest.TestCase):
         )
         self.assertEqual(clean(document)["blocks"], [{"t": "Para", "c": _text("Kept")}])
 
+    def test_words_empty_paragraphs_are_left_out(self) -> None:
+        empty = {"t": "Para", "c": [{"t": "Str", "c": "\u00a0"}, {"t": "Space"}]}
+        document = _document(empty, {"t": "Para", "c": _text("Text")}, {"t": "Plain", "c": []})
+        self.assertEqual(clean(document)["blocks"], [{"t": "Para", "c": _text("Text")}])
+
     def test_images_are_their_description_unless_placed(self) -> None:
         document = _document({"t": "Para", "c": [_image("file:///clip.png", "A dot")]})
         self.assertEqual(clean(document)["blocks"][0]["c"], _text("A dot"))

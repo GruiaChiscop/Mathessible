@@ -26,7 +26,7 @@ both are given. What each command does is explained in the
 | Add a page | `Command+Shift+N` | `Ctrl+Shift+N` |
 | Move the page up, down | `Command+Option+Up`, `Command+Option+Down` | `Ctrl+Alt+Up`, `Ctrl+Alt+Down` |
 | Previous page, next page | `Command+Option+Page Up`, `Command+Option+Page Down` | `Ctrl+Alt+Page Up`, `Ctrl+Alt+Page Down` |
-| Settings | `Command+,` | Edit menu |
+| Settings (Edit menu) | `Command+,` | `Ctrl+,` |
 | Paste as plain text (no formatting converted) | `Command+Option+Shift+V` | `Ctrl+Shift+V` |
 | Find | `Command+F` | `Ctrl+F` |
 | Find next, find previous | `Command+G`, `Command+Shift+G` | `F3`, `Shift+F3` |
