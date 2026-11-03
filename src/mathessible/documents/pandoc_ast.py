@@ -8,7 +8,9 @@ document cannot hold is not written as raw HTML or attributes, which the editor 
 - an image is kept only when `image_source` gives it a place (an imported Word document's pictures,
   docx_import); otherwise its description stands for it, as in a local paste;
 - a paragraph of nothing but spaces is left out: Word's empty paragraphs (`<o:p>&nbsp;</o:p>`) would be
-  lines holding a no-break space.
+  lines holding a no-break space;
+- a list whose items are each one paragraph (and the lists under it) is tight: Pandoc reads a Word
+  document's items as paragraphs, written with a blank line between them, which Word's lists have not.
 """
 
 from __future__ import annotations
@@ -58,6 +60,13 @@ def _element(element: dict, image_source: Callable[[str], str | None] | None) ->
         if target is None:
             return _walk(description, image_source)
         return [{"t": "Image", "c": [["", [], []], _walk(description, image_source), [target, title]]}]
+    if kind in ("BulletList", "OrderedList") and isinstance(content, list):
+        cleaned = _walk(content, image_source)
+        items = cleaned if kind == "BulletList" else cleaned[1]
+        if all(_one_paragraph(item) for item in items):
+            for item in items:
+                item[0] = {"t": "Plain", "c": item[0]["c"]}
+        return [{**element, "c": cleaned}]
     if kind in ("Para", "Plain") and isinstance(content, list):
         inlines = _walk(content, image_source)
         blank = all(
@@ -81,6 +90,13 @@ def has_math(document: dict) -> bool:
         elif isinstance(value, list):
             pending += value
     return False
+
+
+def _one_paragraph(item: object) -> bool:
+    """A list item of one paragraph, then nothing but lists (its sublists)."""
+    if not isinstance(item, list) or not item or not isinstance(item[0], dict) or item[0].get("t") != "Para":
+        return False
+    return all(isinstance(block, dict) and block.get("t") in ("BulletList", "OrderedList") for block in item[1:])
 
 
 def _text(value: object) -> str:

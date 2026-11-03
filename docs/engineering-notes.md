@@ -1879,7 +1879,9 @@ without it.
   equation the converter cannot write makes the paste the clipboard's text,
   as every equation did before. Pandoc separates two adjacent numbered lists
   with `&nbsp;` (no raw HTML for its usual comment); the AST filter drops
-  Word's empty paragraphs. Installing Pandoc on Windows failed: renaming the
+  Word's empty paragraphs, and makes a list tight when each item is one
+  paragraph (Pandoc's docx reader gives every item a Para, so an imported
+  document's lists had a blank line between items). Installing Pandoc on Windows failed: renaming the
   staging folder just after `pandoc --version` is refused a moment (the
   exe still locked), so `_rename` retries for a few seconds there, and
   staging a lock kept is removed by the next installation.

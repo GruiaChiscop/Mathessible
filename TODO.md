@@ -75,8 +75,9 @@ links back, liblouis and BRF need a braille transcriber's convention.
 - [x] Equations in a paste from Word (OMML in conditional comments), through
   MathML and the converter's lineariser.
 - [x] Check a live paste from Word on Windows.
+- [x] Check an import of a .docx on Windows.
 - [ ] Check a live paste from Word on macOS (Word for Mac's clipboard HTML may
-  differ), and an import of a .docx on Windows.
+  differ).
 
 ## An editor for writing papers
 

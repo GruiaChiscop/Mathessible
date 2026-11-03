@@ -51,6 +51,17 @@ class AstTests(unittest.TestCase):
         document = _document(empty, {"t": "Para", "c": _text("Text")}, {"t": "Plain", "c": []})
         self.assertEqual(clean(document)["blocks"], [{"t": "Para", "c": _text("Text")}])
 
+    def test_lists_of_one_paragraph_items_are_tight(self) -> None:
+        inner = {"t": "BulletList", "c": [[{"t": "Para", "c": _text("Inner")}]]}
+        items = [[{"t": "Para", "c": _text("One")}, inner], [{"t": "Para", "c": _text("Two")}]]
+        document = _document({"t": "OrderedList", "c": [[1, {"t": "Decimal"}, {"t": "Period"}], items]})
+        cleaned = clean(document)["blocks"][0]["c"][1]
+        self.assertEqual([item[0]["t"] for item in cleaned], ["Plain", "Plain"])
+        self.assertEqual(cleaned[0][1]["c"][0][0]["t"], "Plain")  # The sublist too.
+        # An item of two paragraphs keeps the list loose: its blank line is the item's own.
+        loose = [[{"t": "Para", "c": _text("A")}, {"t": "Para", "c": _text("B")}]]
+        self.assertEqual(clean(_document({"t": "BulletList", "c": loose}))["blocks"][0]["c"][0][0]["t"], "Para")
+
     def test_images_are_their_description_unless_placed(self) -> None:
         document = _document({"t": "Para", "c": [_image("file:///clip.png", "A dot")]})
         self.assertEqual(clean(document)["blocks"][0]["c"], _text("A dot"))
