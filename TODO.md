@@ -76,8 +76,8 @@ links back, liblouis and BRF need a braille transcriber's convention.
   MathML and the converter's lineariser.
 - [x] Check a live paste from Word on Windows.
 - [x] Check an import of a .docx on Windows.
-- [ ] Check a live paste from Word on macOS (Word for Mac's clipboard HTML may
-  differ).
+- [x] Check a live paste from Word on macOS (Word for Mac's clipboard HTML has
+  the same markup as on Windows).
 
 ## An editor for writing papers
 
