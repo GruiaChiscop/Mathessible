@@ -9,6 +9,16 @@ from mathessible.i18n import N_
 REPOSITORY = "https://github.com/GruiaChiscop/Mathessible"
 ISSUES = f"{REPOSITORY}/issues/new"
 
+# Explore Graph's sound follows AudioFunctions+, from this Erasmus+ project: (label, address).
+SONIFICATION_CREDIT = N_(
+    "How a graph sounds here comes from AudioFunctions+, a web application of SONAIRGRAPH, an Erasmus+ project "
+    "led by the University of Turin. Mathessible wrote its own version and is not part of the project."
+)
+SONIFICATION_PAGES: tuple[tuple[str, str], ...] = (
+    (N_("Audio&Functions+ website"), "https://sonairgraph.github.io/audiofunctions-plus/"),
+    (N_("SONAIRGRAPH &Erasmus+ project"), "https://sonairgraph.unito.it/"),
+)
+
 # (menu label, page in the repository), in the Help menu's order.
 HELP_PAGES: tuple[tuple[str, str], ...] = (
     (N_("&Quick Start Guide"), "docs/quick-start.md"),

@@ -7,6 +7,11 @@ import sys
 from pathlib import Path
 
 
+def application_root() -> Path:
+    """Where the submodules' files are: the checkout, or a packaged application (PyInstaller's folder)."""
+    return Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parents[2]))
+
+
 def data_directory(
     home: Path | None = None, platform: str | None = None, environ: dict[str, str] | None = None
 ) -> Path:

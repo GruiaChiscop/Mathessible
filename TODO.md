@@ -128,11 +128,13 @@ editor for writing has, without copying Word.
   tabs, PDF Layout and PDF Content, as in the export's dialog (544 px).
 - [x] Windows built and tried from a checkout (Windows 11 ARM64:
   `scripts\bootstrap.bat`, all tests pass).
-- [ ] Distribution: a macOS application (`.app`) with an icon, `.md` and
-  `.msnb` files opening in it, signing and notarisation, an installer;
-  Windows x64 and Linux built and tried; a Windows installer; Mathessible
-  running outside its checkout.
-- [ ] Versions: a changelog and releases on GitHub (it is 0.1.0).
+- [x] A packaged application: a macOS `.app` with an icon that `.md`, `.tex`
+  and `.msnb` files open in, and a Windows x64 folder, built by GitHub Actions
+  (`packaging/`, `.github/workflows/`).
+- [ ] Try the Windows package, and the workflows on GitHub.
+- [ ] Distribution still to do: signing and notarisation (a Developer ID), an
+  installer on each platform, Intel Macs, Linux.
+- [ ] Publish 0.1.0 (the changelog is written; a tag `v0.1.0` publishes it).
 
 ## Later
 

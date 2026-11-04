@@ -17,8 +17,14 @@ def main() -> None:
     from mathessible.symbols.system_languages import preferred_languages
     from mathessible.ui.main_frame import MainFrame, offer_recovery
 
+    class Application(wx.App):
+        def MacOpenFiles(self, fileNames: list[str]) -> None:  # noqa: N802, N803 (wx's names)
+            """Documents opened from the Finder, in a packaged application."""
+            for name in fileNames:
+                frame.open_path(Path(name))
+
     session_log.start()
-    app = wx.App(False)
+    app = Application(False)
     # The interface's language, before any window is built (a change needs a restart).
     set_language(interface_language(load_settings().interface_language, preferred_languages()))
     # The home screen, as other editors start with, unless documents are given on the command line.

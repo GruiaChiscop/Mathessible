@@ -278,6 +278,13 @@ marks negative values. Generated earcons mark the y axis, view edges, a value
 that is undefined or outside the visible range, and bookmarks. No recorded
 sounds are bundled.
 
+This way of hearing a graph comes from
+[AudioFunctions+](https://sonairgraph.github.io/audiofunctions-plus/), a web
+application of [SONAIRGRAPH](https://sonairgraph.unito.it/), an Erasmus+ project
+led by the University of Turin. Mathessible wrote its own version and is not
+part of the project. The window says so, and its Help menu and two buttons open
+both sites.
+
 Left and Right (or J and L, useful with screen readers that take the arrows)
 move over x; hold Shift for fluid movement, or Command (Control elsewhere)
 with an arrow to move among bookmarks and the two view boundaries. Home and

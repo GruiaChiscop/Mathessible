@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mathessible VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/GruiaChiscop/Mathessible/issues\n"
-"POT-Creation-Date: 2026-11-04 09:16+0200\n"
+"POT-Creation-Date: 2026-11-04 09:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -851,19 +851,19 @@ msgstr ""
 msgid "&Cases"
 msgstr ""
 
-#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:202
+#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:200
 msgid "Insert Row &Above"
 msgstr ""
 
-#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:203
+#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:201
 msgid "Insert Row &Below"
 msgstr ""
 
-#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:205
+#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:203
 msgid "Insert Column &Left"
 msgstr ""
 
-#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:206
+#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:204
 msgid "Insert Column &Right"
 msgstr ""
 
@@ -1024,18 +1024,33 @@ msgid "The braille table could not be loaded. Choose another in the export's dia
 msgstr ""
 
 #: src/mathessible/help_links.py:14
+msgid ""
+"How a graph sounds here comes from AudioFunctions+, a web application of SONAIRGRAPH, an Erasmus+"
+" project led by the University of Turin. Mathessible wrote its own version and is not part of the"
+" project."
+msgstr ""
+
+#: src/mathessible/help_links.py:18
+msgid "Audio&Functions+ website"
+msgstr ""
+
+#: src/mathessible/help_links.py:19
+msgid "SONAIRGRAPH &Erasmus+ project"
+msgstr ""
+
+#: src/mathessible/help_links.py:24
 msgid "&Quick Start Guide"
 msgstr ""
 
-#: src/mathessible/help_links.py:15
+#: src/mathessible/help_links.py:25
 msgid "&User Guide"
 msgstr ""
 
-#: src/mathessible/help_links.py:16
+#: src/mathessible/help_links.py:26
 msgid "&Keyboard Shortcuts"
 msgstr ""
 
-#: src/mathessible/help_links.py:20
+#: src/mathessible/help_links.py:30
 msgid ""
 "An accessible maths editor: UnicodeMath equations in Markdown, read, navigated and brailled "
 "through MathCAT.\n"
@@ -3001,7 +3016,7 @@ msgstr ""
 msgid "Colu&mns"
 msgstr ""
 
-#: src/mathessible/ui/export_controls.py:121 src/mathessible/ui/insert_dialogs.py:106
+#: src/mathessible/ui/export_controls.py:121 src/mathessible/ui/insert_dialogs.py:104
 #: src/mathessible/ui/matrix_dialog.py:36
 msgid "Columns"
 msgstr ""
@@ -3224,7 +3239,7 @@ msgid "Export as HTML"
 msgstr ""
 
 #: src/mathessible/ui/export_dialogs.py:125 src/mathessible/ui/export_dialogs.py:158
-#: src/mathessible/ui/insert_dialogs.py:133 src/mathessible/ui/insert_dialogs.py:172
+#: src/mathessible/ui/insert_dialogs.py:131 src/mathessible/ui/insert_dialogs.py:170
 #: src/mathessible/ui/pdf_dialog.py:47
 msgid "Title"
 msgstr ""
@@ -3248,8 +3263,8 @@ msgstr ""
 msgid "D&escription"
 msgstr ""
 
-#: src/mathessible/ui/export_dialogs.py:127 src/mathessible/ui/insert_dialogs.py:135
-#: src/mathessible/ui/insert_dialogs.py:174
+#: src/mathessible/ui/export_dialogs.py:127 src/mathessible/ui/insert_dialogs.py:133
+#: src/mathessible/ui/insert_dialogs.py:172
 msgid "Description"
 msgstr ""
 
@@ -3354,184 +3369,184 @@ msgstr ""
 msgid "Delete Equation"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:48
+#: src/mathessible/ui/graph_explorer.py:49
 msgid "Explore Graph"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:53
+#: src/mathessible/ui/graph_explorer.py:54
 msgid "Graph explorer window"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:74
+#: src/mathessible/ui/graph_explorer.py:75
 msgid ""
 "Left and Right explore. C reads coordinates. V reads the view. B plays the graph. F1 lists every "
 "key."
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:95
+#: src/mathessible/ui/graph_explorer.py:105
 msgid "&Play graph"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:96
+#: src/mathessible/ui/graph_explorer.py:106
 msgid "&Read coordinates"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:97
+#: src/mathessible/ui/graph_explorer.py:107
 msgid "Read &view"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:98
+#: src/mathessible/ui/graph_explorer.py:108
 msgid "&Next function"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:99
+#: src/mathessible/ui/graph_explorer.py:109
 msgid "Toggle &discrete mode"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:100
+#: src/mathessible/ui/graph_explorer.py:110
 msgid "Toggle &sound"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:101
+#: src/mathessible/ui/graph_explorer.py:111
 msgid "Add or remove &bookmark"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:107 src/mathessible/ui/main_frame.py:993
+#: src/mathessible/ui/graph_explorer.py:117 src/mathessible/ui/main_frame.py:993
 msgid "&Close"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:109
+#: src/mathessible/ui/graph_explorer.py:119
 msgid "&Graph"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:111
+#: src/mathessible/ui/graph_explorer.py:121
 msgid "&Keyboard Help"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:113 src/mathessible/ui/help_menu.py:29
+#: src/mathessible/ui/graph_explorer.py:127 src/mathessible/ui/help_menu.py:29
 msgid "&Help"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:118 src/mathessible/ui/insert_dialogs.py:125
+#: src/mathessible/ui/graph_explorer.py:132 src/mathessible/ui/insert_dialogs.py:123
 msgid "Function graph"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:119
+#: src/mathessible/ui/graph_explorer.py:133
 #, python-brace-format
 msgid "{title}. Exploring y equals {expression}."
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:121
+#: src/mathessible/ui/graph_explorer.py:135
 #, python-brace-format
 msgid "Audio output is unavailable: {error}"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:147
+#: src/mathessible/ui/graph_explorer.py:161
 msgid "No point of interest in that direction."
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:164
+#: src/mathessible/ui/graph_explorer.py:178
 msgid "View centred at cursor"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:261
+#: src/mathessible/ui/graph_explorer.py:275
 msgid "View boundary"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:262
+#: src/mathessible/ui/graph_explorer.py:276
 msgid "Bookmark"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:263
+#: src/mathessible/ui/graph_explorer.py:277
 msgid "Point of interest"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:265
+#: src/mathessible/ui/graph_explorer.py:279
 #, python-brace-format
 msgid "{name} at x {x}, y {y}"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:267
+#: src/mathessible/ui/graph_explorer.py:281
 #, python-brace-format
 msgid "{name} near x {x}"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:270
+#: src/mathessible/ui/graph_explorer.py:284
 #, python-brace-format
 msgid "x {x}, y {y}"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:275
+#: src/mathessible/ui/graph_explorer.py:289
 #, python-brace-format
 msgid "x from {x_min} to {x_max}; y from {y_min} to {y_max}"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:286
+#: src/mathessible/ui/graph_explorer.py:300
 msgid "Discrete notes"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:286
+#: src/mathessible/ui/graph_explorer.py:300
 msgid "Continuous tone"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:291
+#: src/mathessible/ui/graph_explorer.py:305
 msgid "Sound on"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:291
+#: src/mathessible/ui/graph_explorer.py:305
 msgid "Sound off"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:303
+#: src/mathessible/ui/graph_explorer.py:317
 #, python-brace-format
 msgid "Function {current} of {total}: y equals {expression}"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:311
+#: src/mathessible/ui/graph_explorer.py:325
 msgid "Bookmark added"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:311
+#: src/mathessible/ui/graph_explorer.py:325
 msgid "Bookmark removed"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:315
+#: src/mathessible/ui/graph_explorer.py:329
 msgid "Zoomed in"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:315
+#: src/mathessible/ui/graph_explorer.py:329
 msgid "Zoomed out"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:315
+#: src/mathessible/ui/graph_explorer.py:329
 msgid "Zoom limit"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:336
+#: src/mathessible/ui/graph_explorer.py:350
 msgid "Original view"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:344
+#: src/mathessible/ui/graph_explorer.py:358
 msgid "Playback stopped"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:349
+#: src/mathessible/ui/graph_explorer.py:363
 msgid "Playing graph"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:370
+#: src/mathessible/ui/graph_explorer.py:384
 msgid "End of graph"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:373
+#: src/mathessible/ui/graph_explorer.py:387
 msgid "Command"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:373
+#: src/mathessible/ui/graph_explorer.py:387
 msgid "Control"
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:376
+#: src/mathessible/ui/graph_explorer.py:390
 #, python-brace-format
 msgid ""
 "Left and Right, or J and L, move; Shift moves fluidly; {modifier} with Left or Right goes between"
@@ -3542,7 +3557,7 @@ msgid ""
 "a bookmark. {modifier} Z centres the view at the cursor."
 msgstr ""
 
-#: src/mathessible/ui/graph_explorer.py:397
+#: src/mathessible/ui/graph_explorer.py:411
 msgid "Graph exploration area"
 msgstr ""
 
@@ -3604,184 +3619,184 @@ msgstr ""
 msgid "No recent documents"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:94
+#: src/mathessible/ui/insert_dialogs.py:92
 msgid "Insert Link"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:95
+#: src/mathessible/ui/insert_dialogs.py:93
 msgid "&Text:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:95
+#: src/mathessible/ui/insert_dialogs.py:93
 msgid "Link text"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:96
+#: src/mathessible/ui/insert_dialogs.py:94
 msgid "&Address:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:96
+#: src/mathessible/ui/insert_dialogs.py:94
 msgid "Link address"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:104
+#: src/mathessible/ui/insert_dialogs.py:102
 msgid "Insert Table"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:105 src/mathessible/ui/insert_dialogs.py:140
+#: src/mathessible/ui/insert_dialogs.py:103 src/mathessible/ui/insert_dialogs.py:138
 msgid "&Rows:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:105 src/mathessible/ui/insert_dialogs.py:140
+#: src/mathessible/ui/insert_dialogs.py:103 src/mathessible/ui/insert_dialogs.py:138
 #: src/mathessible/ui/matrix_dialog.py:33
 msgid "Rows"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:106
+#: src/mathessible/ui/insert_dialogs.py:104
 msgid "&Columns:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:108
+#: src/mathessible/ui/insert_dialogs.py:106
 msgid "First row is the &header"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:112
+#: src/mathessible/ui/insert_dialogs.py:110
 msgid "Cells hold paragraphs or lists (&grid table)"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:123 src/mathessible/ui/main_frame.py:1432
+#: src/mathessible/ui/insert_dialogs.py:121 src/mathessible/ui/main_frame.py:1432
 msgid "Insert Chart"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:126
+#: src/mathessible/ui/insert_dialogs.py:124
 msgid "Bar chart"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:127
+#: src/mathessible/ui/insert_dialogs.py:125
 msgid "Line chart"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:128
+#: src/mathessible/ui/insert_dialogs.py:126
 msgid "Scatter plot"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:129
+#: src/mathessible/ui/insert_dialogs.py:127
 msgid "Pie chart"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:131
+#: src/mathessible/ui/insert_dialogs.py:129
 msgid "&Kind:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:131
+#: src/mathessible/ui/insert_dialogs.py:129
 msgid "Kind"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:133 src/mathessible/ui/insert_dialogs.py:172
+#: src/mathessible/ui/insert_dialogs.py:131 src/mathessible/ui/insert_dialogs.py:170
 msgid "&Title:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:135 src/mathessible/ui/insert_dialogs.py:174
+#: src/mathessible/ui/insert_dialogs.py:133 src/mathessible/ui/insert_dialogs.py:172
 msgid "&Description:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:137
+#: src/mathessible/ui/insert_dialogs.py:135
 msgid "&Function of x:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:137
+#: src/mathessible/ui/insert_dialogs.py:135
 msgid "Function of x"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:138
+#: src/mathessible/ui/insert_dialogs.py:136
 msgid "x fro&m:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:138
+#: src/mathessible/ui/insert_dialogs.py:136
 msgid "x from"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:139
+#: src/mathessible/ui/insert_dialogs.py:137
 msgid "x t&o:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:139
+#: src/mathessible/ui/insert_dialogs.py:137
 msgid "x to"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:141
+#: src/mathessible/ui/insert_dialogs.py:139
 msgid "&Series:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:141
+#: src/mathessible/ui/insert_dialogs.py:139
 msgid "Series"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:171
+#: src/mathessible/ui/insert_dialogs.py:169
 msgid "Insert Flowchart"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:176
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "Top to bottom"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:176
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "Left to right"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:176
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "Bottom to top"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:176
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "Right to left"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:177
+#: src/mathessible/ui/insert_dialogs.py:175
 msgid "Di&rection:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:177
+#: src/mathessible/ui/insert_dialogs.py:175
 msgid "Direction"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:193 src/mathessible/ui/insert_dialogs.py:363
+#: src/mathessible/ui/insert_dialogs.py:191 src/mathessible/ui/insert_dialogs.py:361
 msgid "Edit Table"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:200
+#: src/mathessible/ui/insert_dialogs.py:198
 msgid "Header rows"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:204
+#: src/mathessible/ui/insert_dialogs.py:202
 msgid "&Delete Row"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:207
+#: src/mathessible/ui/insert_dialogs.py:205
 msgid "Delete Col&umn"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:209
+#: src/mathessible/ui/insert_dialogs.py:207
 msgid "&Merge with Right"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:214
+#: src/mathessible/ui/insert_dialogs.py:212
 msgid "Merge with Belo&w"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:218
+#: src/mathessible/ui/insert_dialogs.py:216
 msgid "&Split Cell"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:220
+#: src/mathessible/ui/insert_dialogs.py:218
 msgid "&Actions"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:223
+#: src/mathessible/ui/insert_dialogs.py:221
 msgid "&Header rows:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:362
+#: src/mathessible/ui/insert_dialogs.py:360
 msgid "A merged cell crosses the end of the header. Split it, or choose another number of rows."
 msgstr ""
 

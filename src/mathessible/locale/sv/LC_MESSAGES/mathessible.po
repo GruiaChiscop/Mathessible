@@ -16,124 +16,115 @@ msgstr ""
 "Generated-By: Babel 2.18.0\n"
 
 #: src/mathessible/documents/brf_export.py:87
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Row {row}, column {column}, spans {rows} rows and {columns} columns: {text}"
-msgstr "cell rad {row}, kolumn {column}, {content}"
+msgstr "Rad {row}, kolumn {column}, omfattar {rows} rader och {columns} kolumner: {text}"
 
 #: src/mathessible/documents/flowcharts.py:70
 #, python-brace-format
 msgid "cannot read the node {node!r}"
-msgstr ""
+msgstr "det går inte att läsa noden {node!r}"
 
 #: src/mathessible/documents/flowcharts.py:81
 #, python-brace-format
 msgid "the node {node!r} needs text"
-msgstr ""
+msgstr "noden {node!r} behöver text"
 
 #: src/mathessible/documents/flowcharts.py:109 src/mathessible/documents/flowcharts.py:131
 msgid "a Mermaid flowchart must start with `flowchart TD` (or LR, BT or RL)"
-msgstr ""
+msgstr "ett Mermaid-flödesschema måste börja med `flowchart TD` (eller LR, BT eller RL)"
 
 #: src/mathessible/documents/flowcharts.py:116
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "line {number}: {error}"
-msgstr "rad {number}"
+msgstr "rad {number}: {error}"
 
 #: src/mathessible/documents/flowcharts.py:124
 #, python-brace-format
 msgid "line {number}: node {node!r} has two different definitions"
-msgstr ""
+msgstr "rad {number}: noden {node!r} har två olika definitioner"
 
 #: src/mathessible/documents/flowcharts.py:133
 msgid "the flowchart needs at least one node"
-msgstr ""
+msgstr "flödesschemat behöver minst en nod"
 
 #: src/mathessible/documents/flowcharts.py:140
-#, fuzzy
 msgid "top to bottom"
-msgstr "nedre del"
+msgstr "uppifrån och ned"
 
 #: src/mathessible/documents/flowcharts.py:141
-#, fuzzy
 msgid "bottom to top"
-msgstr "nedre del"
+msgstr "nedifrån och upp"
 
 #: src/mathessible/documents/flowcharts.py:142
-#, fuzzy
 msgid "left to right"
-msgstr "Överst, till höger"
+msgstr "från vänster till höger"
 
 #: src/mathessible/documents/flowcharts.py:143
 msgid "right to left"
-msgstr ""
+msgstr "från höger till vänster"
 
 #: src/mathessible/documents/flowcharts.py:145
 #, python-brace-format
 msgid "Flowchart with {count} node"
 msgid_plural "Flowchart with {count} nodes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Flödesschema med {count} nod"
+msgstr[1] "Flödesschema med {count} noder"
 
 #: src/mathessible/documents/flowcharts.py:148
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "and {count} connection"
 msgid_plural "and {count} connections"
-msgstr[0] "{count} ekvation"
-msgstr[1] "{count} ekvationer"
+msgstr[0] "och {count} koppling"
+msgstr[1] "och {count} kopplingar"
 
 #: src/mathessible/documents/flowcharts.py:151
 #, python-brace-format
 msgid "{nodes} {edges}, {direction}."
-msgstr ""
+msgstr "{nodes} {edges}, {direction}."
 
 #: src/mathessible/documents/flowcharts.py:173
 #, python-brace-format
 msgid "{source} to {target}, labelled {label}"
-msgstr ""
+msgstr "{source} till {target}, med etiketten {label}"
 
 #: src/mathessible/documents/flowcharts.py:173
 #, python-brace-format
 msgid "{source} to {target}"
-msgstr ""
+msgstr "{source} till {target}"
 
 #: src/mathessible/documents/flowcharts.py:275
-#, fuzzy
 msgid "Connections"
-msgstr "villkor"
+msgstr "Kopplingar"
 
 #: src/mathessible/documents/flowcharts.py:283
 #, python-brace-format
 msgid "unknown flowchart direction {direction!r}"
-msgstr ""
+msgstr "okänd riktning för flödesschemat: {direction!r}"
 
 #: src/mathessible/documents/flowcharts.py:291
-#, fuzzy
 msgid "Start"
-msgstr "början"
+msgstr "Start"
 
 #: src/mathessible/documents/flowcharts.py:291
-#, fuzzy
 msgid "Process"
-msgstr "Klammerparenteser"
+msgstr "Process"
 
 #: src/mathessible/documents/flowcharts.py:292
-#, fuzzy
 msgid "Decision?"
-msgstr "Beskrivning"
+msgstr "Beslut?"
 
 #: src/mathessible/documents/flowcharts.py:293
 msgid "Yes"
-msgstr ""
+msgstr "Ja"
 
 #: src/mathessible/documents/flowcharts.py:293
-#, fuzzy
 msgid "Finish"
-msgstr "Sök"
+msgstr "Slut"
 
 #: src/mathessible/documents/flowcharts.py:294
-#, fuzzy
 msgid "No"
-msgstr "Norm"
+msgstr "Nej"
 
 #: src/mathessible/documents/notebook.py:43
 msgid "The selected folder is not empty"
@@ -193,88 +184,83 @@ msgstr "Osäker sidsökväg: {file}"
 
 #: src/mathessible/documents/optional_tools.py:54
 msgid "Could not check for updates. Try again later."
-msgstr ""
+msgstr "Det gick inte att söka efter uppdateringar. Försök igen senare."
 
 #: src/mathessible/documents/optional_tools.py:72 src/mathessible/documents/optional_tools.py:290
 #: src/mathessible/documents/optional_tools.py:335
-#, fuzzy
 msgid "The archive does not contain the expected executable"
-msgstr ".msnb-arkivet innehåller inte {name}"
+msgstr "Arkivet innehåller inte den förväntade programfilen"
 
 #: src/mathessible/documents/optional_tools.py:92 src/mathessible/documents/optional_tools.py:96
 #: src/mathessible/documents/optional_tools.py:98
 msgid "Another installation is in progress"
-msgstr ""
+msgstr "En annan installation pågår"
 
 #: src/mathessible/documents/optional_tools.py:129
-#, fuzzy
 msgid "Could not read the executable version"
-msgstr "kunde inte spara ekvationen: {error}"
+msgstr "Det gick inte att läsa programfilens version"
 
 #: src/mathessible/documents/optional_tools.py:135
 msgid "No supported download for this processor"
-msgstr ""
+msgstr "Det finns ingen nedladdning som stöds för den här processorn"
 
 #: src/mathessible/documents/optional_tools.py:144
 msgid "No supported Pandoc download for this platform"
-msgstr ""
+msgstr "Det finns ingen Pandoc-nedladdning som stöds för den här plattformen"
 
 #: src/mathessible/documents/optional_tools.py:152
 msgid "No supported TinyTeX download for this platform"
-msgstr ""
+msgstr "Det finns ingen TinyTeX-nedladdning som stöds för den här plattformen"
 
 #: src/mathessible/documents/optional_tools.py:160 src/mathessible/documents/optional_tools.py:174
 msgid "Archive is too large"
-msgstr ""
+msgstr "Arkivet är för stort"
 
 #: src/mathessible/documents/optional_tools.py:164
-#, fuzzy
 msgid "Unsafe archive path"
-msgstr "Osäker sidsökväg: {file}"
+msgstr "Osäker sökväg i arkivet"
 
 #: src/mathessible/documents/optional_tools.py:166 src/mathessible/documents/optional_tools.py:177
 #: src/mathessible/documents/optional_tools.py:274 src/mathessible/documents/optional_tools.py:300
 #: src/mathessible/documents/optional_tools.py:332 src/mathessible/documents/optional_tools.py:342
-#, fuzzy
 msgid "Installation cancelled"
-msgstr "Installationen av TinyTeX avbröts"
+msgstr "Installationen avbröts"
 
 #: src/mathessible/documents/optional_tools.py:250
 msgid "A private installation already exists; it was left unchanged"
-msgstr ""
+msgstr "Det finns redan en privat installation; den ändrades inte"
 
 #: src/mathessible/documents/optional_tools.py:256
 msgid "No checksummed release is available for this platform"
-msgstr ""
+msgstr "Ingen version med kontrollsumma finns för den här plattformen"
 
 #: src/mathessible/documents/optional_tools.py:259
 msgid "Unexpected release download URL"
-msgstr ""
+msgstr "Oväntad nedladdningsadress"
 
 #: src/mathessible/documents/optional_tools.py:277
 msgid "Download exceeds the size limit"
-msgstr ""
+msgstr "Nedladdningen överskrider storleksgränsen"
 
 #: src/mathessible/documents/optional_tools.py:282
 msgid "Download checksum did not match"
-msgstr ""
+msgstr "Nedladdningens kontrollsumma stämde inte"
 
 #: src/mathessible/documents/optional_tools.py:298
 msgid "Unexpected TinyTeX archive layout"
-msgstr ""
+msgstr "Oväntad struktur i TinyTeX-arkivet"
 
 #: src/mathessible/documents/optional_tools.py:318
 msgid "Only a Mathessible-managed installation can be updated."
-msgstr ""
+msgstr "Bara en installation som hanteras av Mathessible kan uppdateras."
 
 #: src/mathessible/documents/optional_tools.py:338
 msgid "The package manager points outside the private installation."
-msgstr ""
+msgstr "Pakethanteraren pekar utanför den privata installationen."
 
 #: src/mathessible/documents/optional_tools.py:346
-#, fuzzy
 msgid "TinyTeX could not be updated. The previous installation was kept."
-msgstr "TinyTeX kunde inte installeras."
+msgstr "TinyTeX kunde inte uppdateras. Den tidigare installationen behölls."
 
 #: src/mathessible/documents/pdf_source.py:47
 msgid "This PDF needs a password to open, so Mathessible cannot read its source."
@@ -342,32 +328,34 @@ msgid "Symbolic links are not allowed in .msnb: {file}"
 msgstr "Symboliska länkar är inte tillåtna i .msnb: {file}"
 
 #: src/mathessible/documents/tool_updates.py:53
-#, fuzzy
 msgid "The installed version could not be compared."
-msgstr "PDF:en kunde inte kompileras"
+msgstr "Den installerade versionen kunde inte jämföras."
 
 #: src/mathessible/documents/tool_updates.py:64 src/mathessible/documents/tool_updates.py:72
 msgid "No executable was found. Correct the path or clear it for automatic detection."
-msgstr ""
+msgstr "Ingen programfil hittades. Rätta sökvägen eller töm den för automatisk identifiering."
 
 #: src/mathessible/documents/tool_updates.py:77
 msgid "This LaTeX distribution does not provide tlmgr. Use its own package manager to check for updates."
 msgstr ""
+"Den här LaTeX-distributionen har inte tlmgr. Använd dess egen pakethanterare för att söka efter "
+"uppdateringar."
 
 #: src/mathessible/documents/tool_updates.py:90
 msgid ""
 "Could not check LaTeX package updates. The repository may be unavailable or require a newer TeX "
 "Live distribution."
 msgstr ""
+"Det gick inte att söka efter uppdateringar av LaTeX-paket. Paketförrådet kan vara otillgängligt "
+"eller kräva en nyare TeX Live-distribution."
 
 #: src/mathessible/documents/tool_updates.py:94
-#, fuzzy
 msgid "The LaTeX update response could not be understood."
-msgstr "den inklistrade MathML-koden kunde inte konverteras"
+msgstr "Svaret om LaTeX-uppdateringar kunde inte tolkas."
 
 #: src/mathessible/documents/tool_updates.py:97
 msgid "TeX Live package repository"
-msgstr ""
+msgstr "Paketförråd för TeX Live"
 
 #: src/mathessible/editing/equation_errors.py:37
 msgid "fraction without denominator"
@@ -451,43 +439,42 @@ msgid "unknown command {command}"
 msgstr "okänt kommando {command}"
 
 #: src/mathessible/editing/grid_table_edit.py:232
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Column {column}"
-msgstr "kolumn {column}"
+msgstr "Kolumn {column}"
 
 #: src/mathessible/editing/grid_table_edit.py:234
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Row {row}"
-msgstr "rad {row}"
+msgstr "Rad {row}"
 
 #: src/mathessible/editing/grid_table_edit.py:237
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Row {row}, column {column}"
-msgstr "rad {row}, kolumn {column}"
+msgstr "Rad {row}, kolumn {column}"
 
 #: src/mathessible/editing/grid_table_edit.py:239
-#, fuzzy
 msgid "header"
-msgstr "Sidhuvud"
+msgstr "rubrik"
 
 #: src/mathessible/editing/grid_table_edit.py:241
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "{count} row"
 msgid_plural "{count} rows"
-msgstr[0] "{count} ord"
-msgstr[1] "{count} ord"
+msgstr[0] "{count} rad"
+msgstr[1] "{count} rader"
 
 #: src/mathessible/editing/grid_table_edit.py:242
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "{count} column"
 msgid_plural "{count} columns"
-msgstr[0] "{count} ord"
-msgstr[1] "{count} ord"
+msgstr[0] "{count} kolumn"
+msgstr[1] "{count} kolumner"
 
 #: src/mathessible/editing/grid_table_edit.py:243
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "spans {rows} and {columns}"
-msgstr "rad {row}, kolumn {column}"
+msgstr "omfattar {rows} och {columns}"
 
 #: src/mathessible/editor/assist.py:82
 msgid "suggestions closed"
@@ -876,19 +863,19 @@ msgstr "&Ekvationer"
 msgid "&Cases"
 msgstr "&Fall"
 
-#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:202
+#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:200
 msgid "Insert Row &Above"
 msgstr "Infoga rad &ovanför"
 
-#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:203
+#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:201
 msgid "Insert Row &Below"
 msgstr "Infoga rad &nedanför"
 
-#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:205
+#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:203
 msgid "Insert Column &Left"
 msgstr "Infoga kolumn till &vänster"
 
-#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:206
+#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:204
 msgid "Insert Column &Right"
 msgstr "Infoga kolumn till &höger"
 
@@ -1051,18 +1038,36 @@ msgid "The braille table could not be loaded. Choose another in the export's dia
 msgstr "Punktskriftstabellen kunde inte läsas in. Välj en annan i exportens dialogruta."
 
 #: src/mathessible/help_links.py:14
+msgid ""
+"How a graph sounds here comes from AudioFunctions+, a web application of SONAIRGRAPH, an Erasmus+"
+" project led by the University of Turin. Mathessible wrote its own version and is not part of the"
+" project."
+msgstr ""
+"Hur en graf låter här kommer från AudioFunctions+, en webbapp från SONAIRGRAPH, ett "
+"Erasmus+-projekt som leds av Turins universitet. Mathessible skrev en egen version och ingår inte"
+" i projektet."
+
+#: src/mathessible/help_links.py:18
+msgid "Audio&Functions+ website"
+msgstr "Audio&Functions+ webbplats"
+
+#: src/mathessible/help_links.py:19
+msgid "SONAIRGRAPH &Erasmus+ project"
+msgstr "SONAIRGRAPH &Erasmus+-projektet"
+
+#: src/mathessible/help_links.py:24
 msgid "&Quick Start Guide"
 msgstr "&Snabbstart"
 
-#: src/mathessible/help_links.py:15
+#: src/mathessible/help_links.py:25
 msgid "&User Guide"
 msgstr "&Användarhandbok"
 
-#: src/mathessible/help_links.py:16
+#: src/mathessible/help_links.py:26
 msgid "&Keyboard Shortcuts"
 msgstr "&Kortkommandon"
 
-#: src/mathessible/help_links.py:20
+#: src/mathessible/help_links.py:30
 msgid ""
 "An accessible maths editor: UnicodeMath equations in Markdown, read, navigated and brailled "
 "through MathCAT.\n"
@@ -1217,9 +1222,8 @@ msgid "Dark"
 msgstr "Mörkt"
 
 #: src/mathessible/sonification/graph.py:289
-#, fuzzy
 msgid "undefined"
-msgstr "Sök"
+msgstr "odefinierad"
 
 #: src/mathessible/spoken.py:21 src/mathessible/templates/math_templates.py:797
 #: src/mathessible/templates/structure_edits.py:326
@@ -2730,16 +2734,16 @@ msgstr "Återställ &standard"
 
 #: src/mathessible/ui/background_job.py:32 src/mathessible/ui/background_job.py:49
 msgid "Working…"
-msgstr ""
+msgstr "Arbetar…"
 
 #: src/mathessible/ui/background_job.py:49
 msgid "Cancelling after the current operation…"
-msgstr ""
+msgstr "Avbryter efter den aktuella åtgärden…"
 
 #: src/mathessible/ui/background_job.py:68 src/mathessible/ui/settings_dialog.py:214
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "The operation failed: {error}"
-msgstr "Hämtningen misslyckades: {error}"
+msgstr "Åtgärden misslyckades: {error}"
 
 #: src/mathessible/ui/braille_signs_dialog.py:36
 #, python-brace-format
@@ -2892,27 +2896,28 @@ msgid "Markdown editor"
 msgstr "Markdown-redigerare"
 
 #: src/mathessible/ui/document_editor.py:463 src/mathessible/ui/document_editor.py:481
-#, fuzzy
 msgid "Paste"
-msgstr "Klist&ra in"
+msgstr "Klistra in"
 
 #: src/mathessible/ui/document_editor.py:475
 msgid "Pandoc could not convert this content."
-msgstr ""
+msgstr "Pandoc kunde inte konvertera det här innehållet."
 
 #: src/mathessible/ui/document_editor.py:477
 msgid "This content has paragraphs, lists or line breaks inside table cells, or nested lists."
-msgstr ""
+msgstr "Det här innehållet har stycken, listor eller radbrytningar i tabellceller, eller kapslade listor."
 
 #: src/mathessible/ui/document_editor.py:486
 msgid ""
 "Pasted simplified, each cell becomes one line and nested lists may lose their levels. Pandoc, an "
 "optional converter, keeps them as a grid table."
 msgstr ""
+"Vid förenklad inklistring blir varje cell en rad och kapslade listor kan förlora sina nivåer. "
+"Pandoc, en valfri konverterare, behåller dem som rutnätstabell."
 
 #: src/mathessible/ui/document_editor.py:491 src/mathessible/ui/document_editor.py:493
 msgid "Paste &Simplified"
-msgstr ""
+msgstr "Klistra in &förenklat"
 
 #: src/mathessible/ui/document_editor.py:491 src/mathessible/ui/document_editor.py:493
 #: src/mathessible/ui/main_frame.py:863 src/mathessible/ui/main_frame.py:1016
@@ -2922,14 +2927,12 @@ msgid "&Cancel"
 msgstr "&Avbryt"
 
 #: src/mathessible/ui/document_editor.py:493
-#, fuzzy
 msgid "&Install Pandoc…"
-msgstr "&Installera TinyTeX"
+msgstr "&Installera Pandoc…"
 
 #: src/mathessible/ui/document_editor.py:505 src/mathessible/ui/main_frame.py:1584
-#, fuzzy
 msgid "Install Pandoc"
-msgstr "Installationen av TinyTeX avbröts"
+msgstr "Installera Pandoc"
 
 #: src/mathessible/ui/document_editor.py:572
 msgid "this equation cannot be inline"
@@ -3042,7 +3045,7 @@ msgstr "Marginaler (mm)"
 msgid "Colu&mns"
 msgstr "Kolu&mner"
 
-#: src/mathessible/ui/export_controls.py:121 src/mathessible/ui/insert_dialogs.py:106
+#: src/mathessible/ui/export_controls.py:121 src/mathessible/ui/insert_dialogs.py:104
 #: src/mathessible/ui/matrix_dialog.py:36
 msgid "Columns"
 msgstr "Kolumner"
@@ -3265,7 +3268,7 @@ msgid "Export as HTML"
 msgstr "Exportera som HTML"
 
 #: src/mathessible/ui/export_dialogs.py:125 src/mathessible/ui/export_dialogs.py:158
-#: src/mathessible/ui/insert_dialogs.py:133 src/mathessible/ui/insert_dialogs.py:172
+#: src/mathessible/ui/insert_dialogs.py:131 src/mathessible/ui/insert_dialogs.py:170
 #: src/mathessible/ui/pdf_dialog.py:47
 msgid "Title"
 msgstr "Titel"
@@ -3289,8 +3292,8 @@ msgstr "Författare"
 msgid "D&escription"
 msgstr "&Beskrivning"
 
-#: src/mathessible/ui/export_dialogs.py:127 src/mathessible/ui/insert_dialogs.py:135
-#: src/mathessible/ui/insert_dialogs.py:174
+#: src/mathessible/ui/export_dialogs.py:127 src/mathessible/ui/insert_dialogs.py:133
+#: src/mathessible/ui/insert_dialogs.py:172
 msgid "Description"
 msgstr "Beskrivning"
 
@@ -3397,201 +3400,186 @@ msgstr "Vill du ta bort ”{name}” från Mina ekvationer?"
 msgid "Delete Equation"
 msgstr "Ta bort ekvation"
 
-#: src/mathessible/ui/graph_explorer.py:48
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:49
 msgid "Explore Graph"
-msgstr "Exportera som PDF"
+msgstr "Utforska graf"
 
-#: src/mathessible/ui/graph_explorer.py:53
+#: src/mathessible/ui/graph_explorer.py:54
 msgid "Graph explorer window"
-msgstr ""
+msgstr "Fönster för att utforska grafen"
 
-#: src/mathessible/ui/graph_explorer.py:74
+#: src/mathessible/ui/graph_explorer.py:75
 msgid ""
 "Left and Right explore. C reads coordinates. V reads the view. B plays the graph. F1 lists every "
 "key."
 msgstr ""
+"Vänster och Höger utforskar. C läser koordinaterna. V läser vyn. B spelar upp grafen. F1 visar "
+"alla tangenter."
 
-#: src/mathessible/ui/graph_explorer.py:95
+#: src/mathessible/ui/graph_explorer.py:105
 msgid "&Play graph"
-msgstr ""
+msgstr "S&pela upp graf"
 
-#: src/mathessible/ui/graph_explorer.py:96
+#: src/mathessible/ui/graph_explorer.py:106
 msgid "&Read coordinates"
-msgstr ""
+msgstr "&Läs koordinater"
 
-#: src/mathessible/ui/graph_explorer.py:97
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:107
 msgid "Read &view"
-msgstr "&Visa"
+msgstr "Läs &vy"
 
-#: src/mathessible/ui/graph_explorer.py:98
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:108
 msgid "&Next function"
-msgstr "&Funktion"
+msgstr "&Nästa funktion"
 
-#: src/mathessible/ui/graph_explorer.py:99
+#: src/mathessible/ui/graph_explorer.py:109
 msgid "Toggle &discrete mode"
-msgstr ""
+msgstr "Växla &diskret läge"
 
-#: src/mathessible/ui/graph_explorer.py:100
+#: src/mathessible/ui/graph_explorer.py:110
 msgid "Toggle &sound"
-msgstr ""
+msgstr "Växla lju&d"
 
-#: src/mathessible/ui/graph_explorer.py:101
+#: src/mathessible/ui/graph_explorer.py:111
 msgid "Add or remove &bookmark"
-msgstr ""
+msgstr "Lägg till eller ta bort &bokmärke"
 
-#: src/mathessible/ui/graph_explorer.py:107 src/mathessible/ui/main_frame.py:993
+#: src/mathessible/ui/graph_explorer.py:117 src/mathessible/ui/main_frame.py:993
 msgid "&Close"
 msgstr "&Stäng"
 
-#: src/mathessible/ui/graph_explorer.py:109
+#: src/mathessible/ui/graph_explorer.py:119
 msgid "&Graph"
-msgstr ""
+msgstr "&Graf"
 
-#: src/mathessible/ui/graph_explorer.py:111
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:121
 msgid "&Keyboard Help"
-msgstr "&Kortkommandon"
+msgstr "&Tangenthjälp"
 
-#: src/mathessible/ui/graph_explorer.py:113 src/mathessible/ui/help_menu.py:29
+#: src/mathessible/ui/graph_explorer.py:127 src/mathessible/ui/help_menu.py:29
 msgid "&Help"
 msgstr "&Hjälp"
 
-#: src/mathessible/ui/graph_explorer.py:118 src/mathessible/ui/insert_dialogs.py:125
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:132 src/mathessible/ui/insert_dialogs.py:123
 msgid "Function graph"
-msgstr "funktionsnamn"
+msgstr "Funktionsgraf"
 
-#: src/mathessible/ui/graph_explorer.py:119
+#: src/mathessible/ui/graph_explorer.py:133
 #, python-brace-format
 msgid "{title}. Exploring y equals {expression}."
-msgstr ""
+msgstr "{title}. Utforskar y lika med {expression}."
 
-#: src/mathessible/ui/graph_explorer.py:121
+#: src/mathessible/ui/graph_explorer.py:135
 #, python-brace-format
 msgid "Audio output is unavailable: {error}"
-msgstr ""
+msgstr "Ljudutgången är inte tillgänglig: {error}"
 
-#: src/mathessible/ui/graph_explorer.py:147
+#: src/mathessible/ui/graph_explorer.py:161
 msgid "No point of interest in that direction."
-msgstr ""
+msgstr "Ingen intressant punkt i den riktningen."
 
-#: src/mathessible/ui/graph_explorer.py:164
+#: src/mathessible/ui/graph_explorer.py:178
 msgid "View centred at cursor"
-msgstr ""
-
-#: src/mathessible/ui/graph_explorer.py:261
-msgid "View boundary"
-msgstr ""
-
-#: src/mathessible/ui/graph_explorer.py:262
-#, fuzzy
-msgid "Bookmark"
-msgstr "{bar} borttaget"
-
-#: src/mathessible/ui/graph_explorer.py:263
-#, fuzzy
-msgid "Point of interest"
-msgstr "kurvintegral"
-
-#: src/mathessible/ui/graph_explorer.py:265
-#, python-brace-format
-msgid "{name} at x {x}, y {y}"
-msgstr ""
-
-#: src/mathessible/ui/graph_explorer.py:267
-#, python-brace-format
-msgid "{name} near x {x}"
-msgstr ""
-
-#: src/mathessible/ui/graph_explorer.py:270
-#, python-brace-format
-msgid "x {x}, y {y}"
-msgstr ""
+msgstr "Vyn centrerad på markören"
 
 #: src/mathessible/ui/graph_explorer.py:275
+msgid "View boundary"
+msgstr "Vyns gräns"
+
+#: src/mathessible/ui/graph_explorer.py:276
+msgid "Bookmark"
+msgstr "Bokmärke"
+
+#: src/mathessible/ui/graph_explorer.py:277
+msgid "Point of interest"
+msgstr "Intressant punkt"
+
+#: src/mathessible/ui/graph_explorer.py:279
+#, python-brace-format
+msgid "{name} at x {x}, y {y}"
+msgstr "{name} vid x {x}, y {y}"
+
+#: src/mathessible/ui/graph_explorer.py:281
+#, python-brace-format
+msgid "{name} near x {x}"
+msgstr "{name} nära x {x}"
+
+#: src/mathessible/ui/graph_explorer.py:284
+#, python-brace-format
+msgid "x {x}, y {y}"
+msgstr "x {x}, y {y}"
+
+#: src/mathessible/ui/graph_explorer.py:289
 #, python-brace-format
 msgid "x from {x_min} to {x_max}; y from {y_min} to {y_max}"
-msgstr ""
+msgstr "x från {x_min} till {x_max}; y från {y_min} till {y_max}"
 
-#: src/mathessible/ui/graph_explorer.py:286
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:300
 msgid "Discrete notes"
-msgstr "skapa anteckningsboken"
+msgstr "Diskreta toner"
 
-#: src/mathessible/ui/graph_explorer.py:286
+#: src/mathessible/ui/graph_explorer.py:300
 msgid "Continuous tone"
-msgstr ""
+msgstr "Kontinuerlig ton"
 
-#: src/mathessible/ui/graph_explorer.py:291
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:305
 msgid "Sound on"
-msgstr "Union"
+msgstr "Ljud på"
 
-#: src/mathessible/ui/graph_explorer.py:291
+#: src/mathessible/ui/graph_explorer.py:305
 msgid "Sound off"
-msgstr ""
+msgstr "Ljud av"
 
-#: src/mathessible/ui/graph_explorer.py:303
+#: src/mathessible/ui/graph_explorer.py:317
 #, python-brace-format
 msgid "Function {current} of {total}: y equals {expression}"
-msgstr ""
+msgstr "Funktion {current} av {total}: y lika med {expression}"
 
-#: src/mathessible/ui/graph_explorer.py:311
+#: src/mathessible/ui/graph_explorer.py:325
 msgid "Bookmark added"
-msgstr ""
+msgstr "Bokmärke tillagt"
 
-#: src/mathessible/ui/graph_explorer.py:311
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:325
 msgid "Bookmark removed"
-msgstr "{bar} borttaget"
+msgstr "Bokmärke borttaget"
 
-#: src/mathessible/ui/graph_explorer.py:315
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:329
 msgid "Zoomed in"
-msgstr "Zooma &in"
+msgstr "Inzoomad"
 
-#: src/mathessible/ui/graph_explorer.py:315
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:329
 msgid "Zoomed out"
-msgstr "Zooma &ut"
+msgstr "Utzoomad"
 
-#: src/mathessible/ui/graph_explorer.py:315
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:329
 msgid "Zoom limit"
-msgstr "Zooma &in"
+msgstr "Zoomgräns"
 
-#: src/mathessible/ui/graph_explorer.py:336
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:350
 msgid "Original view"
-msgstr "&Professionell vy"
+msgstr "Ursprunglig vy"
 
-#: src/mathessible/ui/graph_explorer.py:344
+#: src/mathessible/ui/graph_explorer.py:358
 msgid "Playback stopped"
-msgstr ""
+msgstr "Uppspelningen stoppad"
 
-#: src/mathessible/ui/graph_explorer.py:349
+#: src/mathessible/ui/graph_explorer.py:363
 msgid "Playing graph"
-msgstr ""
+msgstr "Spelar upp grafen"
 
-#: src/mathessible/ui/graph_explorer.py:370
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:384
 msgid "End of graph"
-msgstr "slut på matematik"
+msgstr "Grafens slut"
 
-#: src/mathessible/ui/graph_explorer.py:373
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:387
 msgid "Command"
-msgstr "term"
+msgstr "Kommando"
 
-#: src/mathessible/ui/graph_explorer.py:373
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:387
 msgid "Control"
-msgstr "villkor"
+msgstr "Kontroll"
 
-#: src/mathessible/ui/graph_explorer.py:376
+#: src/mathessible/ui/graph_explorer.py:390
 #, python-brace-format
 msgid ""
 "Left and Right, or J and L, move; Shift moves fluidly; {modifier} with Left or Right goes between"
@@ -3601,11 +3589,17 @@ msgid ""
 "the coordinates, V reads the view, N or 1 through 9 selects a function, and {modifier} B toggles "
 "a bookmark. {modifier} Z centres the view at the cursor."
 msgstr ""
+"Vänster och Höger, eller J och L, flyttar; Skift flyttar mjukt; {modifier} med Vänster eller "
+"Höger går mellan landmärken och gränser. Home och End går till kanterna. W A S D flyttar vyn. Z "
+"zoomar in och Skift Z zoomar ut; håll ned X eller Y medan du trycker Z för en axel. R återställer"
+" vyn. B spelar upp grafen, det gör även Mellanslag. I växlar mellan kontinuerligt och diskret "
+"ljud. P slår på eller av ljudet. C läser koordinaterna, V läser vyn, N eller 1 till 9 väljer en "
+"funktion och {modifier} B lägger till eller tar bort ett bokmärke. {modifier} Z centrerar vyn på "
+"markören."
 
-#: src/mathessible/ui/graph_explorer.py:397
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:411
 msgid "Graph exploration area"
-msgstr "utforskningsläge"
+msgstr "Område för att utforska grafen"
 
 #: src/mathessible/ui/header_footer_dialog.py:18
 msgid "Header and Footer"
@@ -3667,210 +3661,186 @@ msgstr "Senaste dokument"
 msgid "No recent documents"
 msgstr "Inga senaste dokument"
 
-#: src/mathessible/ui/insert_dialogs.py:94
+#: src/mathessible/ui/insert_dialogs.py:92
 msgid "Insert Link"
 msgstr "Infoga länk"
 
-#: src/mathessible/ui/insert_dialogs.py:95
+#: src/mathessible/ui/insert_dialogs.py:93
 msgid "&Text:"
 msgstr "&Text:"
 
-#: src/mathessible/ui/insert_dialogs.py:95
+#: src/mathessible/ui/insert_dialogs.py:93
 msgid "Link text"
 msgstr "Länktext"
 
-#: src/mathessible/ui/insert_dialogs.py:96
+#: src/mathessible/ui/insert_dialogs.py:94
 msgid "&Address:"
 msgstr "&Adress:"
 
-#: src/mathessible/ui/insert_dialogs.py:96
+#: src/mathessible/ui/insert_dialogs.py:94
 msgid "Link address"
 msgstr "Länkadress"
 
-#: src/mathessible/ui/insert_dialogs.py:104
+#: src/mathessible/ui/insert_dialogs.py:102
 msgid "Insert Table"
 msgstr "Infoga tabell"
 
-#: src/mathessible/ui/insert_dialogs.py:105 src/mathessible/ui/insert_dialogs.py:140
+#: src/mathessible/ui/insert_dialogs.py:103 src/mathessible/ui/insert_dialogs.py:138
 msgid "&Rows:"
 msgstr "&Rader:"
 
-#: src/mathessible/ui/insert_dialogs.py:105 src/mathessible/ui/insert_dialogs.py:140
+#: src/mathessible/ui/insert_dialogs.py:103 src/mathessible/ui/insert_dialogs.py:138
 #: src/mathessible/ui/matrix_dialog.py:33
 msgid "Rows"
 msgstr "Rader"
 
-#: src/mathessible/ui/insert_dialogs.py:106
+#: src/mathessible/ui/insert_dialogs.py:104
 msgid "&Columns:"
 msgstr "&Kolumner:"
 
-#: src/mathessible/ui/insert_dialogs.py:108
+#: src/mathessible/ui/insert_dialogs.py:106
 msgid "First row is the &header"
 msgstr "&Första raden är rubrik"
 
-#: src/mathessible/ui/insert_dialogs.py:112
+#: src/mathessible/ui/insert_dialogs.py:110
 msgid "Cells hold paragraphs or lists (&grid table)"
-msgstr ""
+msgstr "Cellerna innehåller stycken eller listor (&rutnätstabell)"
 
-#: src/mathessible/ui/insert_dialogs.py:123 src/mathessible/ui/main_frame.py:1432
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:121 src/mathessible/ui/main_frame.py:1432
 msgid "Insert Chart"
-msgstr "Infoga matris"
+msgstr "Infoga diagram"
+
+#: src/mathessible/ui/insert_dialogs.py:124
+msgid "Bar chart"
+msgstr "Stapeldiagram"
+
+#: src/mathessible/ui/insert_dialogs.py:125
+msgid "Line chart"
+msgstr "Linjediagram"
 
 #: src/mathessible/ui/insert_dialogs.py:126
-msgid "Bar chart"
-msgstr ""
+msgid "Scatter plot"
+msgstr "Punktdiagram"
 
 #: src/mathessible/ui/insert_dialogs.py:127
-#, fuzzy
-msgid "Line chart"
-msgstr "linjär"
-
-#: src/mathessible/ui/insert_dialogs.py:128
-msgid "Scatter plot"
-msgstr ""
+msgid "Pie chart"
+msgstr "Cirkeldiagram"
 
 #: src/mathessible/ui/insert_dialogs.py:129
-msgid "Pie chart"
-msgstr ""
-
-#: src/mathessible/ui/insert_dialogs.py:131
-#, fuzzy
 msgid "&Kind:"
-msgstr "&Sök…"
+msgstr "&Typ:"
 
-#: src/mathessible/ui/insert_dialogs.py:131
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:129
 msgid "Kind"
-msgstr "Sök"
+msgstr "Typ"
+
+#: src/mathessible/ui/insert_dialogs.py:131 src/mathessible/ui/insert_dialogs.py:170
+msgid "&Title:"
+msgstr "&Titel:"
 
 #: src/mathessible/ui/insert_dialogs.py:133 src/mathessible/ui/insert_dialogs.py:172
-#, fuzzy
-msgid "&Title:"
-msgstr "&Titel"
-
-#: src/mathessible/ui/insert_dialogs.py:135 src/mathessible/ui/insert_dialogs.py:174
-#, fuzzy
 msgid "&Description:"
-msgstr "Beskrivning"
+msgstr "&Beskrivning:"
 
-#: src/mathessible/ui/insert_dialogs.py:137
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:135
 msgid "&Function of x:"
-msgstr "&Funktion"
+msgstr "&Funktion av x:"
+
+#: src/mathessible/ui/insert_dialogs.py:135
+msgid "Function of x"
+msgstr "Funktion av x"
+
+#: src/mathessible/ui/insert_dialogs.py:136
+msgid "x fro&m:"
+msgstr "x fr&ån:"
+
+#: src/mathessible/ui/insert_dialogs.py:136
+msgid "x from"
+msgstr "x från"
 
 #: src/mathessible/ui/insert_dialogs.py:137
-#, fuzzy
-msgid "Function of x"
-msgstr "Funktion"
-
-#: src/mathessible/ui/insert_dialogs.py:138
-msgid "x fro&m:"
-msgstr ""
-
-#: src/mathessible/ui/insert_dialogs.py:138
-msgid "x from"
-msgstr ""
-
-#: src/mathessible/ui/insert_dialogs.py:139
 msgid "x t&o:"
-msgstr ""
+msgstr "x t&ill:"
+
+#: src/mathessible/ui/insert_dialogs.py:137
+msgid "x to"
+msgstr "x till"
 
 #: src/mathessible/ui/insert_dialogs.py:139
-msgid "x to"
-msgstr ""
-
-#: src/mathessible/ui/insert_dialogs.py:141
-#, fuzzy
 msgid "&Series:"
-msgstr "&Poster"
+msgstr "&Serier:"
 
-#: src/mathessible/ui/insert_dialogs.py:141
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:139
 msgid "Series"
-msgstr "Serif"
+msgstr "Serier"
 
-#: src/mathessible/ui/insert_dialogs.py:171
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:169
 msgid "Insert Flowchart"
-msgstr "Infoga matris"
+msgstr "Infoga flödesschema"
 
-#: src/mathessible/ui/insert_dialogs.py:176
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "Top to bottom"
-msgstr "nedre del"
+msgstr "Uppifrån och ned"
 
-#: src/mathessible/ui/insert_dialogs.py:176
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "Left to right"
-msgstr "Överst, till höger"
+msgstr "Från vänster till höger"
 
-#: src/mathessible/ui/insert_dialogs.py:176
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "Bottom to top"
-msgstr "nedre del"
+msgstr "Nedifrån och upp"
 
-#: src/mathessible/ui/insert_dialogs.py:176
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "Right to left"
-msgstr ""
+msgstr "Från höger till vänster"
 
-#: src/mathessible/ui/insert_dialogs.py:177
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:175
 msgid "Di&rection:"
-msgstr "&Bråk"
+msgstr "Rikt&ning:"
 
-#: src/mathessible/ui/insert_dialogs.py:177
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:175
 msgid "Direction"
-msgstr "Snitt"
+msgstr "Riktning"
 
-#: src/mathessible/ui/insert_dialogs.py:193 src/mathessible/ui/insert_dialogs.py:363
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:191 src/mathessible/ui/insert_dialogs.py:361
 msgid "Edit Table"
-msgstr "Infoga tabell"
+msgstr "Redigera tabell"
 
-#: src/mathessible/ui/insert_dialogs.py:200
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:198
 msgid "Header rows"
-msgstr "Sidhuvud"
+msgstr "Rubrikrader"
 
-#: src/mathessible/ui/insert_dialogs.py:204
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:202
 msgid "&Delete Row"
-msgstr "Ta bort &rad"
+msgstr "&Ta bort rad"
+
+#: src/mathessible/ui/insert_dialogs.py:205
+msgid "Delete Col&umn"
+msgstr "Ta bort k&olumn"
 
 #: src/mathessible/ui/insert_dialogs.py:207
-#, fuzzy
-msgid "Delete Col&umn"
-msgstr "Ta bort &kolumn"
-
-#: src/mathessible/ui/insert_dialogs.py:209
 msgid "&Merge with Right"
-msgstr ""
+msgstr "&Sammanfoga med höger"
 
-#: src/mathessible/ui/insert_dialogs.py:214
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:212
 msgid "Merge with Belo&w"
-msgstr "Pil med text nedanför"
+msgstr "Sammanfoga med &nedre"
+
+#: src/mathessible/ui/insert_dialogs.py:216
+msgid "&Split Cell"
+msgstr "&Dela cell"
 
 #: src/mathessible/ui/insert_dialogs.py:218
-#, fuzzy
-msgid "&Split Cell"
-msgstr "tom cell"
-
-#: src/mathessible/ui/insert_dialogs.py:220
-#, fuzzy
 msgid "&Actions"
-msgstr "&Bråk"
+msgstr "&Åtgärder"
 
-#: src/mathessible/ui/insert_dialogs.py:223
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:221
 msgid "&Header rows:"
-msgstr "Sid&huvud"
+msgstr "&Rubrikrader:"
 
-#: src/mathessible/ui/insert_dialogs.py:362
+#: src/mathessible/ui/insert_dialogs.py:360
 msgid "A merged cell crosses the end of the header. Split it, or choose another number of rows."
-msgstr ""
+msgstr "En sammanfogad cell går över rubrikens slut. Dela den eller välj ett annat antal rader."
 
 #: src/mathessible/ui/main_frame.py:134
 msgid "Pages"
@@ -3973,14 +3943,12 @@ msgid "Re&vert to Saved"
 msgstr "&Återställ till sparad"
 
 #: src/mathessible/ui/main_frame.py:293
-#, fuzzy
 msgid "&Word Document (.docx)…"
-msgstr "&Word-dokument…"
+msgstr "&Word-dokument (.docx)…"
 
 #: src/mathessible/ui/main_frame.py:294
-#, fuzzy
 msgid "&Import"
-msgstr "E&xportera"
+msgstr "&Importera"
 
 #: src/mathessible/ui/main_frame.py:297
 msgid "&HTML…"
@@ -4020,7 +3988,7 @@ msgstr "&Arkiv"
 
 #: src/mathessible/ui/main_frame.py:320
 msgid "Paste as Plain Te&xt"
-msgstr ""
+msgstr "Klistra in som oformaterad te&xt"
 
 #: src/mathessible/ui/main_frame.py:329
 msgid "&Find…"
@@ -4100,14 +4068,12 @@ msgid "&Table…"
 msgstr "&Tabell…"
 
 #: src/mathessible/ui/main_frame.py:365
-#, fuzzy
 msgid "Ch&art…"
-msgstr "Hatt"
+msgstr "&Diagram…"
 
 #: src/mathessible/ui/main_frame.py:366
-#, fuzzy
 msgid "&Flowchart…"
-msgstr "linjär"
+msgstr "&Flödesschema…"
 
 #: src/mathessible/ui/main_frame.py:371
 msgid "&Footnote"
@@ -4138,9 +4104,8 @@ msgid "&Code"
 msgstr "K&od"
 
 #: src/mathessible/ui/main_frame.py:385
-#, fuzzy
 msgid "Edit &Table…"
-msgstr "&Tabell…"
+msgstr "Redigera &tabell…"
 
 #: src/mathessible/ui/main_frame.py:386
 msgid "F&ormat"
@@ -4156,7 +4121,7 @@ msgstr "&Visa verktygsfältet"
 
 #: src/mathessible/ui/main_frame.py:393
 msgid "Explore &Graph…"
-msgstr ""
+msgstr "Utforska &graf…"
 
 #: src/mathessible/ui/main_frame.py:395
 msgid "Read &Status"
@@ -4339,6 +4304,8 @@ msgid ""
 "The configured LaTeX directory contains no executable. Correct it in Settings or clear it for "
 "automatic detection."
 msgstr ""
+"Den angivna LaTeX-mappen innehåller ingen programfil. Rätta den i Inställningar eller töm den för"
+" automatisk identifiering."
 
 #: src/mathessible/ui/main_frame.py:911 src/mathessible/ui/main_frame.py:965
 #: src/mathessible/ui/main_frame.py:981 src/mathessible/ui/main_frame.py:1006
@@ -4412,6 +4379,9 @@ msgid ""
 " administrator password is needed and existing installations will not be changed. Mathessible "
 "installs additional packages when a document needs them."
 msgstr ""
+"TinyTeX hämtas från sina officiella versioner till Mathessibles privata verktygsmapp. Inget "
+"administratörslösenord behövs och befintliga installationer ändras inte. Mathessible installerar "
+"fler paket när ett dokument behöver dem."
 
 #: src/mathessible/ui/main_frame.py:1016
 msgid "&Install TinyTeX"
@@ -4451,7 +4421,7 @@ msgstr "Ändra ekvation till infog&ad"
 
 #: src/mathessible/ui/main_frame.py:1111
 msgid "Put the caret in a function chart to explore it."
-msgstr ""
+msgstr "Placera markören i ett funktionsdiagram för att utforska det."
 
 #: src/mathessible/ui/main_frame.py:1138
 msgid "Untitled"
@@ -4535,7 +4505,7 @@ msgstr "Bildbeskrivning"
 
 #: src/mathessible/ui/main_frame.py:1394
 msgid "Put the caret in a table to edit it."
-msgstr ""
+msgstr "Placera markören i en tabell för att redigera den."
 
 #: src/mathessible/ui/main_frame.py:1511
 msgid "Open"
@@ -4568,41 +4538,37 @@ msgstr "Alla filer"
 
 #: src/mathessible/ui/main_frame.py:1541 src/mathessible/ui/main_frame.py:1570
 #: src/mathessible/ui/main_frame.py:1603
-#, fuzzy
 msgid "Import Word Document"
-msgstr "Exportera som Word-dokument"
+msgstr "Importera Word-dokument"
 
 #: src/mathessible/ui/main_frame.py:1542
-#, fuzzy
 msgid "Word documents"
 msgstr "Word-dokument"
 
 #: src/mathessible/ui/main_frame.py:1553
-#, fuzzy
 msgid "Save the imported document as"
-msgstr "spara dokumentet"
+msgstr "Spara det importerade dokumentet som"
 
 #: src/mathessible/ui/main_frame.py:1569
 msgid "Importing a Word document needs Pandoc, an optional converter. Install it?"
-msgstr ""
+msgstr "För att importera ett Word-dokument behövs Pandoc, en valfri konverterare. Installera?"
 
 #: src/mathessible/ui/main_frame.py:1574
 msgid "Pandoc is downloaded from its official releases into Mathessible's private tools folder."
-msgstr ""
+msgstr "Pandoc hämtas från sina officiella versioner till Mathessibles privata verktygsmapp."
 
 #: src/mathessible/ui/main_frame.py:1576
-#, fuzzy
 msgid "&Install Pandoc"
-msgstr "&Installera TinyTeX"
+msgstr "&Installera Pandoc"
 
 #: src/mathessible/ui/main_frame.py:1595
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "import {name}"
-msgstr "exporterade {name}"
+msgstr "importera {name}"
 
 #: src/mathessible/ui/main_frame.py:1597
 msgid "Pandoc could not read this Word document. It may be damaged, or protected by a password."
-msgstr ""
+msgstr "Pandoc kunde inte läsa det här Word-dokumentet. Det kan vara skadat eller lösenordsskyddat."
 
 #: src/mathessible/ui/main_frame.py:1649
 #, python-brace-format
@@ -4958,7 +4924,7 @@ msgstr "Allmänt"
 #: src/mathessible/ui/settings_dialog.py:215 src/mathessible/ui/settings_dialog.py:225
 #: src/mathessible/ui/settings_dialog.py:231 src/mathessible/ui/settings_dialog.py:241
 msgid "Optional tools"
-msgstr ""
+msgstr "Valfria verktyg"
 
 #: src/mathessible/ui/settings_dialog.py:86
 msgid "Equations"
@@ -5010,25 +4976,25 @@ msgstr "Word"
 
 #: src/mathessible/ui/settings_dialog.py:113
 msgid "Pandoc executable (empty: automatic)"
-msgstr ""
+msgstr "Pandocs programfil (tom: automatiskt)"
 
 #: src/mathessible/ui/settings_dialog.py:114
 msgid "LaTeX executable directory (empty: automatic)"
-msgstr ""
+msgstr "Mapp för LaTeX-program (tom: automatiskt)"
 
 #: src/mathessible/ui/settings_dialog.py:125
 #, python-brace-format
 msgid "Check {tool} for updates"
-msgstr ""
+msgstr "Sök efter uppdateringar av {tool}"
 
 #: src/mathessible/ui/settings_dialog.py:129
 #, python-brace-format
 msgid "Install {tool} for Mathessible…"
-msgstr ""
+msgstr "Installera {tool} för Mathessible…"
 
 #: src/mathessible/ui/settings_dialog.py:146
 msgid "The configured path is invalid. Correct it or clear it to locate the tool automatically."
-msgstr ""
+msgstr "Den angivna sökvägen är ogiltig. Rätta den eller töm den för att hitta verktyget automatiskt."
 
 #: src/mathessible/ui/settings_dialog.py:162
 #, python-brace-format
@@ -5037,25 +5003,29 @@ msgid ""
 "Installed: {installed}\n"
 "Update source: {latest}"
 msgstr ""
+"Sökväg: {path}\n"
+"Installerad: {installed}\n"
+"Uppdateringskälla: {latest}"
 
 #: src/mathessible/ui/settings_dialog.py:167
-#, fuzzy
 msgid "No updates are available."
-msgstr "inte tillgängligt här"
+msgstr "Inga uppdateringar är tillgängliga."
 
 #: src/mathessible/ui/settings_dialog.py:174
 msgid "&Update private copy"
-msgstr ""
+msgstr "&Uppdatera den privata kopian"
 
 #: src/mathessible/ui/settings_dialog.py:176
 msgid ""
 "Updates are available. Update the Mathessible-managed copy? The previous copy will be retained "
 "for recovery."
 msgstr ""
+"Uppdateringar finns. Uppdatera kopian som hanteras av Mathessible? Den tidigare kopian sparas för"
+" återställning."
 
 #: src/mathessible/ui/settings_dialog.py:179
 msgid "&Install updated private copy"
-msgstr ""
+msgstr "&Installera uppdaterad privat kopia"
 
 #: src/mathessible/ui/settings_dialog.py:181
 #, python-brace-format
@@ -5064,15 +5034,18 @@ msgid ""
 "and select it for use in the application. Your existing installation, including one installed "
 "through Homebrew, will not be updated or replaced. Install the private copy?"
 msgstr ""
+"Uppdateringar finns för {tool}. Mathessible hämtar en uppdaterad privat kopia till {path} och "
+"använder den i programmet. Din befintliga installation, även en via Homebrew, varken uppdateras "
+"eller ersätts. Installera den privata kopian?"
 
 #: src/mathessible/ui/settings_dialog.py:196 src/mathessible/ui/settings_dialog.py:231
 msgid "Wait for LaTeX compilation to finish before updating tools."
-msgstr ""
+msgstr "Vänta tills LaTeX-kompileringen är klar innan du uppdaterar verktyg."
 
 #: src/mathessible/ui/settings_dialog.py:225
 #, python-brace-format
 msgid "Ready to use: {path}"
-msgstr ""
+msgstr "Klar att använda: {path}"
 
 #: src/mathessible/ui/settings_dialog.py:237
 #, python-brace-format
@@ -5080,6 +5053,8 @@ msgid ""
 "Download the latest {tool} into {path} and use it in Mathessible? An existing managed copy will "
 "be backed up; system installations will not be changed."
 msgstr ""
+"Hämta senaste {tool} till {path} och använda det i Mathessible? En befintlig hanterad kopia "
+"säkerhetskopieras; systeminstallationer ändras inte."
 
 #: src/mathessible/ui/settings_dialog.py:281
 msgid "Write the equations of new documents and pages in LaTeX"

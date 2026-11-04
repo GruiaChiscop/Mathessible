@@ -16,124 +16,115 @@ msgstr ""
 "Generated-By: Babel 2.18.0\n"
 
 #: src/mathessible/documents/brf_export.py:87
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Row {row}, column {column}, spans {rows} rows and {columns} columns: {text}"
-msgstr "κελί γραμμή {row}, στήλη {column}, {content}"
+msgstr "Γραμμή {row}, στήλη {column}, καλύπτει {rows} γραμμές και {columns} στήλες: {text}"
 
 #: src/mathessible/documents/flowcharts.py:70
 #, python-brace-format
 msgid "cannot read the node {node!r}"
-msgstr ""
+msgstr "δεν είναι δυνατή η ανάγνωση του κόμβου {node!r}"
 
 #: src/mathessible/documents/flowcharts.py:81
 #, python-brace-format
 msgid "the node {node!r} needs text"
-msgstr ""
+msgstr "ο κόμβος {node!r} χρειάζεται κείμενο"
 
 #: src/mathessible/documents/flowcharts.py:109 src/mathessible/documents/flowcharts.py:131
 msgid "a Mermaid flowchart must start with `flowchart TD` (or LR, BT or RL)"
-msgstr ""
+msgstr "ένα διάγραμμα ροής Mermaid πρέπει να αρχίζει με `flowchart TD` (ή LR, BT ή RL)"
 
 #: src/mathessible/documents/flowcharts.py:116
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "line {number}: {error}"
-msgstr "γραμμή {number}"
+msgstr "γραμμή {number}: {error}"
 
 #: src/mathessible/documents/flowcharts.py:124
 #, python-brace-format
 msgid "line {number}: node {node!r} has two different definitions"
-msgstr ""
+msgstr "γραμμή {number}: ο κόμβος {node!r} έχει δύο διαφορετικούς ορισμούς"
 
 #: src/mathessible/documents/flowcharts.py:133
 msgid "the flowchart needs at least one node"
-msgstr ""
+msgstr "το διάγραμμα ροής χρειάζεται τουλάχιστον έναν κόμβο"
 
 #: src/mathessible/documents/flowcharts.py:140
-#, fuzzy
 msgid "top to bottom"
-msgstr "κάτω μέρος"
+msgstr "από πάνω προς τα κάτω"
 
 #: src/mathessible/documents/flowcharts.py:141
-#, fuzzy
 msgid "bottom to top"
-msgstr "κάτω μέρος"
+msgstr "από κάτω προς τα πάνω"
 
 #: src/mathessible/documents/flowcharts.py:142
-#, fuzzy
 msgid "left to right"
-msgstr "Πάνω, δεξιά"
+msgstr "από αριστερά προς τα δεξιά"
 
 #: src/mathessible/documents/flowcharts.py:143
 msgid "right to left"
-msgstr ""
+msgstr "από δεξιά προς τα αριστερά"
 
 #: src/mathessible/documents/flowcharts.py:145
 #, python-brace-format
 msgid "Flowchart with {count} node"
 msgid_plural "Flowchart with {count} nodes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Διάγραμμα ροής με {count} κόμβο"
+msgstr[1] "Διάγραμμα ροής με {count} κόμβους"
 
 #: src/mathessible/documents/flowcharts.py:148
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "and {count} connection"
 msgid_plural "and {count} connections"
-msgstr[0] "{count} εξίσωση"
-msgstr[1] "{count} εξισώσεις"
+msgstr[0] "και {count} σύνδεση"
+msgstr[1] "και {count} συνδέσεις"
 
 #: src/mathessible/documents/flowcharts.py:151
 #, python-brace-format
 msgid "{nodes} {edges}, {direction}."
-msgstr ""
+msgstr "{nodes} {edges}, {direction}."
 
 #: src/mathessible/documents/flowcharts.py:173
 #, python-brace-format
 msgid "{source} to {target}, labelled {label}"
-msgstr ""
+msgstr "{source} προς {target}, με ετικέτα {label}"
 
 #: src/mathessible/documents/flowcharts.py:173
 #, python-brace-format
 msgid "{source} to {target}"
-msgstr ""
+msgstr "{source} προς {target}"
 
 #: src/mathessible/documents/flowcharts.py:275
-#, fuzzy
 msgid "Connections"
-msgstr "συνθήκη"
+msgstr "Συνδέσεις"
 
 #: src/mathessible/documents/flowcharts.py:283
 #, python-brace-format
 msgid "unknown flowchart direction {direction!r}"
-msgstr ""
+msgstr "άγνωστη κατεύθυνση διαγράμματος ροής: {direction!r}"
 
 #: src/mathessible/documents/flowcharts.py:291
-#, fuzzy
 msgid "Start"
-msgstr "αρχή"
+msgstr "Αρχή"
 
 #: src/mathessible/documents/flowcharts.py:291
-#, fuzzy
 msgid "Process"
-msgstr "Άγκιστρα"
+msgstr "Διεργασία"
 
 #: src/mathessible/documents/flowcharts.py:292
-#, fuzzy
 msgid "Decision?"
-msgstr "Περιγραφή"
+msgstr "Απόφαση;"
 
 #: src/mathessible/documents/flowcharts.py:293
 msgid "Yes"
-msgstr ""
+msgstr "Ναι"
 
 #: src/mathessible/documents/flowcharts.py:293
-#, fuzzy
 msgid "Finish"
-msgstr "Εύρεση"
+msgstr "Τέλος"
 
 #: src/mathessible/documents/flowcharts.py:294
-#, fuzzy
 msgid "No"
-msgstr "Νόρμα"
+msgstr "Όχι"
 
 #: src/mathessible/documents/notebook.py:43
 msgid "The selected folder is not empty"
@@ -193,88 +184,83 @@ msgstr "Μη ασφαλής διαδρομή σελίδας: {file}"
 
 #: src/mathessible/documents/optional_tools.py:54
 msgid "Could not check for updates. Try again later."
-msgstr ""
+msgstr "Δεν ήταν δυνατός ο έλεγχος για ενημερώσεις. Δοκιμάστε ξανά αργότερα."
 
 #: src/mathessible/documents/optional_tools.py:72 src/mathessible/documents/optional_tools.py:290
 #: src/mathessible/documents/optional_tools.py:335
-#, fuzzy
 msgid "The archive does not contain the expected executable"
-msgstr "Το αρχείο .msnb δεν περιέχει {name}"
+msgstr "Το αρχείο συμπίεσης δεν περιέχει το αναμενόμενο εκτελέσιμο"
 
 #: src/mathessible/documents/optional_tools.py:92 src/mathessible/documents/optional_tools.py:96
 #: src/mathessible/documents/optional_tools.py:98
 msgid "Another installation is in progress"
-msgstr ""
+msgstr "Μια άλλη εγκατάσταση βρίσκεται σε εξέλιξη"
 
 #: src/mathessible/documents/optional_tools.py:129
-#, fuzzy
 msgid "Could not read the executable version"
-msgstr "δεν ήταν δυνατή η αποθήκευση της εξίσωσης: {error}"
+msgstr "Δεν ήταν δυνατή η ανάγνωση της έκδοσης του εκτελέσιμου"
 
 #: src/mathessible/documents/optional_tools.py:135
 msgid "No supported download for this processor"
-msgstr ""
+msgstr "Δεν υπάρχει υποστηριζόμενη λήψη για αυτόν τον επεξεργαστή"
 
 #: src/mathessible/documents/optional_tools.py:144
 msgid "No supported Pandoc download for this platform"
-msgstr ""
+msgstr "Δεν υπάρχει υποστηριζόμενη λήψη του Pandoc για αυτή την πλατφόρμα"
 
 #: src/mathessible/documents/optional_tools.py:152
 msgid "No supported TinyTeX download for this platform"
-msgstr ""
+msgstr "Δεν υπάρχει υποστηριζόμενη λήψη του TinyTeX για αυτή την πλατφόρμα"
 
 #: src/mathessible/documents/optional_tools.py:160 src/mathessible/documents/optional_tools.py:174
 msgid "Archive is too large"
-msgstr ""
+msgstr "Το αρχείο συμπίεσης είναι πολύ μεγάλο"
 
 #: src/mathessible/documents/optional_tools.py:164
-#, fuzzy
 msgid "Unsafe archive path"
-msgstr "Μη ασφαλής διαδρομή σελίδας: {file}"
+msgstr "Μη ασφαλής διαδρομή στο αρχείο συμπίεσης"
 
 #: src/mathessible/documents/optional_tools.py:166 src/mathessible/documents/optional_tools.py:177
 #: src/mathessible/documents/optional_tools.py:274 src/mathessible/documents/optional_tools.py:300
 #: src/mathessible/documents/optional_tools.py:332 src/mathessible/documents/optional_tools.py:342
-#, fuzzy
 msgid "Installation cancelled"
-msgstr "Η εγκατάσταση του TinyTeX ακυρώθηκε"
+msgstr "Η εγκατάσταση ακυρώθηκε"
 
 #: src/mathessible/documents/optional_tools.py:250
 msgid "A private installation already exists; it was left unchanged"
-msgstr ""
+msgstr "Υπάρχει ήδη ιδιωτική εγκατάσταση· δεν άλλαξε"
 
 #: src/mathessible/documents/optional_tools.py:256
 msgid "No checksummed release is available for this platform"
-msgstr ""
+msgstr "Δεν υπάρχει έκδοση με άθροισμα ελέγχου για αυτή την πλατφόρμα"
 
 #: src/mathessible/documents/optional_tools.py:259
 msgid "Unexpected release download URL"
-msgstr ""
+msgstr "Μη αναμενόμενη διεύθυνση λήψης"
 
 #: src/mathessible/documents/optional_tools.py:277
 msgid "Download exceeds the size limit"
-msgstr ""
+msgstr "Η λήψη υπερβαίνει το όριο μεγέθους"
 
 #: src/mathessible/documents/optional_tools.py:282
 msgid "Download checksum did not match"
-msgstr ""
+msgstr "Το άθροισμα ελέγχου της λήψης δεν ταιριάζει"
 
 #: src/mathessible/documents/optional_tools.py:298
 msgid "Unexpected TinyTeX archive layout"
-msgstr ""
+msgstr "Μη αναμενόμενη δομή του αρχείου TinyTeX"
 
 #: src/mathessible/documents/optional_tools.py:318
 msgid "Only a Mathessible-managed installation can be updated."
-msgstr ""
+msgstr "Μόνο μια εγκατάσταση που διαχειρίζεται το Mathessible μπορεί να ενημερωθεί."
 
 #: src/mathessible/documents/optional_tools.py:338
 msgid "The package manager points outside the private installation."
-msgstr ""
+msgstr "Ο διαχειριστής πακέτων δείχνει έξω από την ιδιωτική εγκατάσταση."
 
 #: src/mathessible/documents/optional_tools.py:346
-#, fuzzy
 msgid "TinyTeX could not be updated. The previous installation was kept."
-msgstr "Το TinyTeX δεν μπόρεσε να εγκατασταθεί."
+msgstr "Το TinyTeX δεν ενημερώθηκε. Η προηγούμενη εγκατάσταση διατηρήθηκε."
 
 #: src/mathessible/documents/pdf_source.py:47
 msgid "This PDF needs a password to open, so Mathessible cannot read its source."
@@ -344,32 +330,34 @@ msgid "Symbolic links are not allowed in .msnb: {file}"
 msgstr "Οι συμβολικοί σύνδεσμοι δεν επιτρέπονται στο .msnb: {file}"
 
 #: src/mathessible/documents/tool_updates.py:53
-#, fuzzy
 msgid "The installed version could not be compared."
-msgstr "το PDF δεν μπόρεσε να μεταγλωττιστεί"
+msgstr "Δεν ήταν δυνατή η σύγκριση της εγκατεστημένης έκδοσης."
 
 #: src/mathessible/documents/tool_updates.py:64 src/mathessible/documents/tool_updates.py:72
 msgid "No executable was found. Correct the path or clear it for automatic detection."
-msgstr ""
+msgstr "Δεν βρέθηκε εκτελέσιμο. Διορθώστε τη διαδρομή ή αδειάστε την για αυτόματο εντοπισμό."
 
 #: src/mathessible/documents/tool_updates.py:77
 msgid "This LaTeX distribution does not provide tlmgr. Use its own package manager to check for updates."
 msgstr ""
+"Αυτή η διανομή LaTeX δεν παρέχει το tlmgr. Χρησιμοποιήστε τον δικό της διαχειριστή πακέτων για "
+"ενημερώσεις."
 
 #: src/mathessible/documents/tool_updates.py:90
 msgid ""
 "Could not check LaTeX package updates. The repository may be unavailable or require a newer TeX "
 "Live distribution."
 msgstr ""
+"Δεν ήταν δυνατός ο έλεγχος ενημερώσεων πακέτων LaTeX. Το αποθετήριο ίσως δεν είναι διαθέσιμο ή "
+"απαιτεί νεότερη διανομή TeX Live."
 
 #: src/mathessible/documents/tool_updates.py:94
-#, fuzzy
 msgid "The LaTeX update response could not be understood."
-msgstr "δεν ήταν δυνατή η μετατροπή του MathML που επικολλήθηκε"
+msgstr "Η απάντηση για τις ενημερώσεις LaTeX δεν έγινε κατανοητή."
 
 #: src/mathessible/documents/tool_updates.py:97
 msgid "TeX Live package repository"
-msgstr ""
+msgstr "Αποθετήριο πακέτων TeX Live"
 
 #: src/mathessible/editing/equation_errors.py:37
 msgid "fraction without denominator"
@@ -453,43 +441,42 @@ msgid "unknown command {command}"
 msgstr "άγνωστη εντολή {command}"
 
 #: src/mathessible/editing/grid_table_edit.py:232
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Column {column}"
-msgstr "στήλη {column}"
+msgstr "Στήλη {column}"
 
 #: src/mathessible/editing/grid_table_edit.py:234
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Row {row}"
-msgstr "γραμμή {row}"
+msgstr "Γραμμή {row}"
 
 #: src/mathessible/editing/grid_table_edit.py:237
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Row {row}, column {column}"
-msgstr "γραμμή {row}, στήλη {column}"
+msgstr "Γραμμή {row}, στήλη {column}"
 
 #: src/mathessible/editing/grid_table_edit.py:239
-#, fuzzy
 msgid "header"
-msgstr "Κεφαλίδα"
+msgstr "κεφαλίδα"
 
 #: src/mathessible/editing/grid_table_edit.py:241
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "{count} row"
 msgid_plural "{count} rows"
-msgstr[0] "{count} λέξη"
-msgstr[1] "{count} λέξεις"
+msgstr[0] "{count} γραμμή"
+msgstr[1] "{count} γραμμές"
 
 #: src/mathessible/editing/grid_table_edit.py:242
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "{count} column"
 msgid_plural "{count} columns"
-msgstr[0] "{count} λέξη"
-msgstr[1] "{count} λέξεις"
+msgstr[0] "{count} στήλη"
+msgstr[1] "{count} στήλες"
 
 #: src/mathessible/editing/grid_table_edit.py:243
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "spans {rows} and {columns}"
-msgstr "γραμμή {row}, στήλη {column}"
+msgstr "καλύπτει {rows} και {columns}"
 
 #: src/mathessible/editor/assist.py:82
 msgid "suggestions closed"
@@ -880,19 +867,19 @@ msgstr "&Εξισώσεις"
 msgid "&Cases"
 msgstr "&Περιπτώσεις"
 
-#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:202
+#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:200
 msgid "Insert Row &Above"
 msgstr "Εισαγωγή γραμμής &πάνω"
 
-#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:203
+#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:201
 msgid "Insert Row &Below"
 msgstr "Εισαγωγή γραμμής &κάτω"
 
-#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:205
+#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:203
 msgid "Insert Column &Left"
 msgstr "Εισαγωγή στήλης &αριστερά"
 
-#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:206
+#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:204
 msgid "Insert Column &Right"
 msgstr "Εισαγωγή στήλης &δεξιά"
 
@@ -1059,18 +1046,36 @@ msgid "The braille table could not be loaded. Choose another in the export's dia
 msgstr "Δεν ήταν δυνατή η φόρτωση του πίνακα braille. Επιλέξτε άλλον στο παράθυρο διαλόγου της εξαγωγής."
 
 #: src/mathessible/help_links.py:14
+msgid ""
+"How a graph sounds here comes from AudioFunctions+, a web application of SONAIRGRAPH, an Erasmus+"
+" project led by the University of Turin. Mathessible wrote its own version and is not part of the"
+" project."
+msgstr ""
+"Ο τρόπος που ακούγεται εδώ ένα γράφημα προέρχεται από το AudioFunctions+, μια διαδικτυακή "
+"εφαρμογή του SONAIRGRAPH, ενός έργου Erasmus+ υπό την καθοδήγηση του Πανεπιστημίου του Τορίνο. Το"
+" Mathessible έγραψε δική του έκδοση και δεν ανήκει στο έργο."
+
+#: src/mathessible/help_links.py:18
+msgid "Audio&Functions+ website"
+msgstr "Ιστότοπος Audio&Functions+"
+
+#: src/mathessible/help_links.py:19
+msgid "SONAIRGRAPH &Erasmus+ project"
+msgstr "Έργο &Erasmus+ SONAIRGRAPH"
+
+#: src/mathessible/help_links.py:24
 msgid "&Quick Start Guide"
 msgstr "Οδηγός &γρήγορης έναρξης"
 
-#: src/mathessible/help_links.py:15
+#: src/mathessible/help_links.py:25
 msgid "&User Guide"
 msgstr "Οδηγός &χρήσης"
 
-#: src/mathessible/help_links.py:16
+#: src/mathessible/help_links.py:26
 msgid "&Keyboard Shortcuts"
 msgstr "Συντομεύσεις &πληκτρολογίου"
 
-#: src/mathessible/help_links.py:20
+#: src/mathessible/help_links.py:30
 msgid ""
 "An accessible maths editor: UnicodeMath equations in Markdown, read, navigated and brailled "
 "through MathCAT.\n"
@@ -1226,9 +1231,8 @@ msgid "Dark"
 msgstr "Σκούρο"
 
 #: src/mathessible/sonification/graph.py:289
-#, fuzzy
 msgid "undefined"
-msgstr "Εύρεση"
+msgstr "απροσδιόριστο"
 
 #: src/mathessible/spoken.py:21 src/mathessible/templates/math_templates.py:797
 #: src/mathessible/templates/structure_edits.py:326
@@ -2739,16 +2743,16 @@ msgstr "Επαναφορά &προεπιλογών"
 
 #: src/mathessible/ui/background_job.py:32 src/mathessible/ui/background_job.py:49
 msgid "Working…"
-msgstr ""
+msgstr "Σε εξέλιξη…"
 
 #: src/mathessible/ui/background_job.py:49
 msgid "Cancelling after the current operation…"
-msgstr ""
+msgstr "Ακύρωση μετά την τρέχουσα λειτουργία…"
 
 #: src/mathessible/ui/background_job.py:68 src/mathessible/ui/settings_dialog.py:214
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "The operation failed: {error}"
-msgstr "Η λήψη απέτυχε: {error}"
+msgstr "Η λειτουργία απέτυχε: {error}"
 
 #: src/mathessible/ui/braille_signs_dialog.py:36
 #, python-brace-format
@@ -2901,27 +2905,30 @@ msgid "Markdown editor"
 msgstr "Επεξεργαστής Markdown"
 
 #: src/mathessible/ui/document_editor.py:463 src/mathessible/ui/document_editor.py:481
-#, fuzzy
 msgid "Paste"
-msgstr "Επικό&λληση"
+msgstr "Επικόλληση"
 
 #: src/mathessible/ui/document_editor.py:475
 msgid "Pandoc could not convert this content."
-msgstr ""
+msgstr "Το Pandoc δεν μπόρεσε να μετατρέψει αυτό το περιεχόμενο."
 
 #: src/mathessible/ui/document_editor.py:477
 msgid "This content has paragraphs, lists or line breaks inside table cells, or nested lists."
 msgstr ""
+"Αυτό το περιεχόμενο έχει παραγράφους, λίστες ή αλλαγές γραμμής μέσα σε κελιά πίνακα, ή ένθετες "
+"λίστες."
 
 #: src/mathessible/ui/document_editor.py:486
 msgid ""
 "Pasted simplified, each cell becomes one line and nested lists may lose their levels. Pandoc, an "
 "optional converter, keeps them as a grid table."
 msgstr ""
+"Με απλοποιημένη επικόλληση κάθε κελί γίνεται μία γραμμή και οι ένθετες λίστες μπορεί να χάσουν τα"
+" επίπεδά τους. Το Pandoc, ένας προαιρετικός μετατροπέας, τα διατηρεί ως πίνακα πλέγματος."
 
 #: src/mathessible/ui/document_editor.py:491 src/mathessible/ui/document_editor.py:493
 msgid "Paste &Simplified"
-msgstr ""
+msgstr "&Απλοποιημένη επικόλληση"
 
 #: src/mathessible/ui/document_editor.py:491 src/mathessible/ui/document_editor.py:493
 #: src/mathessible/ui/main_frame.py:863 src/mathessible/ui/main_frame.py:1016
@@ -2931,14 +2938,12 @@ msgid "&Cancel"
 msgstr "Ά&κυρο"
 
 #: src/mathessible/ui/document_editor.py:493
-#, fuzzy
 msgid "&Install Pandoc…"
-msgstr "&Εγκατάσταση TinyTeX"
+msgstr "&Εγκατάσταση Pandoc…"
 
 #: src/mathessible/ui/document_editor.py:505 src/mathessible/ui/main_frame.py:1584
-#, fuzzy
 msgid "Install Pandoc"
-msgstr "Η εγκατάσταση του TinyTeX ακυρώθηκε"
+msgstr "Εγκατάσταση Pandoc"
 
 #: src/mathessible/ui/document_editor.py:572
 msgid "this equation cannot be inline"
@@ -3051,7 +3056,7 @@ msgstr "Περιθώρια (mm)"
 msgid "Colu&mns"
 msgstr "Σ&τήλες"
 
-#: src/mathessible/ui/export_controls.py:121 src/mathessible/ui/insert_dialogs.py:106
+#: src/mathessible/ui/export_controls.py:121 src/mathessible/ui/insert_dialogs.py:104
 #: src/mathessible/ui/matrix_dialog.py:36
 msgid "Columns"
 msgstr "Στήλες"
@@ -3274,7 +3279,7 @@ msgid "Export as HTML"
 msgstr "Εξαγωγή ως HTML"
 
 #: src/mathessible/ui/export_dialogs.py:125 src/mathessible/ui/export_dialogs.py:158
-#: src/mathessible/ui/insert_dialogs.py:133 src/mathessible/ui/insert_dialogs.py:172
+#: src/mathessible/ui/insert_dialogs.py:131 src/mathessible/ui/insert_dialogs.py:170
 #: src/mathessible/ui/pdf_dialog.py:47
 msgid "Title"
 msgstr "Τίτλος"
@@ -3298,8 +3303,8 @@ msgstr "Συντάκτης"
 msgid "D&escription"
 msgstr "&Περιγραφή"
 
-#: src/mathessible/ui/export_dialogs.py:127 src/mathessible/ui/insert_dialogs.py:135
-#: src/mathessible/ui/insert_dialogs.py:174
+#: src/mathessible/ui/export_dialogs.py:127 src/mathessible/ui/insert_dialogs.py:133
+#: src/mathessible/ui/insert_dialogs.py:172
 msgid "Description"
 msgstr "Περιγραφή"
 
@@ -3406,201 +3411,186 @@ msgstr "Διαγραφή του «{name}» από τις Εξισώσεις μο
 msgid "Delete Equation"
 msgstr "Διαγραφή εξίσωσης"
 
-#: src/mathessible/ui/graph_explorer.py:48
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:49
 msgid "Explore Graph"
-msgstr "Εξαγωγή ως PDF"
+msgstr "Εξερεύνηση γραφήματος"
 
-#: src/mathessible/ui/graph_explorer.py:53
+#: src/mathessible/ui/graph_explorer.py:54
 msgid "Graph explorer window"
-msgstr ""
+msgstr "Παράθυρο εξερεύνησης γραφήματος"
 
-#: src/mathessible/ui/graph_explorer.py:74
+#: src/mathessible/ui/graph_explorer.py:75
 msgid ""
 "Left and Right explore. C reads coordinates. V reads the view. B plays the graph. F1 lists every "
 "key."
 msgstr ""
+"Αριστερά και Δεξιά εξερευνούν. Το C διαβάζει τις συντεταγμένες. Το V διαβάζει την προβολή. Το B "
+"παίζει το γράφημα. Το F1 δείχνει όλα τα πλήκτρα."
 
-#: src/mathessible/ui/graph_explorer.py:95
+#: src/mathessible/ui/graph_explorer.py:105
 msgid "&Play graph"
-msgstr ""
+msgstr "Α&ναπαραγωγή γραφήματος"
 
-#: src/mathessible/ui/graph_explorer.py:96
+#: src/mathessible/ui/graph_explorer.py:106
 msgid "&Read coordinates"
-msgstr ""
+msgstr "Ανάγνωση &συντεταγμένων"
 
-#: src/mathessible/ui/graph_explorer.py:97
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:107
 msgid "Read &view"
-msgstr "&Προβολή"
+msgstr "Ανάγνωση &προβολής"
 
-#: src/mathessible/ui/graph_explorer.py:98
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:108
 msgid "&Next function"
-msgstr "&Συνάρτηση"
+msgstr "Επόμενη &συνάρτηση"
 
-#: src/mathessible/ui/graph_explorer.py:99
+#: src/mathessible/ui/graph_explorer.py:109
 msgid "Toggle &discrete mode"
-msgstr ""
+msgstr "Εναλλαγή &διακριτής λειτουργίας"
 
-#: src/mathessible/ui/graph_explorer.py:100
+#: src/mathessible/ui/graph_explorer.py:110
 msgid "Toggle &sound"
-msgstr ""
+msgstr "Εναλλαγή &ήχου"
 
-#: src/mathessible/ui/graph_explorer.py:101
+#: src/mathessible/ui/graph_explorer.py:111
 msgid "Add or remove &bookmark"
-msgstr ""
+msgstr "Προσθήκη ή αφαίρεση σε&λιδοδείκτη"
 
-#: src/mathessible/ui/graph_explorer.py:107 src/mathessible/ui/main_frame.py:993
+#: src/mathessible/ui/graph_explorer.py:117 src/mathessible/ui/main_frame.py:993
 msgid "&Close"
 msgstr "&Κλείσιμο"
 
-#: src/mathessible/ui/graph_explorer.py:109
+#: src/mathessible/ui/graph_explorer.py:119
 msgid "&Graph"
-msgstr ""
+msgstr "&Γράφημα"
 
-#: src/mathessible/ui/graph_explorer.py:111
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:121
 msgid "&Keyboard Help"
-msgstr "Συντομεύσεις &πληκτρολογίου"
+msgstr "&Βοήθεια πληκτρολογίου"
 
-#: src/mathessible/ui/graph_explorer.py:113 src/mathessible/ui/help_menu.py:29
+#: src/mathessible/ui/graph_explorer.py:127 src/mathessible/ui/help_menu.py:29
 msgid "&Help"
 msgstr "&Βοήθεια"
 
-#: src/mathessible/ui/graph_explorer.py:118 src/mathessible/ui/insert_dialogs.py:125
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:132 src/mathessible/ui/insert_dialogs.py:123
 msgid "Function graph"
-msgstr "όνομα συνάρτησης"
+msgstr "Γράφημα συνάρτησης"
 
-#: src/mathessible/ui/graph_explorer.py:119
+#: src/mathessible/ui/graph_explorer.py:133
 #, python-brace-format
 msgid "{title}. Exploring y equals {expression}."
-msgstr ""
+msgstr "{title}. Εξερεύνηση του y ίσον {expression}."
 
-#: src/mathessible/ui/graph_explorer.py:121
+#: src/mathessible/ui/graph_explorer.py:135
 #, python-brace-format
 msgid "Audio output is unavailable: {error}"
-msgstr ""
+msgstr "Η έξοδος ήχου δεν είναι διαθέσιμη: {error}"
 
-#: src/mathessible/ui/graph_explorer.py:147
+#: src/mathessible/ui/graph_explorer.py:161
 msgid "No point of interest in that direction."
-msgstr ""
+msgstr "Κανένα σημείο ενδιαφέροντος προς αυτή την κατεύθυνση."
 
-#: src/mathessible/ui/graph_explorer.py:164
+#: src/mathessible/ui/graph_explorer.py:178
 msgid "View centred at cursor"
-msgstr ""
-
-#: src/mathessible/ui/graph_explorer.py:261
-msgid "View boundary"
-msgstr ""
-
-#: src/mathessible/ui/graph_explorer.py:262
-#, fuzzy
-msgid "Bookmark"
-msgstr "αφαιρέθηκε: {bar}"
-
-#: src/mathessible/ui/graph_explorer.py:263
-#, fuzzy
-msgid "Point of interest"
-msgstr "επικαμπύλιο ολοκλήρωμα"
-
-#: src/mathessible/ui/graph_explorer.py:265
-#, python-brace-format
-msgid "{name} at x {x}, y {y}"
-msgstr ""
-
-#: src/mathessible/ui/graph_explorer.py:267
-#, python-brace-format
-msgid "{name} near x {x}"
-msgstr ""
-
-#: src/mathessible/ui/graph_explorer.py:270
-#, python-brace-format
-msgid "x {x}, y {y}"
-msgstr ""
+msgstr "Η προβολή κεντραρίστηκε στον δρομέα"
 
 #: src/mathessible/ui/graph_explorer.py:275
+msgid "View boundary"
+msgstr "Όριο προβολής"
+
+#: src/mathessible/ui/graph_explorer.py:276
+msgid "Bookmark"
+msgstr "Σελιδοδείκτης"
+
+#: src/mathessible/ui/graph_explorer.py:277
+msgid "Point of interest"
+msgstr "Σημείο ενδιαφέροντος"
+
+#: src/mathessible/ui/graph_explorer.py:279
+#, python-brace-format
+msgid "{name} at x {x}, y {y}"
+msgstr "{name} στο x {x}, y {y}"
+
+#: src/mathessible/ui/graph_explorer.py:281
+#, python-brace-format
+msgid "{name} near x {x}"
+msgstr "{name} κοντά στο x {x}"
+
+#: src/mathessible/ui/graph_explorer.py:284
+#, python-brace-format
+msgid "x {x}, y {y}"
+msgstr "x {x}, y {y}"
+
+#: src/mathessible/ui/graph_explorer.py:289
 #, python-brace-format
 msgid "x from {x_min} to {x_max}; y from {y_min} to {y_max}"
-msgstr ""
+msgstr "x από {x_min} έως {x_max}· y από {y_min} έως {y_max}"
 
-#: src/mathessible/ui/graph_explorer.py:286
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:300
 msgid "Discrete notes"
-msgstr "δημιουργία του σημειωματαρίου"
+msgstr "Διακριτές νότες"
 
-#: src/mathessible/ui/graph_explorer.py:286
+#: src/mathessible/ui/graph_explorer.py:300
 msgid "Continuous tone"
-msgstr ""
+msgstr "Συνεχής τόνος"
 
-#: src/mathessible/ui/graph_explorer.py:291
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:305
 msgid "Sound on"
-msgstr "Ένωση"
+msgstr "Ήχος ενεργός"
 
-#: src/mathessible/ui/graph_explorer.py:291
+#: src/mathessible/ui/graph_explorer.py:305
 msgid "Sound off"
-msgstr ""
+msgstr "Ήχος ανενεργός"
 
-#: src/mathessible/ui/graph_explorer.py:303
+#: src/mathessible/ui/graph_explorer.py:317
 #, python-brace-format
 msgid "Function {current} of {total}: y equals {expression}"
-msgstr ""
+msgstr "Συνάρτηση {current} από {total}: y ίσον {expression}"
 
-#: src/mathessible/ui/graph_explorer.py:311
+#: src/mathessible/ui/graph_explorer.py:325
 msgid "Bookmark added"
-msgstr ""
+msgstr "Ο σελιδοδείκτης προστέθηκε"
 
-#: src/mathessible/ui/graph_explorer.py:311
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:325
 msgid "Bookmark removed"
-msgstr "αφαιρέθηκε: {bar}"
+msgstr "Ο σελιδοδείκτης αφαιρέθηκε"
 
-#: src/mathessible/ui/graph_explorer.py:315
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:329
 msgid "Zoomed in"
-msgstr "Μεγέ&θυνση"
+msgstr "Μεγέθυνση"
 
-#: src/mathessible/ui/graph_explorer.py:315
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:329
 msgid "Zoomed out"
-msgstr "Σμί&κρυνση"
+msgstr "Σμίκρυνση"
 
-#: src/mathessible/ui/graph_explorer.py:315
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:329
 msgid "Zoom limit"
-msgstr "Μεγέ&θυνση"
+msgstr "Όριο ζουμ"
 
-#: src/mathessible/ui/graph_explorer.py:336
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:350
 msgid "Original view"
-msgstr "&Επαγγελματική προβολή"
+msgstr "Αρχική προβολή"
 
-#: src/mathessible/ui/graph_explorer.py:344
+#: src/mathessible/ui/graph_explorer.py:358
 msgid "Playback stopped"
-msgstr ""
+msgstr "Η αναπαραγωγή σταμάτησε"
 
-#: src/mathessible/ui/graph_explorer.py:349
+#: src/mathessible/ui/graph_explorer.py:363
 msgid "Playing graph"
-msgstr ""
+msgstr "Αναπαραγωγή γραφήματος"
 
-#: src/mathessible/ui/graph_explorer.py:370
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:384
 msgid "End of graph"
-msgstr "τέλος μαθηματικών"
+msgstr "Τέλος γραφήματος"
 
-#: src/mathessible/ui/graph_explorer.py:373
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:387
 msgid "Command"
-msgstr "προσθετέος"
+msgstr "Command"
 
-#: src/mathessible/ui/graph_explorer.py:373
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:387
 msgid "Control"
-msgstr "συνθήκη"
+msgstr "Control"
 
-#: src/mathessible/ui/graph_explorer.py:376
+#: src/mathessible/ui/graph_explorer.py:390
 #, python-brace-format
 msgid ""
 "Left and Right, or J and L, move; Shift moves fluidly; {modifier} with Left or Right goes between"
@@ -3610,11 +3600,17 @@ msgid ""
 "the coordinates, V reads the view, N or 1 through 9 selects a function, and {modifier} B toggles "
 "a bookmark. {modifier} Z centres the view at the cursor."
 msgstr ""
+"Αριστερά και Δεξιά, ή J και L, μετακινούν· το Shift μετακινεί ομαλά· {modifier} με Αριστερά ή "
+"Δεξιά πηγαίνει ανάμεσα σε σημεία αναφοράς και όρια. Home και End πηγαίνουν στις άκρες. W A S D "
+"μετακινούν την προβολή. Το Z μεγεθύνει και το Shift Z σμικρύνει· κρατήστε X ή Y πατώντας Z για "
+"έναν άξονα. Το R επαναφέρει την προβολή. Το B παίζει το γράφημα, όπως και το Διάστημα. Το I "
+"αλλάζει συνεχή και διακριτό ήχο. Το P ανοίγει ή κλείνει τον ήχο. Το C διαβάζει τις συντεταγμένες,"
+" το V την προβολή, το N ή 1 έως 9 επιλέγει συνάρτηση και {modifier} B προσθέτει ή αφαιρεί "
+"σελιδοδείκτη. {modifier} Z κεντράρει την προβολή στον δρομέα."
 
-#: src/mathessible/ui/graph_explorer.py:397
-#, fuzzy
+#: src/mathessible/ui/graph_explorer.py:411
 msgid "Graph exploration area"
-msgstr "λειτουργία εξερεύνησης"
+msgstr "Περιοχή εξερεύνησης γραφήματος"
 
 #: src/mathessible/ui/header_footer_dialog.py:18
 msgid "Header and Footer"
@@ -3676,210 +3672,186 @@ msgstr "Πρόσφατα έγγραφα"
 msgid "No recent documents"
 msgstr "Κανένα πρόσφατο έγγραφο"
 
-#: src/mathessible/ui/insert_dialogs.py:94
+#: src/mathessible/ui/insert_dialogs.py:92
 msgid "Insert Link"
 msgstr "Εισαγωγή συνδέσμου"
 
-#: src/mathessible/ui/insert_dialogs.py:95
+#: src/mathessible/ui/insert_dialogs.py:93
 msgid "&Text:"
 msgstr "&Κείμενο:"
 
-#: src/mathessible/ui/insert_dialogs.py:95
+#: src/mathessible/ui/insert_dialogs.py:93
 msgid "Link text"
 msgstr "Κείμενο συνδέσμου"
 
-#: src/mathessible/ui/insert_dialogs.py:96
+#: src/mathessible/ui/insert_dialogs.py:94
 msgid "&Address:"
 msgstr "&Διεύθυνση:"
 
-#: src/mathessible/ui/insert_dialogs.py:96
+#: src/mathessible/ui/insert_dialogs.py:94
 msgid "Link address"
 msgstr "Διεύθυνση συνδέσμου"
 
-#: src/mathessible/ui/insert_dialogs.py:104
+#: src/mathessible/ui/insert_dialogs.py:102
 msgid "Insert Table"
 msgstr "Εισαγωγή πίνακα"
 
-#: src/mathessible/ui/insert_dialogs.py:105 src/mathessible/ui/insert_dialogs.py:140
+#: src/mathessible/ui/insert_dialogs.py:103 src/mathessible/ui/insert_dialogs.py:138
 msgid "&Rows:"
 msgstr "&Γραμμές:"
 
-#: src/mathessible/ui/insert_dialogs.py:105 src/mathessible/ui/insert_dialogs.py:140
+#: src/mathessible/ui/insert_dialogs.py:103 src/mathessible/ui/insert_dialogs.py:138
 #: src/mathessible/ui/matrix_dialog.py:33
 msgid "Rows"
 msgstr "Γραμμές"
 
-#: src/mathessible/ui/insert_dialogs.py:106
+#: src/mathessible/ui/insert_dialogs.py:104
 msgid "&Columns:"
 msgstr "&Στήλες:"
 
-#: src/mathessible/ui/insert_dialogs.py:108
+#: src/mathessible/ui/insert_dialogs.py:106
 msgid "First row is the &header"
 msgstr "&Η πρώτη γραμμή είναι η κεφαλίδα"
 
-#: src/mathessible/ui/insert_dialogs.py:112
+#: src/mathessible/ui/insert_dialogs.py:110
 msgid "Cells hold paragraphs or lists (&grid table)"
-msgstr ""
+msgstr "Τα κελιά περιέχουν παραγράφους ή λίστες (πίνακας &πλέγματος)"
 
-#: src/mathessible/ui/insert_dialogs.py:123 src/mathessible/ui/main_frame.py:1432
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:121 src/mathessible/ui/main_frame.py:1432
 msgid "Insert Chart"
-msgstr "Εισαγωγή πίνακα"
+msgstr "Εισαγωγή διαγράμματος"
+
+#: src/mathessible/ui/insert_dialogs.py:124
+msgid "Bar chart"
+msgstr "Ραβδόγραμμα"
+
+#: src/mathessible/ui/insert_dialogs.py:125
+msgid "Line chart"
+msgstr "Γραμμικό διάγραμμα"
 
 #: src/mathessible/ui/insert_dialogs.py:126
-msgid "Bar chart"
-msgstr ""
+msgid "Scatter plot"
+msgstr "Διάγραμμα διασποράς"
 
 #: src/mathessible/ui/insert_dialogs.py:127
-#, fuzzy
-msgid "Line chart"
-msgstr "γραμμικό"
-
-#: src/mathessible/ui/insert_dialogs.py:128
-msgid "Scatter plot"
-msgstr ""
+msgid "Pie chart"
+msgstr "Κυκλικό διάγραμμα"
 
 #: src/mathessible/ui/insert_dialogs.py:129
-msgid "Pie chart"
-msgstr ""
-
-#: src/mathessible/ui/insert_dialogs.py:131
-#, fuzzy
 msgid "&Kind:"
-msgstr "Εύ&ρεση…"
+msgstr "&Είδος:"
 
-#: src/mathessible/ui/insert_dialogs.py:131
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:129
 msgid "Kind"
-msgstr "Εύρεση"
+msgstr "Είδος"
+
+#: src/mathessible/ui/insert_dialogs.py:131 src/mathessible/ui/insert_dialogs.py:170
+msgid "&Title:"
+msgstr "&Τίτλος:"
 
 #: src/mathessible/ui/insert_dialogs.py:133 src/mathessible/ui/insert_dialogs.py:172
-#, fuzzy
-msgid "&Title:"
-msgstr "&Τίτλος"
-
-#: src/mathessible/ui/insert_dialogs.py:135 src/mathessible/ui/insert_dialogs.py:174
-#, fuzzy
 msgid "&Description:"
-msgstr "Περιγραφή"
+msgstr "&Περιγραφή:"
 
-#: src/mathessible/ui/insert_dialogs.py:137
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:135
 msgid "&Function of x:"
-msgstr "&Συνάρτηση"
+msgstr "&Συνάρτηση του x:"
+
+#: src/mathessible/ui/insert_dialogs.py:135
+msgid "Function of x"
+msgstr "Συνάρτηση του x"
+
+#: src/mathessible/ui/insert_dialogs.py:136
+msgid "x fro&m:"
+msgstr "x &από:"
+
+#: src/mathessible/ui/insert_dialogs.py:136
+msgid "x from"
+msgstr "x από"
 
 #: src/mathessible/ui/insert_dialogs.py:137
-#, fuzzy
-msgid "Function of x"
-msgstr "Συνάρτηση"
-
-#: src/mathessible/ui/insert_dialogs.py:138
-msgid "x fro&m:"
-msgstr ""
-
-#: src/mathessible/ui/insert_dialogs.py:138
-msgid "x from"
-msgstr ""
-
-#: src/mathessible/ui/insert_dialogs.py:139
 msgid "x t&o:"
-msgstr ""
+msgstr "x έ&ως:"
+
+#: src/mathessible/ui/insert_dialogs.py:137
+msgid "x to"
+msgstr "x έως"
 
 #: src/mathessible/ui/insert_dialogs.py:139
-msgid "x to"
-msgstr ""
-
-#: src/mathessible/ui/insert_dialogs.py:141
-#, fuzzy
 msgid "&Series:"
-msgstr "&Καταχωρίσεις"
+msgstr "Σ&ειρές:"
 
-#: src/mathessible/ui/insert_dialogs.py:141
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:139
 msgid "Series"
-msgstr "Με πατούρες"
+msgstr "Σειρές"
 
-#: src/mathessible/ui/insert_dialogs.py:171
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:169
 msgid "Insert Flowchart"
-msgstr "Εισαγωγή πίνακα"
+msgstr "Εισαγωγή διαγράμματος ροής"
 
-#: src/mathessible/ui/insert_dialogs.py:176
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "Top to bottom"
-msgstr "κάτω μέρος"
+msgstr "Από πάνω προς τα κάτω"
 
-#: src/mathessible/ui/insert_dialogs.py:176
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "Left to right"
-msgstr "Πάνω, δεξιά"
+msgstr "Από αριστερά προς τα δεξιά"
 
-#: src/mathessible/ui/insert_dialogs.py:176
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "Bottom to top"
-msgstr "κάτω μέρος"
+msgstr "Από κάτω προς τα πάνω"
 
-#: src/mathessible/ui/insert_dialogs.py:176
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "Right to left"
-msgstr ""
+msgstr "Από δεξιά προς τα αριστερά"
 
-#: src/mathessible/ui/insert_dialogs.py:177
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:175
 msgid "Di&rection:"
-msgstr "&Κλάσμα"
+msgstr "&Κατεύθυνση:"
 
-#: src/mathessible/ui/insert_dialogs.py:177
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:175
 msgid "Direction"
-msgstr "Τομή"
+msgstr "Κατεύθυνση"
 
-#: src/mathessible/ui/insert_dialogs.py:193 src/mathessible/ui/insert_dialogs.py:363
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:191 src/mathessible/ui/insert_dialogs.py:361
 msgid "Edit Table"
-msgstr "Εισαγωγή πίνακα"
+msgstr "Επεξεργασία πίνακα"
 
-#: src/mathessible/ui/insert_dialogs.py:200
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:198
 msgid "Header rows"
-msgstr "Κεφαλίδα"
+msgstr "Γραμμές κεφαλίδας"
 
-#: src/mathessible/ui/insert_dialogs.py:204
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:202
 msgid "&Delete Row"
-msgstr "Διαγραφή &γραμμής"
+msgstr "&Διαγραφή γραμμής"
+
+#: src/mathessible/ui/insert_dialogs.py:205
+msgid "Delete Col&umn"
+msgstr "Διαγραφή σ&τήλης"
 
 #: src/mathessible/ui/insert_dialogs.py:207
-#, fuzzy
-msgid "Delete Col&umn"
-msgstr "Διαγραφή &στήλης"
-
-#: src/mathessible/ui/insert_dialogs.py:209
 msgid "&Merge with Right"
-msgstr ""
+msgstr "Συγ&χώνευση με το δεξιό"
 
-#: src/mathessible/ui/insert_dialogs.py:214
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:212
 msgid "Merge with Belo&w"
-msgstr "Βέλος με κείμενο κάτω"
+msgstr "Συγχώνευση με το &κάτω"
+
+#: src/mathessible/ui/insert_dialogs.py:216
+msgid "&Split Cell"
+msgstr "Δι&αίρεση κελιού"
 
 #: src/mathessible/ui/insert_dialogs.py:218
-#, fuzzy
-msgid "&Split Cell"
-msgstr "κενό κελί"
-
-#: src/mathessible/ui/insert_dialogs.py:220
-#, fuzzy
 msgid "&Actions"
-msgstr "&Κλάσμα"
+msgstr "&Ενέργειες"
 
-#: src/mathessible/ui/insert_dialogs.py:223
-#, fuzzy
+#: src/mathessible/ui/insert_dialogs.py:221
 msgid "&Header rows:"
-msgstr "&Κεφαλίδα"
+msgstr "Γραμμές &κεφαλίδας:"
 
-#: src/mathessible/ui/insert_dialogs.py:362
+#: src/mathessible/ui/insert_dialogs.py:360
 msgid "A merged cell crosses the end of the header. Split it, or choose another number of rows."
-msgstr ""
+msgstr "Ένα συγχωνευμένο κελί περνά το τέλος της κεφαλίδας. Διαιρέστε το ή επιλέξτε άλλο αριθμό γραμμών."
 
 #: src/mathessible/ui/main_frame.py:134
 msgid "Pages"
@@ -3983,14 +3955,12 @@ msgid "Re&vert to Saved"
 msgstr "Επαναφορά στην αποθηκευ&μένη"
 
 #: src/mathessible/ui/main_frame.py:293
-#, fuzzy
 msgid "&Word Document (.docx)…"
-msgstr "Έγγραφο &Word…"
+msgstr "Έγγραφο &Word (.docx)…"
 
 #: src/mathessible/ui/main_frame.py:294
-#, fuzzy
 msgid "&Import"
-msgstr "Ε&ξαγωγή"
+msgstr "&Εισαγωγή"
 
 #: src/mathessible/ui/main_frame.py:297
 msgid "&HTML…"
@@ -4030,7 +4000,7 @@ msgstr "&Αρχείο"
 
 #: src/mathessible/ui/main_frame.py:320
 msgid "Paste as Plain Te&xt"
-msgstr ""
+msgstr "Επικόλληση ως απλό κε&ίμενο"
 
 #: src/mathessible/ui/main_frame.py:329
 msgid "&Find…"
@@ -4110,14 +4080,12 @@ msgid "&Table…"
 msgstr "Π&ίνακας…"
 
 #: src/mathessible/ui/main_frame.py:365
-#, fuzzy
 msgid "Ch&art…"
-msgstr "Καπέλο"
+msgstr "&Διάγραμμα…"
 
 #: src/mathessible/ui/main_frame.py:366
-#, fuzzy
 msgid "&Flowchart…"
-msgstr "γραμμικό"
+msgstr "Διάγραμμα &ροής…"
 
 #: src/mathessible/ui/main_frame.py:371
 msgid "&Footnote"
@@ -4148,9 +4116,8 @@ msgid "&Code"
 msgstr "&Κώδικας"
 
 #: src/mathessible/ui/main_frame.py:385
-#, fuzzy
 msgid "Edit &Table…"
-msgstr "Π&ίνακας…"
+msgstr "Επεξεργασία &πίνακα…"
 
 #: src/mathessible/ui/main_frame.py:386
 msgid "F&ormat"
@@ -4166,7 +4133,7 @@ msgstr "&Εμφάνιση γραμμής εργαλείων"
 
 #: src/mathessible/ui/main_frame.py:393
 msgid "Explore &Graph…"
-msgstr ""
+msgstr "Εξερεύνηση &γραφήματος…"
 
 #: src/mathessible/ui/main_frame.py:395
 msgid "Read &Status"
@@ -4349,6 +4316,8 @@ msgid ""
 "The configured LaTeX directory contains no executable. Correct it in Settings or clear it for "
 "automatic detection."
 msgstr ""
+"Ο ορισμένος φάκελος LaTeX δεν περιέχει εκτελέσιμο. Διορθώστε τον στις Ρυθμίσεις ή αδειάστε τον "
+"για αυτόματο εντοπισμό."
 
 #: src/mathessible/ui/main_frame.py:911 src/mathessible/ui/main_frame.py:965
 #: src/mathessible/ui/main_frame.py:981 src/mathessible/ui/main_frame.py:1006
@@ -4422,6 +4391,9 @@ msgid ""
 " administrator password is needed and existing installations will not be changed. Mathessible "
 "installs additional packages when a document needs them."
 msgstr ""
+"Το TinyTeX θα ληφθεί από τις επίσημες εκδόσεις του στον ιδιωτικό φάκελο εργαλείων του "
+"Mathessible. Δεν χρειάζεται κωδικός διαχειριστή και οι υπάρχουσες εγκαταστάσεις δεν θα αλλάξουν. "
+"Το Mathessible εγκαθιστά πρόσθετα πακέτα όταν τα χρειάζεται ένα έγγραφο."
 
 #: src/mathessible/ui/main_frame.py:1016
 msgid "&Install TinyTeX"
@@ -4461,7 +4433,7 @@ msgstr "Αλλαγή εξίσωσης σε ενσωματ&ωμένη"
 
 #: src/mathessible/ui/main_frame.py:1111
 msgid "Put the caret in a function chart to explore it."
-msgstr ""
+msgstr "Βάλτε τον δρομέα σε γράφημα συνάρτησης για να το εξερευνήσετε."
 
 #: src/mathessible/ui/main_frame.py:1138
 msgid "Untitled"
@@ -4545,7 +4517,7 @@ msgstr "Περιγραφή εικόνας"
 
 #: src/mathessible/ui/main_frame.py:1394
 msgid "Put the caret in a table to edit it."
-msgstr ""
+msgstr "Βάλτε τον δρομέα σε πίνακα για να τον επεξεργαστείτε."
 
 #: src/mathessible/ui/main_frame.py:1511
 msgid "Open"
@@ -4578,41 +4550,39 @@ msgstr "Όλα τα αρχεία"
 
 #: src/mathessible/ui/main_frame.py:1541 src/mathessible/ui/main_frame.py:1570
 #: src/mathessible/ui/main_frame.py:1603
-#, fuzzy
 msgid "Import Word Document"
-msgstr "Εξαγωγή ως έγγραφο Word"
+msgstr "Εισαγωγή εγγράφου Word"
 
 #: src/mathessible/ui/main_frame.py:1542
-#, fuzzy
 msgid "Word documents"
-msgstr "Έγγραφο Word"
+msgstr "Έγγραφα Word"
 
 #: src/mathessible/ui/main_frame.py:1553
-#, fuzzy
 msgid "Save the imported document as"
-msgstr "αποθήκευση του εγγράφου"
+msgstr "Αποθήκευση του εισαγόμενου εγγράφου ως"
 
 #: src/mathessible/ui/main_frame.py:1569
 msgid "Importing a Word document needs Pandoc, an optional converter. Install it?"
-msgstr ""
+msgstr "Η εισαγωγή εγγράφου Word χρειάζεται το Pandoc, έναν προαιρετικό μετατροπέα. Να εγκατασταθεί;"
 
 #: src/mathessible/ui/main_frame.py:1574
 msgid "Pandoc is downloaded from its official releases into Mathessible's private tools folder."
-msgstr ""
+msgstr "Το Pandoc λαμβάνεται από τις επίσημες εκδόσεις του στον ιδιωτικό φάκελο εργαλείων του Mathessible."
 
 #: src/mathessible/ui/main_frame.py:1576
-#, fuzzy
 msgid "&Install Pandoc"
-msgstr "&Εγκατάσταση TinyTeX"
+msgstr "&Εγκατάσταση Pandoc"
 
 #: src/mathessible/ui/main_frame.py:1595
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "import {name}"
-msgstr "εξήχθη το {name}"
+msgstr "εισαγωγή {name}"
 
 #: src/mathessible/ui/main_frame.py:1597
 msgid "Pandoc could not read this Word document. It may be damaged, or protected by a password."
 msgstr ""
+"Το Pandoc δεν μπόρεσε να διαβάσει αυτό το έγγραφο Word. Ίσως είναι κατεστραμμένο ή προστατευμένο "
+"με κωδικό."
 
 #: src/mathessible/ui/main_frame.py:1649
 #, python-brace-format
@@ -4972,7 +4942,7 @@ msgstr "Γενικά"
 #: src/mathessible/ui/settings_dialog.py:215 src/mathessible/ui/settings_dialog.py:225
 #: src/mathessible/ui/settings_dialog.py:231 src/mathessible/ui/settings_dialog.py:241
 msgid "Optional tools"
-msgstr ""
+msgstr "Προαιρετικά εργαλεία"
 
 #: src/mathessible/ui/settings_dialog.py:86
 msgid "Equations"
@@ -5024,25 +4994,27 @@ msgstr "Word"
 
 #: src/mathessible/ui/settings_dialog.py:113
 msgid "Pandoc executable (empty: automatic)"
-msgstr ""
+msgstr "Εκτελέσιμο Pandoc (κενό: αυτόματα)"
 
 #: src/mathessible/ui/settings_dialog.py:114
 msgid "LaTeX executable directory (empty: automatic)"
-msgstr ""
+msgstr "Φάκελος προγραμμάτων LaTeX (κενό: αυτόματα)"
 
 #: src/mathessible/ui/settings_dialog.py:125
 #, python-brace-format
 msgid "Check {tool} for updates"
-msgstr ""
+msgstr "Έλεγχος ενημερώσεων για {tool}"
 
 #: src/mathessible/ui/settings_dialog.py:129
 #, python-brace-format
 msgid "Install {tool} for Mathessible…"
-msgstr ""
+msgstr "Εγκατάσταση {tool} για το Mathessible…"
 
 #: src/mathessible/ui/settings_dialog.py:146
 msgid "The configured path is invalid. Correct it or clear it to locate the tool automatically."
 msgstr ""
+"Η ορισμένη διαδρομή δεν είναι έγκυρη. Διορθώστε την ή αδειάστε την για αυτόματο εντοπισμό του "
+"εργαλείου."
 
 #: src/mathessible/ui/settings_dialog.py:162
 #, python-brace-format
@@ -5051,25 +5023,29 @@ msgid ""
 "Installed: {installed}\n"
 "Update source: {latest}"
 msgstr ""
+"Διαδρομή: {path}\n"
+"Εγκατεστημένο: {installed}\n"
+"Πηγή ενημέρωσης: {latest}"
 
 #: src/mathessible/ui/settings_dialog.py:167
-#, fuzzy
 msgid "No updates are available."
-msgstr "δεν είναι διαθέσιμο εδώ"
+msgstr "Δεν υπάρχουν διαθέσιμες ενημερώσεις."
 
 #: src/mathessible/ui/settings_dialog.py:174
 msgid "&Update private copy"
-msgstr ""
+msgstr "Ε&νημέρωση ιδιωτικού αντιγράφου"
 
 #: src/mathessible/ui/settings_dialog.py:176
 msgid ""
 "Updates are available. Update the Mathessible-managed copy? The previous copy will be retained "
 "for recovery."
 msgstr ""
+"Υπάρχουν ενημερώσεις. Να ενημερωθεί το αντίγραφο που διαχειρίζεται το Mathessible; Το προηγούμενο"
+" αντίγραφο θα διατηρηθεί για ανάκτηση."
 
 #: src/mathessible/ui/settings_dialog.py:179
 msgid "&Install updated private copy"
-msgstr ""
+msgstr "&Εγκατάσταση ενημερωμένου ιδιωτικού αντιγράφου"
 
 #: src/mathessible/ui/settings_dialog.py:181
 #, python-brace-format
@@ -5078,15 +5054,18 @@ msgid ""
 "and select it for use in the application. Your existing installation, including one installed "
 "through Homebrew, will not be updated or replaced. Install the private copy?"
 msgstr ""
+"Υπάρχουν ενημερώσεις για {tool}. Το Mathessible θα κατεβάσει ενημερωμένο ιδιωτικό αντίγραφο στο "
+"{path} και θα το χρησιμοποιεί στην εφαρμογή. Η υπάρχουσα εγκατάστασή σας, ακόμη και μέσω "
+"Homebrew, δεν θα ενημερωθεί ούτε θα αντικατασταθεί. Να εγκατασταθεί το ιδιωτικό αντίγραφο;"
 
 #: src/mathessible/ui/settings_dialog.py:196 src/mathessible/ui/settings_dialog.py:231
 msgid "Wait for LaTeX compilation to finish before updating tools."
-msgstr ""
+msgstr "Περιμένετε να τελειώσει η μεταγλώττιση LaTeX πριν ενημερώσετε εργαλεία."
 
 #: src/mathessible/ui/settings_dialog.py:225
 #, python-brace-format
 msgid "Ready to use: {path}"
-msgstr ""
+msgstr "Έτοιμο για χρήση: {path}"
 
 #: src/mathessible/ui/settings_dialog.py:237
 #, python-brace-format
@@ -5094,6 +5073,8 @@ msgid ""
 "Download the latest {tool} into {path} and use it in Mathessible? An existing managed copy will "
 "be backed up; system installations will not be changed."
 msgstr ""
+"Λήψη της τελευταίας έκδοσης του {tool} στο {path} και χρήση του στο Mathessible; Ένα υπάρχον "
+"διαχειριζόμενο αντίγραφο θα διατηρηθεί ως εφεδρικό· οι εγκαταστάσεις συστήματος δεν θα αλλάξουν."
 
 #: src/mathessible/ui/settings_dialog.py:281
 msgid "Write the equations of new documents and pages in LaTeX"

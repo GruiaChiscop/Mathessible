@@ -36,7 +36,12 @@ else is in the [documentation](#documentation).
 
 ## Getting started
 
-Mathessible runs from a checkout of this repository, with Python 3.14 and
+Packaged applications for macOS (Apple silicon) and Windows (x64) are on the
+[releases page](https://github.com/GruiaChiscop/Mathessible/releases). They are
+not signed yet: on macOS, the first time, choose **Open Anyway** in System
+Settings, Privacy & Security; on Windows, **More info** then **Run anyway**.
+
+To run it from a checkout of this repository, with Python 3.14 and
 [uv](https://docs.astral.sh/uv/):
 
 ```shell

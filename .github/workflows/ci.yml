@@ -1,0 +1,34 @@
+# The tests and the style check on every push, on the platforms Mathessible is released for.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Prepare and test on macOS
+        if: runner.os == 'macOS'
+        run: |
+          brew install python@3.14
+          CARGO_HOME="$HOME/.cargo" RUSTUP_HOME="$HOME/.rustup" scripts/bootstrap.sh
+      - name: Prepare and test on Windows
+        if: runner.os == 'Windows'
+        run: powershell -ExecutionPolicy Bypass -File scripts\bootstrap.ps1
+      - name: Style
+        run: |
+          uv run --no-sync ruff check
+          uv run --no-sync ruff format --check

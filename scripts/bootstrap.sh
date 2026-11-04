@@ -26,8 +26,9 @@ apply_patches UnicodeMathML unicodemathml
 
 export UV_CACHE_DIR="$root_dir/.uv-cache"
 export UV_PYTHON_INSTALL_DIR="$root_dir/.tools/python"
-export CARGO_HOME="$root_dir/.tools/cargo"
-export RUSTUP_HOME="$root_dir/.tools/rustup"
+# A machine's own Rust when these name it, as CI's do.
+export CARGO_HOME="${CARGO_HOME:-$root_dir/.tools/cargo}"
+export RUSTUP_HOME="${RUSTUP_HOME:-$root_dir/.tools/rustup}"
 
 if command -v uv >/dev/null 2>&1; then
     uv_cmd=uv

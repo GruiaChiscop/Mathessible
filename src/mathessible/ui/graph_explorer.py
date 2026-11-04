@@ -6,6 +6,7 @@ import math
 import time
 
 from mathessible.documents.charts import Chart
+from mathessible.help_links import SONIFICATION_CREDIT, SONIFICATION_PAGES
 from mathessible.i18n import _
 from mathessible.sonification.graph import MOVE, GraphExplorer, Sound, number, passed
 from mathessible.sonification.synth import Synthesizer
@@ -77,6 +78,15 @@ if wx is not None:
             )
             sizer.Add(instructions, 0, wx.ALL | wx.EXPAND, 10)
             sizer.Add(self.canvas, 1, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 10)
+            credit = wx.StaticText(self, label=_(SONIFICATION_CREDIT))
+            credit.Wrap(780)
+            sizer.Add(credit, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 10)
+            links = wx.BoxSizer(wx.HORIZONTAL)
+            for label, address in SONIFICATION_PAGES:
+                button = wx.Button(self, label=_(label))
+                button.Bind(wx.EVT_BUTTON, lambda _event, address=address: wx.LaunchDefaultBrowser(address))
+                links.Add(button, 0, wx.RIGHT, 10)
+            sizer.Add(links, 0, wx.LEFT | wx.BOTTOM, 10)
             self.SetSizer(sizer)
             self._create_menu()
             self.Bind(wx.EVT_TIMER, self._on_sweep, self._timer)
@@ -110,6 +120,10 @@ if wx is not None:
             help_menu = wx.Menu()
             keys = help_menu.Append(wx.ID_ANY, _("&Keyboard Help") + "\tF1")
             self.Bind(wx.EVT_MENU, lambda _event: self.read_help(), keys)
+            help_menu.AppendSeparator()
+            for label, address in SONIFICATION_PAGES:  # From the keyboard too, without leaving the graph.
+                page = help_menu.Append(wx.ID_ANY, _(label))
+                self.Bind(wx.EVT_MENU, lambda _event, address=address: wx.LaunchDefaultBrowser(address), page)
             menu_bar.Append(help_menu, _("&Help"))
             self.SetMenuBar(menu_bar)
 

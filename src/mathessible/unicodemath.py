@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
+from mathessible.data_paths import application_root
+
 
 class UnicodeMathError(ValueError):
     """Raised when the official UnicodeMathML parser rejects an expression."""
@@ -48,8 +50,7 @@ def mathml_has_parse_error(mathml: str) -> bool:
 
 def distribution_directory() -> Path:
     """Locate the JavaScript distribution supplied by the UnicodeMathML submodule."""
-    repository_root = Path(__file__).resolve().parents[2]
-    directory = repository_root / "UnicodeMathML" / "dist"
+    directory = application_root() / "UnicodeMathML" / "dist"
     required = (directory / "unicodemathml-parser.js", directory / "unicodemathml.js")
     if not all(path.is_file() for path in required):
         raise FileNotFoundError(

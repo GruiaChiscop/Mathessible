@@ -1194,21 +1194,25 @@ tested. Templates: `template_source` holds
   MathCAT was last updated to upstream `85c89a37` (0.7.6-rc.4, 2026-10-07);
   the binding's API use was unchanged by that update.
 
-## Path Dependencies on the Git Checkout
+## Running from a Checkout or Packaged
 
-- [unicodemath.py](../src/mathessible/unicodemath.py) `distribution_directory()` finds
-  `UnicodeMathML/dist/*.js` by walking `Path(__file__).resolve().parents[2]`
-  from `src/mathessible/unicodemath.py` — i.e. it assumes it is running from a
-  source checkout with the submodule initialised, two directories above
-  `src/`. Same idea for the MathCAT `Rules/` dir at build time (bundled into
-  the compiled extension via `include-zip`, so that one only matters if you
-  rebuild `native/mathcat_py` without that feature).
-- This means: Mathessible currently only works run via `uv run mathessible` (or an
-  editable install) from within this checkout. A regular `pip install
-  mathessible`/built wheel from elsewhere would not find the UnicodeMathML JS
-  files — `pyproject.toml` has no `package-data`/`MANIFEST.in` entry for
-  them. Treat this as a known prototype limitation, not something to
-  silently "fix" by hardcoding a different path.
+- `data_paths.application_root()` is where the submodules' files are: the
+  checkout, or PyInstaller's folder (`sys._MEIPASS`) in a packaged application.
+  [unicodemath.py](../src/mathessible/unicodemath.py) finds `UnicodeMathML/dist`
+  through it, and `symbols/text_braille.py` liblouis's tables; `patch_check`
+  finds no git there, so a packaged application gives no patch warning. MathCAT's
+  `Rules/` are bundled into the compiled extension (`include-zip`).
+- [packaging/mathessible.spec](../packaging/mathessible.spec) builds
+  `dist/Mathessible.app` on macOS and the folder `dist/Mathessible` elsewhere:
+  `uv run --group packaging pyinstaller packaging/mathessible.spec --noconfirm`.
+  A pip-installed wheel would still not find those files (`pyproject.toml` does
+  not ship them). `packaging/make_icon.py` draws the icon.
+- `.github/workflows/ci.yml` runs the bootstrap (and so the tests) and ruff on
+  macOS and Windows; `release.yml` packages both and, on a tag `v*`, publishes
+  them with that version's CHANGELOG.md section. CI passes its own `CARGO_HOME`
+  and `RUSTUP_HOME` to bootstrap.sh: with the script's `.tools` defaults, the
+  runner's rustup proxies find no toolchain. The releases are not signed yet: macOS
+  needs a Developer ID (an Apple Developer account) to sign and notarise.
 
 ## File and Notebook Menus (2026-10-26)
 

@@ -13,17 +13,15 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
+from mathessible.data_paths import application_root
+
 # (submodule directory, its folder under patches/).
 PATCH_SETS = (("MathCAT", "mathcat"), ("UnicodeMathML", "unicodemathml"))
 
 
-def checkout_root() -> Path:
-    return Path(__file__).resolve().parents[2]
-
-
 def missing_patches(root: Path | None = None) -> list[str] | None:
     """Patches not applied, as "MathCAT/0005-....patch"; None when it cannot be told (no git, no checkout)."""
-    root = checkout_root() if root is None else root
+    root = application_root() if root is None else root
     missing: list[str] = []
     checked = False
     for submodule, folder in PATCH_SETS:

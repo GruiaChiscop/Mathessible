@@ -10,6 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from mathessible.data_paths import application_root
+
 
 @dataclass(frozen=True, slots=True)
 class TextTable:
@@ -21,8 +23,8 @@ class TextTable:
 
 
 def tables_directory() -> Path:
-    """liblouis's tables in the submodule (Mathessible runs from its checkout)."""
-    return Path(__file__).resolve().parents[3] / "liblouis" / "tables"
+    """liblouis's tables: in the submodule, or in a packaged application."""
+    return application_root() / "liblouis" / "tables"
 
 
 def _metadata(path: Path) -> dict[str, str]:

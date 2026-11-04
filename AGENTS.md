@@ -122,5 +122,6 @@ for what the equation editor says about an equation), and
 - Edit `.venv/`, `.tools/`, `.uv-cache/` or `native/mathcat_py/target/`
   (generated caches).
 - Commit NVDA's symbol dictionaries (GPL-2.0, downloaded on demand).
-- "Fix" the checkout-only layout by hard-coding paths: Mathessible runs from this
-  checkout (`uv run mathessible`), a known prototype limitation.
+- Hard-code paths to the submodules' files: they go through
+  `data_paths.application_root()`, the checkout or a packaged application.
+- Publish a release or push a tag unless asked: a tag `v*` publishes one.
