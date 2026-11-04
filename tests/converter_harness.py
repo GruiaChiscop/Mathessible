@@ -65,7 +65,7 @@ def convert_all(sources: list[str], latex: bool = False, **options: object) -> l
         input=json.dumps({"sources": sources, "latex": latex, "options": {**RENDERER_OPTIONS, **options}}),
         check=True,
         capture_output=True,
-        text=True,
+        encoding="utf-8",  # Node's; Windows's default would be its code page.
     )
     return json.loads(completed.stdout)
 
