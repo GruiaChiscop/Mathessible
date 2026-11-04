@@ -169,3 +169,5 @@ editor for writing has, without copying Word.
 - [x] Opening Markdown written elsewhere (GitHub, Pandoc) whose equations
   are LaTeX but which has no `math: latex`: asked whether to mark it.
 - [ ] The visual design of the equation editor.
+- [ ] A more modern look for the dialogs (Insert, Edit Table, the exports,
+  Settings), with native controls that screen readers still read.
