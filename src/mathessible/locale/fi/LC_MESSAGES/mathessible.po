@@ -878,19 +878,19 @@ msgstr "&Yhtälöt"
 msgid "&Cases"
 msgstr "&Tapaukset"
 
-#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:168
+#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:202
 msgid "Insert Row &Above"
 msgstr "Lisää rivi &yläpuolelle"
 
-#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:169
+#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:203
 msgid "Insert Row &Below"
 msgstr "Lisää rivi &alapuolelle"
 
-#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:171
+#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:205
 msgid "Insert Column &Left"
 msgstr "Lisää sarake &vasemmalle"
 
-#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:172
+#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:206
 msgid "Insert Column &Right"
 msgstr "Lisää sarake &oikealle"
 
@@ -3045,7 +3045,7 @@ msgstr "Marginaalit (mm)"
 msgid "Colu&mns"
 msgstr "&Sarakkeet"
 
-#: src/mathessible/ui/export_controls.py:121 src/mathessible/ui/insert_dialogs.py:76
+#: src/mathessible/ui/export_controls.py:121 src/mathessible/ui/insert_dialogs.py:106
 #: src/mathessible/ui/matrix_dialog.py:36
 msgid "Columns"
 msgstr "Sarakkeet"
@@ -3268,7 +3268,7 @@ msgid "Export as HTML"
 msgstr "Vie HTML-muodossa"
 
 #: src/mathessible/ui/export_dialogs.py:125 src/mathessible/ui/export_dialogs.py:158
-#: src/mathessible/ui/insert_dialogs.py:103 src/mathessible/ui/insert_dialogs.py:137
+#: src/mathessible/ui/insert_dialogs.py:133 src/mathessible/ui/insert_dialogs.py:172
 #: src/mathessible/ui/pdf_dialog.py:47
 msgid "Title"
 msgstr "Otsikko"
@@ -3292,8 +3292,8 @@ msgstr "Tekijä"
 msgid "D&escription"
 msgstr "&Kuvaus"
 
-#: src/mathessible/ui/export_dialogs.py:127 src/mathessible/ui/insert_dialogs.py:105
-#: src/mathessible/ui/insert_dialogs.py:139
+#: src/mathessible/ui/export_dialogs.py:127 src/mathessible/ui/insert_dialogs.py:135
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "Description"
 msgstr "Kuvaus"
 
@@ -3462,7 +3462,7 @@ msgstr "Pika&näppäimet"
 msgid "&Help"
 msgstr "&Ohje"
 
-#: src/mathessible/ui/graph_explorer.py:118 src/mathessible/ui/insert_dialogs.py:95
+#: src/mathessible/ui/graph_explorer.py:118 src/mathessible/ui/insert_dialogs.py:125
 #, fuzzy
 msgid "Function graph"
 msgstr "funktion nimi"
@@ -3670,203 +3670,208 @@ msgstr "Viimeisimmät asiakirjat"
 msgid "No recent documents"
 msgstr "Ei viimeisimpiä asiakirjoja"
 
-#: src/mathessible/ui/insert_dialogs.py:64
+#: src/mathessible/ui/insert_dialogs.py:94
 msgid "Insert Link"
 msgstr "Lisää linkki"
 
-#: src/mathessible/ui/insert_dialogs.py:65
+#: src/mathessible/ui/insert_dialogs.py:95
 msgid "&Text:"
 msgstr "&Teksti:"
 
-#: src/mathessible/ui/insert_dialogs.py:65
+#: src/mathessible/ui/insert_dialogs.py:95
 msgid "Link text"
 msgstr "Linkin teksti"
 
-#: src/mathessible/ui/insert_dialogs.py:66
+#: src/mathessible/ui/insert_dialogs.py:96
 msgid "&Address:"
 msgstr "&Osoite:"
 
-#: src/mathessible/ui/insert_dialogs.py:66
+#: src/mathessible/ui/insert_dialogs.py:96
 msgid "Link address"
 msgstr "Linkin osoite"
 
-#: src/mathessible/ui/insert_dialogs.py:74
+#: src/mathessible/ui/insert_dialogs.py:104
 msgid "Insert Table"
 msgstr "Lisää taulukko"
 
-#: src/mathessible/ui/insert_dialogs.py:75 src/mathessible/ui/insert_dialogs.py:110
+#: src/mathessible/ui/insert_dialogs.py:105 src/mathessible/ui/insert_dialogs.py:140
 msgid "&Rows:"
 msgstr "&Rivit:"
 
-#: src/mathessible/ui/insert_dialogs.py:75 src/mathessible/ui/insert_dialogs.py:110
+#: src/mathessible/ui/insert_dialogs.py:105 src/mathessible/ui/insert_dialogs.py:140
 #: src/mathessible/ui/matrix_dialog.py:33
 msgid "Rows"
 msgstr "Rivit"
 
-#: src/mathessible/ui/insert_dialogs.py:76
+#: src/mathessible/ui/insert_dialogs.py:106
 msgid "&Columns:"
 msgstr "&Sarakkeet:"
 
-#: src/mathessible/ui/insert_dialogs.py:78
+#: src/mathessible/ui/insert_dialogs.py:108
 msgid "First row is the &header"
 msgstr "&Ensimmäinen rivi on otsikkorivi"
 
-#: src/mathessible/ui/insert_dialogs.py:82
+#: src/mathessible/ui/insert_dialogs.py:112
 msgid "Cells hold paragraphs or lists (&grid table)"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:93 src/mathessible/ui/main_frame.py:1432
+#: src/mathessible/ui/insert_dialogs.py:123 src/mathessible/ui/main_frame.py:1432
 #, fuzzy
 msgid "Insert Chart"
 msgstr "Lisää matriisi"
 
-#: src/mathessible/ui/insert_dialogs.py:96
+#: src/mathessible/ui/insert_dialogs.py:126
 msgid "Bar chart"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:97
+#: src/mathessible/ui/insert_dialogs.py:127
 #, fuzzy
 msgid "Line chart"
 msgstr "lineaarinen"
 
-#: src/mathessible/ui/insert_dialogs.py:98
+#: src/mathessible/ui/insert_dialogs.py:128
 msgid "Scatter plot"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:99
+#: src/mathessible/ui/insert_dialogs.py:129
 msgid "Pie chart"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:101
+#: src/mathessible/ui/insert_dialogs.py:131
 #, fuzzy
 msgid "&Kind:"
 msgstr "&Etsi…"
 
-#: src/mathessible/ui/insert_dialogs.py:101
+#: src/mathessible/ui/insert_dialogs.py:131
 #, fuzzy
 msgid "Kind"
 msgstr "Etsi"
 
-#: src/mathessible/ui/insert_dialogs.py:103 src/mathessible/ui/insert_dialogs.py:137
+#: src/mathessible/ui/insert_dialogs.py:133 src/mathessible/ui/insert_dialogs.py:172
 #, fuzzy
 msgid "&Title:"
 msgstr "&Otsikko"
 
-#: src/mathessible/ui/insert_dialogs.py:105 src/mathessible/ui/insert_dialogs.py:139
+#: src/mathessible/ui/insert_dialogs.py:135 src/mathessible/ui/insert_dialogs.py:174
 #, fuzzy
 msgid "&Description:"
 msgstr "Kuvaus"
 
-#: src/mathessible/ui/insert_dialogs.py:107
+#: src/mathessible/ui/insert_dialogs.py:137
 #, fuzzy
 msgid "&Function of x:"
 msgstr "&Funktio"
 
-#: src/mathessible/ui/insert_dialogs.py:107
+#: src/mathessible/ui/insert_dialogs.py:137
 #, fuzzy
 msgid "Function of x"
 msgstr "Funktio"
 
-#: src/mathessible/ui/insert_dialogs.py:108
+#: src/mathessible/ui/insert_dialogs.py:138
 msgid "x fro&m:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:108
+#: src/mathessible/ui/insert_dialogs.py:138
 msgid "x from"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:109
+#: src/mathessible/ui/insert_dialogs.py:139
 msgid "x t&o:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:109
+#: src/mathessible/ui/insert_dialogs.py:139
 msgid "x to"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:111
+#: src/mathessible/ui/insert_dialogs.py:141
 #, fuzzy
 msgid "&Series:"
 msgstr "&Merkinnät"
 
-#: src/mathessible/ui/insert_dialogs.py:111
+#: src/mathessible/ui/insert_dialogs.py:141
 #, fuzzy
 msgid "Series"
 msgstr "Päätteellinen"
 
-#: src/mathessible/ui/insert_dialogs.py:136
+#: src/mathessible/ui/insert_dialogs.py:171
 #, fuzzy
 msgid "Insert Flowchart"
 msgstr "Lisää matriisi"
 
-#: src/mathessible/ui/insert_dialogs.py:141
+#: src/mathessible/ui/insert_dialogs.py:176
 #, fuzzy
 msgid "Top to bottom"
 msgstr "alaosa"
 
-#: src/mathessible/ui/insert_dialogs.py:141
+#: src/mathessible/ui/insert_dialogs.py:176
 #, fuzzy
 msgid "Left to right"
 msgstr "Ylhäällä oikealla"
 
-#: src/mathessible/ui/insert_dialogs.py:141
+#: src/mathessible/ui/insert_dialogs.py:176
 #, fuzzy
 msgid "Bottom to top"
 msgstr "alaosa"
 
-#: src/mathessible/ui/insert_dialogs.py:141
+#: src/mathessible/ui/insert_dialogs.py:176
 msgid "Right to left"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:142
+#: src/mathessible/ui/insert_dialogs.py:177
 #, fuzzy
 msgid "Di&rection:"
 msgstr "&Murtoluku"
 
-#: src/mathessible/ui/insert_dialogs.py:142
+#: src/mathessible/ui/insert_dialogs.py:177
 #, fuzzy
 msgid "Direction"
 msgstr "Leikkaus"
 
-#: src/mathessible/ui/insert_dialogs.py:158 src/mathessible/ui/insert_dialogs.py:322
+#: src/mathessible/ui/insert_dialogs.py:193 src/mathessible/ui/insert_dialogs.py:363
 #, fuzzy
 msgid "Edit Table"
 msgstr "Lisää taulukko"
 
-#: src/mathessible/ui/insert_dialogs.py:164
+#: src/mathessible/ui/insert_dialogs.py:200
 #, fuzzy
 msgid "Header rows"
 msgstr "Ylätunniste"
 
-#: src/mathessible/ui/insert_dialogs.py:170
+#: src/mathessible/ui/insert_dialogs.py:204
 #, fuzzy
 msgid "&Delete Row"
 msgstr "Poista &rivi"
 
-#: src/mathessible/ui/insert_dialogs.py:173
+#: src/mathessible/ui/insert_dialogs.py:207
 #, fuzzy
 msgid "Delete Col&umn"
 msgstr "Poista &sarake"
 
-#: src/mathessible/ui/insert_dialogs.py:174
+#: src/mathessible/ui/insert_dialogs.py:209
 msgid "&Merge with Right"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:175
+#: src/mathessible/ui/insert_dialogs.py:214
 #, fuzzy
 msgid "Merge with Belo&w"
 msgstr "Nuoli, teksti alapuolella"
 
-#: src/mathessible/ui/insert_dialogs.py:176
+#: src/mathessible/ui/insert_dialogs.py:218
 #, fuzzy
 msgid "&Split Cell"
 msgstr "tyhjä solu"
 
-#: src/mathessible/ui/insert_dialogs.py:183
+#: src/mathessible/ui/insert_dialogs.py:220
+#, fuzzy
+msgid "&Actions"
+msgstr "&Murtoluku"
+
+#: src/mathessible/ui/insert_dialogs.py:223
 #, fuzzy
 msgid "&Header rows:"
 msgstr "&Ylätunniste"
 
-#: src/mathessible/ui/insert_dialogs.py:321
+#: src/mathessible/ui/insert_dialogs.py:362
 msgid "A merged cell crosses the end of the header. Split it, or choose another number of rows."
 msgstr ""
 

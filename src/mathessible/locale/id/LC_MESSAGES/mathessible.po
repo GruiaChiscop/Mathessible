@@ -878,19 +878,19 @@ msgstr "&Persamaan"
 msgid "&Cases"
 msgstr "&Kasus"
 
-#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:168
+#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:202
 msgid "Insert Row &Above"
 msgstr "Sisipkan baris di &atas"
 
-#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:169
+#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:203
 msgid "Insert Row &Below"
 msgstr "Sisipkan baris di &bawah"
 
-#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:171
+#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:205
 msgid "Insert Column &Left"
 msgstr "Sisipkan kolom di &kiri"
 
-#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:172
+#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:206
 msgid "Insert Column &Right"
 msgstr "Sisipkan kolom di ka&nan"
 
@@ -3047,7 +3047,7 @@ msgstr "Margin (mm)"
 msgid "Colu&mns"
 msgstr "Ko&lom"
 
-#: src/mathessible/ui/export_controls.py:121 src/mathessible/ui/insert_dialogs.py:76
+#: src/mathessible/ui/export_controls.py:121 src/mathessible/ui/insert_dialogs.py:106
 #: src/mathessible/ui/matrix_dialog.py:36
 msgid "Columns"
 msgstr "Kolom"
@@ -3272,7 +3272,7 @@ msgid "Export as HTML"
 msgstr "Ekspor sebagai HTML"
 
 #: src/mathessible/ui/export_dialogs.py:125 src/mathessible/ui/export_dialogs.py:158
-#: src/mathessible/ui/insert_dialogs.py:103 src/mathessible/ui/insert_dialogs.py:137
+#: src/mathessible/ui/insert_dialogs.py:133 src/mathessible/ui/insert_dialogs.py:172
 #: src/mathessible/ui/pdf_dialog.py:47
 msgid "Title"
 msgstr "Judul"
@@ -3296,8 +3296,8 @@ msgstr "Penulis"
 msgid "D&escription"
 msgstr "&Deskripsi"
 
-#: src/mathessible/ui/export_dialogs.py:127 src/mathessible/ui/insert_dialogs.py:105
-#: src/mathessible/ui/insert_dialogs.py:139
+#: src/mathessible/ui/export_dialogs.py:127 src/mathessible/ui/insert_dialogs.py:135
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "Description"
 msgstr "Deskripsi"
 
@@ -3466,7 +3466,7 @@ msgstr "Pintasan &keyboard"
 msgid "&Help"
 msgstr "Ba&ntuan"
 
-#: src/mathessible/ui/graph_explorer.py:118 src/mathessible/ui/insert_dialogs.py:95
+#: src/mathessible/ui/graph_explorer.py:118 src/mathessible/ui/insert_dialogs.py:125
 #, fuzzy
 msgid "Function graph"
 msgstr "nama fungsi"
@@ -3674,203 +3674,208 @@ msgstr "Dokumen terbaru"
 msgid "No recent documents"
 msgstr "Tidak ada dokumen terbaru"
 
-#: src/mathessible/ui/insert_dialogs.py:64
+#: src/mathessible/ui/insert_dialogs.py:94
 msgid "Insert Link"
 msgstr "Sisipkan Tautan"
 
-#: src/mathessible/ui/insert_dialogs.py:65
+#: src/mathessible/ui/insert_dialogs.py:95
 msgid "&Text:"
 msgstr "&Teks:"
 
-#: src/mathessible/ui/insert_dialogs.py:65
+#: src/mathessible/ui/insert_dialogs.py:95
 msgid "Link text"
 msgstr "Teks tautan"
 
-#: src/mathessible/ui/insert_dialogs.py:66
+#: src/mathessible/ui/insert_dialogs.py:96
 msgid "&Address:"
 msgstr "&Alamat:"
 
-#: src/mathessible/ui/insert_dialogs.py:66
+#: src/mathessible/ui/insert_dialogs.py:96
 msgid "Link address"
 msgstr "Alamat tautan"
 
-#: src/mathessible/ui/insert_dialogs.py:74
+#: src/mathessible/ui/insert_dialogs.py:104
 msgid "Insert Table"
 msgstr "Sisipkan Tabel"
 
-#: src/mathessible/ui/insert_dialogs.py:75 src/mathessible/ui/insert_dialogs.py:110
+#: src/mathessible/ui/insert_dialogs.py:105 src/mathessible/ui/insert_dialogs.py:140
 msgid "&Rows:"
 msgstr "&Baris:"
 
-#: src/mathessible/ui/insert_dialogs.py:75 src/mathessible/ui/insert_dialogs.py:110
+#: src/mathessible/ui/insert_dialogs.py:105 src/mathessible/ui/insert_dialogs.py:140
 #: src/mathessible/ui/matrix_dialog.py:33
 msgid "Rows"
 msgstr "Baris"
 
-#: src/mathessible/ui/insert_dialogs.py:76
+#: src/mathessible/ui/insert_dialogs.py:106
 msgid "&Columns:"
 msgstr "&Kolom:"
 
-#: src/mathessible/ui/insert_dialogs.py:78
+#: src/mathessible/ui/insert_dialogs.py:108
 msgid "First row is the &header"
 msgstr "Baris &pertama adalah judul"
 
-#: src/mathessible/ui/insert_dialogs.py:82
+#: src/mathessible/ui/insert_dialogs.py:112
 msgid "Cells hold paragraphs or lists (&grid table)"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:93 src/mathessible/ui/main_frame.py:1432
+#: src/mathessible/ui/insert_dialogs.py:123 src/mathessible/ui/main_frame.py:1432
 #, fuzzy
 msgid "Insert Chart"
 msgstr "Sisipkan Matriks"
 
-#: src/mathessible/ui/insert_dialogs.py:96
+#: src/mathessible/ui/insert_dialogs.py:126
 msgid "Bar chart"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:97
+#: src/mathessible/ui/insert_dialogs.py:127
 #, fuzzy
 msgid "Line chart"
 msgstr "linear"
 
-#: src/mathessible/ui/insert_dialogs.py:98
+#: src/mathessible/ui/insert_dialogs.py:128
 msgid "Scatter plot"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:99
+#: src/mathessible/ui/insert_dialogs.py:129
 msgid "Pie chart"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:101
+#: src/mathessible/ui/insert_dialogs.py:131
 #, fuzzy
 msgid "&Kind:"
 msgstr "&Cari…"
 
-#: src/mathessible/ui/insert_dialogs.py:101
+#: src/mathessible/ui/insert_dialogs.py:131
 #, fuzzy
 msgid "Kind"
 msgstr "Cari"
 
-#: src/mathessible/ui/insert_dialogs.py:103 src/mathessible/ui/insert_dialogs.py:137
+#: src/mathessible/ui/insert_dialogs.py:133 src/mathessible/ui/insert_dialogs.py:172
 #, fuzzy
 msgid "&Title:"
 msgstr "&Judul"
 
-#: src/mathessible/ui/insert_dialogs.py:105 src/mathessible/ui/insert_dialogs.py:139
+#: src/mathessible/ui/insert_dialogs.py:135 src/mathessible/ui/insert_dialogs.py:174
 #, fuzzy
 msgid "&Description:"
 msgstr "Deskripsi"
 
-#: src/mathessible/ui/insert_dialogs.py:107
+#: src/mathessible/ui/insert_dialogs.py:137
 #, fuzzy
 msgid "&Function of x:"
 msgstr "&Fungsi"
 
-#: src/mathessible/ui/insert_dialogs.py:107
+#: src/mathessible/ui/insert_dialogs.py:137
 #, fuzzy
 msgid "Function of x"
 msgstr "Fungsi"
 
-#: src/mathessible/ui/insert_dialogs.py:108
+#: src/mathessible/ui/insert_dialogs.py:138
 msgid "x fro&m:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:108
+#: src/mathessible/ui/insert_dialogs.py:138
 msgid "x from"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:109
+#: src/mathessible/ui/insert_dialogs.py:139
 msgid "x t&o:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:109
+#: src/mathessible/ui/insert_dialogs.py:139
 msgid "x to"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:111
+#: src/mathessible/ui/insert_dialogs.py:141
 #, fuzzy
 msgid "&Series:"
 msgstr "&Entri"
 
-#: src/mathessible/ui/insert_dialogs.py:111
+#: src/mathessible/ui/insert_dialogs.py:141
 #, fuzzy
 msgid "Series"
 msgstr "Serif"
 
-#: src/mathessible/ui/insert_dialogs.py:136
+#: src/mathessible/ui/insert_dialogs.py:171
 #, fuzzy
 msgid "Insert Flowchart"
 msgstr "Sisipkan Matriks"
 
-#: src/mathessible/ui/insert_dialogs.py:141
+#: src/mathessible/ui/insert_dialogs.py:176
 #, fuzzy
 msgid "Top to bottom"
 msgstr "bagian bawah"
 
-#: src/mathessible/ui/insert_dialogs.py:141
+#: src/mathessible/ui/insert_dialogs.py:176
 #, fuzzy
 msgid "Left to right"
 msgstr "Atas, kanan"
 
-#: src/mathessible/ui/insert_dialogs.py:141
+#: src/mathessible/ui/insert_dialogs.py:176
 #, fuzzy
 msgid "Bottom to top"
 msgstr "bagian bawah"
 
-#: src/mathessible/ui/insert_dialogs.py:141
+#: src/mathessible/ui/insert_dialogs.py:176
 msgid "Right to left"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:142
+#: src/mathessible/ui/insert_dialogs.py:177
 #, fuzzy
 msgid "Di&rection:"
 msgstr "&Pecahan"
 
-#: src/mathessible/ui/insert_dialogs.py:142
+#: src/mathessible/ui/insert_dialogs.py:177
 #, fuzzy
 msgid "Direction"
 msgstr "Irisan"
 
-#: src/mathessible/ui/insert_dialogs.py:158 src/mathessible/ui/insert_dialogs.py:322
+#: src/mathessible/ui/insert_dialogs.py:193 src/mathessible/ui/insert_dialogs.py:363
 #, fuzzy
 msgid "Edit Table"
 msgstr "Sisipkan Tabel"
 
-#: src/mathessible/ui/insert_dialogs.py:164
+#: src/mathessible/ui/insert_dialogs.py:200
 #, fuzzy
 msgid "Header rows"
 msgstr "Kepala halaman"
 
-#: src/mathessible/ui/insert_dialogs.py:170
+#: src/mathessible/ui/insert_dialogs.py:204
 #, fuzzy
 msgid "&Delete Row"
 msgstr "Hapus &baris"
 
-#: src/mathessible/ui/insert_dialogs.py:173
+#: src/mathessible/ui/insert_dialogs.py:207
 #, fuzzy
 msgid "Delete Col&umn"
 msgstr "Hapus k&olom"
 
-#: src/mathessible/ui/insert_dialogs.py:174
+#: src/mathessible/ui/insert_dialogs.py:209
 msgid "&Merge with Right"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:175
+#: src/mathessible/ui/insert_dialogs.py:214
 #, fuzzy
 msgid "Merge with Belo&w"
 msgstr "Panah dengan teks di bawah"
 
-#: src/mathessible/ui/insert_dialogs.py:176
+#: src/mathessible/ui/insert_dialogs.py:218
 #, fuzzy
 msgid "&Split Cell"
 msgstr "sel kosong"
 
-#: src/mathessible/ui/insert_dialogs.py:183
+#: src/mathessible/ui/insert_dialogs.py:220
+#, fuzzy
+msgid "&Actions"
+msgstr "&Pecahan"
+
+#: src/mathessible/ui/insert_dialogs.py:223
 #, fuzzy
 msgid "&Header rows:"
 msgstr "&Kepala halaman"
 
-#: src/mathessible/ui/insert_dialogs.py:321
+#: src/mathessible/ui/insert_dialogs.py:362
 msgid "A merged cell crosses the end of the header. Split it, or choose another number of rows."
 msgstr ""
 

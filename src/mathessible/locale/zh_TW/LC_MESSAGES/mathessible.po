@@ -864,19 +864,19 @@ msgstr "方程式(&E)"
 msgid "&Cases"
 msgstr "分段情況(&C)"
 
-#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:168
+#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:202
 msgid "Insert Row &Above"
 msgstr "在上方插入列(&A)"
 
-#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:169
+#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:203
 msgid "Insert Row &Below"
 msgstr "在下方插入列(&B)"
 
-#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:171
+#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:205
 msgid "Insert Column &Left"
 msgstr "在左側插入欄(&L)"
 
-#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:172
+#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:206
 msgid "Insert Column &Right"
 msgstr "在右側插入欄(&R)"
 
@@ -3023,7 +3023,7 @@ msgstr "邊界（公釐）"
 msgid "Colu&mns"
 msgstr "欄數(&M)"
 
-#: src/mathessible/ui/export_controls.py:121 src/mathessible/ui/insert_dialogs.py:76
+#: src/mathessible/ui/export_controls.py:121 src/mathessible/ui/insert_dialogs.py:106
 #: src/mathessible/ui/matrix_dialog.py:36
 msgid "Columns"
 msgstr "欄數"
@@ -3246,7 +3246,7 @@ msgid "Export as HTML"
 msgstr "匯出為 HTML"
 
 #: src/mathessible/ui/export_dialogs.py:125 src/mathessible/ui/export_dialogs.py:158
-#: src/mathessible/ui/insert_dialogs.py:103 src/mathessible/ui/insert_dialogs.py:137
+#: src/mathessible/ui/insert_dialogs.py:133 src/mathessible/ui/insert_dialogs.py:172
 #: src/mathessible/ui/pdf_dialog.py:47
 msgid "Title"
 msgstr "標題"
@@ -3270,8 +3270,8 @@ msgstr "作者"
 msgid "D&escription"
 msgstr "描述(&E)"
 
-#: src/mathessible/ui/export_dialogs.py:127 src/mathessible/ui/insert_dialogs.py:105
-#: src/mathessible/ui/insert_dialogs.py:139
+#: src/mathessible/ui/export_dialogs.py:127 src/mathessible/ui/insert_dialogs.py:135
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "Description"
 msgstr "描述"
 
@@ -3438,7 +3438,7 @@ msgstr "鍵盤快速鍵(&K)"
 msgid "&Help"
 msgstr "說明(&H)"
 
-#: src/mathessible/ui/graph_explorer.py:118 src/mathessible/ui/insert_dialogs.py:95
+#: src/mathessible/ui/graph_explorer.py:118 src/mathessible/ui/insert_dialogs.py:125
 #, fuzzy
 msgid "Function graph"
 msgstr "函數名稱"
@@ -3644,203 +3644,208 @@ msgstr "最近的文件"
 msgid "No recent documents"
 msgstr "沒有最近的文件"
 
-#: src/mathessible/ui/insert_dialogs.py:64
+#: src/mathessible/ui/insert_dialogs.py:94
 msgid "Insert Link"
 msgstr "插入連結"
 
-#: src/mathessible/ui/insert_dialogs.py:65
+#: src/mathessible/ui/insert_dialogs.py:95
 msgid "&Text:"
 msgstr "文字(&T)："
 
-#: src/mathessible/ui/insert_dialogs.py:65
+#: src/mathessible/ui/insert_dialogs.py:95
 msgid "Link text"
 msgstr "連結文字"
 
-#: src/mathessible/ui/insert_dialogs.py:66
+#: src/mathessible/ui/insert_dialogs.py:96
 msgid "&Address:"
 msgstr "位址(&A)："
 
-#: src/mathessible/ui/insert_dialogs.py:66
+#: src/mathessible/ui/insert_dialogs.py:96
 msgid "Link address"
 msgstr "連結位址"
 
-#: src/mathessible/ui/insert_dialogs.py:74
+#: src/mathessible/ui/insert_dialogs.py:104
 msgid "Insert Table"
 msgstr "插入表格"
 
-#: src/mathessible/ui/insert_dialogs.py:75 src/mathessible/ui/insert_dialogs.py:110
+#: src/mathessible/ui/insert_dialogs.py:105 src/mathessible/ui/insert_dialogs.py:140
 msgid "&Rows:"
 msgstr "列數(&R)："
 
-#: src/mathessible/ui/insert_dialogs.py:75 src/mathessible/ui/insert_dialogs.py:110
+#: src/mathessible/ui/insert_dialogs.py:105 src/mathessible/ui/insert_dialogs.py:140
 #: src/mathessible/ui/matrix_dialog.py:33
 msgid "Rows"
 msgstr "列數"
 
-#: src/mathessible/ui/insert_dialogs.py:76
+#: src/mathessible/ui/insert_dialogs.py:106
 msgid "&Columns:"
 msgstr "欄數(&C)："
 
-#: src/mathessible/ui/insert_dialogs.py:78
+#: src/mathessible/ui/insert_dialogs.py:108
 msgid "First row is the &header"
 msgstr "第一列為標題列(&H)"
 
-#: src/mathessible/ui/insert_dialogs.py:82
+#: src/mathessible/ui/insert_dialogs.py:112
 msgid "Cells hold paragraphs or lists (&grid table)"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:93 src/mathessible/ui/main_frame.py:1432
+#: src/mathessible/ui/insert_dialogs.py:123 src/mathessible/ui/main_frame.py:1432
 #, fuzzy
 msgid "Insert Chart"
 msgstr "插入矩陣"
 
-#: src/mathessible/ui/insert_dialogs.py:96
+#: src/mathessible/ui/insert_dialogs.py:126
 msgid "Bar chart"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:97
+#: src/mathessible/ui/insert_dialogs.py:127
 #, fuzzy
 msgid "Line chart"
 msgstr "線性"
 
-#: src/mathessible/ui/insert_dialogs.py:98
+#: src/mathessible/ui/insert_dialogs.py:128
 msgid "Scatter plot"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:99
+#: src/mathessible/ui/insert_dialogs.py:129
 msgid "Pie chart"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:101
+#: src/mathessible/ui/insert_dialogs.py:131
 #, fuzzy
 msgid "&Kind:"
 msgstr "尋找(&F)…"
 
-#: src/mathessible/ui/insert_dialogs.py:101
+#: src/mathessible/ui/insert_dialogs.py:131
 #, fuzzy
 msgid "Kind"
 msgstr "尋找"
 
-#: src/mathessible/ui/insert_dialogs.py:103 src/mathessible/ui/insert_dialogs.py:137
+#: src/mathessible/ui/insert_dialogs.py:133 src/mathessible/ui/insert_dialogs.py:172
 #, fuzzy
 msgid "&Title:"
 msgstr "標題(&T)"
 
-#: src/mathessible/ui/insert_dialogs.py:105 src/mathessible/ui/insert_dialogs.py:139
+#: src/mathessible/ui/insert_dialogs.py:135 src/mathessible/ui/insert_dialogs.py:174
 #, fuzzy
 msgid "&Description:"
 msgstr "描述"
 
-#: src/mathessible/ui/insert_dialogs.py:107
+#: src/mathessible/ui/insert_dialogs.py:137
 #, fuzzy
 msgid "&Function of x:"
 msgstr "函數(&F)"
 
-#: src/mathessible/ui/insert_dialogs.py:107
+#: src/mathessible/ui/insert_dialogs.py:137
 #, fuzzy
 msgid "Function of x"
 msgstr "函數"
 
-#: src/mathessible/ui/insert_dialogs.py:108
+#: src/mathessible/ui/insert_dialogs.py:138
 msgid "x fro&m:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:108
+#: src/mathessible/ui/insert_dialogs.py:138
 msgid "x from"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:109
+#: src/mathessible/ui/insert_dialogs.py:139
 msgid "x t&o:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:109
+#: src/mathessible/ui/insert_dialogs.py:139
 msgid "x to"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:111
+#: src/mathessible/ui/insert_dialogs.py:141
 #, fuzzy
 msgid "&Series:"
 msgstr "項目(&E)"
 
-#: src/mathessible/ui/insert_dialogs.py:111
+#: src/mathessible/ui/insert_dialogs.py:141
 #, fuzzy
 msgid "Series"
 msgstr "襯線"
 
-#: src/mathessible/ui/insert_dialogs.py:136
+#: src/mathessible/ui/insert_dialogs.py:171
 #, fuzzy
 msgid "Insert Flowchart"
 msgstr "插入矩陣"
 
-#: src/mathessible/ui/insert_dialogs.py:141
+#: src/mathessible/ui/insert_dialogs.py:176
 #, fuzzy
 msgid "Top to bottom"
 msgstr "下方"
 
-#: src/mathessible/ui/insert_dialogs.py:141
+#: src/mathessible/ui/insert_dialogs.py:176
 #, fuzzy
 msgid "Left to right"
 msgstr "頂部，靠右"
 
-#: src/mathessible/ui/insert_dialogs.py:141
+#: src/mathessible/ui/insert_dialogs.py:176
 #, fuzzy
 msgid "Bottom to top"
 msgstr "下方"
 
-#: src/mathessible/ui/insert_dialogs.py:141
+#: src/mathessible/ui/insert_dialogs.py:176
 msgid "Right to left"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:142
+#: src/mathessible/ui/insert_dialogs.py:177
 #, fuzzy
 msgid "Di&rection:"
 msgstr "分數(&F)"
 
-#: src/mathessible/ui/insert_dialogs.py:142
+#: src/mathessible/ui/insert_dialogs.py:177
 #, fuzzy
 msgid "Direction"
 msgstr "交集"
 
-#: src/mathessible/ui/insert_dialogs.py:158 src/mathessible/ui/insert_dialogs.py:322
+#: src/mathessible/ui/insert_dialogs.py:193 src/mathessible/ui/insert_dialogs.py:363
 #, fuzzy
 msgid "Edit Table"
 msgstr "插入表格"
 
-#: src/mathessible/ui/insert_dialogs.py:164
+#: src/mathessible/ui/insert_dialogs.py:200
 #, fuzzy
 msgid "Header rows"
 msgstr "頁首"
 
-#: src/mathessible/ui/insert_dialogs.py:170
+#: src/mathessible/ui/insert_dialogs.py:204
 #, fuzzy
 msgid "&Delete Row"
 msgstr "刪除列(&O)"
 
-#: src/mathessible/ui/insert_dialogs.py:173
+#: src/mathessible/ui/insert_dialogs.py:207
 #, fuzzy
 msgid "Delete Col&umn"
 msgstr "刪除欄(&O)"
 
-#: src/mathessible/ui/insert_dialogs.py:174
+#: src/mathessible/ui/insert_dialogs.py:209
 msgid "&Merge with Right"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:175
+#: src/mathessible/ui/insert_dialogs.py:214
 #, fuzzy
 msgid "Merge with Belo&w"
 msgstr "下方有文字的箭頭"
 
-#: src/mathessible/ui/insert_dialogs.py:176
+#: src/mathessible/ui/insert_dialogs.py:218
 #, fuzzy
 msgid "&Split Cell"
 msgstr "空白儲存格"
 
-#: src/mathessible/ui/insert_dialogs.py:183
+#: src/mathessible/ui/insert_dialogs.py:220
+#, fuzzy
+msgid "&Actions"
+msgstr "分數(&F)"
+
+#: src/mathessible/ui/insert_dialogs.py:223
 #, fuzzy
 msgid "&Header rows:"
 msgstr "頁首(&H)"
 
-#: src/mathessible/ui/insert_dialogs.py:321
+#: src/mathessible/ui/insert_dialogs.py:362
 msgid "A merged cell crosses the end of the header. Split it, or choose another number of rows."
 msgstr ""
 

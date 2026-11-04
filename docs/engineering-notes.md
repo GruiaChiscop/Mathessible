@@ -1857,11 +1857,13 @@ without it.
   take the focus is renamed first (`cell_position(cell, previous)`: the column
   along a row, the row down a column), and gets its whole name back when it loses
   the focus; VoiceOver's own cursor, which moves without the focus, reads whole
-  names. The buttons are out of reach from a cell without losing it (VoiceOver's
-  focus follows its cursor), hence Command+Option+T, a menu of the same actions
-  (`EVT_CONTEXT_MENU` too, for the Applications key).
-  A text field's own border hardly shows in dark appearance, so the panel draws a
-  line around every cell (`grid_line`, 3:1 against the background).
+  names. Buttons are out of reach from a cell without losing it (VoiceOver's
+  focus follows its cursor), so the actions are one menu: Command+Option+T from a
+  cell, the Actions button, or `EVT_CONTEXT_MENU` for the Applications key.
+  A multiline field's own border hardly shows in dark appearance, so its parent
+  draws one (`_outline`; `grid_line`, 3:1 against the background), here and for
+  the Insert dialogs' Description. Edit Table's panel is as tall as the table, up
+  to 320 px, and scrolls after that.
   The changes are wx-free in `editing/grid_table_edit.py`, each giving a new
   frozen `GridTable`; `grid_tables.write_grid_table` draws it as Pandoc does
   (corners drawn after every border, so a merged cell's border cannot cover a

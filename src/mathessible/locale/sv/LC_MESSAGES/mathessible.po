@@ -876,19 +876,19 @@ msgstr "&Ekvationer"
 msgid "&Cases"
 msgstr "&Fall"
 
-#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:168
+#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:202
 msgid "Insert Row &Above"
 msgstr "Infoga rad &ovanför"
 
-#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:169
+#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:203
 msgid "Insert Row &Below"
 msgstr "Infoga rad &nedanför"
 
-#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:171
+#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:205
 msgid "Insert Column &Left"
 msgstr "Infoga kolumn till &vänster"
 
-#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:172
+#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:206
 msgid "Insert Column &Right"
 msgstr "Infoga kolumn till &höger"
 
@@ -3042,7 +3042,7 @@ msgstr "Marginaler (mm)"
 msgid "Colu&mns"
 msgstr "Kolu&mner"
 
-#: src/mathessible/ui/export_controls.py:121 src/mathessible/ui/insert_dialogs.py:76
+#: src/mathessible/ui/export_controls.py:121 src/mathessible/ui/insert_dialogs.py:106
 #: src/mathessible/ui/matrix_dialog.py:36
 msgid "Columns"
 msgstr "Kolumner"
@@ -3265,7 +3265,7 @@ msgid "Export as HTML"
 msgstr "Exportera som HTML"
 
 #: src/mathessible/ui/export_dialogs.py:125 src/mathessible/ui/export_dialogs.py:158
-#: src/mathessible/ui/insert_dialogs.py:103 src/mathessible/ui/insert_dialogs.py:137
+#: src/mathessible/ui/insert_dialogs.py:133 src/mathessible/ui/insert_dialogs.py:172
 #: src/mathessible/ui/pdf_dialog.py:47
 msgid "Title"
 msgstr "Titel"
@@ -3289,8 +3289,8 @@ msgstr "Författare"
 msgid "D&escription"
 msgstr "&Beskrivning"
 
-#: src/mathessible/ui/export_dialogs.py:127 src/mathessible/ui/insert_dialogs.py:105
-#: src/mathessible/ui/insert_dialogs.py:139
+#: src/mathessible/ui/export_dialogs.py:127 src/mathessible/ui/insert_dialogs.py:135
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "Description"
 msgstr "Beskrivning"
 
@@ -3459,7 +3459,7 @@ msgstr "&Kortkommandon"
 msgid "&Help"
 msgstr "&Hjälp"
 
-#: src/mathessible/ui/graph_explorer.py:118 src/mathessible/ui/insert_dialogs.py:95
+#: src/mathessible/ui/graph_explorer.py:118 src/mathessible/ui/insert_dialogs.py:125
 #, fuzzy
 msgid "Function graph"
 msgstr "funktionsnamn"
@@ -3667,203 +3667,208 @@ msgstr "Senaste dokument"
 msgid "No recent documents"
 msgstr "Inga senaste dokument"
 
-#: src/mathessible/ui/insert_dialogs.py:64
+#: src/mathessible/ui/insert_dialogs.py:94
 msgid "Insert Link"
 msgstr "Infoga länk"
 
-#: src/mathessible/ui/insert_dialogs.py:65
+#: src/mathessible/ui/insert_dialogs.py:95
 msgid "&Text:"
 msgstr "&Text:"
 
-#: src/mathessible/ui/insert_dialogs.py:65
+#: src/mathessible/ui/insert_dialogs.py:95
 msgid "Link text"
 msgstr "Länktext"
 
-#: src/mathessible/ui/insert_dialogs.py:66
+#: src/mathessible/ui/insert_dialogs.py:96
 msgid "&Address:"
 msgstr "&Adress:"
 
-#: src/mathessible/ui/insert_dialogs.py:66
+#: src/mathessible/ui/insert_dialogs.py:96
 msgid "Link address"
 msgstr "Länkadress"
 
-#: src/mathessible/ui/insert_dialogs.py:74
+#: src/mathessible/ui/insert_dialogs.py:104
 msgid "Insert Table"
 msgstr "Infoga tabell"
 
-#: src/mathessible/ui/insert_dialogs.py:75 src/mathessible/ui/insert_dialogs.py:110
+#: src/mathessible/ui/insert_dialogs.py:105 src/mathessible/ui/insert_dialogs.py:140
 msgid "&Rows:"
 msgstr "&Rader:"
 
-#: src/mathessible/ui/insert_dialogs.py:75 src/mathessible/ui/insert_dialogs.py:110
+#: src/mathessible/ui/insert_dialogs.py:105 src/mathessible/ui/insert_dialogs.py:140
 #: src/mathessible/ui/matrix_dialog.py:33
 msgid "Rows"
 msgstr "Rader"
 
-#: src/mathessible/ui/insert_dialogs.py:76
+#: src/mathessible/ui/insert_dialogs.py:106
 msgid "&Columns:"
 msgstr "&Kolumner:"
 
-#: src/mathessible/ui/insert_dialogs.py:78
+#: src/mathessible/ui/insert_dialogs.py:108
 msgid "First row is the &header"
 msgstr "&Första raden är rubrik"
 
-#: src/mathessible/ui/insert_dialogs.py:82
+#: src/mathessible/ui/insert_dialogs.py:112
 msgid "Cells hold paragraphs or lists (&grid table)"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:93 src/mathessible/ui/main_frame.py:1432
+#: src/mathessible/ui/insert_dialogs.py:123 src/mathessible/ui/main_frame.py:1432
 #, fuzzy
 msgid "Insert Chart"
 msgstr "Infoga matris"
 
-#: src/mathessible/ui/insert_dialogs.py:96
+#: src/mathessible/ui/insert_dialogs.py:126
 msgid "Bar chart"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:97
+#: src/mathessible/ui/insert_dialogs.py:127
 #, fuzzy
 msgid "Line chart"
 msgstr "linjär"
 
-#: src/mathessible/ui/insert_dialogs.py:98
+#: src/mathessible/ui/insert_dialogs.py:128
 msgid "Scatter plot"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:99
+#: src/mathessible/ui/insert_dialogs.py:129
 msgid "Pie chart"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:101
+#: src/mathessible/ui/insert_dialogs.py:131
 #, fuzzy
 msgid "&Kind:"
 msgstr "&Sök…"
 
-#: src/mathessible/ui/insert_dialogs.py:101
+#: src/mathessible/ui/insert_dialogs.py:131
 #, fuzzy
 msgid "Kind"
 msgstr "Sök"
 
-#: src/mathessible/ui/insert_dialogs.py:103 src/mathessible/ui/insert_dialogs.py:137
+#: src/mathessible/ui/insert_dialogs.py:133 src/mathessible/ui/insert_dialogs.py:172
 #, fuzzy
 msgid "&Title:"
 msgstr "&Titel"
 
-#: src/mathessible/ui/insert_dialogs.py:105 src/mathessible/ui/insert_dialogs.py:139
+#: src/mathessible/ui/insert_dialogs.py:135 src/mathessible/ui/insert_dialogs.py:174
 #, fuzzy
 msgid "&Description:"
 msgstr "Beskrivning"
 
-#: src/mathessible/ui/insert_dialogs.py:107
+#: src/mathessible/ui/insert_dialogs.py:137
 #, fuzzy
 msgid "&Function of x:"
 msgstr "&Funktion"
 
-#: src/mathessible/ui/insert_dialogs.py:107
+#: src/mathessible/ui/insert_dialogs.py:137
 #, fuzzy
 msgid "Function of x"
 msgstr "Funktion"
 
-#: src/mathessible/ui/insert_dialogs.py:108
+#: src/mathessible/ui/insert_dialogs.py:138
 msgid "x fro&m:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:108
+#: src/mathessible/ui/insert_dialogs.py:138
 msgid "x from"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:109
+#: src/mathessible/ui/insert_dialogs.py:139
 msgid "x t&o:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:109
+#: src/mathessible/ui/insert_dialogs.py:139
 msgid "x to"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:111
+#: src/mathessible/ui/insert_dialogs.py:141
 #, fuzzy
 msgid "&Series:"
 msgstr "&Poster"
 
-#: src/mathessible/ui/insert_dialogs.py:111
+#: src/mathessible/ui/insert_dialogs.py:141
 #, fuzzy
 msgid "Series"
 msgstr "Serif"
 
-#: src/mathessible/ui/insert_dialogs.py:136
+#: src/mathessible/ui/insert_dialogs.py:171
 #, fuzzy
 msgid "Insert Flowchart"
 msgstr "Infoga matris"
 
-#: src/mathessible/ui/insert_dialogs.py:141
+#: src/mathessible/ui/insert_dialogs.py:176
 #, fuzzy
 msgid "Top to bottom"
 msgstr "nedre del"
 
-#: src/mathessible/ui/insert_dialogs.py:141
+#: src/mathessible/ui/insert_dialogs.py:176
 #, fuzzy
 msgid "Left to right"
 msgstr "Överst, till höger"
 
-#: src/mathessible/ui/insert_dialogs.py:141
+#: src/mathessible/ui/insert_dialogs.py:176
 #, fuzzy
 msgid "Bottom to top"
 msgstr "nedre del"
 
-#: src/mathessible/ui/insert_dialogs.py:141
+#: src/mathessible/ui/insert_dialogs.py:176
 msgid "Right to left"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:142
+#: src/mathessible/ui/insert_dialogs.py:177
 #, fuzzy
 msgid "Di&rection:"
 msgstr "&Bråk"
 
-#: src/mathessible/ui/insert_dialogs.py:142
+#: src/mathessible/ui/insert_dialogs.py:177
 #, fuzzy
 msgid "Direction"
 msgstr "Snitt"
 
-#: src/mathessible/ui/insert_dialogs.py:158 src/mathessible/ui/insert_dialogs.py:322
+#: src/mathessible/ui/insert_dialogs.py:193 src/mathessible/ui/insert_dialogs.py:363
 #, fuzzy
 msgid "Edit Table"
 msgstr "Infoga tabell"
 
-#: src/mathessible/ui/insert_dialogs.py:164
+#: src/mathessible/ui/insert_dialogs.py:200
 #, fuzzy
 msgid "Header rows"
 msgstr "Sidhuvud"
 
-#: src/mathessible/ui/insert_dialogs.py:170
+#: src/mathessible/ui/insert_dialogs.py:204
 #, fuzzy
 msgid "&Delete Row"
 msgstr "Ta bort &rad"
 
-#: src/mathessible/ui/insert_dialogs.py:173
+#: src/mathessible/ui/insert_dialogs.py:207
 #, fuzzy
 msgid "Delete Col&umn"
 msgstr "Ta bort &kolumn"
 
-#: src/mathessible/ui/insert_dialogs.py:174
+#: src/mathessible/ui/insert_dialogs.py:209
 msgid "&Merge with Right"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:175
+#: src/mathessible/ui/insert_dialogs.py:214
 #, fuzzy
 msgid "Merge with Belo&w"
 msgstr "Pil med text nedanför"
 
-#: src/mathessible/ui/insert_dialogs.py:176
+#: src/mathessible/ui/insert_dialogs.py:218
 #, fuzzy
 msgid "&Split Cell"
 msgstr "tom cell"
 
-#: src/mathessible/ui/insert_dialogs.py:183
+#: src/mathessible/ui/insert_dialogs.py:220
+#, fuzzy
+msgid "&Actions"
+msgstr "&Bråk"
+
+#: src/mathessible/ui/insert_dialogs.py:223
 #, fuzzy
 msgid "&Header rows:"
 msgstr "Sid&huvud"
 
-#: src/mathessible/ui/insert_dialogs.py:321
+#: src/mathessible/ui/insert_dialogs.py:362
 msgid "A merged cell crosses the end of the header. Split it, or choose another number of rows."
 msgstr ""
 
