@@ -1891,8 +1891,10 @@ without it.
   "grid", "block" or "pipe"), its new `alignments` carried through every
   edit. A pipe row is split at a `|` neither escaped nor in an equation
   (Mathessible masks equations before markdown-it reads a table), while a
-  code span is split as GitHub splits it; an empty header row is no header
-  (Insert Table's table without one). `simplest_table` writes pipe, block
+  code span is split as GitHub splits it; the first row is always the
+  header, an empty one too: Insert Table writes it empty, with or without a
+  header asked for, so hiding it would leave the user's first row under an
+  empty line. `simplest_table` writes pipe, block
   (merged cells) or grid (a cell of several lines, a header of several rows,
   or a merged table with `|` in an equation, since `merged_tables` splits a
   block's rows at every `|`). A grid table is written back as a grid, so an

@@ -1,8 +1,8 @@
 """Pipe tables and ```table blocks (merged_tables) in the grid model (grid_tables.GridTable), for Edit Table,
 and the simplest syntax a table is written back in.
 
-A pipe table's first row is its header; an empty one is Insert Table's table without a header (a Markdown
-table always has one) and is read as no header row. Cells are split at a `|` that is not escaped (`\\|`,
+A pipe table's first row is always its header, an empty one too (a Markdown table always has one, and
+Insert Table writes it empty): it is a row to fill in. Cells are split at a `|` that is not escaped (`\\|`,
 a `|` in the cell's text) and not in an equation: Mathessible finds equations before it reads a table, so
 `$|x|$` stays whole, while code spans are split as GitHub splits them. The delimiter row's colons are the
 columns' alignments. A ```table block is a pipe table whose `>` joins a cell to the one on its left and
@@ -57,7 +57,7 @@ def simplest_table(table: GridTable) -> str:
                     rows[row][column] = _escaped(cell.content, merged)
                 else:
                     rows[row][column] = "^" if row > cell.row else ">"
-    if header_row_count(table) == 0:
+    if header_row_count(table) == 0 and any(rows[0]):
         rows.insert(0, [""] * table.columns)  # A Markdown table has a header row: an empty one stands for none.
     alignments = table.alignments or ("",) * table.columns
     lines = [_line(rows[0]), _line([_DELIMITER[alignment] for alignment in alignments])]
@@ -140,12 +140,8 @@ def _rows(lines: list[str]) -> tuple[list[list[str]], tuple[str, ...]] | None:
 def _grid(
     rows: list[list[str]], alignments: tuple[str, ...], spans: dict[tuple[int, int], tuple[int, int]]
 ) -> GridTable:
-    """The grid of those rows: an empty header row is no header; `spans` gives a merged cell's
-    (rowspan, colspan) by its first position."""
-    header = any(rows[0])
-    if not header and len(rows) > 1 and not any(row == 0 for row, _ in spans):
-        rows = rows[1:]
-        spans = {(row - 1, column): span for (row, column), span in spans.items()}
+    """The grid of those rows, the first the header; `spans` gives a merged cell's (rowspan, colspan) by
+    its first position."""
     covered = {
         (row + down, column + across)
         for (row, column), (rowspan, colspan) in spans.items()
@@ -159,7 +155,7 @@ def _grid(
             if (row, column) in covered:
                 continue
             rowspan, colspan = spans.get((row, column), (1, 1))
-            cells.append(GridCell(row, column, rowspan, colspan, header and row == 0, value))
+            cells.append(GridCell(row, column, rowspan, colspan, row == 0, value))
     return GridTable(len(rows), len(rows[0]), tuple(cells), alignments if any(alignments) else ())
 
 

@@ -68,13 +68,23 @@ class ReadTests(unittest.TestCase):
         bad = "```table\n| a | b |\n| --- | --- |\n| ^ | > |\n| x | ^ |\n```"
         self.assertIsNone(editable_table_at(bad, 3))  # "b" over two rows next to a join from "a": no rectangle.
 
-    def test_an_empty_header_row_is_no_header(self) -> None:
-        inserted = document_insert.table("", 0, 0, 2, 2, header=False, tex=False).source
+    def test_an_empty_header_row_is_a_row_to_fill_in(self) -> None:
+        inserted = document_insert.table("", 0, 0, 3, 2, header=True, tex=False).source
         _, _, table, _ = _table(inserted, "|")
-        self.assertEqual((header_row_count(table), table.rows), (0, 2))
-        written = simplest_table(table)
-        self.assertEqual(written.splitlines()[0], "|  |  |")  # The empty header row back.
-        self.assertEqual(_table(written, "|")[2], table)
+        self.assertEqual((header_row_count(table), table.rows), (1, 3))
+        self.assertEqual(simplest_table(table).splitlines()[0], "|  |  |")
+        filled = with_content(table, cell_at(table, 0, 0), "Name")
+        self.assertEqual(simplest_table(filled).splitlines()[0], "| Name |  |")  # On the first line, not below it.
+        self.assertEqual(_table(simplest_table(filled), "|")[2], filled)
+
+    def test_no_header_row_is_an_empty_one(self) -> None:
+        table = _table("| a | b |\n| --- | --- |\n| c | d |", "a")[2]
+        written = simplest_table(with_header_rows(table, 0))
+        self.assertEqual(written.splitlines()[0], "|  |  |")
+        read = _table(written, "|")[2]
+        self.assertEqual(read.rows, 3)
+        # Taking the header off that empty row again adds no other.
+        self.assertEqual(simplest_table(with_header_rows(read, 0)), written)
 
     def test_tables_in_code_are_not_tables(self) -> None:
         self.assertIsNone(editable_table_at("```\n| a |\n| --- |\n```", 6))
@@ -126,7 +136,7 @@ class WriteTests(unittest.TestCase):
                 table, _ = merge_down(table, cell)
             elif choice == 6:
                 table = split(table, cell)
-            # Text in every cell (an empty header row reads as none), now and then a `|` or a join's sign.
+            # Text in every cell, now and then a `|` or a join's sign.
             for each in table.cells:
                 if not each.content:
                     table = with_content(table, each, generator.choice(["w", "x | y", ">", "^", "$|z|$"]) + str(step))
@@ -134,6 +144,9 @@ class WriteTests(unittest.TestCase):
             found = editable_table_at(written, 0)
             self.assertIsNotNone(found, written)
             read, kind = found[2], found[3]
+            if kind != "grid" and header_row_count(table) == 0:
+                self.assertEqual(simplest_table(read), written)  # With the empty header row it was written with.
+                continue
             expected = replace(table, alignments=()) if kind == "grid" else table
             self.assertEqual(read, expected, written)
 

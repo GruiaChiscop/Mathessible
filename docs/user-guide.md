@@ -231,7 +231,9 @@ table; any other is written back in the simplest syntax that holds it: a
 pipe table; a ```` ```table ```` block once cells are merged; a grid table
 once a cell holds more than one line (paragraphs, a list) or the header is
 more than one row. Columns keep their alignment (`:---:`) in a pipe table or
-a block; a grid table does not keep it.
+a block; a grid table does not keep it. A Markdown table always has a header
+row, so the first row is the header even when it is empty; with **Header rows**
+at 0, an empty row is written above the table.
 
 Without Pandoc, Mathessible asks first: **Install Pandoc…**, **Paste Simplified**
 (each cell one line, as before) or **Cancel**. On Windows on ARM, Pandoc's x64
