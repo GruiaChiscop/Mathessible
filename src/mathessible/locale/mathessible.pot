@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mathessible VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/GruiaChiscop/Mathessible/issues\n"
-"POT-Creation-Date: 2026-11-03 19:46+0200\n"
+"POT-Creation-Date: 2026-11-04 08:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -430,30 +430,40 @@ msgstr ""
 msgid "unknown command {command}"
 msgstr ""
 
-#: src/mathessible/editing/grid_table_edit.py:229
+#: src/mathessible/editing/grid_table_edit.py:232
+#, python-brace-format
+msgid "Column {column}"
+msgstr ""
+
+#: src/mathessible/editing/grid_table_edit.py:234
+#, python-brace-format
+msgid "Row {row}"
+msgstr ""
+
+#: src/mathessible/editing/grid_table_edit.py:237
 #, python-brace-format
 msgid "Row {row}, column {column}"
 msgstr ""
 
-#: src/mathessible/editing/grid_table_edit.py:231
+#: src/mathessible/editing/grid_table_edit.py:239
 msgid "header"
 msgstr ""
 
-#: src/mathessible/editing/grid_table_edit.py:233
+#: src/mathessible/editing/grid_table_edit.py:241
 #, python-brace-format
 msgid "{count} row"
 msgid_plural "{count} rows"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/mathessible/editing/grid_table_edit.py:234
+#: src/mathessible/editing/grid_table_edit.py:242
 #, python-brace-format
 msgid "{count} column"
 msgid_plural "{count} columns"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/mathessible/editing/grid_table_edit.py:235
+#: src/mathessible/editing/grid_table_edit.py:243
 #, python-brace-format
 msgid "spans {rows} and {columns}"
 msgstr ""
@@ -841,19 +851,19 @@ msgstr ""
 msgid "&Cases"
 msgstr ""
 
-#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:166
+#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:168
 msgid "Insert Row &Above"
 msgstr ""
 
-#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:167
+#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:169
 msgid "Insert Row &Below"
 msgstr ""
 
-#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:169
+#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:171
 msgid "Insert Column &Left"
 msgstr ""
 
-#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:170
+#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:172
 msgid "Insert Column &Right"
 msgstr ""
 
@@ -3735,39 +3745,39 @@ msgstr ""
 msgid "Direction"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:156 src/mathessible/ui/insert_dialogs.py:277
+#: src/mathessible/ui/insert_dialogs.py:158 src/mathessible/ui/insert_dialogs.py:322
 msgid "Edit Table"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:162
+#: src/mathessible/ui/insert_dialogs.py:164
 msgid "Header rows"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:168
+#: src/mathessible/ui/insert_dialogs.py:170
 msgid "&Delete Row"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:171
+#: src/mathessible/ui/insert_dialogs.py:173
 msgid "Delete Col&umn"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:172
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "&Merge with Right"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:173
+#: src/mathessible/ui/insert_dialogs.py:175
 msgid "Merge with Belo&w"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:174
+#: src/mathessible/ui/insert_dialogs.py:176
 msgid "&Split Cell"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:181
+#: src/mathessible/ui/insert_dialogs.py:183
 msgid "&Header rows:"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:276
+#: src/mathessible/ui/insert_dialogs.py:321
 msgid "A merged cell crosses the end of the header. Split it, or choose another number of rows."
 msgstr ""
 

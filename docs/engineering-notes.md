@@ -1853,6 +1853,15 @@ without it.
   `wx.Accessible` whose other answers fall back to the standard control
   (`SetName` alone is not read by NVDA). Tab goes row by row (creation order); Command+Option+arrow uses
   `grid_table_edit.neighbour`.
+  A screen reader in a real table reads only what changed, so the field about to
+  take the focus is renamed first (`cell_position(cell, previous)`: the column
+  along a row, the row down a column), and gets its whole name back when it loses
+  the focus; VoiceOver's own cursor, which moves without the focus, reads whole
+  names. The buttons are out of reach from a cell without losing it (VoiceOver's
+  focus follows its cursor), hence Command+Option+T, a menu of the same actions
+  (`EVT_CONTEXT_MENU` too, for the Applications key).
+  A text field's own border hardly shows in dark appearance, so the panel draws a
+  line around every cell (`grid_line`, 3:1 against the background).
   The changes are wx-free in `editing/grid_table_edit.py`, each giving a new
   frozen `GridTable`; `grid_tables.write_grid_table` draws it as Pandoc does
   (corners drawn after every border, so a merged cell's border cannot cover a

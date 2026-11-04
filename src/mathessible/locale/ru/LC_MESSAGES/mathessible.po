@@ -453,17 +453,27 @@ msgstr "уравнение не читается"
 msgid "unknown command {command}"
 msgstr "неизвестная команда {command}"
 
-#: src/mathessible/editing/grid_table_edit.py:229
+#: src/mathessible/editing/grid_table_edit.py:232
+#, fuzzy, python-brace-format
+msgid "Column {column}"
+msgstr "столбец {column}"
+
+#: src/mathessible/editing/grid_table_edit.py:234
+#, fuzzy, python-brace-format
+msgid "Row {row}"
+msgstr "строка {row}"
+
+#: src/mathessible/editing/grid_table_edit.py:237
 #, fuzzy, python-brace-format
 msgid "Row {row}, column {column}"
 msgstr "строка {row}, столбец {column}"
 
-#: src/mathessible/editing/grid_table_edit.py:231
+#: src/mathessible/editing/grid_table_edit.py:239
 #, fuzzy
 msgid "header"
 msgstr "Верхний колонтитул"
 
-#: src/mathessible/editing/grid_table_edit.py:233
+#: src/mathessible/editing/grid_table_edit.py:241
 #, fuzzy, python-brace-format
 msgid "{count} row"
 msgid_plural "{count} rows"
@@ -471,7 +481,7 @@ msgstr[0] "{count} слово"
 msgstr[1] "{count} слова"
 msgstr[2] "{count} слов"
 
-#: src/mathessible/editing/grid_table_edit.py:234
+#: src/mathessible/editing/grid_table_edit.py:242
 #, fuzzy, python-brace-format
 msgid "{count} column"
 msgid_plural "{count} columns"
@@ -479,7 +489,7 @@ msgstr[0] "{count} слово"
 msgstr[1] "{count} слова"
 msgstr[2] "{count} слов"
 
-#: src/mathessible/editing/grid_table_edit.py:235
+#: src/mathessible/editing/grid_table_edit.py:243
 #, fuzzy, python-brace-format
 msgid "spans {rows} and {columns}"
 msgstr "строка {row}, столбец {column}"
@@ -875,19 +885,19 @@ msgstr "&Уравнения"
 msgid "&Cases"
 msgstr "&Случаи"
 
-#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:166
+#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:168
 msgid "Insert Row &Above"
 msgstr "Вставить строку &выше"
 
-#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:167
+#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:169
 msgid "Insert Row &Below"
 msgstr "Вставить строку &ниже"
 
-#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:169
+#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:171
 msgid "Insert Column &Left"
 msgstr "Вставить столбец с&лева"
 
-#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:170
+#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:172
 msgid "Insert Column &Right"
 msgstr "Вставить столбец с&права"
 
@@ -3829,46 +3839,46 @@ msgstr "&Дробь"
 msgid "Direction"
 msgstr "Пересечение"
 
-#: src/mathessible/ui/insert_dialogs.py:156 src/mathessible/ui/insert_dialogs.py:277
+#: src/mathessible/ui/insert_dialogs.py:158 src/mathessible/ui/insert_dialogs.py:322
 #, fuzzy
 msgid "Edit Table"
 msgstr "Вставить таблицу"
 
-#: src/mathessible/ui/insert_dialogs.py:162
+#: src/mathessible/ui/insert_dialogs.py:164
 #, fuzzy
 msgid "Header rows"
 msgstr "Верхний колонтитул"
 
-#: src/mathessible/ui/insert_dialogs.py:168
+#: src/mathessible/ui/insert_dialogs.py:170
 #, fuzzy
 msgid "&Delete Row"
 msgstr "Удалить с&троку"
 
-#: src/mathessible/ui/insert_dialogs.py:171
+#: src/mathessible/ui/insert_dialogs.py:173
 #, fuzzy
 msgid "Delete Col&umn"
 msgstr "Удалить сто&лбец"
 
-#: src/mathessible/ui/insert_dialogs.py:172
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "&Merge with Right"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:173
+#: src/mathessible/ui/insert_dialogs.py:175
 #, fuzzy
 msgid "Merge with Belo&w"
 msgstr "Стрелка с текстом снизу"
 
-#: src/mathessible/ui/insert_dialogs.py:174
+#: src/mathessible/ui/insert_dialogs.py:176
 #, fuzzy
 msgid "&Split Cell"
 msgstr "пустая ячейка"
 
-#: src/mathessible/ui/insert_dialogs.py:181
+#: src/mathessible/ui/insert_dialogs.py:183
 #, fuzzy
 msgid "&Header rows:"
 msgstr "&Верхний колонтитул"
 
-#: src/mathessible/ui/insert_dialogs.py:276
+#: src/mathessible/ui/insert_dialogs.py:321
 msgid "A merged cell crosses the end of the header. Split it, or choose another number of rows."
 msgstr ""
 

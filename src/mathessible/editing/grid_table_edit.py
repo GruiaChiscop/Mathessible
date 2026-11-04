@@ -224,10 +224,18 @@ def neighbour(table: GridTable, cell: GridCell, direction: str) -> GridCell | No
     return None
 
 
-def cell_position(cell: GridCell) -> str:
-    """Where the cell is and what it spans, as Edit Table names its text field."""
-    label = _("Row {row}, column {column}").format(row=cell.row + 1, column=cell.column + 1)
-    if cell.header:
+def cell_position(cell: GridCell, previous: GridCell | None = None) -> str:
+    """Where the cell is and what it spans, as Edit Table names its text field. Coming from the cell
+    `previous`, only what changed, as a screen reader reads a table: the column along a row, the row down a
+    column."""
+    if previous is not None and cell.row == previous.row and cell.column != previous.column:
+        label = _("Column {column}").format(column=cell.column + 1)
+    elif previous is not None and cell.column == previous.column and cell.row != previous.row:
+        label = _("Row {row}").format(row=cell.row + 1)
+    else:
+        previous = None
+        label = _("Row {row}, column {column}").format(row=cell.row + 1, column=cell.column + 1)
+    if cell.header and (previous is None or not previous.header):
         label += ", " + _("header")
     if cell.rowspan > 1 or cell.colspan > 1:
         rows = ngettext("{count} row", "{count} rows", cell.rowspan).format(count=cell.rowspan)

@@ -450,31 +450,41 @@ msgstr "persamaan tidak dapat dibaca"
 msgid "unknown command {command}"
 msgstr "perintah tidak dikenal {command}"
 
-#: src/mathessible/editing/grid_table_edit.py:229
+#: src/mathessible/editing/grid_table_edit.py:232
+#, fuzzy, python-brace-format
+msgid "Column {column}"
+msgstr "kolom {column}"
+
+#: src/mathessible/editing/grid_table_edit.py:234
+#, fuzzy, python-brace-format
+msgid "Row {row}"
+msgstr "baris {row}"
+
+#: src/mathessible/editing/grid_table_edit.py:237
 #, fuzzy, python-brace-format
 msgid "Row {row}, column {column}"
 msgstr "baris {row}, kolom {column}"
 
-#: src/mathessible/editing/grid_table_edit.py:231
+#: src/mathessible/editing/grid_table_edit.py:239
 #, fuzzy
 msgid "header"
 msgstr "Kepala halaman"
 
-#: src/mathessible/editing/grid_table_edit.py:233
+#: src/mathessible/editing/grid_table_edit.py:241
 #, fuzzy, python-brace-format
 msgid "{count} row"
 msgid_plural "{count} rows"
 msgstr[0] "{count} kata"
 msgstr[1] "{count} kata"
 
-#: src/mathessible/editing/grid_table_edit.py:234
+#: src/mathessible/editing/grid_table_edit.py:242
 #, fuzzy, python-brace-format
 msgid "{count} column"
 msgid_plural "{count} columns"
 msgstr[0] "{count} kata"
 msgstr[1] "{count} kata"
 
-#: src/mathessible/editing/grid_table_edit.py:235
+#: src/mathessible/editing/grid_table_edit.py:243
 #, fuzzy, python-brace-format
 msgid "spans {rows} and {columns}"
 msgstr "baris {row}, kolom {column}"
@@ -868,19 +878,19 @@ msgstr "&Persamaan"
 msgid "&Cases"
 msgstr "&Kasus"
 
-#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:166
+#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:168
 msgid "Insert Row &Above"
 msgstr "Sisipkan baris di &atas"
 
-#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:167
+#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:169
 msgid "Insert Row &Below"
 msgstr "Sisipkan baris di &bawah"
 
-#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:169
+#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:171
 msgid "Insert Column &Left"
 msgstr "Sisipkan kolom di &kiri"
 
-#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:170
+#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:172
 msgid "Insert Column &Right"
 msgstr "Sisipkan kolom di ka&nan"
 
@@ -3821,46 +3831,46 @@ msgstr "&Pecahan"
 msgid "Direction"
 msgstr "Irisan"
 
-#: src/mathessible/ui/insert_dialogs.py:156 src/mathessible/ui/insert_dialogs.py:277
+#: src/mathessible/ui/insert_dialogs.py:158 src/mathessible/ui/insert_dialogs.py:322
 #, fuzzy
 msgid "Edit Table"
 msgstr "Sisipkan Tabel"
 
-#: src/mathessible/ui/insert_dialogs.py:162
+#: src/mathessible/ui/insert_dialogs.py:164
 #, fuzzy
 msgid "Header rows"
 msgstr "Kepala halaman"
 
-#: src/mathessible/ui/insert_dialogs.py:168
+#: src/mathessible/ui/insert_dialogs.py:170
 #, fuzzy
 msgid "&Delete Row"
 msgstr "Hapus &baris"
 
-#: src/mathessible/ui/insert_dialogs.py:171
+#: src/mathessible/ui/insert_dialogs.py:173
 #, fuzzy
 msgid "Delete Col&umn"
 msgstr "Hapus k&olom"
 
-#: src/mathessible/ui/insert_dialogs.py:172
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "&Merge with Right"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:173
+#: src/mathessible/ui/insert_dialogs.py:175
 #, fuzzy
 msgid "Merge with Belo&w"
 msgstr "Panah dengan teks di bawah"
 
-#: src/mathessible/ui/insert_dialogs.py:174
+#: src/mathessible/ui/insert_dialogs.py:176
 #, fuzzy
 msgid "&Split Cell"
 msgstr "sel kosong"
 
-#: src/mathessible/ui/insert_dialogs.py:181
+#: src/mathessible/ui/insert_dialogs.py:183
 #, fuzzy
 msgid "&Header rows:"
 msgstr "&Kepala halaman"
 
-#: src/mathessible/ui/insert_dialogs.py:276
+#: src/mathessible/ui/insert_dialogs.py:321
 msgid "A merged cell crosses the end of the header. Split it, or choose another number of rows."
 msgstr ""
 

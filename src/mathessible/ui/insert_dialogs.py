@@ -25,6 +25,7 @@ from mathessible.editing.grid_table_edit import (
 )
 from mathessible.i18n import _
 from mathessible.ui.accessibility import set_accessibility_label
+from mathessible.ui.theme import palette
 
 try:
     import wx
@@ -149,18 +150,21 @@ if wx is not None:
     class TableEditDialog(wx.Dialog):
         """Format > Edit Table: a grid table as a grid of native text fields, one per cell (a merged cell
         spans its rows and columns), each named for VoiceOver by where it is; its text is edited in place,
-        as Markdown. Tab goes through the cells row by row, Command+Option+arrow to the next cell that way.
-        The buttons act on the last cell that had the focus. OK gives `table`, which the caller writes back."""
+        as Markdown. Tab goes through the cells row by row, Command+Option+arrow to the next cell that way,
+        and the cell moved to is named by what changed. The buttons act on the last cell that had the
+        focus; from a cell, Command+Option+T opens them as a menu and Command+Option+Shift+Right or Down
+        merges. OK gives `table`, which the caller writes back."""
 
         def __init__(self, parent: wx.Window, table: GridTable):
             super().__init__(parent, title=_("Edit Table"), style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
             self.table = table
             self.cell: GridCell = table.cells[0]
             self.cells = wx.lib.scrolledpanel.ScrolledPanel(self, size=(640, 320), style=wx.BORDER_THEME)
+            self.cells.Bind(wx.EVT_PAINT, self._draw_lines)
             self.fields: list[wx.TextCtrl] = []  # In the order of `table.cells`.
             self.header = wx.SpinCtrl(self, min=0, max=table.rows, initial=header_row_count(table))
             self.header.SetName(_("Header rows"))
-            self.actions: list[tuple[wx.Button, Callable[[], bool]]] = []
+            self.actions: list[tuple[wx.Button, Callable[[], None], Callable[[], bool]]] = []
             buttons = wx.GridSizer(cols=3, vgap=6, hgap=6)
             for label, action, applies in (
                 (_("Insert Row &Above"), lambda: self._insert_row(0), lambda: True),
@@ -176,7 +180,7 @@ if wx is not None:
                 button = wx.Button(self, label=label)
                 button.Bind(wx.EVT_BUTTON, lambda _event, action=action: action())
                 buttons.Add(button, 0, wx.EXPAND)
-                self.actions.append((button, applies))
+                self.actions.append((button, action, applies))
             header = wx.BoxSizer(wx.HORIZONTAL)
             header.Add(wx.StaticText(self, label=_("&Header rows:")), 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 12)
             header.Add(self.header)
@@ -194,8 +198,8 @@ if wx is not None:
         def _show(self, row: int, column: int, focus: bool = True) -> None:
             """The grid again, the cell at (row, column) the current one (and focused, with `focus`)."""
             self.cell = cell_at(self.table, min(row, self.table.rows - 1), min(column, self.table.columns - 1))
-            self.cells.DestroyChildren()
             self.fields = []
+            self.cells.DestroyChildren()
             grid = wx.GridBagSizer(vgap=4, hgap=4)
             for index, cell in enumerate(self.table.cells):  # Row by row: the order Tab takes.
                 field = wx.TextCtrl(self.cells, value=cell.content, style=wx.TE_MULTILINE, size=(150, 64))
@@ -204,36 +208,92 @@ if wx is not None:
                     field.SetFont(field.GetFont().Bold())
                 field.Bind(wx.EVT_TEXT, lambda _event, index=index: self._edit_content(index))
                 field.Bind(wx.EVT_SET_FOCUS, lambda event, index=index: self._focused(event, index))
+                field.Bind(wx.EVT_KILL_FOCUS, lambda event, index=index: self._left(event, index))
+                field.Bind(wx.EVT_CONTEXT_MENU, lambda _event: self._show_actions())
                 grid.Add(field, (cell.row, cell.column), (cell.rowspan, cell.colspan), wx.EXPAND)
                 self.fields.append(field)
             for column in range(self.table.columns):
                 grid.AddGrowableCol(column)
-            self.cells.SetSizer(grid)
+            margin = wx.BoxSizer(wx.VERTICAL)  # Room for the lines around the outer cells.
+            margin.Add(grid, 1, wx.ALL | wx.EXPAND, 3)
+            self.cells.SetSizer(margin)
             self.cells.SetupScrolling(scrollToTop=False)
+            self.cells.Refresh()
             self.header.SetRange(0, self.table.rows)
             self.header.SetValue(header_row_count(self.table))
             self._update_actions()
             if focus:
                 self.fields[self.table.cells.index(self.cell)].SetFocus()
 
+        def _draw_lines(self, _event: wx.PaintEvent) -> None:
+            """A line around every cell: a text field's own border hardly shows in dark appearance."""
+            appearance = wx.SystemSettings.GetAppearance() if hasattr(wx.SystemSettings, "GetAppearance") else None
+            colors = palette(dark=bool(appearance is not None and appearance.IsDark()))
+            dc = wx.PaintDC(self.cells)
+            dc.SetPen(wx.Pen(wx.Colour(*colors.grid_line)))
+            dc.SetBrush(wx.TRANSPARENT_BRUSH)
+            for field in self.fields:
+                dc.DrawRectangle(field.GetRect().Inflate(2, 2))
+
         def _focused(self, event: wx.FocusEvent, index: int) -> None:
             self.cell = self.table.cells[index]
             self._update_actions()
             event.Skip()
 
+        def _left(self, event: wx.FocusEvent, index: int) -> None:
+            """The cell's whole name again: it may be read next from anywhere."""
+            if index < len(self.fields):
+                set_accessibility_label(self.fields[index], cell_position(self.table.cells[index]))
+            event.Skip()
+
         def _on_key(self, event: wx.KeyEvent) -> None:
-            """Command+Option+arrow: the next cell that way (a merged cell's first row or column)."""
-            direction = _ARROWS.get(event.GetKeyCode())
+            """In a cell, with Command+Option: an arrow, the next cell that way (a merged cell's first row or
+            column); T, the actions' menu; with Shift too, Right and Down merge. Tab names the next cell."""
             focused = wx.Window.FindFocus()
-            if direction is None or event.GetModifiers() != wx.MOD_CONTROL | wx.MOD_ALT or focused not in self.fields:
+            if focused not in self.fields:
                 event.Skip()
                 return
-            target = neighbour(self.table, self.table.cells[self.fields.index(focused)], direction)
-            if target is not None:
-                self.fields[self.table.cells.index(target)].SetFocus()
+            key, modifiers = event.GetKeyCode(), event.GetModifiers()
+            index = self.fields.index(focused)
+            cell = self.table.cells[index]
+            if key == wx.WXK_TAB and modifiers in (wx.MOD_NONE, wx.MOD_SHIFT):
+                target = index + (1 if modifiers == wx.MOD_NONE else -1)
+                if 0 <= target < len(self.fields):
+                    self._name_from(cell, target)
+                event.Skip()
+            elif modifiers == wx.MOD_CONTROL | wx.MOD_ALT and key in _ARROWS:
+                found = neighbour(self.table, cell, _ARROWS[key])
+                if found is not None:
+                    target = self.table.cells.index(found)
+                    self._name_from(cell, target)
+                    self.fields[target].SetFocus()
+            elif modifiers == wx.MOD_CONTROL | wx.MOD_ALT and key == ord("T"):
+                self._show_actions()
+            elif modifiers == wx.MOD_CONTROL | wx.MOD_ALT | wx.MOD_SHIFT and key == wx.WXK_RIGHT:
+                if can_merge_right(self.table, cell):
+                    self._merge_right()
+            elif modifiers == wx.MOD_CONTROL | wx.MOD_ALT | wx.MOD_SHIFT and key == wx.WXK_DOWN:
+                if can_merge_down(self.table, cell):
+                    self._merge_down()
+            else:
+                event.Skip()
+
+        def _name_from(self, cell: GridCell, target: int) -> None:
+            """Name the field about to take the focus by what changes, before the screen reader reads it."""
+            set_accessibility_label(self.fields[target], cell_position(self.table.cells[target], cell))
+
+        def _show_actions(self) -> None:
+            """The buttons as a menu, so that the focus stays in the cell they act on."""
+            menu = wx.Menu()
+            for button, action, applies in self.actions:
+                item = menu.Append(wx.ID_ANY, button.GetLabel())
+                item.Enable(applies())
+                menu.Bind(wx.EVT_MENU, lambda _event, action=action: wx.CallAfter(action), item)
+            self.PopupMenu(menu)
+            menu.Destroy()
 
         def _update_actions(self) -> None:
-            for button, applies in self.actions:
+            for button, _action, applies in self.actions:
                 button.Enable(applies())
 
         def _edit_content(self, index: int) -> None:

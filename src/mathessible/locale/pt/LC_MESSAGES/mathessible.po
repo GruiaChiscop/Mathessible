@@ -450,31 +450,41 @@ msgstr "não é possível ler a equação"
 msgid "unknown command {command}"
 msgstr "comando desconhecido {command}"
 
-#: src/mathessible/editing/grid_table_edit.py:229
+#: src/mathessible/editing/grid_table_edit.py:232
+#, fuzzy, python-brace-format
+msgid "Column {column}"
+msgstr "coluna {column}"
+
+#: src/mathessible/editing/grid_table_edit.py:234
+#, fuzzy, python-brace-format
+msgid "Row {row}"
+msgstr "linha {row}"
+
+#: src/mathessible/editing/grid_table_edit.py:237
 #, fuzzy, python-brace-format
 msgid "Row {row}, column {column}"
 msgstr "linha {row}, coluna {column}"
 
-#: src/mathessible/editing/grid_table_edit.py:231
+#: src/mathessible/editing/grid_table_edit.py:239
 #, fuzzy
 msgid "header"
 msgstr "Cabeçalho"
 
-#: src/mathessible/editing/grid_table_edit.py:233
+#: src/mathessible/editing/grid_table_edit.py:241
 #, fuzzy, python-brace-format
 msgid "{count} row"
 msgid_plural "{count} rows"
 msgstr[0] "{count} palavra"
 msgstr[1] "{count} palavras"
 
-#: src/mathessible/editing/grid_table_edit.py:234
+#: src/mathessible/editing/grid_table_edit.py:242
 #, fuzzy, python-brace-format
 msgid "{count} column"
 msgid_plural "{count} columns"
 msgstr[0] "{count} palavra"
 msgstr[1] "{count} palavras"
 
-#: src/mathessible/editing/grid_table_edit.py:235
+#: src/mathessible/editing/grid_table_edit.py:243
 #, fuzzy, python-brace-format
 msgid "spans {rows} and {columns}"
 msgstr "linha {row}, coluna {column}"
@@ -866,19 +876,19 @@ msgstr "E&quações"
 msgid "&Cases"
 msgstr "Ca&sos"
 
-#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:166
+#: src/mathessible/editor/structures.py:208 src/mathessible/ui/insert_dialogs.py:168
 msgid "Insert Row &Above"
 msgstr "Inserir linha &acima"
 
-#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:167
+#: src/mathessible/editor/structures.py:209 src/mathessible/ui/insert_dialogs.py:169
 msgid "Insert Row &Below"
 msgstr "Inserir linha a&baixo"
 
-#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:169
+#: src/mathessible/editor/structures.py:211 src/mathessible/ui/insert_dialogs.py:171
 msgid "Insert Column &Left"
 msgstr "Inserir coluna à &esquerda"
 
-#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:170
+#: src/mathessible/editor/structures.py:215 src/mathessible/ui/insert_dialogs.py:172
 msgid "Insert Column &Right"
 msgstr "Inserir coluna à &direita"
 
@@ -3815,46 +3825,46 @@ msgstr "&Fração"
 msgid "Direction"
 msgstr "Interseção"
 
-#: src/mathessible/ui/insert_dialogs.py:156 src/mathessible/ui/insert_dialogs.py:277
+#: src/mathessible/ui/insert_dialogs.py:158 src/mathessible/ui/insert_dialogs.py:322
 #, fuzzy
 msgid "Edit Table"
 msgstr "Inserir tabela"
 
-#: src/mathessible/ui/insert_dialogs.py:162
+#: src/mathessible/ui/insert_dialogs.py:164
 #, fuzzy
 msgid "Header rows"
 msgstr "Cabeçalho"
 
-#: src/mathessible/ui/insert_dialogs.py:168
+#: src/mathessible/ui/insert_dialogs.py:170
 #, fuzzy
 msgid "&Delete Row"
 msgstr "Excluir li&nha"
 
-#: src/mathessible/ui/insert_dialogs.py:171
+#: src/mathessible/ui/insert_dialogs.py:173
 #, fuzzy
 msgid "Delete Col&umn"
 msgstr "Excluir col&una"
 
-#: src/mathessible/ui/insert_dialogs.py:172
+#: src/mathessible/ui/insert_dialogs.py:174
 msgid "&Merge with Right"
 msgstr ""
 
-#: src/mathessible/ui/insert_dialogs.py:173
+#: src/mathessible/ui/insert_dialogs.py:175
 #, fuzzy
 msgid "Merge with Belo&w"
 msgstr "Seta com texto abaixo"
 
-#: src/mathessible/ui/insert_dialogs.py:174
+#: src/mathessible/ui/insert_dialogs.py:176
 #, fuzzy
 msgid "&Split Cell"
 msgstr "célula vazia"
 
-#: src/mathessible/ui/insert_dialogs.py:181
+#: src/mathessible/ui/insert_dialogs.py:183
 #, fuzzy
 msgid "&Header rows:"
 msgstr "&Cabeçalho"
 
-#: src/mathessible/ui/insert_dialogs.py:276
+#: src/mathessible/ui/insert_dialogs.py:321
 msgid "A merged cell crosses the end of the header. Split it, or choose another number of rows."
 msgstr ""
 

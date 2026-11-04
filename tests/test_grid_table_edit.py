@@ -104,6 +104,17 @@ class EditTests(unittest.TestCase):
         self.assertEqual(cell_position(cell_at(self.table, 0, 0)), "Row 1, column 1, header, spans 1 row and 2 columns")
         self.assertEqual(cell_position(cell_at(new_table(1, 1, False), 0, 0)), "Row 1, column 1")
 
+    def test_a_cell_reached_from_another_says_what_changed(self) -> None:
+        table = new_table(3, 3, True)
+        first, right, below = cell_at(table, 0, 0), cell_at(table, 0, 1), cell_at(table, 1, 0)
+        self.assertEqual(cell_position(right, first), "Column 2")  # Along the header: still the header.
+        self.assertEqual(cell_position(below, first), "Row 2")
+        self.assertEqual(cell_position(first, below), "Row 1, header")
+        self.assertEqual(cell_position(cell_at(table, 1, 1), first), "Row 2, column 2")
+        self.assertEqual(cell_position(first, first), "Row 1, column 1, header")
+        merged, cell = merge_right(table, below)
+        self.assertEqual(cell_position(cell, cell_at(merged, 0, 0)), "Row 2, spans 1 row and 2 columns")
+
     def test_neighbours(self) -> None:
         group = cell_at(self.table, 0, 0)  # Columns 0 and 1 of the header.
         self.assertEqual(neighbour(self.table, group, "right"), cell_at(self.table, 0, 2))

@@ -21,6 +21,10 @@ class ThemeTests(unittest.TestCase):
             self.assertGreaterEqual(contrast_ratio(colors.focus, colors.background), 3.0)
             self.assertGreaterEqual(contrast_ratio(colors.focus, colors.highlight_fill), 3.0)
 
+    def test_grid_lines_are_visible_against_the_background(self) -> None:
+        for colors in (LIGHT, DARK):
+            self.assertGreaterEqual(contrast_ratio(colors.grid_line, colors.background), 3.0)
+
     def test_palette_follows_the_appearance(self) -> None:
         self.assertIs(palette(dark=True), DARK)
         self.assertIs(palette(dark=False), LIGHT)

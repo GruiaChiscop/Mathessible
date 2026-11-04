@@ -19,6 +19,7 @@ class Palette:
     panel: RGB
     subtle_text: RGB
     border: RGB
+    grid_line: RGB
     focus: RGB
     selection: RGB
     highlight_fill: RGB
@@ -30,6 +31,7 @@ LIGHT = Palette(
     panel=(242, 242, 245),
     subtle_text=(84, 84, 90),
     border=(188, 188, 194),
+    grid_line=(134, 134, 140),
     focus=(0, 99, 214),
     selection=(179, 215, 255),
     highlight_fill=(215, 232, 255),
@@ -41,6 +43,7 @@ DARK = Palette(
     panel=(44, 44, 46),
     subtle_text=(188, 188, 196),
     border=(84, 84, 90),
+    grid_line=(134, 134, 140),
     focus=(90, 162, 255),
     selection=(38, 79, 120),
     highlight_fill=(32, 66, 110),

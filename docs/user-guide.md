@@ -221,7 +221,11 @@ arrow key moves to the next cell in that direction. The buttons act on the
 last cell you were in: they insert and delete rows and columns, merge a cell
 with the one to its right or below it (when they span the same rows or
 columns), and split a merged cell; **Header rows** sets how many rows at the
-top are the header. OK writes the table back, redrawn, as one
+top are the header. From a cell, Command+Option+T (Ctrl+Alt+T on Windows)
+opens the same actions as a menu, so the focus stays in the cell, and
+Command+Option+Shift with the Right or Down arrow (Ctrl+Alt+Shift on Windows)
+merges it with the cell that way. Moving along a row names only the column,
+and moving down a column only the row. OK writes the table back, redrawn, as one
 change that Undo takes back. **Insert → Table…** writes an empty grid table
 when **Cells hold paragraphs or lists (grid table)** is checked.
 
