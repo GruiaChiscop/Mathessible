@@ -2046,9 +2046,14 @@ frame opened by View > Explore Graph while the caret is in a function `chart`
 block. The wx-free model owns the view, cursor, continuous/discrete modes and
 per-function bookmarks. The frame owns the keys, native menus,
 AssistiveOutput announcements and drawing. `sounddevice` runs the callback;
-numpy renders a two-operator FM continuous voice, a Karplus--Strong plucked
-discrete voice, equal-power stereo pan, filtered noise for negative values and
-generated earcons. There are no bundled sound files. Only the audio thread
+numpy renders a two-operator FM continuous voice (the settings of
+AudioFunctions+'s Tone.js clarinet), a plucked discrete voice (its PluckSynth:
+Tone's low-pass is on the noise burst, before the comb, not in its loop, so there
+is no pitch error), equal-power stereo pan, filtered noise for negative values and
+generated earcons, which sound together, not in a queue. There are no bundled
+sound files. The earcons' pitch, length and peak were measured from
+AudioFunctions+'s files and its playback volumes, and only those numbers are
+used. Only the audio thread
 (`render`) touches the pluck's buffer; `update`, on the UI thread, only leaves a
 pending pluck or stop for it under the lock (replacing the buffer mid-block raised
 in the callback, and sounddevice stops calling a callback that raised).
@@ -2068,6 +2073,16 @@ remains GPL-2.0-or-later. Background references are the
 [AudioFunctions paper](https://www.springerprofessional.de/audiofunctions-eyes-free-exploration-of-mathematical-functions-o/2191074)
 and [KIT's SONAIRGRAPH page](https://www.access.kit.edu/english/1611.php).
 
+Compared with its source (2026-11-06) and matched: the view's edge is silent (tone
+and noise), the no-value sign repeats at most every 200 ms while the cursor moves
+there, the cursor steps along multiples of the step, a held arrow steps once a
+second, Shift ticks at each step of the grid (fluid movement and playback), Cmd+Z
+centres on both axes, playback has a start sign, a discrete note heard already is
+not struck again until a playback. One adaptation: AudioFunctions+ detects the view's
+top and bottom in a band narrower than a step, so Mathessible plays the edge sign
+when the curve crosses them. Still missing: the speed and step-size menu (M),
+Ctrl+1-9 to a landmark, landmark shapes, functions heard together.
+
 The deliberate desktop adaptations are recorded here so they are not mistaken
 for AudioFunctions+ behaviour. A chart supplies only an x range, so Mathessible
 chooses one robust common y view for all its functions instead of opening at
@@ -2075,8 +2090,7 @@ chooses one robust common y view for all its functions instead of opening at
 recordings. The drawn desktop explorer has no mouse-sonification mode, so it
 does not implement AudioFunctions+'s mouse-y-to-volume mapping; keyboard and
 batch exploration in AudioFunctions+ use full volume too. Mathessible calls a
-landmark a bookmark and currently gives every bookmark one generated sign,
-rather than the original's triangle, square and diamond choices. Do not infer
+landmark a bookmark and currently gives every bookmark one generated sign. Do not infer
 roots or extrema by sampling: AudioFunctions+'s automatic points of interest
 are endpoints and isolated/unequal points derived from explicit piecewise
 function structure, which Mathessible's chart format does not yet expose.
@@ -2091,9 +2105,7 @@ elapsed monotonic time at one view width per ten seconds, independently of
 OS key repeat. Release or loss of canvas focus stops fluid motion. An arrow
 during batch playback stops it at the current position before exploration
 resumes. The y-axis cue fires on arrival or crossing in either direction,
-not when leaving zero. These fixes do not establish perceptual equivalence
-with AudioFunctions+'s instruments; the synthesiser still needs listening
-comparison.
+not when leaving zero. The synthesiser still needs a listening comparison with AudioFunctions+.
 
 Home screen (2026-10-30, [ui/home_panel.py](../src/mathessible/ui/home_panel.py)):
 the first window's own content (`MainFrame(home=True)` from app.py when no

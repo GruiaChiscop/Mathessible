@@ -8,7 +8,7 @@ import time
 from mathessible.documents.charts import Chart
 from mathessible.help_links import SONIFICATION_CREDIT, SONIFICATION_PAGES
 from mathessible.i18n import _
-from mathessible.sonification.graph import MOVE, GraphExplorer, Sound, number, passed
+from mathessible.sonification.graph import MOVE, Cooldown, GraphExplorer, Sound, number, pan, passed
 from mathessible.sonification.synth import Synthesizer
 from mathessible.ui.speech import AssistiveOutput
 
@@ -65,6 +65,9 @@ if wx is not None:
             self._sweep_started: float | None = None
             self._fluid_direction = 0
             self._fluid_origin = 0.0
+            self._step_time: float | None = None  # A held arrow steps once a second, as in AudioFunctions+.
+            self._tick: int | None = None
+            self._gap_sign, self._edge_sign = Cooldown(0.2), Cooldown(0.2)
             self._timer = wx.Timer(self)
             self._resume_sound: wx.CallLater | None = None
             self.canvas = _GraphCanvas(self, self)
@@ -163,8 +166,10 @@ if wx is not None:
                     self._after_move(before)
                     self._say_point(point.kind, point.x, point.y)
                 else:
-                    before = self.explorer.step(direction, event.ShiftDown())
-                    self._after_move(before)
+                    now = time.monotonic()
+                    if self._step_time is None or now - self._step_time >= 1.0:
+                        self._step_time = now
+                        self._after_move(self.explorer.step(direction))
                 return
             if code in (wx.WXK_HOME, wx.WXK_END):
                 self._stop_motion()
@@ -172,7 +177,7 @@ if wx is not None:
                 self._after_move(self.explorer.go_to(edge))
                 return
             if letter == "Z" and event.CmdDown():
-                self.explorer.set_view(self.explorer.view.centred(self.explorer.x))
+                self.explorer.set_view(self.explorer.view.centred(self.explorer.x, self.explorer.y()))
                 self._update_sound()
                 self.canvas.Refresh(False)
                 self._say(_("View centred at cursor"))
@@ -212,6 +217,8 @@ if wx is not None:
 
         def _on_key_up(self, event: wx.KeyEvent) -> None:
             letter = key_letter(event.GetUnicodeKey(), event.GetKeyCode())
+            if event.GetKeyCode() in (wx.WXK_LEFT, wx.WXK_RIGHT) or letter in ("J", "L"):
+                self._step_time = None
             if self._fluid_direction and (
                 event.GetKeyCode() in (wx.WXK_LEFT, wx.WXK_RIGHT, wx.WXK_SHIFT) or letter in ("J", "L")
             ):
@@ -226,6 +233,7 @@ if wx is not None:
             self._fluid_direction = 0
 
         def _on_focus_lost(self, event: wx.FocusEvent) -> None:
+            self._step_time = None
             if self._fluid_direction:
                 self._stop_motion()
             event.Skip()
@@ -239,12 +247,18 @@ if wx is not None:
             before_y, after_y = self.explorer.y(before), self.explorer.y()
             before_visible = math.isfinite(before_y) and view.y_min <= before_y <= view.y_max
             after_visible = math.isfinite(after_y) and view.y_min <= after_y <= view.y_max
-            if before_visible and not after_visible:
+            now = time.monotonic()
+            if before_visible and math.isfinite(after_y) and not after_visible:
+                self._earcon("edge")  # The curve left through the view's top or bottom.
+            if not after_visible and self._gap_sign.ready(now):
                 self._earcon("gap")
             for point in passed(self.explorer.points(), before, self.explorer.x):
                 self._earcon(point.kind)
-            if self.explorer.at_edge():
+            if self.explorer.at_edge() and self._edge_sign.ready(now):
                 self._earcon("edge")
+            if self._timer.IsRunning() and wx.GetKeyState(wx.WXK_SHIFT) and self.explorer.tick_index() != self._tick:
+                self._tick = self.explorer.tick_index()
+                self._earcon("tick", pan(self.explorer.x, view))
             self._update_sound()
             self.canvas.Refresh(False)
             if not self.audio_available:
@@ -254,9 +268,9 @@ if wx is not None:
             if self.audio_available:
                 self.synth.update(self.explorer.sound() if self.explorer.sound_on else Sound(None, 0, False))
 
-        def _earcon(self, kind: str) -> None:
+        def _earcon(self, kind: str, position: float | None = None) -> None:
             if self.audio_available and self.explorer.sound_on:
-                self.synth.play_earcon(kind)
+                self.synth.play_earcon(kind, position)
 
         def _say(self, text: str) -> None:
             """Speak over silence, then restore the current tone after an estimated reading time."""
@@ -358,6 +372,7 @@ if wx is not None:
                 self._say(_("Playback stopped"))
                 return
             self.explorer.go_to(self.explorer.view.x_min)
+            self.explorer.forget_note()
             self._sweep_started = time.monotonic()
             self._timer.Start(20)
             self.output.announce(_("Playing graph"))
@@ -374,6 +389,8 @@ if wx is not None:
                     self._stop_motion()
                 return
             self.explorer.go_to(self.explorer.sweep(fraction))
+            if before == self.explorer.view.x_min < self.explorer.x:
+                self._earcon("start")
             self._after_move(before)
             if fraction >= 1:
                 self._timer.Stop()

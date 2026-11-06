@@ -5,6 +5,7 @@ import numpy as np
 
 from mathessible.documents.charts import parse_chart
 from mathessible.sonification.graph import (
+    Cooldown,
     GraphExplorer,
     Sound,
     View,
@@ -76,6 +77,50 @@ class GraphModelTests(unittest.TestCase):
         self.assertEqual(explorer.next_point(1).x, -2)
         self.assertEqual(explorer.next_point(1).x, 0)
 
+    def test_the_cursor_steps_along_the_grid(self) -> None:
+        explorer = GraphExplorer(parse_chart("type: function\nfunction: x\nx: -2 .. 2"))
+        explorer.go_to(0.1)
+        explorer.step(1)
+        self.assertEqual(explorer.x, 0.25)
+        explorer.step(1)
+        self.assertEqual(explorer.x, 0.5)
+        explorer.go_to(0.6)
+        explorer.step(-1)
+        self.assertEqual(explorer.x, 0.5)
+        explorer.go_to(2)
+        explorer.step(1)
+        self.assertEqual(explorer.x, 2)
+
+    def test_the_views_edge_is_silent(self) -> None:
+        explorer = GraphExplorer(parse_chart("type: function\nfunction: x\nx: -2 .. 2"))
+        explorer.go_to(-2)
+        sound = explorer.sound()
+        self.assertIsNone(sound.frequency)
+        self.assertFalse(sound.negative)  # The noise stops too.
+        explorer.step(1)
+        self.assertIsNotNone(explorer.sound().frequency)
+
+    def test_a_note_heard_is_struck_again_only_at_a_new_playback(self) -> None:
+        explorer = GraphExplorer(parse_chart("type: function\nfunction: x\nx: -2 .. 2"))
+        explorer.discrete = True
+        explorer.go_to(0)
+        self.assertTrue(explorer.sound().strike)
+        explorer.go_to(-2)
+        explorer.sound()  # The edge: silent.
+        explorer.go_to(0)
+        self.assertFalse(explorer.sound().strike)
+        explorer.forget_note()
+        self.assertTrue(explorer.sound().strike)
+
+    def test_centring_moves_the_view_on_both_axes(self) -> None:
+        view = View(-10, 10, -10, 10)
+        self.assertEqual(view.centred(2, 3), View(-8, 12, -7, 13))
+        self.assertEqual(view.centred(2, math.nan), View(-8, 12, -10, 10))
+
+    def test_a_cooldown_lets_a_sign_repeat_after_its_time(self) -> None:
+        cooldown = Cooldown(0.2)
+        self.assertEqual([cooldown.ready(now) for now in (0, 0.1, 0.3)], [True, False, True])
+
 
 class SynthTests(unittest.TestCase):
     def test_equal_power_pan(self) -> None:
@@ -90,6 +135,34 @@ class SynthTests(unittest.TestCase):
         self.assertEqual(signal.ndim, 2)
         self.assertEqual(signal.shape[1], 2)
         self.assertGreater(float(np.max(np.abs(signal))), 0)
+
+    def test_an_earcon_keeps_its_level_and_can_be_panned(self) -> None:
+        self.assertAlmostEqual(float(np.max(np.abs(earcon("edge")))), 0.098, delta=0.01)
+        panned = earcon("tick", position=-1)
+        self.assertGreater(float(np.max(np.abs(panned[:, 0]))), 0)
+        self.assertEqual(float(np.max(np.abs(panned[:, 1]))), 0)
+
+    def test_earcons_sound_together(self) -> None:
+        synth = Synthesizer(8_000)
+        synth.play_earcon("edge")
+        synth.play_earcon("axis")
+        both = float(np.max(np.abs(synth.render(128))))
+        self.assertGreater(both, float(np.max(np.abs(earcon("edge", 8_000)[:128]))))
+        self.assertEqual(len(synth._earcons), 2)
+        for _index in range(30):
+            synth.render(128)
+        self.assertFalse(synth._earcons)
+
+    def test_the_tone_rises_slowly_and_ends_quickly(self) -> None:
+        synth = Synthesizer(8_000)
+        synth.update(Sound(440, 0, False))
+        first = float(np.max(np.abs(synth.render(160))))  # 20 ms of a 210 ms attack.
+        for _index in range(20):
+            full = float(np.max(np.abs(synth.render(160))))
+        self.assertLess(first, full / 4)
+        synth.silence()
+        synth.render(400)  # 50 ms.
+        self.assertLess(float(np.max(np.abs(synth.render(160)))), 0.01)
 
     def test_fm_voice_renders_stereo_and_silences(self) -> None:
         synth = Synthesizer(8_000)
@@ -108,10 +181,11 @@ class SynthTests(unittest.TestCase):
         synth.update(Sound(440, 0, False, strike=True, discrete=True))
         self.assertGreater(float(np.max(np.abs(synth.render(256)))), 0)
         synth.update(Sound(None, 0, False, discrete=True))
-        self.assertTrue(synth._pluck_buffer.size)  # Untouched until the audio thread's next block.
-        synth.update(Sound(None, 0, False, discrete=True))
-        self.assertEqual(float(np.max(np.abs(synth.render(256)))), 0)
+        self.assertFalse(synth._pluck_releasing)  # Untouched until the audio thread's next block.
+        for _index in range(40):  # Over a second: its release.
+            synth.render(256)
         self.assertEqual(synth._pluck_buffer.size, 0)
+        self.assertEqual(float(np.max(np.abs(synth.render(256)))), 0)
 
     def test_negative_noise_is_a_centred_background(self) -> None:
         synth = Synthesizer(8_000)

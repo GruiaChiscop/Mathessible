@@ -1,17 +1,16 @@
 """A small real-time synthesiser for graph exploration.
 
-The instruments are Mathessible's own two-operator FM "clarinet" and
-Karplus--Strong plucked voice, matching AudioFunctions+'s continuous and
-discrete roles. Y controls pitch, x controls stereo position, and a quiet
-filtered noise layer distinguishes negative values. Earcons are generated here
-too; no AudioFunctions+ code or sound file is used.
+The instruments are Mathessible's own, made to AudioFunctions+'s settings (its Tone.js clarinet and
+guitar): a two-operator FM voice with a slow attack, and a plucked voice, a burst of pink noise, low-passed,
+in a comb filter. Y controls pitch, x controls stereo position, and a quiet noise layer marks negative values.
+The earcons are generated here too, to the length, pitch and level measured from AudioFunctions+'s; none of
+its code or sound files is used.
 """
 
 from __future__ import annotations
 
 import math
 import threading
-from collections import deque
 
 import numpy as np
 
@@ -19,14 +18,23 @@ from mathessible.sonification.graph import Sound
 
 SAMPLE_RATE = 48_000
 BLOCK_SIZE = 512
-GAIN = 0.16
+GAIN = 0.398  # The FM voice: AudioFunctions+'s -8 dB.
+ATTACK, RELEASE = 0.21, 0.05  # Its envelope, seconds.
+PLUCK_LEVEL = 0.6
+PLUCK_RESONANCE = 0.99  # The comb's feedback.
+PLUCK_DAMPENING = 500.0  # The low-pass on the burst, Hz.
+PLUCK_RELEASE = 1.0  # A stopped note's feedback falls to nothing in this many seconds.
 
-_EARCONS: dict[str, tuple[tuple[float, float], ...]] = {
-    "edge": ((180.0, 0.07), (120.0, 0.10)),
-    "axis": ((700.0, 0.055),),
-    "gap": ((170.0, 0.04), (0.0, 0.035), (170.0, 0.04)),
-    "bookmark": ((880.0, 0.04), (660.0, 0.04), (880.0, 0.06)),
+# Each earcon's peak, and its (pitch, seconds) parts under one decay.
+_EARCONS: dict[str, tuple[float, tuple[tuple[float, float], ...]]] = {
+    "edge": (0.098, ((830.0, 0.14), (787.0, 0.14))),  # -20 dB.
+    "start": (0.14, ((762.0, 0.016), (825.0, 0.016), (889.0, 0.031))),  # -15 dB.
+    "axis": (0.117, ((530.0, 0.083), (1036.0, 0.083))),  # -12 dB.
+    "gap": (0.038, ((2176.0, 0.033),)),  # -25 dB.
+    "bookmark": (0.25, ((3988.0, 0.34), (2737.0, 0.34))),  # -12 dB.
+    "tick": (0.126, ((1046.5, 0.05),)),  # -18 dB, C6.
 }
+_NEUTRAL = (0.1, ((500.0, 0.06),))
 
 
 def stereo_gains(position: float) -> tuple[float, float]:
@@ -36,23 +44,19 @@ def stereo_gains(position: float) -> tuple[float, float]:
     return math.cos(angle), math.sin(angle)
 
 
-def earcon(kind: str, sample_rate: int = SAMPLE_RATE) -> np.ndarray:
-    """A generated stereo earcon; an unknown kind is a short neutral tick."""
-    segments = _EARCONS.get(kind, ((500.0, 0.06),))
-    pieces: list[np.ndarray] = []
-    phase = 0.0
-    for pitch, duration in segments:
-        count = max(1, round(duration * sample_rate))
-        if pitch <= 0:
-            pieces.append(np.zeros(count, dtype=np.float32))
-            continue
-        times = np.arange(count, dtype=np.float64) / sample_rate
-        envelope = np.sin(np.pi * np.arange(count, dtype=np.float64) / count) ** 2
-        wave = np.sin(phase + 2 * np.pi * pitch * times) * envelope * 0.2
-        phase = float((phase + 2 * np.pi * pitch * count / sample_rate) % (2 * np.pi))
-        pieces.append(wave.astype(np.float32))
-    mono = np.concatenate(pieces)
-    return np.column_stack((mono, mono))
+def earcon(kind: str, sample_rate: int = SAMPLE_RATE, position: float | None = None) -> np.ndarray:
+    """A generated stereo earcon, in the middle or panned to `position`; an unknown kind is a short neutral
+    tick."""
+    peak, parts = _EARCONS.get(kind, _NEUTRAL)
+    pitches = np.concatenate([np.full(max(1, round(seconds * sample_rate)), pitch) for pitch, seconds in parts])
+    count = len(pitches)
+    phase = 2 * np.pi * np.cumsum(pitches) / sample_rate
+    decay = np.exp(-3 * np.arange(count) / count)  # To 5% at its end.
+    fade = np.minimum(1.0, np.arange(count) / max(1.0, 0.002 * sample_rate))  # No click at its start.
+    fade *= np.minimum(1.0, (count - np.arange(count)) / max(1.0, 0.002 * sample_rate))
+    mono = (np.sin(phase) * decay * fade * peak).astype(np.float32)
+    left, right = (1.0, 1.0) if position is None else stereo_gains(position)
+    return np.column_stack((mono * left, mono * right))
 
 
 class Synthesizer:
@@ -66,17 +70,17 @@ class Synthesizer:
         self._carrier_phase = 0.0
         self._modulator_phase = 0.0
         self._frequency = 220.0
-        self._gain = 0.0
-        self._strike = 1.0
+        self._envelope = 0.0
         # The UI asks for a pluck or its end; only the audio thread (render) touches the pluck's buffer.
         self._pluck_pending: float | None = None
         self._pluck_stop = False
         self._pluck_buffer = np.empty(0, dtype=np.float64)
         self._pluck_index = 0
+        self._pluck_resonance = PLUCK_RESONANCE
+        self._pluck_releasing = False
         self._pink = np.zeros(3, dtype=np.float64)
         self._random = np.random.default_rng()
-        self._earcons: deque[np.ndarray] = deque()
-        self._earcon_offset = 0
+        self._earcons: list[list] = []  # [signal, frames played]: they sound together, not in turn.
 
     def start(self) -> None:
         """Open the default output device. Import sounddevice only when sound is actually requested."""
@@ -96,17 +100,15 @@ class Synthesizer:
 
     def update(self, sound: Sound) -> None:
         with self._lock:
-            if sound.strike:
-                self._strike = 0.0
-                if sound.discrete and sound.frequency is not None:
-                    self._pluck_pending = sound.frequency
+            if sound.strike and sound.discrete and sound.frequency is not None:
+                self._pluck_pending = sound.frequency
             if sound.discrete and sound.frequency is None:
                 self._pluck_pending, self._pluck_stop = None, True
             self._sound = sound
 
-    def play_earcon(self, kind: str) -> None:
+    def play_earcon(self, kind: str, position: float | None = None) -> None:
         with self._lock:
-            self._earcons.append(earcon(kind, self.sample_rate))
+            self._earcons.append([earcon(kind, self.sample_rate, position), 0])
 
     def silence(self) -> None:
         self.update(Sound(None, 0.0, False))
@@ -121,17 +123,22 @@ class Synthesizer:
         """Render one stereo block. Public so the signal can be tested without an audio device."""
         with self._lock:
             sound = self._sound
-            queued = self._earcons[0] if self._earcons else None
-            offset = self._earcon_offset
+            earcons = list(self._earcons)
             pluck_pending, self._pluck_pending = self._pluck_pending, None
             pluck_stop, self._pluck_stop = self._pluck_stop, False
 
         target_frequency = sound.frequency or self._frequency
-        target_gain = GAIN if sound.frequency is not None and not sound.discrete else 0.0
+        target = 1.0 if sound.frequency is not None and not sound.discrete else 0.0
         output = np.zeros((frames, 2), dtype=np.float32)
-        # Smooth frequency and level across a block; this prevents clicks while the cursor moves.
+        # Across a block, so that the pitch moves without a click.
         frequencies = np.linspace(self._frequency, target_frequency, frames, endpoint=True)
-        gains = np.linspace(self._gain, target_gain, frames, endpoint=True)
+        seconds = ATTACK if target > self._envelope else RELEASE
+        ramp = np.arange(1, frames + 1) / (seconds * self.sample_rate)
+        envelope = (
+            np.minimum(target, self._envelope + ramp)
+            if target > self._envelope
+            else np.maximum(target, self._envelope - ramp)
+        )
         detune = 2 ** (3 / 1200)
         modulation_steps = frequencies * 2 / self.sample_rate
         modulator = (self._modulator_phase + np.cumsum(modulation_steps)) % 1.0
@@ -141,58 +148,68 @@ class Synthesizer:
             + np.sin(10 * np.pi * modulator) / 25
             - np.sin(14 * np.pi * modulator) / 49
         )
-        instantaneous = frequencies * detune + frequencies * triangle
+        # The modulation rises with the tone: its envelope's attack is nearly the same.
+        instantaneous = frequencies * detune + frequencies * triangle * envelope
         carrier = (self._carrier_phase + np.cumsum(instantaneous / self.sample_rate)) % 1.0
-        loudness = np.clip((320 / np.maximum(20, frequencies)) ** 0.28, 0.55, 1.15)
-        # A gentle strike for discrete notes; continuous mode remains at its sustain level.
-        if self._strike < 1.0:
-            attack = np.clip(self._strike + np.arange(frames) / (0.04 * self.sample_rate), 0, 1)
-            self._strike = float(min(1.0, attack[-1]))
-        else:
-            attack = 1.0
-        mono = np.sin(2 * np.pi * carrier) * gains * loudness * attack
+        mono = np.sin(2 * np.pi * carrier) * envelope * GAIN
         left, right = stereo_gains(sound.pan)
         output[:, 0], output[:, 1] = mono * left, mono * right
         if pluck_stop:
-            self._pluck_buffer = np.empty(0, dtype=np.float64)
+            self._pluck_releasing = True
         if pluck_pending is not None:
-            period = max(2, round(self.sample_rate / pluck_pending))
-            self._pluck_buffer = self._random.uniform(-1, 1, period)
-            self._pluck_index = 0
+            self._strike_pluck(pluck_pending)
         if sound.discrete and self._pluck_buffer.size:
-            pluck = self._render_pluck(frames) * 0.22
+            pluck = self._render_pluck(frames)
             output[:, 0] += pluck * left
             output[:, 1] += pluck * right
         if sound.negative:
             # This is a background sign, not another point at x: keep it centred.
-            noise = self._pink_noise(frames) * 0.018
+            noise = self._pink_noise(frames) * 0.0158  # -36 dB.
             output[:, 0] += noise
             output[:, 1] += noise
 
-        if queued is not None:
-            amount = min(frames, len(queued) - offset)
-            output[:amount] += queued[offset : offset + amount]
-            with self._lock:
-                self._earcon_offset += amount
-                if self._earcons and self._earcon_offset >= len(self._earcons[0]):
-                    self._earcons.popleft()
-                    self._earcon_offset = 0
+        for playing in earcons:
+            signal, played = playing
+            amount = min(frames, len(signal) - played)
+            output[:amount] += signal[played : played + amount]
+            playing[1] = played + amount
+        with self._lock:
+            self._earcons = [playing for playing in self._earcons if playing[1] < len(playing[0])]
 
-        self._frequency, self._gain = float(frequencies[-1]), float(gains[-1])
+        self._frequency, self._envelope = float(frequencies[-1]), float(envelope[-1])
         self._carrier_phase, self._modulator_phase = float(carrier[-1]), float(modulator[-1])
         return np.clip(output, -1, 1)
 
+    def _strike_pluck(self, pitch: float) -> None:
+        """A new note: a burst of low-passed pink noise, one period long, in the comb's delay line."""
+        period = max(2, round(self.sample_rate / pitch))
+        burst = self._pink_noise(period)
+        coefficient = 1 - math.exp(-2 * math.pi * PLUCK_DAMPENING / self.sample_rate)
+        state = 0.0
+        for index, sample in enumerate(burst):
+            state += coefficient * (sample - state)
+            burst[index] = state
+        self._pluck_buffer = burst * (PLUCK_LEVEL / max(1e-9, float(np.max(np.abs(burst)))))
+        self._pluck_index = 0
+        self._pluck_resonance, self._pluck_releasing = PLUCK_RESONANCE, False
+
     def _render_pluck(self, frames: int) -> np.ndarray:
-        """A local Karplus--Strong voice for the discrete guitar-like instrument."""
+        """The comb filter: the delay line read round and round, each pass quieter."""
         result = np.empty(frames, dtype=np.float64)
         size = len(self._pluck_buffer)
-        for frame in range(frames):
-            index = self._pluck_index
-            following = (index + 1) % size
-            sample = self._pluck_buffer[index]
-            self._pluck_buffer[index] = 0.99 * (sample + self._pluck_buffer[following]) / 2
-            result[frame] = sample
-            self._pluck_index = following
+        done = 0
+        while done < frames:
+            amount = min(frames - done, size - self._pluck_index)
+            part = slice(self._pluck_index, self._pluck_index + amount)
+            result[done : done + amount] = self._pluck_buffer[part]
+            self._pluck_buffer[part] *= self._pluck_resonance
+            done += amount
+            self._pluck_index = (self._pluck_index + amount) % size
+        if self._pluck_releasing:
+            self._pluck_resonance -= PLUCK_RESONANCE * frames / (PLUCK_RELEASE * self.sample_rate)
+            if self._pluck_resonance <= 0:
+                self._pluck_buffer = np.empty(0, dtype=np.float64)
+                self._pluck_releasing = False
         return result
 
     def _pink_noise(self, frames: int) -> np.ndarray:

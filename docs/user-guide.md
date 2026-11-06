@@ -278,6 +278,9 @@ marks negative values. Generated earcons mark the y axis, view edges, a value
 that is undefined or outside the visible range, and bookmarks. No recorded
 sounds are bundled.
 
+At the view's edge the tone and the noise stop. A held arrow key moves one step
+a second; hold Shift for fluid movement, which ticks at every step.
+
 This way of hearing a graph comes from
 [AudioFunctions+](https://sonairgraph.github.io/audiofunctions-plus/), a web
 application of [SONAIRGRAPH](https://sonairgraph.unito.it/), an Erasmus+ project

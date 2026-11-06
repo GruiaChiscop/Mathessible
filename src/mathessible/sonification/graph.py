@@ -6,8 +6,9 @@ a view of the graph; the function's y there is a tone's pitch, linear from
 100 Hz at the view's bottom to 1000 Hz at its top, and x is its place from
 left to right (stereo pan). Below the x axis a soft noise plays with it;
 where the function is undefined or out of the view there is no tone, and a
-sign says so. Moving the cursor, its passing the y axis and the view's edge
-each has a sign of its own. In discrete mode y selects one of the chromatic
+sign says so, again and again while it moves there. At the view's edge there
+is no tone or noise either. Passing the y axis and the view's edge each has a
+sign of its own. In discrete mode y selects one of the chromatic
 notes from C3 through C5, struck again each time it changes, so a steep curve
 is heard as quick notes and a flat one as a long one. User-created landmarks
 are the navigable points of interest.
@@ -27,8 +28,7 @@ from mathessible.documents.charts import Chart, ChartError, expression_function,
 from mathessible.i18n import _
 
 LOWEST, HIGHEST = 100.0, 1000.0  # The tone's pitch at the view's bottom and top, Hz.
-STEP = 0.25  # AudioFunctions+'s default stepwise cursor increment.
-FLUID_STEP = 0.025  # One keyboard-repeat increment during fluid movement.
+STEP = 0.25  # AudioFunctions+'s default stepwise cursor increment; the cursor steps along its multiples.
 ZOOM_IN, ZOOM_OUT = 0.9, 1.1
 MOVE = 1.0  # AudioFunctions+ moves the view one coordinate unit (Shift: five).
 _DISCRETE_NOTES = 25  # Every semitone from C3 through C5, inclusive.
@@ -62,9 +62,10 @@ class View:
         dx, dy = right * self.width, up * self.height
         return View(self.x_min + dx, self.x_max + dx, self.y_min + dy, self.y_max + dy)
 
-    def centred(self, x: float) -> View:
-        """The view moved so that x is in its middle."""
-        return self.moved(right=(x - (self.x_min + self.x_max) / 2) / self.width)
+    def centred(self, x: float, y: float) -> View:
+        """The view moved so that (x, y) is in its middle; an undefined y leaves its height where it is."""
+        up = (y - (self.y_min + self.y_max) / 2) / self.height if math.isfinite(y) else 0.0
+        return self.moved(right=(x - (self.x_min + self.x_max) / 2) / self.width, up=up)
 
 
 @dataclass(frozen=True, slots=True)
@@ -86,6 +87,20 @@ class Sound:
     negative: bool
     strike: bool = False  # Discrete mode: a new note, struck again.
     discrete: bool = False
+
+
+@dataclass(slots=True)
+class Cooldown:
+    """A sign that repeats no sooner than `seconds` after it last played."""
+
+    seconds: float
+    last: float | None = None
+
+    def ready(self, now: float) -> bool:
+        if self.last is not None and now - self.last <= self.seconds:
+            return False
+        self.last = now
+        return True
 
 
 def function_chart_at(source: str, position: int) -> Chart | None:
@@ -202,23 +217,37 @@ class GraphExplorer:
         )
 
     def sound(self) -> Sound:
-        """What is heard at the cursor now."""
+        """What is heard at the cursor now: nothing at the view's edge, whose sign says so. A discrete note
+        heard already is not struck again, even after a silence."""
+        if self.at_edge():
+            return Sound(None, pan(self.x, self.view), False, discrete=self.discrete)
         y = self.y()
         pitch = frequency(y, self.view)
         strike = False
         if pitch is not None and self.discrete:
             pitch = scale_note(pitch)
             strike, self._note = pitch != self._note, pitch
-        elif pitch is None:
-            self._note = None
         return Sound(pitch, pan(self.x, self.view), math.isfinite(y) and y < 0, strike, self.discrete)
 
-    def step(self, direction: int, fluid: bool = False) -> float:
-        """The cursor moved a step left (-1) or right (1), kept in the view; the x it was at."""
+    def forget_note(self) -> None:
+        """The next discrete note is struck, whatever it is: a playback starts."""
+        self._note = None
+
+    def step(self, direction: int) -> float:
+        """The cursor moved left (-1) or right (1) to the next multiple of the step, kept in the view; the x
+        it was at."""
         before = self.x
-        size = FLUID_STEP if fluid else STEP
-        self.x = max(self.view.x_min, min(self.view.x_max, self.x + direction * size))
+        steps = self.x / STEP
+        if abs(steps - round(steps)) < 1e-10:
+            target = (round(steps) + direction) * STEP
+        else:
+            target = (math.ceil(steps) if direction > 0 else math.floor(steps)) * STEP
+        self.x = max(self.view.x_min, min(self.view.x_max, target))
         return before
+
+    def tick_index(self) -> int:
+        """Which step of the grid the cursor is in: fluid movement ticks when it changes."""
+        return math.floor(self.x / STEP)
 
     def at_edge(self) -> bool:
         return self.x <= self.view.x_min or self.x >= self.view.x_max
