@@ -1987,6 +1987,13 @@ so it prints the winget command instead. Traps found:
   `python.exe.WebView2`). The session log now records the page being set,
   each LOADED and ERROR, and `_check_renderer_ready` asks the page itself
   before a conversion is refused.
+- In the packaged Windows application (2026-11-16) WebView2 sent LOADED
+  once only, for the base URL, during `SetPage` and before the page's
+  scripts had run, and never again. Opening an equation waits for the
+  converter (`_pending_read`), so every equation stayed in linear view,
+  unread. A LOADED that finds the page not ready now asks it again every
+  100 ms for up to 30 s (`_poll_renderer_ready`), and the log says when
+  it never became ready.
 
 Optional-tool management (2026-11-02): General > Optional tools stores a Pandoc
 executable and a LaTeX bin directory. Explicit paths never silently fall back.

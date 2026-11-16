@@ -37,6 +37,9 @@ except ImportError:  # The interface is an optional dependency.
 
 # Whether the converter page has run: its functions are there.
 _READY_SCRIPT = "typeof window.mathessibleConvert === 'function' && typeof window.mathessibleRender === 'function'"
+# How often, and how many times, to ask a page that was not ready when it loaded: 30 s in all.
+_READY_POLL_MS = 100
+_READY_POLL_ATTEMPTS = 300
 
 
 class EquationRendererMixin:
@@ -86,16 +89,32 @@ class EquationRendererMixin:
             success, value = self._webview.RunScript(_READY_SCRIPT)
             self._renderer_ready = success and value.strip().lower() == "true"
             session_log.write("webview", f"loaded {event.GetURL()[:80]}: ready {self._renderer_ready}")
-            if not self._renderer_ready:
-                self._renderer_error = _("the UnicodeMathML engine did not initialize")
+            if self._renderer_ready:
+                self._on_renderer_ready()
             else:
-                # LOADED can fire for an earlier, blank page first.
-                self._renderer_error = None
-                self._rendered_zoom = None  # A new page starts at 100%.
-                if self._pending_read:
-                    wx.CallAfter(self.read_expression)
+                # LOADED can fire for an earlier, blank page, or (WebView2 in the packaged application)
+                # once only, before the page's scripts have run: keep asking the page.
+                self._renderer_error = _("the UnicodeMathML engine did not initialize")
+                wx.CallLater(_READY_POLL_MS, self._poll_renderer_ready, _READY_POLL_ATTEMPTS)
             self.Refresh()
         event.Skip()
+
+    def _on_renderer_ready(self) -> None:
+        self._renderer_error = None
+        self._rendered_zoom = None  # A new page starts at 100%.
+        if self._pending_read:
+            wx.CallAfter(self.read_expression)
+
+    def _poll_renderer_ready(self, attempts: int) -> None:
+        if not self or self._renderer_ready:  # Destroyed, or a later LOADED said so.
+            return
+        if self._check_renderer_ready():
+            self._on_renderer_ready()
+            self.Refresh()
+        elif attempts > 0:
+            wx.CallLater(_READY_POLL_MS, self._poll_renderer_ready, attempts - 1)
+        else:
+            session_log.write("webview", "converter never became ready")
 
     def _on_renderer_focus(self, event: wx.FocusEvent) -> None:
         wx.CallAfter(self.SetFocus)
