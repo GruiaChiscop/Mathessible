@@ -1996,6 +1996,12 @@ so it prints the winget command instead. Traps found:
   on Windows the renderer asks for the Edge backend and reports
   "Microsoft Edge WebView2 is not available" rather than using IE. No
   msedgewebview2 process for Mathessible is the quick sign of this.
+- In the same package NVDA heard nothing: Prism imports `_prism_cffi`
+  from `prism/_native`, a folder it adds to its own `__path__`, so
+  PyInstaller collected `prism.dll` but not the `.pyd`, and speech fell
+  back to the console. The spec bundles every `_prism_cffi*` file there,
+  and the session log now says when speech is console only. The log's
+  `say` lines are what Mathessible sends, not proof a screen reader heard it.
 
 Optional-tool management (2026-11-02): General > Optional tools stores a Pandoc
 executable and a LaTeX bin directory. Explicit paths never silently fall back.

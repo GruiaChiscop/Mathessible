@@ -27,6 +27,13 @@ for package in ("prism", "typst", "mathessible_mathcat"):
     datas += found[0]
     binaries += found[1]
     hiddenimports += found[2]
+# Prism imports its cffi module (`_prism_cffi.pyd`/`.abi3.so`) from prism/_native, a folder it adds to its
+# own __path__, so PyInstaller does not find it: without it speech falls back to the console, silently.
+import prism
+
+native = Path(prism.__file__).parent / "_native"
+binaries += [(str(path), "prism/_native") for path in native.iterdir() if path.name.startswith("_prism_cffi")]
+hiddenimports += ["_cffi_backend"]
 
 analysis = Analysis(
     [str(root / "packaging" / "launch.py")],

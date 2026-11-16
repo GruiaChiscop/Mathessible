@@ -30,5 +30,9 @@ class PrismOutput:
 def create_output() -> AssistiveOutput:
     try:
         return PrismOutput()
-    except (ImportError, RuntimeError, ValueError, OSError):
+    except (ImportError, RuntimeError, ValueError, OSError) as error:
+        # No screen reader hears the console: the log says why, as nothing else would.
+        from mathessible import session_log
+
+        session_log.write("speech", f"no Prism, console only: {error!r}")
         return ConsoleOutput()
