@@ -1991,9 +1991,10 @@ so it prints the winget command instead. Traps found:
   once only, for the base URL, during `SetPage` and before the page's
   scripts had run, and never again. Opening an equation waits for the
   converter (`_pending_read`), so every equation stayed in linear view,
-  unread. A LOADED that finds the page not ready now asks it again every
-  100 ms for up to 30 s (`_poll_renderer_ready`), and the log says when
-  it never became ready.
+  unread. The page now says so itself: its last script posts
+  `{kind: "ready"}` through the `mathessible` script message handler (the
+  one its mouse events use), and the editor takes that as ready. No
+  polling: the message comes exactly when the converter's functions exist.
 
 Optional-tool management (2026-11-02): General > Optional tools stores a Pandoc
 executable and a LaTeX bin directory. Explicit paths never silently fall back.

@@ -37,9 +37,6 @@ except ImportError:  # The interface is an optional dependency.
 
 # Whether the converter page has run: its functions are there.
 _READY_SCRIPT = "typeof window.mathessibleConvert === 'function' && typeof window.mathessibleRender === 'function'"
-# How often, and how many times, to ask a page that was not ready when it loaded: 30 s in all.
-_READY_POLL_MS = 100
-_READY_POLL_ATTEMPTS = 300
 
 
 class EquationRendererMixin:
@@ -93,44 +90,41 @@ class EquationRendererMixin:
                 self._on_renderer_ready()
             else:
                 # LOADED can fire for an earlier, blank page, or (WebView2 in the packaged application)
-                # once only, before the page's scripts have run: keep asking the page.
+                # once only, before the page's scripts have run: the page's "ready" message says so then.
                 self._renderer_error = _("the UnicodeMathML engine did not initialize")
-                wx.CallLater(_READY_POLL_MS, self._poll_renderer_ready, _READY_POLL_ATTEMPTS)
             self.Refresh()
         event.Skip()
 
     def _on_renderer_ready(self) -> None:
+        self._renderer_ready = True
         self._renderer_error = None
         self._rendered_zoom = None  # A new page starts at 100%.
         if self._pending_read:
             wx.CallAfter(self.read_expression)
-
-    def _poll_renderer_ready(self, attempts: int) -> None:
-        if not self or self._renderer_ready:  # Destroyed, or a later LOADED said so.
-            return
-        if self._check_renderer_ready():
-            self._on_renderer_ready()
-            self.Refresh()
-        elif attempts > 0:
-            wx.CallLater(_READY_POLL_MS, self._poll_renderer_ready, attempts - 1)
-        else:
-            session_log.write("webview", "converter never became ready")
 
     def _on_renderer_focus(self, event: wx.FocusEvent) -> None:
         wx.CallAfter(self.SetFocus)
         event.Skip()
 
     def _on_renderer_click(self, event: wx.html2.WebViewEvent) -> None:
-        """The mouse on the rendered equation (the page's JSON point): placing the caret, selecting."""
-        self.SetFocus()
-        if self.mode != "professional" or self.mathcat is None or self.mathcat.structure is None:
-            return
+        """The page's messages: "ready" once its scripts have run, then the mouse on the rendered
+        equation (a JSON point), placing the caret or selecting."""
         try:
             point = json.loads(event.GetString())
         except ValueError:
             return
-        if isinstance(point, dict):
-            self._pointer(point)
+        if not isinstance(point, dict):
+            return
+        if point.get("kind") == "ready":
+            if not self._renderer_ready:
+                session_log.write("webview", "converter ready (its message)")
+                self._on_renderer_ready()
+                self.Refresh()
+            return
+        self.SetFocus()
+        if self.mode != "professional" or self.mathcat is None or self.mathcat.structure is None:
+            return
+        self._pointer(point)
 
     def _schedule_renderer_sync(self) -> None:
         if not self._renderer_sync_pending:
