@@ -772,23 +772,27 @@ msgstr "đầu"
 msgid "end"
 msgstr "cuối"
 
-#: src/mathessible/editor/renderer.py:90
+#: src/mathessible/editor/renderer.py:52
+msgid "Microsoft Edge WebView2 is not available"
+msgstr ""
+
+#: src/mathessible/editor/renderer.py:97
 msgid "the UnicodeMathML engine did not initialize"
 msgstr "bộ máy UnicodeMathML không khởi tạo được"
 
-#: src/mathessible/editor/renderer.py:240
+#: src/mathessible/editor/renderer.py:247
 msgid "the equation could not be written in LaTeX"
 msgstr "không thể viết phương trình bằng LaTeX"
 
-#: src/mathessible/editor/renderer.py:250
+#: src/mathessible/editor/renderer.py:257
 msgid "the UnicodeMathML converter is still loading"
 msgstr "bộ chuyển đổi UnicodeMathML vẫn đang tải"
 
-#: src/mathessible/editor/renderer.py:257
+#: src/mathessible/editor/renderer.py:264
 msgid "the UnicodeMathML converter is busy"
 msgstr "bộ chuyển đổi UnicodeMathML đang bận"
 
-#: src/mathessible/editor/renderer.py:287
+#: src/mathessible/editor/renderer.py:294
 msgid "the UnicodeMathML converter could not run"
 msgstr "không chạy được bộ chuyển đổi UnicodeMathML"
 
@@ -1218,7 +1222,7 @@ msgstr "Sáng"
 msgid "Dark"
 msgstr "Tối"
 
-#: src/mathessible/sonification/graph.py:289
+#: src/mathessible/sonification/graph.py:318
 msgid "undefined"
 msgstr "không xác định"
 
@@ -3402,176 +3406,176 @@ msgstr "Khám phá đồ thị"
 msgid "Graph explorer window"
 msgstr "Cửa sổ khám phá đồ thị"
 
-#: src/mathessible/ui/graph_explorer.py:75
+#: src/mathessible/ui/graph_explorer.py:78
 msgid ""
 "Left and Right explore. C reads coordinates. V reads the view. B plays the graph. F1 lists every "
 "key."
 msgstr "Trái và Phải để khám phá. C đọc tọa độ. V đọc khung nhìn. B phát đồ thị. F1 liệt kê mọi phím."
 
-#: src/mathessible/ui/graph_explorer.py:105
+#: src/mathessible/ui/graph_explorer.py:108
 msgid "&Play graph"
 msgstr "&Phát đồ thị"
 
-#: src/mathessible/ui/graph_explorer.py:106
+#: src/mathessible/ui/graph_explorer.py:109
 msgid "&Read coordinates"
 msgstr "Đọc &tọa độ"
 
-#: src/mathessible/ui/graph_explorer.py:107
+#: src/mathessible/ui/graph_explorer.py:110
 msgid "Read &view"
 msgstr "Đọc &khung nhìn"
 
-#: src/mathessible/ui/graph_explorer.py:108
+#: src/mathessible/ui/graph_explorer.py:111
 msgid "&Next function"
 msgstr "&Hàm tiếp theo"
 
-#: src/mathessible/ui/graph_explorer.py:109
+#: src/mathessible/ui/graph_explorer.py:112
 msgid "Toggle &discrete mode"
 msgstr "Bật tắt chế độ &rời rạc"
 
-#: src/mathessible/ui/graph_explorer.py:110
+#: src/mathessible/ui/graph_explorer.py:113
 msgid "Toggle &sound"
 msgstr "Bật tắt â&m thanh"
 
-#: src/mathessible/ui/graph_explorer.py:111
+#: src/mathessible/ui/graph_explorer.py:114
 msgid "Add or remove &bookmark"
 msgstr "Thêm hoặc xóa &dấu trang"
 
-#: src/mathessible/ui/graph_explorer.py:117 src/mathessible/ui/main_frame.py:993
+#: src/mathessible/ui/graph_explorer.py:120 src/mathessible/ui/main_frame.py:993
 msgid "&Close"
 msgstr "Đó&ng"
 
-#: src/mathessible/ui/graph_explorer.py:119
+#: src/mathessible/ui/graph_explorer.py:122
 msgid "&Graph"
 msgstr "Đồ &thị"
 
-#: src/mathessible/ui/graph_explorer.py:121
+#: src/mathessible/ui/graph_explorer.py:124
 msgid "&Keyboard Help"
 msgstr "Trợ giúp &bàn phím"
 
-#: src/mathessible/ui/graph_explorer.py:127 src/mathessible/ui/help_menu.py:29
+#: src/mathessible/ui/graph_explorer.py:130 src/mathessible/ui/help_menu.py:29
 msgid "&Help"
 msgstr "Trợ giú&p"
 
-#: src/mathessible/ui/graph_explorer.py:132 src/mathessible/ui/insert_dialogs.py:123
+#: src/mathessible/ui/graph_explorer.py:135 src/mathessible/ui/insert_dialogs.py:123
 msgid "Function graph"
 msgstr "Đồ thị hàm số"
 
-#: src/mathessible/ui/graph_explorer.py:133
+#: src/mathessible/ui/graph_explorer.py:136
 #, python-brace-format
 msgid "{title}. Exploring y equals {expression}."
 msgstr "{title}. Đang khám phá y bằng {expression}."
 
-#: src/mathessible/ui/graph_explorer.py:135
+#: src/mathessible/ui/graph_explorer.py:138
 #, python-brace-format
 msgid "Audio output is unavailable: {error}"
 msgstr "Đầu ra âm thanh không khả dụng: {error}"
 
-#: src/mathessible/ui/graph_explorer.py:161
+#: src/mathessible/ui/graph_explorer.py:164
 msgid "No point of interest in that direction."
 msgstr "Không có điểm đáng chú ý theo hướng đó."
 
-#: src/mathessible/ui/graph_explorer.py:178
+#: src/mathessible/ui/graph_explorer.py:183
 msgid "View centred at cursor"
 msgstr "Khung nhìn đã căn giữa tại con trỏ"
 
-#: src/mathessible/ui/graph_explorer.py:275
+#: src/mathessible/ui/graph_explorer.py:289
 msgid "View boundary"
 msgstr "Biên khung nhìn"
 
-#: src/mathessible/ui/graph_explorer.py:276
+#: src/mathessible/ui/graph_explorer.py:290
 msgid "Bookmark"
 msgstr "Dấu trang"
 
-#: src/mathessible/ui/graph_explorer.py:277
+#: src/mathessible/ui/graph_explorer.py:291
 msgid "Point of interest"
 msgstr "Điểm đáng chú ý"
 
-#: src/mathessible/ui/graph_explorer.py:279
+#: src/mathessible/ui/graph_explorer.py:293
 #, python-brace-format
 msgid "{name} at x {x}, y {y}"
 msgstr "{name} tại x {x}, y {y}"
 
-#: src/mathessible/ui/graph_explorer.py:281
+#: src/mathessible/ui/graph_explorer.py:295
 #, python-brace-format
 msgid "{name} near x {x}"
 msgstr "{name} gần x {x}"
 
-#: src/mathessible/ui/graph_explorer.py:284
+#: src/mathessible/ui/graph_explorer.py:298
 #, python-brace-format
 msgid "x {x}, y {y}"
 msgstr "x {x}, y {y}"
 
-#: src/mathessible/ui/graph_explorer.py:289
+#: src/mathessible/ui/graph_explorer.py:303
 #, python-brace-format
 msgid "x from {x_min} to {x_max}; y from {y_min} to {y_max}"
 msgstr "x từ {x_min} đến {x_max}; y từ {y_min} đến {y_max}"
 
-#: src/mathessible/ui/graph_explorer.py:300
+#: src/mathessible/ui/graph_explorer.py:314
 msgid "Discrete notes"
 msgstr "Nốt rời rạc"
 
-#: src/mathessible/ui/graph_explorer.py:300
+#: src/mathessible/ui/graph_explorer.py:314
 msgid "Continuous tone"
 msgstr "Âm liên tục"
 
-#: src/mathessible/ui/graph_explorer.py:305
+#: src/mathessible/ui/graph_explorer.py:319
 msgid "Sound on"
 msgstr "Bật âm thanh"
 
-#: src/mathessible/ui/graph_explorer.py:305
+#: src/mathessible/ui/graph_explorer.py:319
 msgid "Sound off"
 msgstr "Tắt âm thanh"
 
-#: src/mathessible/ui/graph_explorer.py:317
+#: src/mathessible/ui/graph_explorer.py:331
 #, python-brace-format
 msgid "Function {current} of {total}: y equals {expression}"
 msgstr "Hàm {current} trên {total}: y bằng {expression}"
 
-#: src/mathessible/ui/graph_explorer.py:325
+#: src/mathessible/ui/graph_explorer.py:339
 msgid "Bookmark added"
 msgstr "Đã thêm dấu trang"
 
-#: src/mathessible/ui/graph_explorer.py:325
+#: src/mathessible/ui/graph_explorer.py:339
 msgid "Bookmark removed"
 msgstr "Đã xóa dấu trang"
 
-#: src/mathessible/ui/graph_explorer.py:329
+#: src/mathessible/ui/graph_explorer.py:343
 msgid "Zoomed in"
 msgstr "Đã phóng to"
 
-#: src/mathessible/ui/graph_explorer.py:329
+#: src/mathessible/ui/graph_explorer.py:343
 msgid "Zoomed out"
 msgstr "Đã thu nhỏ"
 
-#: src/mathessible/ui/graph_explorer.py:329
+#: src/mathessible/ui/graph_explorer.py:343
 msgid "Zoom limit"
 msgstr "Giới hạn thu phóng"
 
-#: src/mathessible/ui/graph_explorer.py:350
+#: src/mathessible/ui/graph_explorer.py:364
 msgid "Original view"
 msgstr "Khung nhìn ban đầu"
 
-#: src/mathessible/ui/graph_explorer.py:358
+#: src/mathessible/ui/graph_explorer.py:372
 msgid "Playback stopped"
 msgstr "Đã dừng phát"
 
-#: src/mathessible/ui/graph_explorer.py:363
+#: src/mathessible/ui/graph_explorer.py:378
 msgid "Playing graph"
 msgstr "Đang phát đồ thị"
 
-#: src/mathessible/ui/graph_explorer.py:384
+#: src/mathessible/ui/graph_explorer.py:401
 msgid "End of graph"
 msgstr "Cuối đồ thị"
 
-#: src/mathessible/ui/graph_explorer.py:387
+#: src/mathessible/ui/graph_explorer.py:404
 msgid "Command"
 msgstr "Command"
 
-#: src/mathessible/ui/graph_explorer.py:387
+#: src/mathessible/ui/graph_explorer.py:404
 msgid "Control"
 msgstr "Control"
 
-#: src/mathessible/ui/graph_explorer.py:390
+#: src/mathessible/ui/graph_explorer.py:407
 #, python-brace-format
 msgid ""
 "Left and Right, or J and L, move; Shift moves fluidly; {modifier} with Left or Right goes between"
@@ -3588,7 +3592,7 @@ msgstr ""
 "khung nhìn, N hoặc 1 đến 9 chọn hàm, và {modifier} B thêm hoặc xóa dấu trang. {modifier} Z căn "
 "giữa khung nhìn tại con trỏ."
 
-#: src/mathessible/ui/graph_explorer.py:411
+#: src/mathessible/ui/graph_explorer.py:428
 msgid "Graph exploration area"
 msgstr "Vùng khám phá đồ thị"
 

@@ -780,23 +780,27 @@ msgstr "awal"
 msgid "end"
 msgstr "akhir"
 
-#: src/mathessible/editor/renderer.py:90
+#: src/mathessible/editor/renderer.py:52
+msgid "Microsoft Edge WebView2 is not available"
+msgstr ""
+
+#: src/mathessible/editor/renderer.py:97
 msgid "the UnicodeMathML engine did not initialize"
 msgstr "mesin UnicodeMathML tidak berhasil diinisialisasi"
 
-#: src/mathessible/editor/renderer.py:240
+#: src/mathessible/editor/renderer.py:247
 msgid "the equation could not be written in LaTeX"
 msgstr "persamaan tidak dapat ditulis dalam LaTeX"
 
-#: src/mathessible/editor/renderer.py:250
+#: src/mathessible/editor/renderer.py:257
 msgid "the UnicodeMathML converter is still loading"
 msgstr "pengonversi UnicodeMathML masih dimuat"
 
-#: src/mathessible/editor/renderer.py:257
+#: src/mathessible/editor/renderer.py:264
 msgid "the UnicodeMathML converter is busy"
 msgstr "pengonversi UnicodeMathML sedang sibuk"
 
-#: src/mathessible/editor/renderer.py:287
+#: src/mathessible/editor/renderer.py:294
 msgid "the UnicodeMathML converter could not run"
 msgstr "pengonversi UnicodeMathML tidak dapat dijalankan"
 
@@ -1226,7 +1230,7 @@ msgstr "Terang"
 msgid "Dark"
 msgstr "Gelap"
 
-#: src/mathessible/sonification/graph.py:289
+#: src/mathessible/sonification/graph.py:318
 msgid "undefined"
 msgstr "tidak terdefinisi"
 
@@ -3417,7 +3421,7 @@ msgstr "Jelajahi grafik"
 msgid "Graph explorer window"
 msgstr "Jendela penjelajah grafik"
 
-#: src/mathessible/ui/graph_explorer.py:75
+#: src/mathessible/ui/graph_explorer.py:78
 msgid ""
 "Left and Right explore. C reads coordinates. V reads the view. B plays the graph. F1 lists every "
 "key."
@@ -3425,170 +3429,170 @@ msgstr ""
 "Kiri dan Kanan menjelajah. C membaca koordinat. V membaca tampilan. B memutar grafik. F1 "
 "menampilkan semua tombol."
 
-#: src/mathessible/ui/graph_explorer.py:105
+#: src/mathessible/ui/graph_explorer.py:108
 msgid "&Play graph"
 msgstr "&Putar grafik"
 
-#: src/mathessible/ui/graph_explorer.py:106
+#: src/mathessible/ui/graph_explorer.py:109
 msgid "&Read coordinates"
 msgstr "&Baca koordinat"
 
-#: src/mathessible/ui/graph_explorer.py:107
+#: src/mathessible/ui/graph_explorer.py:110
 msgid "Read &view"
 msgstr "Baca &tampilan"
 
-#: src/mathessible/ui/graph_explorer.py:108
+#: src/mathessible/ui/graph_explorer.py:111
 msgid "&Next function"
 msgstr "Fungsi &berikutnya"
 
-#: src/mathessible/ui/graph_explorer.py:109
+#: src/mathessible/ui/graph_explorer.py:112
 msgid "Toggle &discrete mode"
 msgstr "Alihkan mode &diskret"
 
-#: src/mathessible/ui/graph_explorer.py:110
+#: src/mathessible/ui/graph_explorer.py:113
 msgid "Toggle &sound"
 msgstr "Alihkan &suara"
 
-#: src/mathessible/ui/graph_explorer.py:111
+#: src/mathessible/ui/graph_explorer.py:114
 msgid "Add or remove &bookmark"
 msgstr "Tambah atau hapus &markah"
 
-#: src/mathessible/ui/graph_explorer.py:117 src/mathessible/ui/main_frame.py:993
+#: src/mathessible/ui/graph_explorer.py:120 src/mathessible/ui/main_frame.py:993
 msgid "&Close"
 msgstr "&Tutup"
 
-#: src/mathessible/ui/graph_explorer.py:119
+#: src/mathessible/ui/graph_explorer.py:122
 msgid "&Graph"
 msgstr "&Grafik"
 
-#: src/mathessible/ui/graph_explorer.py:121
+#: src/mathessible/ui/graph_explorer.py:124
 msgid "&Keyboard Help"
 msgstr "&Bantuan papan ketik"
 
-#: src/mathessible/ui/graph_explorer.py:127 src/mathessible/ui/help_menu.py:29
+#: src/mathessible/ui/graph_explorer.py:130 src/mathessible/ui/help_menu.py:29
 msgid "&Help"
 msgstr "Ba&ntuan"
 
-#: src/mathessible/ui/graph_explorer.py:132 src/mathessible/ui/insert_dialogs.py:123
+#: src/mathessible/ui/graph_explorer.py:135 src/mathessible/ui/insert_dialogs.py:123
 msgid "Function graph"
 msgstr "Grafik fungsi"
 
-#: src/mathessible/ui/graph_explorer.py:133
+#: src/mathessible/ui/graph_explorer.py:136
 #, python-brace-format
 msgid "{title}. Exploring y equals {expression}."
 msgstr "{title}. Menjelajahi y sama dengan {expression}."
 
-#: src/mathessible/ui/graph_explorer.py:135
+#: src/mathessible/ui/graph_explorer.py:138
 #, python-brace-format
 msgid "Audio output is unavailable: {error}"
 msgstr "Keluaran audio tidak tersedia: {error}"
 
-#: src/mathessible/ui/graph_explorer.py:161
+#: src/mathessible/ui/graph_explorer.py:164
 msgid "No point of interest in that direction."
 msgstr "Tidak ada titik menarik ke arah itu."
 
-#: src/mathessible/ui/graph_explorer.py:178
+#: src/mathessible/ui/graph_explorer.py:183
 msgid "View centred at cursor"
 msgstr "Tampilan dipusatkan pada kursor"
 
-#: src/mathessible/ui/graph_explorer.py:275
+#: src/mathessible/ui/graph_explorer.py:289
 msgid "View boundary"
 msgstr "Batas tampilan"
 
-#: src/mathessible/ui/graph_explorer.py:276
+#: src/mathessible/ui/graph_explorer.py:290
 msgid "Bookmark"
 msgstr "Markah"
 
-#: src/mathessible/ui/graph_explorer.py:277
+#: src/mathessible/ui/graph_explorer.py:291
 msgid "Point of interest"
 msgstr "Titik menarik"
 
-#: src/mathessible/ui/graph_explorer.py:279
+#: src/mathessible/ui/graph_explorer.py:293
 #, python-brace-format
 msgid "{name} at x {x}, y {y}"
 msgstr "{name} pada x {x}, y {y}"
 
-#: src/mathessible/ui/graph_explorer.py:281
+#: src/mathessible/ui/graph_explorer.py:295
 #, python-brace-format
 msgid "{name} near x {x}"
 msgstr "{name} dekat x {x}"
 
-#: src/mathessible/ui/graph_explorer.py:284
+#: src/mathessible/ui/graph_explorer.py:298
 #, python-brace-format
 msgid "x {x}, y {y}"
 msgstr "x {x}, y {y}"
 
-#: src/mathessible/ui/graph_explorer.py:289
+#: src/mathessible/ui/graph_explorer.py:303
 #, python-brace-format
 msgid "x from {x_min} to {x_max}; y from {y_min} to {y_max}"
 msgstr "x dari {x_min} sampai {x_max}; y dari {y_min} sampai {y_max}"
 
-#: src/mathessible/ui/graph_explorer.py:300
+#: src/mathessible/ui/graph_explorer.py:314
 msgid "Discrete notes"
 msgstr "Nada terpisah"
 
-#: src/mathessible/ui/graph_explorer.py:300
+#: src/mathessible/ui/graph_explorer.py:314
 msgid "Continuous tone"
 msgstr "Nada kontinu"
 
-#: src/mathessible/ui/graph_explorer.py:305
+#: src/mathessible/ui/graph_explorer.py:319
 msgid "Sound on"
 msgstr "Suara hidup"
 
-#: src/mathessible/ui/graph_explorer.py:305
+#: src/mathessible/ui/graph_explorer.py:319
 msgid "Sound off"
 msgstr "Suara mati"
 
-#: src/mathessible/ui/graph_explorer.py:317
+#: src/mathessible/ui/graph_explorer.py:331
 #, python-brace-format
 msgid "Function {current} of {total}: y equals {expression}"
 msgstr "Fungsi {current} dari {total}: y sama dengan {expression}"
 
-#: src/mathessible/ui/graph_explorer.py:325
+#: src/mathessible/ui/graph_explorer.py:339
 msgid "Bookmark added"
 msgstr "Markah ditambahkan"
 
-#: src/mathessible/ui/graph_explorer.py:325
+#: src/mathessible/ui/graph_explorer.py:339
 msgid "Bookmark removed"
 msgstr "Markah dihapus"
 
-#: src/mathessible/ui/graph_explorer.py:329
+#: src/mathessible/ui/graph_explorer.py:343
 msgid "Zoomed in"
 msgstr "Diperbesar"
 
-#: src/mathessible/ui/graph_explorer.py:329
+#: src/mathessible/ui/graph_explorer.py:343
 msgid "Zoomed out"
 msgstr "Diperkecil"
 
-#: src/mathessible/ui/graph_explorer.py:329
+#: src/mathessible/ui/graph_explorer.py:343
 msgid "Zoom limit"
 msgstr "Batas zoom"
 
-#: src/mathessible/ui/graph_explorer.py:350
+#: src/mathessible/ui/graph_explorer.py:364
 msgid "Original view"
 msgstr "Tampilan asli"
 
-#: src/mathessible/ui/graph_explorer.py:358
+#: src/mathessible/ui/graph_explorer.py:372
 msgid "Playback stopped"
 msgstr "Pemutaran dihentikan"
 
-#: src/mathessible/ui/graph_explorer.py:363
+#: src/mathessible/ui/graph_explorer.py:378
 msgid "Playing graph"
 msgstr "Memutar grafik"
 
-#: src/mathessible/ui/graph_explorer.py:384
+#: src/mathessible/ui/graph_explorer.py:401
 msgid "End of graph"
 msgstr "Akhir grafik"
 
-#: src/mathessible/ui/graph_explorer.py:387
+#: src/mathessible/ui/graph_explorer.py:404
 msgid "Command"
 msgstr "Command"
 
-#: src/mathessible/ui/graph_explorer.py:387
+#: src/mathessible/ui/graph_explorer.py:404
 msgid "Control"
 msgstr "Control"
 
-#: src/mathessible/ui/graph_explorer.py:390
+#: src/mathessible/ui/graph_explorer.py:407
 #, python-brace-format
 msgid ""
 "Left and Right, or J and L, move; Shift moves fluidly; {modifier} with Left or Right goes between"
@@ -3605,7 +3609,7 @@ msgstr ""
 "atau mematikan suara. C membaca koordinat, V membaca tampilan, N atau 1 sampai 9 memilih fungsi, "
 "dan {modifier} B menambah atau menghapus markah. {modifier} Z memusatkan tampilan pada kursor."
 
-#: src/mathessible/ui/graph_explorer.py:411
+#: src/mathessible/ui/graph_explorer.py:428
 msgid "Graph exploration area"
 msgstr "Area penjelajahan grafik"
 

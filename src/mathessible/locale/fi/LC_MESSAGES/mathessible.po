@@ -778,23 +778,27 @@ msgstr "alku"
 msgid "end"
 msgstr "loppu"
 
-#: src/mathessible/editor/renderer.py:90
+#: src/mathessible/editor/renderer.py:52
+msgid "Microsoft Edge WebView2 is not available"
+msgstr ""
+
+#: src/mathessible/editor/renderer.py:97
 msgid "the UnicodeMathML engine did not initialize"
 msgstr "UnicodeMathML-moottori ei käynnistynyt"
 
-#: src/mathessible/editor/renderer.py:240
+#: src/mathessible/editor/renderer.py:247
 msgid "the equation could not be written in LaTeX"
 msgstr "kaavaa ei voitu kirjoittaa LaTeXina"
 
-#: src/mathessible/editor/renderer.py:250
+#: src/mathessible/editor/renderer.py:257
 msgid "the UnicodeMathML converter is still loading"
 msgstr "UnicodeMathML-muunninta ladataan vielä"
 
-#: src/mathessible/editor/renderer.py:257
+#: src/mathessible/editor/renderer.py:264
 msgid "the UnicodeMathML converter is busy"
 msgstr "UnicodeMathML-muunnin on varattu"
 
-#: src/mathessible/editor/renderer.py:287
+#: src/mathessible/editor/renderer.py:294
 msgid "the UnicodeMathML converter could not run"
 msgstr "UnicodeMathML-muunninta ei voitu suorittaa"
 
@@ -1222,7 +1226,7 @@ msgstr "Vaalea"
 msgid "Dark"
 msgstr "Tumma"
 
-#: src/mathessible/sonification/graph.py:289
+#: src/mathessible/sonification/graph.py:318
 msgid "undefined"
 msgstr "määrittelemätön"
 
@@ -3411,7 +3415,7 @@ msgstr "Tutki kuvaajaa"
 msgid "Graph explorer window"
 msgstr "Kuvaajan tutkimisikkuna"
 
-#: src/mathessible/ui/graph_explorer.py:75
+#: src/mathessible/ui/graph_explorer.py:78
 msgid ""
 "Left and Right explore. C reads coordinates. V reads the view. B plays the graph. F1 lists every "
 "key."
@@ -3419,170 +3423,170 @@ msgstr ""
 "Vasen ja Oikea tutkivat. C lukee koordinaatit. V lukee näkymän. B soittaa kuvaajan. F1 luettelee "
 "kaikki näppäimet."
 
-#: src/mathessible/ui/graph_explorer.py:105
+#: src/mathessible/ui/graph_explorer.py:108
 msgid "&Play graph"
 msgstr "&Soita kuvaaja"
 
-#: src/mathessible/ui/graph_explorer.py:106
+#: src/mathessible/ui/graph_explorer.py:109
 msgid "&Read coordinates"
 msgstr "&Lue koordinaatit"
 
-#: src/mathessible/ui/graph_explorer.py:107
+#: src/mathessible/ui/graph_explorer.py:110
 msgid "Read &view"
 msgstr "Lue &näkymä"
 
-#: src/mathessible/ui/graph_explorer.py:108
+#: src/mathessible/ui/graph_explorer.py:111
 msgid "&Next function"
 msgstr "Seuraava &funktio"
 
-#: src/mathessible/ui/graph_explorer.py:109
+#: src/mathessible/ui/graph_explorer.py:112
 msgid "Toggle &discrete mode"
 msgstr "Vaihda &diskreetti tila"
 
-#: src/mathessible/ui/graph_explorer.py:110
+#: src/mathessible/ui/graph_explorer.py:113
 msgid "Toggle &sound"
 msgstr "Vaihda ää&ni"
 
-#: src/mathessible/ui/graph_explorer.py:111
+#: src/mathessible/ui/graph_explorer.py:114
 msgid "Add or remove &bookmark"
 msgstr "Lisää tai poista &kirjanmerkki"
 
-#: src/mathessible/ui/graph_explorer.py:117 src/mathessible/ui/main_frame.py:993
+#: src/mathessible/ui/graph_explorer.py:120 src/mathessible/ui/main_frame.py:993
 msgid "&Close"
 msgstr "&Sulje"
 
-#: src/mathessible/ui/graph_explorer.py:119
+#: src/mathessible/ui/graph_explorer.py:122
 msgid "&Graph"
 msgstr "&Kuvaaja"
 
-#: src/mathessible/ui/graph_explorer.py:121
+#: src/mathessible/ui/graph_explorer.py:124
 msgid "&Keyboard Help"
 msgstr "&Näppäinohje"
 
-#: src/mathessible/ui/graph_explorer.py:127 src/mathessible/ui/help_menu.py:29
+#: src/mathessible/ui/graph_explorer.py:130 src/mathessible/ui/help_menu.py:29
 msgid "&Help"
 msgstr "&Ohje"
 
-#: src/mathessible/ui/graph_explorer.py:132 src/mathessible/ui/insert_dialogs.py:123
+#: src/mathessible/ui/graph_explorer.py:135 src/mathessible/ui/insert_dialogs.py:123
 msgid "Function graph"
 msgstr "Funktion kuvaaja"
 
-#: src/mathessible/ui/graph_explorer.py:133
+#: src/mathessible/ui/graph_explorer.py:136
 #, python-brace-format
 msgid "{title}. Exploring y equals {expression}."
 msgstr "{title}. Tutkitaan y on yhtä kuin {expression}."
 
-#: src/mathessible/ui/graph_explorer.py:135
+#: src/mathessible/ui/graph_explorer.py:138
 #, python-brace-format
 msgid "Audio output is unavailable: {error}"
 msgstr "Äänilähtö ei ole käytettävissä: {error}"
 
-#: src/mathessible/ui/graph_explorer.py:161
+#: src/mathessible/ui/graph_explorer.py:164
 msgid "No point of interest in that direction."
 msgstr "Siihen suuntaan ei ole kiinnostavaa pistettä."
 
-#: src/mathessible/ui/graph_explorer.py:178
+#: src/mathessible/ui/graph_explorer.py:183
 msgid "View centred at cursor"
 msgstr "Näkymä keskitetty kohdistimeen"
 
-#: src/mathessible/ui/graph_explorer.py:275
+#: src/mathessible/ui/graph_explorer.py:289
 msgid "View boundary"
 msgstr "Näkymän raja"
 
-#: src/mathessible/ui/graph_explorer.py:276
+#: src/mathessible/ui/graph_explorer.py:290
 msgid "Bookmark"
 msgstr "Kirjanmerkki"
 
-#: src/mathessible/ui/graph_explorer.py:277
+#: src/mathessible/ui/graph_explorer.py:291
 msgid "Point of interest"
 msgstr "Kiinnostava piste"
 
-#: src/mathessible/ui/graph_explorer.py:279
+#: src/mathessible/ui/graph_explorer.py:293
 #, python-brace-format
 msgid "{name} at x {x}, y {y}"
 msgstr "{name} kohdassa x {x}, y {y}"
 
-#: src/mathessible/ui/graph_explorer.py:281
+#: src/mathessible/ui/graph_explorer.py:295
 #, python-brace-format
 msgid "{name} near x {x}"
 msgstr "{name} lähellä x {x}"
 
-#: src/mathessible/ui/graph_explorer.py:284
+#: src/mathessible/ui/graph_explorer.py:298
 #, python-brace-format
 msgid "x {x}, y {y}"
 msgstr "x {x}, y {y}"
 
-#: src/mathessible/ui/graph_explorer.py:289
+#: src/mathessible/ui/graph_explorer.py:303
 #, python-brace-format
 msgid "x from {x_min} to {x_max}; y from {y_min} to {y_max}"
 msgstr "x välillä {x_min}–{x_max}; y välillä {y_min}–{y_max}"
 
-#: src/mathessible/ui/graph_explorer.py:300
+#: src/mathessible/ui/graph_explorer.py:314
 msgid "Discrete notes"
 msgstr "Erilliset nuotit"
 
-#: src/mathessible/ui/graph_explorer.py:300
+#: src/mathessible/ui/graph_explorer.py:314
 msgid "Continuous tone"
 msgstr "Jatkuva ääni"
 
-#: src/mathessible/ui/graph_explorer.py:305
+#: src/mathessible/ui/graph_explorer.py:319
 msgid "Sound on"
 msgstr "Ääni päällä"
 
-#: src/mathessible/ui/graph_explorer.py:305
+#: src/mathessible/ui/graph_explorer.py:319
 msgid "Sound off"
 msgstr "Ääni pois"
 
-#: src/mathessible/ui/graph_explorer.py:317
+#: src/mathessible/ui/graph_explorer.py:331
 #, python-brace-format
 msgid "Function {current} of {total}: y equals {expression}"
 msgstr "Funktio {current}/{total}: y on yhtä kuin {expression}"
 
-#: src/mathessible/ui/graph_explorer.py:325
+#: src/mathessible/ui/graph_explorer.py:339
 msgid "Bookmark added"
 msgstr "Kirjanmerkki lisätty"
 
-#: src/mathessible/ui/graph_explorer.py:325
+#: src/mathessible/ui/graph_explorer.py:339
 msgid "Bookmark removed"
 msgstr "Kirjanmerkki poistettu"
 
-#: src/mathessible/ui/graph_explorer.py:329
+#: src/mathessible/ui/graph_explorer.py:343
 msgid "Zoomed in"
 msgstr "Lähennetty"
 
-#: src/mathessible/ui/graph_explorer.py:329
+#: src/mathessible/ui/graph_explorer.py:343
 msgid "Zoomed out"
 msgstr "Loitonnettu"
 
-#: src/mathessible/ui/graph_explorer.py:329
+#: src/mathessible/ui/graph_explorer.py:343
 msgid "Zoom limit"
 msgstr "Zoomauksen raja"
 
-#: src/mathessible/ui/graph_explorer.py:350
+#: src/mathessible/ui/graph_explorer.py:364
 msgid "Original view"
 msgstr "Alkuperäinen näkymä"
 
-#: src/mathessible/ui/graph_explorer.py:358
+#: src/mathessible/ui/graph_explorer.py:372
 msgid "Playback stopped"
 msgstr "Toisto pysäytetty"
 
-#: src/mathessible/ui/graph_explorer.py:363
+#: src/mathessible/ui/graph_explorer.py:378
 msgid "Playing graph"
 msgstr "Soitetaan kuvaajaa"
 
-#: src/mathessible/ui/graph_explorer.py:384
+#: src/mathessible/ui/graph_explorer.py:401
 msgid "End of graph"
 msgstr "Kuvaajan loppu"
 
-#: src/mathessible/ui/graph_explorer.py:387
+#: src/mathessible/ui/graph_explorer.py:404
 msgid "Command"
 msgstr "Komento"
 
-#: src/mathessible/ui/graph_explorer.py:387
+#: src/mathessible/ui/graph_explorer.py:404
 msgid "Control"
 msgstr "Ctrl"
 
-#: src/mathessible/ui/graph_explorer.py:390
+#: src/mathessible/ui/graph_explorer.py:407
 #, python-brace-format
 msgid ""
 "Left and Right, or J and L, move; Shift moves fluidly; {modifier} with Left or Right goes between"
@@ -3600,7 +3604,7 @@ msgstr ""
 "funktion, ja {modifier} B lisää tai poistaa kirjanmerkin. {modifier} Z keskittää näkymän "
 "kohdistimeen."
 
-#: src/mathessible/ui/graph_explorer.py:411
+#: src/mathessible/ui/graph_explorer.py:428
 msgid "Graph exploration area"
 msgstr "Kuvaajan tutkimisalue"
 

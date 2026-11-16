@@ -16,6 +16,12 @@ datas += [
     (str(root / "liblouis" / "tables"), "liblouis/tables"),
 ]
 binaries, hiddenimports = [], []
+# wx loads WebView2's loader by name at run time, so PyInstaller does not see it; without it wx falls
+# back to Internet Explorer, which cannot run the converter. "." is on the bundle's DLL search path.
+if sys.platform == "win32":
+    import wx
+
+    binaries += [(str(Path(wx.__file__).parent / "WebView2Loader.dll"), ".")]
 for package in ("prism", "typst", "mathessible_mathcat"):
     found = collect_all(package)
     datas += found[0]

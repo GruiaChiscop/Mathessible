@@ -338,8 +338,6 @@ def renderer_page() -> tuple[str, str]:
       return true;
     };
     window.mathessibleReady = true;
-    // The editor learns here that the converter is there: WebView2 may send LOADED before this ran.
-    mathessiblePost({kind: "ready"});
   </script>
 </body>
 </html>"""

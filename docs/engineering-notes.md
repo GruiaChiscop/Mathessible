@@ -1987,14 +1987,15 @@ so it prints the winget command instead. Traps found:
   `python.exe.WebView2`). The session log now records the page being set,
   each LOADED and ERROR, and `_check_renderer_ready` asks the page itself
   before a conversion is refused.
-- In the packaged Windows application (2026-11-16) WebView2 sent LOADED
-  once only, for the base URL, during `SetPage` and before the page's
-  scripts had run, and never again. Opening an equation waits for the
-  converter (`_pending_read`), so every equation stayed in linear view,
-  unread. The page now says so itself: its last script posts
-  `{kind: "ready"}` through the `mathessible` script message handler (the
-  one its mouse events use), and the editor takes that as ready. No
-  polling: the message comes exactly when the converter's functions exist.
+- The packaged Windows application (2026-11-16) opened every equation
+  linear and unread: PyInstaller left out `wx/WebView2Loader.dll`, which
+  wx loads by name at run time, and wx fell back to Internet Explorer
+  without a word. IE sent LOADED for the base URL during `SetPage`, never
+  ran the converter, and no msedgewebview2 process started. The spec now
+  bundles the loader at the bundle's root (on its DLL search path), and
+  on Windows the renderer asks for the Edge backend and reports
+  "Microsoft Edge WebView2 is not available" rather than using IE. No
+  msedgewebview2 process for Mathessible is the quick sign of this.
 
 Optional-tool management (2026-11-02): General > Optional tools stores a Pandoc
 executable and a LaTeX bin directory. Explicit paths never silently fall back.

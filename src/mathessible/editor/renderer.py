@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sys
 import time
 from collections.abc import Callable
 
@@ -45,7 +46,13 @@ class EquationRendererMixin:
     def _create_renderer(self) -> None:
         try:
             page, base_url = renderer_page()
-            self._webview = wx.html2.WebView.New(self)
+            if sys.platform == "win32":
+                # Never Internet Explorer, wx's fallback when WebView2 cannot be loaded: it cannot run the converter.
+                if not wx.html2.WebView.IsBackendAvailable(wx.html2.WebViewBackendEdge):
+                    raise RuntimeError(_("Microsoft Edge WebView2 is not available"))
+                self._webview = wx.html2.WebView.New(self, backend=wx.html2.WebViewBackendEdge)
+            else:
+                self._webview = wx.html2.WebView.New(self)
             # Never focused, so it must not take Cmd+A/C/V/X either.
             guard_webview_key_equivalents()
             self._webview.SetName("")
@@ -86,45 +93,32 @@ class EquationRendererMixin:
             success, value = self._webview.RunScript(_READY_SCRIPT)
             self._renderer_ready = success and value.strip().lower() == "true"
             session_log.write("webview", f"loaded {event.GetURL()[:80]}: ready {self._renderer_ready}")
-            if self._renderer_ready:
-                self._on_renderer_ready()
-            else:
-                # LOADED can fire for an earlier, blank page, or (WebView2 in the packaged application)
-                # once only, before the page's scripts have run: the page's "ready" message says so then.
+            if not self._renderer_ready:
                 self._renderer_error = _("the UnicodeMathML engine did not initialize")
+            else:
+                # LOADED can fire for an earlier, blank page first.
+                self._renderer_error = None
+                self._rendered_zoom = None  # A new page starts at 100%.
+                if self._pending_read:
+                    wx.CallAfter(self.read_expression)
             self.Refresh()
         event.Skip()
-
-    def _on_renderer_ready(self) -> None:
-        self._renderer_ready = True
-        self._renderer_error = None
-        self._rendered_zoom = None  # A new page starts at 100%.
-        if self._pending_read:
-            wx.CallAfter(self.read_expression)
 
     def _on_renderer_focus(self, event: wx.FocusEvent) -> None:
         wx.CallAfter(self.SetFocus)
         event.Skip()
 
     def _on_renderer_click(self, event: wx.html2.WebViewEvent) -> None:
-        """The page's messages: "ready" once its scripts have run, then the mouse on the rendered
-        equation (a JSON point), placing the caret or selecting."""
+        """The mouse on the rendered equation (the page's JSON point): placing the caret, selecting."""
+        self.SetFocus()
+        if self.mode != "professional" or self.mathcat is None or self.mathcat.structure is None:
+            return
         try:
             point = json.loads(event.GetString())
         except ValueError:
             return
-        if not isinstance(point, dict):
-            return
-        if point.get("kind") == "ready":
-            if not self._renderer_ready:
-                session_log.write("webview", "converter ready (its message)")
-                self._on_renderer_ready()
-                self.Refresh()
-            return
-        self.SetFocus()
-        if self.mode != "professional" or self.mathcat is None or self.mathcat.structure is None:
-            return
-        self._pointer(point)
+        if isinstance(point, dict):
+            self._pointer(point)
 
     def _schedule_renderer_sync(self) -> None:
         if not self._renderer_sync_pending:

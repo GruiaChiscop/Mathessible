@@ -785,23 +785,27 @@ msgstr "начало"
 msgid "end"
 msgstr "конец"
 
-#: src/mathessible/editor/renderer.py:90
+#: src/mathessible/editor/renderer.py:52
+msgid "Microsoft Edge WebView2 is not available"
+msgstr ""
+
+#: src/mathessible/editor/renderer.py:97
 msgid "the UnicodeMathML engine did not initialize"
 msgstr "движок UnicodeMathML не инициализировался"
 
-#: src/mathessible/editor/renderer.py:240
+#: src/mathessible/editor/renderer.py:247
 msgid "the equation could not be written in LaTeX"
 msgstr "не удалось записать уравнение в LaTeX"
 
-#: src/mathessible/editor/renderer.py:250
+#: src/mathessible/editor/renderer.py:257
 msgid "the UnicodeMathML converter is still loading"
 msgstr "преобразователь UnicodeMathML ещё загружается"
 
-#: src/mathessible/editor/renderer.py:257
+#: src/mathessible/editor/renderer.py:264
 msgid "the UnicodeMathML converter is busy"
 msgstr "преобразователь UnicodeMathML занят"
 
-#: src/mathessible/editor/renderer.py:287
+#: src/mathessible/editor/renderer.py:294
 msgid "the UnicodeMathML converter could not run"
 msgstr "не удалось запустить преобразователь UnicodeMathML"
 
@@ -1231,7 +1235,7 @@ msgstr "Светлая"
 msgid "Dark"
 msgstr "Тёмная"
 
-#: src/mathessible/sonification/graph.py:289
+#: src/mathessible/sonification/graph.py:318
 msgid "undefined"
 msgstr "не определено"
 
@@ -3421,7 +3425,7 @@ msgstr "Исследовать график"
 msgid "Graph explorer window"
 msgstr "Окно исследования графика"
 
-#: src/mathessible/ui/graph_explorer.py:75
+#: src/mathessible/ui/graph_explorer.py:78
 msgid ""
 "Left and Right explore. C reads coordinates. V reads the view. B plays the graph. F1 lists every "
 "key."
@@ -3429,170 +3433,170 @@ msgstr ""
 "Влево и Вправо исследуют. C читает координаты. V читает вид. B проигрывает график. F1 показывает "
 "все клавиши."
 
-#: src/mathessible/ui/graph_explorer.py:105
+#: src/mathessible/ui/graph_explorer.py:108
 msgid "&Play graph"
 msgstr "&Проиграть график"
 
-#: src/mathessible/ui/graph_explorer.py:106
+#: src/mathessible/ui/graph_explorer.py:109
 msgid "&Read coordinates"
 msgstr "&Читать координаты"
 
-#: src/mathessible/ui/graph_explorer.py:107
+#: src/mathessible/ui/graph_explorer.py:110
 msgid "Read &view"
 msgstr "Читать &вид"
 
-#: src/mathessible/ui/graph_explorer.py:108
+#: src/mathessible/ui/graph_explorer.py:111
 msgid "&Next function"
 msgstr "&Следующая функция"
 
-#: src/mathessible/ui/graph_explorer.py:109
+#: src/mathessible/ui/graph_explorer.py:112
 msgid "Toggle &discrete mode"
 msgstr "Переключить &дискретный режим"
 
-#: src/mathessible/ui/graph_explorer.py:110
+#: src/mathessible/ui/graph_explorer.py:113
 msgid "Toggle &sound"
 msgstr "Переключить з&вук"
 
-#: src/mathessible/ui/graph_explorer.py:111
+#: src/mathessible/ui/graph_explorer.py:114
 msgid "Add or remove &bookmark"
 msgstr "Добавить или удалить &закладку"
 
-#: src/mathessible/ui/graph_explorer.py:117 src/mathessible/ui/main_frame.py:993
+#: src/mathessible/ui/graph_explorer.py:120 src/mathessible/ui/main_frame.py:993
 msgid "&Close"
 msgstr "&Закрыть"
 
-#: src/mathessible/ui/graph_explorer.py:119
+#: src/mathessible/ui/graph_explorer.py:122
 msgid "&Graph"
 msgstr "&График"
 
-#: src/mathessible/ui/graph_explorer.py:121
+#: src/mathessible/ui/graph_explorer.py:124
 msgid "&Keyboard Help"
 msgstr "&Справка по клавишам"
 
-#: src/mathessible/ui/graph_explorer.py:127 src/mathessible/ui/help_menu.py:29
+#: src/mathessible/ui/graph_explorer.py:130 src/mathessible/ui/help_menu.py:29
 msgid "&Help"
 msgstr "&Справка"
 
-#: src/mathessible/ui/graph_explorer.py:132 src/mathessible/ui/insert_dialogs.py:123
+#: src/mathessible/ui/graph_explorer.py:135 src/mathessible/ui/insert_dialogs.py:123
 msgid "Function graph"
 msgstr "График функции"
 
-#: src/mathessible/ui/graph_explorer.py:133
+#: src/mathessible/ui/graph_explorer.py:136
 #, python-brace-format
 msgid "{title}. Exploring y equals {expression}."
 msgstr "{title}. Исследование: y равно {expression}."
 
-#: src/mathessible/ui/graph_explorer.py:135
+#: src/mathessible/ui/graph_explorer.py:138
 #, python-brace-format
 msgid "Audio output is unavailable: {error}"
 msgstr "Вывод звука недоступен: {error}"
 
-#: src/mathessible/ui/graph_explorer.py:161
+#: src/mathessible/ui/graph_explorer.py:164
 msgid "No point of interest in that direction."
 msgstr "В этом направлении нет интересных точек."
 
-#: src/mathessible/ui/graph_explorer.py:178
+#: src/mathessible/ui/graph_explorer.py:183
 msgid "View centred at cursor"
 msgstr "Вид отцентрован по курсору"
 
-#: src/mathessible/ui/graph_explorer.py:275
+#: src/mathessible/ui/graph_explorer.py:289
 msgid "View boundary"
 msgstr "Граница вида"
 
-#: src/mathessible/ui/graph_explorer.py:276
+#: src/mathessible/ui/graph_explorer.py:290
 msgid "Bookmark"
 msgstr "Закладка"
 
-#: src/mathessible/ui/graph_explorer.py:277
+#: src/mathessible/ui/graph_explorer.py:291
 msgid "Point of interest"
 msgstr "Интересная точка"
 
-#: src/mathessible/ui/graph_explorer.py:279
+#: src/mathessible/ui/graph_explorer.py:293
 #, python-brace-format
 msgid "{name} at x {x}, y {y}"
 msgstr "{name} при x {x}, y {y}"
 
-#: src/mathessible/ui/graph_explorer.py:281
+#: src/mathessible/ui/graph_explorer.py:295
 #, python-brace-format
 msgid "{name} near x {x}"
 msgstr "{name} около x {x}"
 
-#: src/mathessible/ui/graph_explorer.py:284
+#: src/mathessible/ui/graph_explorer.py:298
 #, python-brace-format
 msgid "x {x}, y {y}"
 msgstr "x {x}, y {y}"
 
-#: src/mathessible/ui/graph_explorer.py:289
+#: src/mathessible/ui/graph_explorer.py:303
 #, python-brace-format
 msgid "x from {x_min} to {x_max}; y from {y_min} to {y_max}"
 msgstr "x от {x_min} до {x_max}; y от {y_min} до {y_max}"
 
-#: src/mathessible/ui/graph_explorer.py:300
+#: src/mathessible/ui/graph_explorer.py:314
 msgid "Discrete notes"
 msgstr "Отдельные ноты"
 
-#: src/mathessible/ui/graph_explorer.py:300
+#: src/mathessible/ui/graph_explorer.py:314
 msgid "Continuous tone"
 msgstr "Непрерывный тон"
 
-#: src/mathessible/ui/graph_explorer.py:305
+#: src/mathessible/ui/graph_explorer.py:319
 msgid "Sound on"
 msgstr "Звук включён"
 
-#: src/mathessible/ui/graph_explorer.py:305
+#: src/mathessible/ui/graph_explorer.py:319
 msgid "Sound off"
 msgstr "Звук выключен"
 
-#: src/mathessible/ui/graph_explorer.py:317
+#: src/mathessible/ui/graph_explorer.py:331
 #, python-brace-format
 msgid "Function {current} of {total}: y equals {expression}"
 msgstr "Функция {current} из {total}: y равно {expression}"
 
-#: src/mathessible/ui/graph_explorer.py:325
+#: src/mathessible/ui/graph_explorer.py:339
 msgid "Bookmark added"
 msgstr "Закладка добавлена"
 
-#: src/mathessible/ui/graph_explorer.py:325
+#: src/mathessible/ui/graph_explorer.py:339
 msgid "Bookmark removed"
 msgstr "Закладка удалена"
 
-#: src/mathessible/ui/graph_explorer.py:329
+#: src/mathessible/ui/graph_explorer.py:343
 msgid "Zoomed in"
 msgstr "Приближено"
 
-#: src/mathessible/ui/graph_explorer.py:329
+#: src/mathessible/ui/graph_explorer.py:343
 msgid "Zoomed out"
 msgstr "Отдалено"
 
-#: src/mathessible/ui/graph_explorer.py:329
+#: src/mathessible/ui/graph_explorer.py:343
 msgid "Zoom limit"
 msgstr "Предел масштаба"
 
-#: src/mathessible/ui/graph_explorer.py:350
+#: src/mathessible/ui/graph_explorer.py:364
 msgid "Original view"
 msgstr "Исходный вид"
 
-#: src/mathessible/ui/graph_explorer.py:358
+#: src/mathessible/ui/graph_explorer.py:372
 msgid "Playback stopped"
 msgstr "Воспроизведение остановлено"
 
-#: src/mathessible/ui/graph_explorer.py:363
+#: src/mathessible/ui/graph_explorer.py:378
 msgid "Playing graph"
 msgstr "Проигрывание графика"
 
-#: src/mathessible/ui/graph_explorer.py:384
+#: src/mathessible/ui/graph_explorer.py:401
 msgid "End of graph"
 msgstr "Конец графика"
 
-#: src/mathessible/ui/graph_explorer.py:387
+#: src/mathessible/ui/graph_explorer.py:404
 msgid "Command"
 msgstr "Command"
 
-#: src/mathessible/ui/graph_explorer.py:387
+#: src/mathessible/ui/graph_explorer.py:404
 msgid "Control"
 msgstr "Control"
 
-#: src/mathessible/ui/graph_explorer.py:390
+#: src/mathessible/ui/graph_explorer.py:407
 #, python-brace-format
 msgid ""
 "Left and Right, or J and L, move; Shift moves fluidly; {modifier} with Left or Right goes between"
@@ -3609,7 +3613,7 @@ msgstr ""
 "или выключает звук. C читает координаты, V читает вид, N или 1–9 выбирает функцию, а {modifier} B"
 " ставит или убирает закладку. {modifier} Z центрирует вид по курсору."
 
-#: src/mathessible/ui/graph_explorer.py:411
+#: src/mathessible/ui/graph_explorer.py:428
 msgid "Graph exploration area"
 msgstr "Область исследования графика"
 

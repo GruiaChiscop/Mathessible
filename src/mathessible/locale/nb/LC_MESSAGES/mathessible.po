@@ -778,23 +778,27 @@ msgstr "start"
 msgid "end"
 msgstr "slutt"
 
-#: src/mathessible/editor/renderer.py:90
+#: src/mathessible/editor/renderer.py:52
+msgid "Microsoft Edge WebView2 is not available"
+msgstr ""
+
+#: src/mathessible/editor/renderer.py:97
 msgid "the UnicodeMathML engine did not initialize"
 msgstr "UnicodeMathML-motoren ble ikke initialisert"
 
-#: src/mathessible/editor/renderer.py:240
+#: src/mathessible/editor/renderer.py:247
 msgid "the equation could not be written in LaTeX"
 msgstr "ligningen kunne ikke skrives i LaTeX"
 
-#: src/mathessible/editor/renderer.py:250
+#: src/mathessible/editor/renderer.py:257
 msgid "the UnicodeMathML converter is still loading"
 msgstr "UnicodeMathML-konvertereren lastes fortsatt inn"
 
-#: src/mathessible/editor/renderer.py:257
+#: src/mathessible/editor/renderer.py:264
 msgid "the UnicodeMathML converter is busy"
 msgstr "UnicodeMathML-konvertereren er opptatt"
 
-#: src/mathessible/editor/renderer.py:287
+#: src/mathessible/editor/renderer.py:294
 msgid "the UnicodeMathML converter could not run"
 msgstr "UnicodeMathML-konvertereren kunne ikke kjøres"
 
@@ -1221,7 +1225,7 @@ msgstr "Lys"
 msgid "Dark"
 msgstr "Mørk"
 
-#: src/mathessible/sonification/graph.py:289
+#: src/mathessible/sonification/graph.py:318
 msgid "undefined"
 msgstr "udefinert"
 
@@ -3408,7 +3412,7 @@ msgstr "Utforsk graf"
 msgid "Graph explorer window"
 msgstr "Vindu for å utforske grafen"
 
-#: src/mathessible/ui/graph_explorer.py:75
+#: src/mathessible/ui/graph_explorer.py:78
 msgid ""
 "Left and Right explore. C reads coordinates. V reads the view. B plays the graph. F1 lists every "
 "key."
@@ -3416,170 +3420,170 @@ msgstr ""
 "Venstre og Høyre utforsker. C leser koordinatene. V leser visningen. B spiller av grafen. F1 "
 "viser alle tastene."
 
-#: src/mathessible/ui/graph_explorer.py:105
+#: src/mathessible/ui/graph_explorer.py:108
 msgid "&Play graph"
 msgstr "S&pill av graf"
 
-#: src/mathessible/ui/graph_explorer.py:106
+#: src/mathessible/ui/graph_explorer.py:109
 msgid "&Read coordinates"
 msgstr "&Les koordinater"
 
-#: src/mathessible/ui/graph_explorer.py:107
+#: src/mathessible/ui/graph_explorer.py:110
 msgid "Read &view"
 msgstr "Les &visning"
 
-#: src/mathessible/ui/graph_explorer.py:108
+#: src/mathessible/ui/graph_explorer.py:111
 msgid "&Next function"
 msgstr "&Neste funksjon"
 
-#: src/mathessible/ui/graph_explorer.py:109
+#: src/mathessible/ui/graph_explorer.py:112
 msgid "Toggle &discrete mode"
 msgstr "Veksle &diskret modus"
 
-#: src/mathessible/ui/graph_explorer.py:110
+#: src/mathessible/ui/graph_explorer.py:113
 msgid "Toggle &sound"
 msgstr "Veksle l&yd"
 
-#: src/mathessible/ui/graph_explorer.py:111
+#: src/mathessible/ui/graph_explorer.py:114
 msgid "Add or remove &bookmark"
 msgstr "Legg til eller fjern &bokmerke"
 
-#: src/mathessible/ui/graph_explorer.py:117 src/mathessible/ui/main_frame.py:993
+#: src/mathessible/ui/graph_explorer.py:120 src/mathessible/ui/main_frame.py:993
 msgid "&Close"
 msgstr "&Lukk"
 
-#: src/mathessible/ui/graph_explorer.py:119
+#: src/mathessible/ui/graph_explorer.py:122
 msgid "&Graph"
 msgstr "&Graf"
 
-#: src/mathessible/ui/graph_explorer.py:121
+#: src/mathessible/ui/graph_explorer.py:124
 msgid "&Keyboard Help"
 msgstr "&Tastaturhjelp"
 
-#: src/mathessible/ui/graph_explorer.py:127 src/mathessible/ui/help_menu.py:29
+#: src/mathessible/ui/graph_explorer.py:130 src/mathessible/ui/help_menu.py:29
 msgid "&Help"
 msgstr "&Hjelp"
 
-#: src/mathessible/ui/graph_explorer.py:132 src/mathessible/ui/insert_dialogs.py:123
+#: src/mathessible/ui/graph_explorer.py:135 src/mathessible/ui/insert_dialogs.py:123
 msgid "Function graph"
 msgstr "Funksjonsgraf"
 
-#: src/mathessible/ui/graph_explorer.py:133
+#: src/mathessible/ui/graph_explorer.py:136
 #, python-brace-format
 msgid "{title}. Exploring y equals {expression}."
 msgstr "{title}. Utforsker y er lik {expression}."
 
-#: src/mathessible/ui/graph_explorer.py:135
+#: src/mathessible/ui/graph_explorer.py:138
 #, python-brace-format
 msgid "Audio output is unavailable: {error}"
 msgstr "Lydutgangen er ikke tilgjengelig: {error}"
 
-#: src/mathessible/ui/graph_explorer.py:161
+#: src/mathessible/ui/graph_explorer.py:164
 msgid "No point of interest in that direction."
 msgstr "Ingen interessant punkt i den retningen."
 
-#: src/mathessible/ui/graph_explorer.py:178
+#: src/mathessible/ui/graph_explorer.py:183
 msgid "View centred at cursor"
 msgstr "Visning sentrert på markøren"
 
-#: src/mathessible/ui/graph_explorer.py:275
+#: src/mathessible/ui/graph_explorer.py:289
 msgid "View boundary"
 msgstr "Grense for visningen"
 
-#: src/mathessible/ui/graph_explorer.py:276
+#: src/mathessible/ui/graph_explorer.py:290
 msgid "Bookmark"
 msgstr "Bokmerke"
 
-#: src/mathessible/ui/graph_explorer.py:277
+#: src/mathessible/ui/graph_explorer.py:291
 msgid "Point of interest"
 msgstr "Interessant punkt"
 
-#: src/mathessible/ui/graph_explorer.py:279
+#: src/mathessible/ui/graph_explorer.py:293
 #, python-brace-format
 msgid "{name} at x {x}, y {y}"
 msgstr "{name} ved x {x}, y {y}"
 
-#: src/mathessible/ui/graph_explorer.py:281
+#: src/mathessible/ui/graph_explorer.py:295
 #, python-brace-format
 msgid "{name} near x {x}"
 msgstr "{name} nær x {x}"
 
-#: src/mathessible/ui/graph_explorer.py:284
+#: src/mathessible/ui/graph_explorer.py:298
 #, python-brace-format
 msgid "x {x}, y {y}"
 msgstr "x {x}, y {y}"
 
-#: src/mathessible/ui/graph_explorer.py:289
+#: src/mathessible/ui/graph_explorer.py:303
 #, python-brace-format
 msgid "x from {x_min} to {x_max}; y from {y_min} to {y_max}"
 msgstr "x fra {x_min} til {x_max}; y fra {y_min} til {y_max}"
 
-#: src/mathessible/ui/graph_explorer.py:300
+#: src/mathessible/ui/graph_explorer.py:314
 msgid "Discrete notes"
 msgstr "Diskrete toner"
 
-#: src/mathessible/ui/graph_explorer.py:300
+#: src/mathessible/ui/graph_explorer.py:314
 msgid "Continuous tone"
 msgstr "Kontinuerlig tone"
 
-#: src/mathessible/ui/graph_explorer.py:305
+#: src/mathessible/ui/graph_explorer.py:319
 msgid "Sound on"
 msgstr "Lyd på"
 
-#: src/mathessible/ui/graph_explorer.py:305
+#: src/mathessible/ui/graph_explorer.py:319
 msgid "Sound off"
 msgstr "Lyd av"
 
-#: src/mathessible/ui/graph_explorer.py:317
+#: src/mathessible/ui/graph_explorer.py:331
 #, python-brace-format
 msgid "Function {current} of {total}: y equals {expression}"
 msgstr "Funksjon {current} av {total}: y er lik {expression}"
 
-#: src/mathessible/ui/graph_explorer.py:325
+#: src/mathessible/ui/graph_explorer.py:339
 msgid "Bookmark added"
 msgstr "Bokmerke lagt til"
 
-#: src/mathessible/ui/graph_explorer.py:325
+#: src/mathessible/ui/graph_explorer.py:339
 msgid "Bookmark removed"
 msgstr "Bokmerke fjernet"
 
-#: src/mathessible/ui/graph_explorer.py:329
+#: src/mathessible/ui/graph_explorer.py:343
 msgid "Zoomed in"
 msgstr "Zoomet inn"
 
-#: src/mathessible/ui/graph_explorer.py:329
+#: src/mathessible/ui/graph_explorer.py:343
 msgid "Zoomed out"
 msgstr "Zoomet ut"
 
-#: src/mathessible/ui/graph_explorer.py:329
+#: src/mathessible/ui/graph_explorer.py:343
 msgid "Zoom limit"
 msgstr "Zoomgrense"
 
-#: src/mathessible/ui/graph_explorer.py:350
+#: src/mathessible/ui/graph_explorer.py:364
 msgid "Original view"
 msgstr "Opprinnelig visning"
 
-#: src/mathessible/ui/graph_explorer.py:358
+#: src/mathessible/ui/graph_explorer.py:372
 msgid "Playback stopped"
 msgstr "Avspilling stoppet"
 
-#: src/mathessible/ui/graph_explorer.py:363
+#: src/mathessible/ui/graph_explorer.py:378
 msgid "Playing graph"
 msgstr "Spiller av grafen"
 
-#: src/mathessible/ui/graph_explorer.py:384
+#: src/mathessible/ui/graph_explorer.py:401
 msgid "End of graph"
 msgstr "Slutten av grafen"
 
-#: src/mathessible/ui/graph_explorer.py:387
+#: src/mathessible/ui/graph_explorer.py:404
 msgid "Command"
 msgstr "Kommando"
 
-#: src/mathessible/ui/graph_explorer.py:387
+#: src/mathessible/ui/graph_explorer.py:404
 msgid "Control"
 msgstr "Kontroll"
 
-#: src/mathessible/ui/graph_explorer.py:390
+#: src/mathessible/ui/graph_explorer.py:407
 #, python-brace-format
 msgid ""
 "Left and Right, or J and L, move; Shift moves fluidly; {modifier} with Left or Right goes between"
@@ -3597,7 +3601,7 @@ msgstr ""
 " funksjon, og {modifier} B legger til eller fjerner et bokmerke. {modifier} Z sentrerer visningen"
 " på markøren."
 
-#: src/mathessible/ui/graph_explorer.py:411
+#: src/mathessible/ui/graph_explorer.py:428
 msgid "Graph exploration area"
 msgstr "Område for å utforske grafen"
 
