@@ -135,8 +135,10 @@ editor for writing has, without copying Word.
   workflow builds both packages; the Windows one, tried with NVDA on
   Windows 11 ARM64 (x64 emulation), needed WebView2's loader and Prism's
   cffi module bundled.
-- [ ] Distribution still to do: signing and notarisation (a Developer ID), an
-  installer on each platform, Intel Macs, Linux.
+- [x] macOS as a disk image, signed with a Developer ID and notarised by the
+  Release workflow (docs/releasing.md).
+- [ ] Distribution still to do: signing on Windows and an installer there,
+  Linux.
 - [ ] Publish 0.1.0 (the changelog is written; a tag `v0.1.0` publishes it).
 
 ## Later

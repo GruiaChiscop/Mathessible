@@ -57,7 +57,6 @@ executable = EXE(
     console=False,
     icon=str(icon),
     codesign_identity=codesign_identity,
-    entitlements_file=str(root / "packaging" / "entitlements.plist") if codesign_identity else None,
 )
 folder = COLLECT(executable, analysis.binaries, analysis.datas, name="Mathessible")
 

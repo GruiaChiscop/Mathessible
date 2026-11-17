@@ -1215,8 +1215,8 @@ tested. Templates: `template_source` holds
 - macOS is shipped as a disk image (`scripts/make-dmg.sh`: the application and
   a link to /Applications, made with `create-dmg` from Homebrew). With a Developer ID,
   `MATHESSIBLE_CODESIGN_IDENTITY` makes PyInstaller sign every binary and the
-  bundle with the hardened runtime and `packaging/entitlements.plist`
-  (`allow-unsigned-executable-memory`, for ctypes and cffi callbacks); the
+  bundle with the hardened runtime, with no entitlements: ctypes, cffi
+  (Prism) and the WebView work without `allow-unsigned-executable-memory`; the
   script then signs the image, notarises it with an App Store Connect API key
   and staples it. Each step is skipped when its secret is missing, so a fork
   still builds an unsigned image. Setting up the secrets: [releasing.md](releasing.md).
