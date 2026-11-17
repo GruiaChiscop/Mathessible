@@ -1211,8 +1211,15 @@ tested. Templates: `template_source` holds
   macOS and Windows; `release.yml` packages both and, on a tag `v*`, publishes
   them with that version's CHANGELOG.md section. CI passes its own `CARGO_HOME`
   and `RUSTUP_HOME` to bootstrap.sh: with the script's `.tools` defaults, the
-  runner's rustup proxies find no toolchain. The releases are not signed yet: macOS
-  needs a Developer ID (an Apple Developer account) to sign and notarise.
+  runner's rustup proxies find no toolchain.
+- macOS is shipped as a disk image (`scripts/make-dmg.sh`: the application and
+  a link to /Applications, made with `create-dmg` from Homebrew). With a Developer ID,
+  `MATHESSIBLE_CODESIGN_IDENTITY` makes PyInstaller sign every binary and the
+  bundle with the hardened runtime and `packaging/entitlements.plist`
+  (`allow-unsigned-executable-memory`, for ctypes and cffi callbacks); the
+  script then signs the image, notarises it with an App Store Connect API key
+  and staples it. Each step is skipped when its secret is missing, so a fork
+  still builds an unsigned image. Setting up the secrets: [releasing.md](releasing.md).
 
 ## File and Notebook Menus (2026-10-26)
 

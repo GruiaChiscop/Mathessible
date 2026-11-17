@@ -131,7 +131,10 @@ editor for writing has, without copying Word.
 - [x] A packaged application: a macOS `.app` with an icon that `.md`, `.tex`
   and `.msnb` files open in, and a Windows x64 folder, built by GitHub Actions
   (`packaging/`, `.github/workflows/`).
-- [ ] Try the Windows package, and the workflows on GitHub.
+- [x] Try the Windows package, and the workflows on GitHub: the Release
+  workflow builds both packages; the Windows one, tried with NVDA on
+  Windows 11 ARM64 (x64 emulation), needed WebView2's loader and Prism's
+  cffi module bundled.
 - [ ] Distribution still to do: signing and notarisation (a Developer ID), an
   installer on each platform, Intel Macs, Linux.
 - [ ] Publish 0.1.0 (the changelog is written; a tag `v0.1.0` publishes it).

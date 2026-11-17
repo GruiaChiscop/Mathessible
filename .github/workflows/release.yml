@@ -21,6 +21,14 @@ jobs:
           - os: windows-latest
             name: Windows-x64
     runs-on: ${{ matrix.os }}
+    env:
+      # macOS signing and notarisation, when these secrets are set (docs/releasing.md); without them
+      # the DMG is built unsigned.
+      MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+      MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+      APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+      APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+      APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -30,25 +38,43 @@ jobs:
       - name: Prepare on macOS
         if: runner.os == 'macOS'
         run: |
-          brew install python@3.14
+          brew install python@3.14 create-dmg
           CARGO_HOME="$HOME/.cargo" RUSTUP_HOME="$HOME/.rustup" scripts/bootstrap.sh
       - name: Prepare on Windows
         if: runner.os == 'Windows'
         run: powershell -ExecutionPolicy Bypass -File scripts\bootstrap.ps1
+      - name: Import the Developer ID on macOS
+        if: runner.os == 'macOS' && env.MACOS_CERTIFICATE != ''
+        run: |
+          keychain="$RUNNER_TEMP/signing.keychain-db"
+          password=$(uuidgen)
+          echo "$MACOS_CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/certificate.p12"
+          security create-keychain -p "$password" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$password" "$keychain"
+          security import "$RUNNER_TEMP/certificate.p12" -P "$MACOS_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k "$keychain"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$password" "$keychain"
+          security list-keychains -d user -s "$keychain" $(security list-keychains -d user | tr -d '"')
+          rm "$RUNNER_TEMP/certificate.p12"
+          echo "MATHESSIBLE_CODESIGN_IDENTITY=Developer ID Application" >> "$GITHUB_ENV"
+          if [ -n "$APPLE_API_KEY" ]; then
+            echo "$APPLE_API_KEY" | base64 --decode > "$RUNNER_TEMP/notary.p8"
+            echo "APPLE_API_KEY_PATH=$RUNNER_TEMP/notary.p8" >> "$GITHUB_ENV"
+          fi
       - name: Package
         run: |
           uv pip install "pyinstaller>=6.16"
           uv run --no-sync pyinstaller packaging/mathessible.spec --noconfirm
-      - name: Compress on macOS
+      - name: Disk image on macOS
         if: runner.os == 'macOS'
-        run: ditto -c -k --keepParent dist/Mathessible.app "Mathessible-${{ matrix.name }}.zip"
+        run: scripts/make-dmg.sh "Mathessible-${{ matrix.name }}.dmg"
       - name: Compress on Windows
         if: runner.os == 'Windows'
         run: Compress-Archive -Path dist\Mathessible -DestinationPath "Mathessible-${{ matrix.name }}.zip"
       - uses: actions/upload-artifact@v4
         with:
           name: Mathessible-${{ matrix.name }}
-          path: Mathessible-${{ matrix.name }}.zip
+          path: Mathessible-${{ matrix.name }}.*
 
   publish:
     if: startsWith(github.ref, 'refs/tags/')
@@ -70,4 +96,4 @@ jobs:
             /^## / { found = index($0, "[" version "]") > 0; next }
             found
           ' CHANGELOG.md > notes.md
-          gh release create "$TAG" packages/*.zip --title "Mathessible ${TAG#v}" --notes-file notes.md
+          gh release create "$TAG" packages/*.dmg packages/*.zip --title "Mathessible ${TAG#v}" --notes-file notes.md

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- The hardened runtime's exceptions for the signed macOS application. Python's ctypes and cffi
+     callbacks (the WebView key-equivalent guard, Prism) may need memory that is both writable and
+     executable. -->
+<plist version="1.0">
+<dict>
+	<key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+	<true/>
+</dict>
+</plist>

@@ -1,5 +1,6 @@
 # PyInstaller's recipe for the packaged application: `uv run --group packaging pyinstaller packaging/mathessible.spec`.
 # dist/Mathessible.app on macOS, the folder dist/Mathessible elsewhere.
+import os
 import sys
 import tomllib
 from pathlib import Path
@@ -44,6 +45,9 @@ analysis = Analysis(
 )
 pyz = PYZ(analysis.pure)
 icon = root / "packaging" / ("Mathessible.icns" if sys.platform == "darwin" else "Mathessible.ico")
+# On macOS, with a Developer ID in the keychain (MATHESSIBLE_CODESIGN_IDENTITY, for example "Developer ID
+# Application"), PyInstaller signs every binary and the bundle with the hardened runtime, as notarisation needs.
+codesign_identity = (os.environ.get("MATHESSIBLE_CODESIGN_IDENTITY") or None) if sys.platform == "darwin" else None
 executable = EXE(
     pyz,
     analysis.scripts,
@@ -52,6 +56,8 @@ executable = EXE(
     name="Mathessible",
     console=False,
     icon=str(icon),
+    codesign_identity=codesign_identity,
+    entitlements_file=str(root / "packaging" / "entitlements.plist") if codesign_identity else None,
 )
 folder = COLLECT(executable, analysis.binaries, analysis.datas, name="Mathessible")
 
