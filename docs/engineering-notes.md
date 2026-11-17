@@ -1220,6 +1220,18 @@ tested. Templates: `template_source` holds
   script then signs the image, notarises it with an App Store Connect API key
   and staples it. Each step is skipped when its secret is missing, so a fork
   still builds an unsigned image. Setting up the secrets: [releasing.md](releasing.md).
+- The macOS bundle declares Markdown, `.tex` and `.msnb` as documents it can
+  edit (`CFBundleDocumentTypes`, rank Alternate: offered in Open With, never
+  taken as the default). The Finder's documents reach `Application.MacOpenFiles`
+  ([app.py](../src/mathessible/app.py)), and when the Finder starts the
+  application to open them, wx delivers them while `wx.App` is being made,
+  before any window exists (a `NameError` lost them until 2026-11-17). They
+  wait in `Application.waiting` and open with the command line's paths, also
+  those that arrive while the first window is being built. A second `open`
+  sent before the application has finished starting replaces the first one's
+  documents (Launch Services), but a Finder selection arrives in one request.
+  Windows has no association yet: Open With › Choose another app works through
+  `sys.argv`, and being listed needs the installer's registry entries.
 
 ## File and Notebook Menus (2026-10-26)
 
