@@ -23,11 +23,16 @@ Only the account holder can create one.
 1. In Xcode, open Settings › Accounts, choose the team and click Manage
    Certificates.
 2. Add (+) a **Developer ID Application** certificate. It is installed in the
-   login keychain.
+   login keychain. Not *Developer ID Installer*, which signs `.pkg`
+   installers, and not *Apple Development*: neither can sign the application
+   for distribution. Xcode makes the private key with the certificate; a
+   certificate downloaded from the developer website without the key made
+   on this Mac cannot sign.
 3. In Keychain Access, under My Certificates, find "Developer ID Application:
    *name* (*team*)", expand it to check that its private key is there, and
    export the certificate with its key (File › Export Items) as a `.p12` file
-   with a password.
+   with a password. In Terminal, `security find-identity -v -p codesigning`
+   must list it: only then does the Mac have both the certificate and its key.
 
 ### 2. An App Store Connect API key for notarisation
 
